@@ -1,0 +1,31 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="0">
+        <MudIconButton Icon="@Icons.Custom.Brands.MudBlazor" Color="Color.Inherit" Link="https://mudblazor.com/" Target="_blank" />
+        <MudText Typo="Typo.h5" Class="ml-3">Mijn Thuis</MudText>
+        <MudSpacer />
+        <MudIconButton @onclick="ToggleDarkMode" Color="Color.Inherit" Icon="@modeIcon" />
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/MudBlazor/MudBlazor/" Target="_blank" />
+    </MudAppBar>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="my-2 pt-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    MudTheme _theme = new();
+    string modeIcon => _isDarkMode ? Icons.Outlined.DarkMode : @Icons.Outlined.LightMode;
+    bool _isDarkMode = true;
+    
+    void ToggleDarkMode()
+    {
+        _isDarkMode = !_isDarkMode;
+    }
+}

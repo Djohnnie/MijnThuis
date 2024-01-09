@@ -1,0 +1,282 @@
+﻿@page "/"
+
+<PageTitle>Dashboard</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.ElectricalServices" Title="Favorite" />
+                    </MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">Elektriciteit</MudText>
+                    <MudText Typo="Typo.body2">Het huidige stroomverbruik</MudText>
+                </CardHeaderContent>
+                <CardHeaderActions>
+                    <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Default" />
+                </CardHeaderActions>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudGrid>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Tertiary" />
+                            <MudText Typo="Typo.h6">546W</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Size="Size.Medium" Title="Piekvermogen" Color="Color.Secondary" />
+                            <MudText Typo="Typo.h6">3531W</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Filled.Today" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Primary" />
+                            <MudText Typo="Typo.h6">8759 Wh</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Title="Piekvermogen" Color="Color.Primary" />
+                            <MudText Typo="Typo.h6">136 kWh</MudText>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.WbSunny" Title="Favorite" />
+                    </MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">Zonnepanelen</MudText>
+                    <MudText Typo="Typo.body2">De huidige opbrengst</MudText>
+                </CardHeaderContent>
+                <CardHeaderActions>
+                    <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Default" />
+                </CardHeaderActions>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudGrid>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Tertiary" />
+                            <MudText Typo="Typo.h6">546 W</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Filled.WbSunny" Size="Size.Medium" Title="Piekvermogen" Color="Color.Secondary" />
+                            <MudText Typo="Typo.h6">1234 Wh</MudText>
+                            <MudText Typo="Typo.h6">100 Wh</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Filled.ElectricalServices" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Primary" />
+                            <MudText Typo="Typo.h6">8759 Wh</MudText>
+                            <MudText Typo="Typo.h6">8759 Wh</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Filled.Battery5Bar" Size="Size.Medium" Title="Piekvermogen" Color="Color.Primary" />
+                            <MudText Typo="Typo.h6">14 %</MudText>
+                            <MudText Typo="Typo.h6">99 %</MudText>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.ElectricCar" Title="Favorite" />
+                    </MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">Auto</MudText>
+                    <MudText Typo="Typo.body2">De huidige status van de auto</MudText>
+                </CardHeaderContent>
+                <CardHeaderActions>
+                    <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Default" />
+                </CardHeaderActions>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudGrid>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Filled.Battery5Bar" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Tertiary" />
+                            <MudText Typo="Typo.h6">55 %</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Filled.CardTravel" Size="Size.Medium" Title="Piekvermogen" Color="Color.Secondary" />
+                            <MudText Typo="Typo.h6">184 km</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Primary" />
+                            <MudText Typo="Typo.h6">3 °C</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Piekvermogen" Color="Color.Primary" />
+                            <MudText Typo="Typo.h6">-1 °C</MudText>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="40px" Width="40px" />
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudSkeleton Animation="Animation.Wave" Width="40%" />
+                    <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                </CardHeaderContent>
+                <CardHeaderActions>
+                    <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Default" />
+                </CardHeaderActions>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudGrid>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="80%" />
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="40%" />
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="40px" Width="40px" />
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudSkeleton Animation="Animation.Wave" Width="40%" />
+                    <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                </CardHeaderContent>
+                <CardHeaderActions>
+                    <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Default" />
+                </CardHeaderActions>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudGrid>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="80%" />
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="40%" />
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="40px" Width="40px" />
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudSkeleton Animation="Animation.Wave" Width="40%" />
+                    <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                </CardHeaderContent>
+                <CardHeaderActions>
+                    <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Default" />
+                </CardHeaderActions>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudGrid>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="80%" />
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="40%" />
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
