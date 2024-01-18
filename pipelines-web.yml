@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-    - main
+    - master
   paths:
     include:
     - MijnThuis.Dashboard.Web/*
