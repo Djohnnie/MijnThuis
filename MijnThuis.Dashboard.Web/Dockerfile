@@ -6,7 +6,7 @@ WORKDIR /app
 # Copy the app
 COPY bin/Release/publish /app
 
-EXPOSE 5000
+EXPOSE 8080
 
 ENV TZ=Europe/Brussels
 ENV CONNECTIONSTRING=
