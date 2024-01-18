@@ -1,0 +1,48 @@
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - MijnThuis.Dashboard.Web/*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  solution: '*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+
+- task: UseDotNet@2
+  displayName: 'Use .NET SDK (8.0)'
+  inputs:
+    packageType: sdk
+    version: 8.0.101
+    includePreviewVersions: true
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+- task: DotNetCoreCLI@2
+  displayName: Restore NuGet packages
+  inputs:
+    command: 'restore'
+    projects: | 
+      **/MijnThuis.Dashboard.Web.csproj
+
+- task: DotNetCoreCLI@2
+  displayName: Build Solution
+  inputs:
+    command: 'build'
+    projects: | 
+      **/MijnThuis.Dashboard.Web.csproj
+
+- script: |
+    dotnet publish ./MijnThuis.Dashboard.Web --configuration "Release" --output ./MijnThuis.Dashboard.Web/bin/Release/publish
+
+- script: |
+    cd ./MijnThuis.Dashboard.Web
+    docker build -t djohnnie/mijnthuis-web .
+    docker login -u '$(dockerId)' -p '$(dockerPwd)'
+    docker push djohnnie/mijnthuis-web
