@@ -1,0 +1,53 @@
+﻿<MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+    <MudCard Outlined>
+        <MudCardHeader>
+            <CardHeaderAvatar>
+                <MudAvatar Color="Color.Primary">
+                    <MudIcon Icon="@Icons.Material.Filled.ElectricCar" Title="Favorite" />
+                </MudAvatar>
+            </CardHeaderAvatar>
+            <CardHeaderContent>
+                <MudText Typo="Typo.body1">Auto</MudText>
+                <MudText Typo="Typo.body2">De huidige status van de auto</MudText>
+            </CardHeaderContent>
+            <CardHeaderActions>
+                <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Default" />
+            </CardHeaderActions>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudGrid>
+                <MudItem xs="6">
+                    <MudPaper Class="d-flex gap-4" Elevation="0">
+                        <MudIcon Icon="@Icons.Material.Filled.Battery5Bar" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Tertiary" />
+                        <MudText Typo="Typo.h6">@BatteryLevel %</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudPaper Class="d-flex gap-4" Elevation="0">
+                        <MudIcon Icon="@Icons.Material.Filled.CardTravel" Size="Size.Medium" Title="Piekvermogen" Color="Color.Secondary" />
+                        <MudText Typo="Typo.h6">@RemainingRange km</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudPaper Class="d-flex gap-4" Elevation="0">
+                        <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Primary" />
+                        <MudText Typo="Typo.h6">@TemperatureInside °C</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudPaper Class="d-flex gap-4" Elevation="0">
+                        <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Piekvermogen" Color="Color.Primary" />
+                        <MudText Typo="Typo.h6">@TemperatureOutside °C</MudText>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudCardContent>
+        <MudCardActions>
+            <MudIconButton Icon="@Icons.Material.Filled.LockOpen" Color="Color.Default" />
+            <MudIconButton Icon="@Icons.Material.Filled.Lock" Color="Color.Default" />
+            <MudIconButton Icon="@Icons.Material.Filled.HeatPump" Color="Color.Default" />
+            <MudIconButton Icon="@Icons.Material.Filled.Air" Color="Color.Default" />
+        </MudCardActions>
+    </MudCard>
+</MudItem>

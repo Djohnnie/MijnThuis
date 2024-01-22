@@ -7,7 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mapster" Version="7.4.0" />
     <PackageReference Include="MediatR" Version="12.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MijnThuis.Contracts\MijnThuis.Contracts.csproj" />
+    <ProjectReference Include="..\MijnThuis.Integrations\MijnThuis.Integrations.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
-﻿namespace MijnThuis.Contracts.Car;
+﻿namespace MijnThuis.Integrations.Car;
 
-public record GetCarOverviewResponse
+public record CarOverview
 {
     public string State { get; init; }
     public byte BatteryLevel { get; init; }

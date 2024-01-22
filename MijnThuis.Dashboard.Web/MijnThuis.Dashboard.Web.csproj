@@ -7,7 +7,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MudBlazor" Version="6.12.0" />
+		<PackageReference Include="MudBlazor" Version="6.13.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\MijnThuis.Application\MijnThuis.Application.csproj" />
 	</ItemGroup>
 
 </Project>
