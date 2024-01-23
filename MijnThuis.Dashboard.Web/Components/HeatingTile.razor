@@ -1,0 +1,52 @@
+﻿<MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+    <MudCard Outlined>
+        <MudCardHeader>
+            <CardHeaderAvatar>
+                <MudAvatar Color="Color.Primary">
+                    <MudIcon Icon="@Icons.Material.Filled.AcUnit" Title="Favorite" />
+                </MudAvatar>
+            </CardHeaderAvatar>
+            <CardHeaderContent>
+                <MudText Typo="Typo.body1">Verwarming</MudText>
+                <MudText Typo="Typo.body2">De huidige temperaturen</MudText>
+            </CardHeaderContent>
+            <CardHeaderActions>
+                <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Default" />
+            </CardHeaderActions>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudGrid>
+                <MudItem xs="6">
+                    <MudPaper Class="d-flex gap-4" Elevation="0">
+                        <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Tertiary" />
+                        <MudText Typo="Typo.h6">22 °C</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudPaper Class="d-flex gap-4" Elevation="0">
+                        <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Piekvermogen" Color="Color.Secondary" />
+                        <MudText Typo="Typo.h6">-2 °C</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudPaper Class="d-flex gap-4" Elevation="0">
+                        <MudIcon Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Primary" />
+                        <MudText Typo="Typo.h6">Verwarmen</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudPaper Class="d-flex gap-4" Elevation="0">
+                        <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Medium" Title="Piekvermogen" Color="Color.Primary" />
+                        <MudText Typo="Typo.h6">22 °C tot 18:00</MudText>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudCardContent>
+        <MudCardActions>
+            <MudIconButton Icon="@Icons.Material.Filled.BlurOn" Color="Color.Default" />
+            <MudIconButton Icon="@Icons.Material.Filled.BlurOff" Color="Color.Default" />
+            <MudIconButton Icon="@Icons.Material.Filled.Schedule" Color="Color.Default" />
+        </MudCardActions>
+    </MudCard>
+</MudItem>

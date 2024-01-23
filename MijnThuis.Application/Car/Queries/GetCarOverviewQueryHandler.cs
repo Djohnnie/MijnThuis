@@ -3,7 +3,7 @@ using MediatR;
 using MijnThuis.Contracts.Car;
 using MijnThuis.Integrations.Car;
 
-namespace MijnThuis.Application.Car.Query;
+namespace MijnThuis.Application.Car.Queries;
 
 public class GetCarOverviewQueryHandler : IRequestHandler<GetCarOverviewQuery, GetCarOverviewResponse>
 {

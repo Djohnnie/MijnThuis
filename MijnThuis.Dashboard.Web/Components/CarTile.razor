@@ -8,7 +8,7 @@
             </CardHeaderAvatar>
             <CardHeaderContent>
                 <MudText Typo="Typo.body1">Auto</MudText>
-                <MudText Typo="Typo.body2">De huidige status van de auto</MudText>
+                <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(Title) ? "Huidige status van de auto" : Title)</MudText>
             </CardHeaderContent>
             <CardHeaderActions>
                 <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" />
@@ -19,35 +19,71 @@
             <MudGrid>
                 <MudItem xs="6">
                     <MudPaper Class="d-flex gap-4" Elevation="0">
-                        <MudIcon Icon="@Icons.Material.Filled.Battery5Bar" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Tertiary" />
-                        <MudText Typo="Typo.h6">@BatteryLevel %</MudText>
+                        @if (IsReady)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Battery5Bar" Size="Size.Medium" Title="Beschikbaar batterijpercentage" Color="Color.Tertiary" />
+                            <MudText Typo="Typo.h6">@BatteryLevel %</MudText>
+                        }
+                        else
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        }
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="6">
                     <MudPaper Class="d-flex gap-4" Elevation="0">
-                        <MudIcon Icon="@Icons.Material.Filled.CardTravel" Size="Size.Medium" Title="Piekvermogen" Color="Color.Secondary" />
-                        <MudText Typo="Typo.h6">@RemainingRange km</MudText>
+                        @if (IsReady)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.CardTravel" Size="Size.Medium" Title="Beschikbaar rijbereik" Color="Color.Secondary" />
+                            <MudText Typo="Typo.h6">@RemainingRange km</MudText>
+                        }
+                        else
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        }
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="6">
                     <MudPaper Class="d-flex gap-4" Elevation="0">
-                        <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Primary" />
-                        <MudText Typo="Typo.h6">@TemperatureInside °C</MudText>
+                        @if (IsReady)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Binnentemperatuur" Color="Color.Primary" />
+                            <MudText Typo="Typo.h6">@TemperatureInside °C</MudText>
+                        }
+                        else
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        }
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="6">
                     <MudPaper Class="d-flex gap-4" Elevation="0">
-                        <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Piekvermogen" Color="Color.Primary" />
-                        <MudText Typo="Typo.h6">@TemperatureOutside °C</MudText>
+                        @if (IsReady)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Buitentemperatuur" Color="Color.Primary" />
+                            <MudText Typo="Typo.h6">@TemperatureOutside °C</MudText>
+                        }
+                        else
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        }
                     </MudPaper>
                 </MudItem>
             </MudGrid>
         </MudCardContent>
         <MudCardActions>
-            <MudIconButton Icon="@Icons.Material.Filled.LockOpen" Color="Color.Default" />
-            <MudIconButton Icon="@Icons.Material.Filled.Lock" Color="Color.Default" />
-            <MudIconButton Icon="@Icons.Material.Filled.HeatPump" Color="Color.Default" />
-            <MudIconButton Icon="@Icons.Material.Filled.Air" Color="Color.Default" />
+            <MudIconButton Icon="@Icons.Material.Filled.LockOpen" Size="Size.Large" Color="Color.Tertiary" Disabled="@(!IsLocked)" Title="Slot openen"
+                           OnClick="UnlockCommand" />
+            <MudIconButton Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Secondary" Disabled="@IsLocked" Title="Slot sluiten"
+                           OnClick="LockCommand" />
+            <MudIconButton Icon="@Icons.Material.Filled.HeatPump" Size="Size.Large" Color="Color.Primary" Title="Voorverwarmen"
+                           OnClick="PreheatCommand" />
+            <MudIconButton Icon="@Icons.Material.Filled.Air" Size="Size.Large" Color="Color.Primary" Title="Scheetje laten"
+                           OnClick="FartCommand" />
         </MudCardActions>
     </MudCard>
 </MudItem>

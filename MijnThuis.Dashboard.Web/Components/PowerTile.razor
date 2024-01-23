@@ -1,0 +1,51 @@
+﻿<MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+    <MudCard Outlined>
+        <MudCardHeader>
+            <CardHeaderAvatar>
+                <MudAvatar Color="Color.Primary">
+                    <MudIcon Icon="@Icons.Material.Filled.ElectricalServices" Title="Favorite" />
+                </MudAvatar>
+            </CardHeaderAvatar>
+            <CardHeaderContent>
+                <MudText Typo="Typo.body1">Elektriciteit</MudText>
+                <MudText Typo="Typo.body2">Het huidige stroomverbruik</MudText>
+            </CardHeaderContent>
+            <CardHeaderActions>
+                <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Default" />
+            </CardHeaderActions>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudGrid>
+                <MudItem xs="6">
+                    <MudPaper Class="d-flex gap-4" Elevation="0">
+                        <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Tertiary" />
+                        <MudText Typo="Typo.h6">546W</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudPaper Class="d-flex gap-4" Elevation="0">
+                        <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Size="Size.Medium" Title="Piekvermogen" Color="Color.Secondary" />
+                        <MudText Typo="Typo.h6">3531W</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudPaper Class="d-flex gap-4" Elevation="0">
+                        <MudIcon Icon="@Icons.Material.Filled.Today" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Primary" />
+                        <MudText Typo="Typo.h6">8759 Wh</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudPaper Class="d-flex gap-4" Elevation="0">
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Title="Piekvermogen" Color="Color.Primary" />
+                        <MudText Typo="Typo.h6">136 kWh</MudText>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudCardContent>
+        <MudCardActions>
+            <MudIconButton Icon="@Icons.Material.Filled.Tv" Color="Color.Default" />
+            <MudIconButton Icon="@Icons.Material.Filled.Desk" Color="Color.Default" />
+        </MudCardActions>
+    </MudCard>
+</MudItem>

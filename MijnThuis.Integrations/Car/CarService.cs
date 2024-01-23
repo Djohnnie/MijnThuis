@@ -12,6 +12,7 @@ public interface ICarService
     Task<bool> Unlock();
     Task<bool> Honk();
     Task<bool> Fart();
+    Task<bool> Preheat();
     Task<bool> OpenFrunk();
     Task<bool> ToggleTrunk();
 }
@@ -33,10 +34,12 @@ public class CarService : BaseService, ICarService
         return new CarOverview
         {
             State = "Parked",
+            IsLocked = result.VehicleState.Locked,
             BatteryLevel = result.ChargeState.BatteryLevel,
             RemainingRange = (int)result.ChargeState.BatteryRange,
             TemperatureInside = (int)result.ClimateState.InsideTemp,
             TemperatureOutside = (int)result.ClimateState.OutsideTemp,
+            IsPreconditioning = result.ClimateState.IsPreconditioning,
             Location = "Home"
         };
     }
@@ -60,7 +63,15 @@ public class CarService : BaseService, ICarService
     public async Task<bool> Lock()
     {
         using var client = InitializeHttpClient();
-        var result = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/remote_boombox");
+        var result = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/lock");
+
+        return result.Result;
+    }
+
+    public async Task<bool> Preheat()
+    {
+        using var client = InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/start_climate");
 
         return result.Result;
     }
@@ -123,6 +134,9 @@ public class StateResponse
 
     [JsonPropertyName("climate_state")]
     public ClimateState ClimateState { get; set; }
+
+    [JsonPropertyName("vehicle_state")]
+    public VehicleState VehicleState { get; set; }
 }
 
 public class ChargeState
@@ -141,4 +155,13 @@ public class ClimateState
 
     [JsonPropertyName("outside_temp")]
     public decimal OutsideTemp { get; set; }
+
+    [JsonPropertyName("is_preconditioning")]
+    public bool IsPreconditioning { get; set; }
+}
+
+public class VehicleState
+{
+    [JsonPropertyName("locked")]
+    public bool Locked { get; set; }
 }
