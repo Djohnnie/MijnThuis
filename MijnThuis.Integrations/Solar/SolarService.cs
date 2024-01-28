@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
-using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 
 namespace MijnThuis.Integrations.Solar;
