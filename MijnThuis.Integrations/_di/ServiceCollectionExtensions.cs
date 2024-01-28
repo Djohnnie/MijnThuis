@@ -12,6 +12,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddIntegrations(this IServiceCollection services)
     {
         services.AddTransient<IPowerService, PowerService>();
+        services.AddTransient<IWakeOnLanService, WakeOnLanService>();
         services.AddTransient<ISolarService, SolarService>();
         services.AddTransient<IHeatingService, HeatingService>();
         services.AddTransient<ICarService, CarService>();

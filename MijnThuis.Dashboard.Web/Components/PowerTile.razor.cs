@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Components;
+using MijnThuis.Contracts.Car;
 using MijnThuis.Contracts.Power;
 
 namespace MijnThuis.Dashboard.Web.Components;
@@ -39,5 +40,10 @@ public partial class PowerTile
         IsReady = true;
 
         await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task WakeOnLan()
+    {
+        await _mediator.Send(new WakeOnLanCommand());
     }
 }
