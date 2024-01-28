@@ -2,6 +2,9 @@
 
 public record GetSolarOverviewResponse
 {
-    public int CurrentPower { get; init; }
-    public int BatteryLevel { get; init; }
+    public decimal CurrentPower { get; init; }
+    public decimal LastDayEnergy { get; init; }
+    public decimal LastMonthEnergy { get; init; }
+    public decimal BatteryLevel { get; set; }
+    public decimal BatteryHealth { get; set; }
 }

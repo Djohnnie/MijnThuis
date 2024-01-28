@@ -76,14 +76,23 @@
             </MudGrid>
         </MudCardContent>
         <MudCardActions>
-            <MudIconButton Icon="@Icons.Material.Filled.LockOpen" Size="Size.Large" Color="Color.Tertiary" Disabled="@(!IsLocked)" Title="Slot openen"
+            <MudIconButton Icon="@Icons.Material.Filled.LockOpen" Size="Size.Large" Color="Color.Tertiary" Disabled="@(!IsReady || !IsLocked)" Title="Slot openen"
                            OnClick="UnlockCommand" />
-            <MudIconButton Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Secondary" Disabled="@IsLocked" Title="Slot sluiten"
+            <MudIconButton Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Secondary" Disabled="@(!IsReady || IsLocked)" Title="Slot sluiten"
                            OnClick="LockCommand" />
             <MudIconButton Icon="@Icons.Material.Filled.HeatPump" Size="Size.Large" Color="Color.Primary" Title="Voorverwarmen"
-                           OnClick="PreheatCommand" />
+                           OnClick="PreheatCommand" Disabled="@(!IsReady)" />
             <MudIconButton Icon="@Icons.Material.Filled.Air" Size="Size.Large" Color="Color.Primary" Title="Scheetje laten"
-                           OnClick="FartCommand" />
+                           OnClick="FartCommand" Disabled="@(!IsReady)" />
         </MudCardActions>
     </MudCard>
 </MudItem>
+
+<MudMessageBox @ref="Message" Title="Ben je zeker?" CancelText="Annuleren">
+    <MessageContent>
+        Deleting can <b><i>not</i></b> be undone!
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Uitvoeren</MudButton>
+    </YesButton>
+</MudMessageBox>

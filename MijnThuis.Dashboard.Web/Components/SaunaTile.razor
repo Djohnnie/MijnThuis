@@ -19,34 +19,66 @@
             <MudGrid>
                 <MudItem xs="6">
                     <MudPaper Class="d-flex gap-4" Elevation="0">
-                        <MudIcon Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Medium" Title="Status" Color="Color.Tertiary" />
-                        <MudText Typo="Typo.h6">Infrarood</MudText>
+                        @if (IsReady)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Medium" Title="Status" Color="Color.Tertiary" />
+                            <MudText Typo="Typo.h6">@State</MudText>
+                        }
+                        else
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        }
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="6">
                     <MudPaper Class="d-flex gap-4" Elevation="0">
-                        <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Temperatuur" Color="Color.Secondary" />
-                        <MudText Typo="Typo.h6">97 °C</MudText>
+                        @if (IsReady)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Tertiary" />
+                            <MudText Typo="Typo.h6">@String.Format("{0:F0}", Power) kW</MudText>
+                        }
+                        else
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        }
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="6">
                     <MudPaper Class="d-flex gap-4" Elevation="0">
-                        <MudIcon Icon="@Icons.Material.Filled.Power" Size="Size.Medium" Title="Verbruik" Color="Color.Primary" />
-                        <MudText Typo="Typo.h6">5,7 kW</MudText>
+                        @if (IsReady)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Temperatuur" Color="Color.Secondary" />
+                            <MudText Typo="Typo.h6">@InsideTemperature °C</MudText>
+                        }
+                        else
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        }
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="6">
                     <MudPaper Class="d-flex gap-4" Elevation="0">
-                        <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Medium" Title="Tijd resterend" Color="Color.Primary" />
-                        <MudText Typo="Typo.h6">46 min</MudText>
+                        @if (IsReady)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Buitentemperatuur" Color="Color.Secondary" />
+                            <MudText Typo="Typo.h6">@OutsideTemperature °C</MudText>
+                        }
+                        else
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        }
                     </MudPaper>
                 </MudItem>
             </MudGrid>
         </MudCardContent>
         <MudCardActions>
-            <MudIconButton Icon="@Icons.Material.Filled.Gradient" Color="Color.Default" />
-            <MudIconButton Icon="@Icons.Material.Filled.Waves" Color="Color.Default" />
-            <MudIconButton Icon="@Icons.Material.Filled.PowerSettingsNew" Color="Color.Default" />
+            <MudIconButton Icon="@Icons.Material.Filled.Gradient" Size="Size.Large" Color="Color.Default" />
+            <MudIconButton Icon="@Icons.Material.Filled.Waves" Size="Size.Large" Color="Color.Default" />
+            <MudIconButton Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Large" Color="Color.Default" />
         </MudCardActions>
     </MudCard>
 </MudItem>

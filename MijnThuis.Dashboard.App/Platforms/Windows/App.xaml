@@ -1,0 +1,12 @@
+﻿<maui:MauiWinUIApplication
+    x:Class="MijnThuis.Dashboard.App.WinUI.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:maui="using:Microsoft.Maui"
+    xmlns:local="using:MijnThuis.Dashboard.App.WinUI">
+
+    <maui:MauiWinUIApplication.Resources>
+        <SolidColorBrush x:Key="WindowCaptionBackground">#27272F</SolidColorBrush>
+    </maui:MauiWinUIApplication.Resources>
+
+</maui:MauiWinUIApplication>

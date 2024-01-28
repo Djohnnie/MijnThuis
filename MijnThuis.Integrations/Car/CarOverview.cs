@@ -8,6 +8,7 @@ public record CarOverview
     public int TemperatureInside { get; init; }
     public int TemperatureOutside { get; init; }
     public bool IsLocked { get; init; }
+    public bool IsCharging { get; init; }
     public bool IsPreconditioning { get; init; }
     public string Location { get; init; }
 }

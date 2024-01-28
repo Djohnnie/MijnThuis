@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Components;
 using MijnThuis.Contracts.Car;
+using MudBlazor;
 
 namespace MijnThuis.Dashboard.Web.Components;
 
@@ -10,6 +11,8 @@ public partial class CarTile
 
     [Inject]
     private IMediator _mediator { get; set; }
+
+    internal MudMessageBox Message { get; set; }
 
     public bool IsReady { get; set; }
     public string Title { get; set; }
@@ -44,7 +47,17 @@ public partial class CarTile
         TemperatureOutside = response.TemperatureOutside;
         IsReady = true;
 
-        Title = response.IsPreconditioning ? "De auto is aan het voorverwarmen" : "Huidige status van de auto";
+        Title = "Huidige status van de auto";
+
+        if (response.IsCharging)
+        {
+            Title = "De auto is aan het opladen";
+        }
+
+        if (response.IsPreconditioning)
+        {
+            Title = "De auto is aan het voorverwarmen";
+        }
 
         await InvokeAsync(StateHasChanged);
     }
@@ -52,13 +65,19 @@ public partial class CarTile
     public async Task LockCommand()
     {
         await _mediator.Send(new LockCarCommand());
-        await RefreshData();
+        //await RefreshData();
+        IsLocked = true;
     }
 
     public async Task UnlockCommand()
     {
-        await _mediator.Send(new UnlockCarCommand());
-        await RefreshData();
+        bool? result = await Message.Show();
+        if (result == true)
+        {
+            await _mediator.Send(new UnlockCarCommand());
+            IsLocked = false;
+            //await RefreshData();
+        }
     }
 
     public async Task PreheatCommand()

@@ -2,5 +2,6 @@
 
 public record GetPowerOverviewResponse
 {
-    public int ActivePower { get; init; }
+    public int CurrentPower { get; init; }
+    public int PowerPeak { get; init; }
 }

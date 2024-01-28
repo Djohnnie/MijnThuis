@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MijnThuis.Application", "Mi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MijnThuis.Integrations", "MijnThuis.Integrations\MijnThuis.Integrations.csproj", "{212371A2-6082-49B4-A1B3-662B3EF2DB17}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MijnThuis.Dashboard.App", "MijnThuis.Dashboard.App\MijnThuis.Dashboard.App.csproj", "{B9F21BA5-C343-46F9-9737-99268D4A8E6E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,18 @@ Global
 		{212371A2-6082-49B4-A1B3-662B3EF2DB17}.Release|Any CPU.Build.0 = Release|Any CPU
 		{212371A2-6082-49B4-A1B3-662B3EF2DB17}.Release|x64.ActiveCfg = Release|Any CPU
 		{212371A2-6082-49B4-A1B3-662B3EF2DB17}.Release|x64.Build.0 = Release|Any CPU
+		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Debug|x64.Build.0 = Debug|Any CPU
+		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Release|x64.ActiveCfg = Release|Any CPU
+		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Release|x64.Build.0 = Release|Any CPU
+		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Release|x64.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

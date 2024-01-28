@@ -35,6 +35,7 @@ public class CarService : BaseService, ICarService
         {
             State = "Parked",
             IsLocked = result.VehicleState.Locked,
+            IsCharging = result.ChargeState.ChargingState == "Charging",
             BatteryLevel = result.ChargeState.BatteryLevel,
             RemainingRange = (int)result.ChargeState.BatteryRange,
             TemperatureInside = (int)result.ClimateState.InsideTemp,
@@ -146,6 +147,9 @@ public class ChargeState
 
     [JsonPropertyName("battery_range")]
     public decimal BatteryRange { get; set; }
+
+    [JsonPropertyName("charging_state")]
+    public string ChargingState { get; set; }
 }
 
 public class ClimateState

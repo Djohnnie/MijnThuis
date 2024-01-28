@@ -4,6 +4,7 @@ public record GetCarOverviewResponse
 {
     public string State { get; init; }
     public bool IsLocked { get; init; }
+    public bool IsCharging { get; init; }
     public bool IsPreconditioning { get; init; }
     public byte BatteryLevel { get; init; }
     public int RemainingRange { get; init; }
