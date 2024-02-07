@@ -1,6 +1,5 @@
 using MediatR;
 using Microsoft.AspNetCore.Components;
-using MijnThuis.Contracts.Car;
 using MijnThuis.Contracts.Power;
 
 namespace MijnThuis.Dashboard.Web.Components;
@@ -16,6 +15,8 @@ public partial class PowerTile
     public string Title { get; set; }
     public int CurrentPower { get; set; }
     public decimal PowerPeak { get; set; }
+    public decimal EnergyToday { get; set; }
+    public decimal EnergyThisMonth { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -34,12 +35,21 @@ public partial class PowerTile
 
     private async Task RefreshData()
     {
-        var response = await _mediator.Send(new GetPowerOverviewQuery());
-        CurrentPower = response.CurrentPower;
-        PowerPeak = response.PowerPeak / 1000M;
-        IsReady = true;
+        try
+        {
+            var response = await _mediator.Send(new GetPowerOverviewQuery());
+            CurrentPower = response.CurrentPower;
+            PowerPeak = response.PowerPeak / 1000M;
+            EnergyToday = response.EnergyToday;
+            EnergyThisMonth = response.EnergyThisMonth;
+            IsReady = true;
 
-        await InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged);
+        }
+        catch
+        {
+            // Nothing we can do...
+        }
     }
 
     public async Task WakeOnLan()

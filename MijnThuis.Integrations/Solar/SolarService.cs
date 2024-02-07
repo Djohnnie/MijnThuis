@@ -9,6 +9,10 @@ public interface ISolarService
     Task<SolarOverview> GetOverview();
 
     Task<BatteryLevel> GetBatteryLevel();
+
+    Task<EnergyOverview> GetEnergyToday();
+
+    Task<EnergyOverview> GetEnergyThisMonth();
 }
 
 public class SolarService : BaseService, ISolarService
@@ -57,7 +61,40 @@ public class SolarService : BaseService, ISolarService
             Console.WriteLine(ex.Message);
             throw;
         }
+    }
 
+    public async Task<EnergyOverview> GetEnergyToday()
+    {
+        var today = TimeProvider.System.GetLocalNow().Date;
+        var start = $"{today:yyyy-MM-dd HH:mm:00}";
+        var end = $"{today.AddDays(1).AddSeconds(-1):yyyy-MM-dd HH:mm:00}";
+
+        using var client = InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<EnergyResponse>($"site/{_siteId}/energyDetails?api_key={_authToken}&startTime={start}&endTime={end}&timeUnit=DAY");
+
+        return new EnergyOverview
+        {
+            Produced = result.EnergyDetails.Meters.Single(m => m.Type == "Production").Values.Sum(v => v.Value),
+            Consumed = result.EnergyDetails.Meters.Single(m => m.Type == "Consumption").Values.Sum(v => v.Value),
+            Purchased = result.EnergyDetails.Meters.Single(m => m.Type == "Purchased").Values.Sum(v => v.Value),
+        };
+    }
+
+    public async Task<EnergyOverview> GetEnergyThisMonth()
+    {
+        var today = TimeProvider.System.GetLocalNow().Date;
+        var start = $"{new DateTime(today.Year, today.Month, 1):yyyy-MM-dd HH:mm:00}";
+        var end = $"{new DateTime(today.Year, today.Month, 1, 23, 59, 59).AddMonths(1).AddDays(-1):yyyy-MM-dd HH:mm:00}";
+
+        using var client = InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<EnergyResponse>($"site/{_siteId}/energyDetails?api_key={_authToken}&startTime={start}&endTime={end}&timeUnit=MONTH");
+
+        return new EnergyOverview
+        {
+            Produced = result.EnergyDetails.Meters.Single(m => m.Type == "Production").Values.Sum(v => v.Value),
+            Consumed = result.EnergyDetails.Meters.Single(m => m.Type == "Consumption").Values.Sum(v => v.Value),
+            Purchased = result.EnergyDetails.Meters.Single(m => m.Type == "Purchased").Values.Sum(v => v.Value),
+        };
     }
 }
 
@@ -137,4 +174,31 @@ public class Telemetry
 
     [JsonPropertyName("fullPackEnergyAvailable")]
     public decimal EnergyAvailable { get; init; }
+}
+
+public class EnergyResponse
+{
+    [JsonPropertyName("energyDetails")]
+    public EnergyDetails EnergyDetails { get; set; }
+}
+
+public class EnergyDetails
+{
+    [JsonPropertyName("meters")]
+    public List<EnergyMeter> Meters { get; set; }
+}
+
+public class EnergyMeter
+{
+    [JsonPropertyName("type")]
+    public string Type { get; set; }
+
+    [JsonPropertyName("values")]
+    public List<EnergyValue> Values { get; set; }
+}
+
+public class EnergyValue
+{
+    [JsonPropertyName("value")]
+    public decimal Value { get; set; }
 }

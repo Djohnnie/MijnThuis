@@ -21,7 +21,9 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Tertiary" />
+                            <MudTooltip Text="Huidig vermogen" Arrow="true" Placement="Placement.Bottom">
+                                <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Title="Huidig vermogen" Color="@(CurrentPower < 0 ? Color.Tertiary : Color.Secondary)" />
+                            </MudTooltip>
                             <MudText Typo="Typo.h6">@CurrentPower W</MudText>
                         }
                         else
@@ -35,7 +37,9 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Title="Piekvermogen" Color="Color.Tertiary" />
+                            <MudTooltip Text="Piekvermogen" Arrow="true" Placement="Placement.Bottom">
+                                <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Title="Piekvermogen" Color="@(PowerPeak < 2.5M ? Color.Tertiary : Color.Secondary)" />
+                            </MudTooltip>
                             <MudText Typo="Typo.h6">@String.Format("{0:F1}", PowerPeak) kW</MudText>
                         }
                         else
@@ -47,23 +51,49 @@
                 </MudItem>
                 <MudItem xs="6">
                     <MudPaper Class="d-flex gap-4" Elevation="0">
-                        <MudIcon Icon="@Icons.Material.Filled.Today" Size="Size.Medium" Title="Huidig vermogen" Color="Color.Primary" />
-                        <MudText Typo="Typo.h6">??? Wh</MudText>
+                        @if (IsReady)
+                        {
+                            <MudTooltip Text="Energie aangekocht vandaag" Arrow="true" Placement="Placement.Bottom">
+                                <MudIcon Icon="@Icons.Material.Filled.Today" Size="Size.Medium" Title="Energie vandaag" Color="Color.Tertiary" />
+                            </MudTooltip>
+                            <MudText Typo="Typo.h6">@String.Format("{0:F1}", EnergyToday) kWh</MudText>
+                        }
+                        else
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        }
                     </MudPaper>
                 </MudItem>
                 <MudItem xs="6">
                     <MudPaper Class="d-flex gap-4" Elevation="0">
-                        <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Title="Piekvermogen" Color="Color.Primary" />
-                        <MudText Typo="Typo.h6">??? kWh</MudText>
+                        @if (IsReady)
+                        {
+                            <MudTooltip Text="Energie aangekocht deze maand" Arrow="true" Placement="Placement.Bottom">
+                                <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Title="Energie deze maand" Color="Color.Tertiary" />
+                            </MudTooltip>
+                            <MudText Typo="Typo.h6">@String.Format("{0:F1}", EnergyThisMonth) kWh</MudText>
+                        }
+                        else
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        }
                     </MudPaper>
                 </MudItem>
             </MudGrid>
         </MudCardContent>
         <MudCardActions>
-            <MudIconButton Icon="@Icons.Material.Filled.Tv" Size="Size.Large" Color="Color.Primary" Disabled="@(!IsReady)" />
-            <MudIconButton Icon="@Icons.Material.Filled.Desk" Size="Size.Large" Color="Color.Primary" Disabled="@(!IsReady)" />
-            <MudIconButton Icon="@Icons.Material.Filled.Computer" Size="Size.Large" Color="Color.Primary" 
-                           OnClick="WakeOnLan" Disabled="@(!IsReady)" />
+            <MudTooltip Text="TV" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.Tv" Size="Size.Large" Color="Color.Primary" Disabled="@(!IsReady)" />
+            </MudTooltip>
+            <MudTooltip Text="Bureau" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.Desk" Size="Size.Large" Color="Color.Primary" Disabled="@(!IsReady)" />
+            </MudTooltip>
+            <MudTooltip Text="Computer wakker maken" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.Computer" Size="Size.Large" Color="Color.Primary"
+                               OnClick="WakeOnLan" Disabled="@(!IsReady)" />
+            </MudTooltip>
         </MudCardActions>
     </MudCard>
 </MudItem>
