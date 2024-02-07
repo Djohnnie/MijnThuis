@@ -1,0 +1,40 @@
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - MijnThuis.Dashboard.App/*
+
+pool:
+  vmImage: 'windows-2022'
+
+steps:
+
+- task: CmdLine@2
+  displayName: 'Install MAUI workload for dotnet CLI'
+  inputs:
+    script: 'dotnet workload install maui'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish MijnThuis.Dashboard.App.csproj for net8.0-android'
+  inputs:
+    command: 'publish'
+    projects: 'MijnThuis.Dashboard.App\MijnThuis.Dashboard.App.csproj'
+    arguments: '-c Debug -f net8.0-android'
+
+- task: CopyFiles@2
+  displayName: 'Copy signed packages to ArtifactStagingDirectory'
+  inputs:
+    SourceFolder: '$(agent.builddirectory)'
+    Contents: |
+      **/*-Signed.aab
+      **/*-Signed.apk
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    flattenFolders: true
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish signed packages to ArtifactStagingDirectory'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: MijnThuis.Dashboard.App
