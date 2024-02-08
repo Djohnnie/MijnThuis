@@ -5,6 +5,7 @@ trigger:
   paths:
     include:
     - MijnThuis.Dashboard.App/*
+    - pipelines-app-android.yml
 
 pool:
   vmImage: 'windows-2022'
@@ -15,6 +16,12 @@ steps:
   displayName: 'Install MAUI workload for dotnet CLI'
   inputs:
     script: 'dotnet workload install maui'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Restore NuGet packages for MijnThuis.Dashboard.App.csproj'
+  inputs:
+    command: 'restore'
+    projects: 'MijnThuis.Dashboard.App\MijnThuis.Dashboard.App.csproj'
 
 - task: DotNetCoreCLI@2
   displayName: 'Publish MijnThuis.Dashboard.App.csproj for net8.0-android'
