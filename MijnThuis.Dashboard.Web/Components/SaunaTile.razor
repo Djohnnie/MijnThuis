@@ -20,7 +20,7 @@
                             <MudTooltip Text="Status" Arrow="true" Placement="Placement.Bottom">
                                 <MudIcon Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
-                            <MudText Class="mt-n1" Typo="Typo.h6">@State</MudText>
+                            <MudText Typo="Typo.subtitle1">@State</MudText>
                         }
                         else
                         {
@@ -36,7 +36,7 @@
                             <MudTooltip Text="Huidig vermogen" Arrow="true" Placement="Placement.Bottom">
                                 <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(Power > 0M ? Color.Secondary : Color.Tertiary)" />
                             </MudTooltip>
-                            <MudText Class="mt-n1" Typo="Typo.h6">@String.Format("{0:F1}", Power) kW</MudText>
+                            <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", Power) kW</MudText>
                         }
                         else
                         {
@@ -52,7 +52,7 @@
                             <MudTooltip Text="Temperatuur" Arrow="true" Placement="Placement.Bottom">
                                 <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Secondary" />
                             </MudTooltip>
-                            <MudText Class="mt-n1" Typo="Typo.h6">@InsideTemperature °C</MudText>
+                            <MudText Typo="Typo.subtitle1">@InsideTemperature °C</MudText>
                         }
                         else
                         {
@@ -68,7 +68,7 @@
                             <MudTooltip Text="Buitentemperatuur" Arrow="true" Placement="Placement.Bottom">
                                 <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Secondary" />
                             </MudTooltip>
-                            <MudText Class="mt-n1" Typo="Typo.h6">@OutsideTemperature °C</MudText>
+                            <MudText Typo="Typo.subtitle1">@OutsideTemperature °C</MudText>
                         }
                         else
                         {

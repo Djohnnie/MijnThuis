@@ -20,7 +20,7 @@
                             <MudTooltip Text="Huidige temperatuur" Arrow="true" Placement="Placement.Bottom">
                                 <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="@(RoomTemperature < 22M ? Color.Secondary : Color.Tertiary)" />
                             </MudTooltip>
-                            <MudText Class="mt-n1" Typo="Typo.h6">@String.Format("{0:F1}", RoomTemperature) °C</MudText>
+                            <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", RoomTemperature) °C</MudText>
                         }
                         else
                         {
@@ -36,7 +36,7 @@
                             <MudTooltip Text="Buitentemperatuur" Arrow="true" Placement="Placement.Bottom">
                                 <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="@(OutdoorTemperature < 22M ? Color.Secondary : Color.Tertiary)" />
                             </MudTooltip>
-                            <MudText Class="mt-n1" Typo="Typo.h6">@String.Format("{0:F1}", OutdoorTemperature) °C</MudText>
+                            <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", OutdoorTemperature) °C</MudText>
                         }
                         else
                         {
@@ -52,7 +52,7 @@
                             <MudTooltip Text="Status" Arrow="true" Placement="Placement.Bottom">
                                 <MudIcon Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Medium" Color="@(Status == "Verwarmen" ? Color.Secondary : Color.Primary)" />
                             </MudTooltip>
-                            <MudText Class="mt-n1" Typo="Typo.h6">@Status</MudText>
+                            <MudText Typo="Typo.subtitle1">@Status</MudText>
                         }
                         else
                         {
@@ -68,7 +68,7 @@
                             <MudTooltip Text="Planning" Arrow="true" Placement="Placement.Bottom">
                                 <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
-                            <MudText Class="mt-n1" Typo="Typo.h6">@NextSetpoint °C (@NextSwitchTime)</MudText>
+                            <MudText Typo="Typo.subtitle1">@NextSetpoint °C (@NextSwitchTime)</MudText>
                         }
                         else
                         {

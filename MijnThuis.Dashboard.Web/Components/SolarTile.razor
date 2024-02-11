@@ -20,7 +20,7 @@
                             <MudTooltip Text="Huidig vermogen" Arrow="true" Placement="Placement.Bottom">
                                 <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(CurrentPower == 0 ? Color.Secondary : Color.Tertiary)" />
                             </MudTooltip>
-                            <MudText Class="mt-n1" Typo="Typo.h6">@String.Format("{0:F0}", CurrentPower) W</MudText>
+                            <MudText Typo="Typo.subtitle1">@String.Format("{0:F0}", CurrentPower) W</MudText>
                         }
                         else
                         {
@@ -36,7 +36,7 @@
                             <MudTooltip Text="Batterij" Arrow="true" Placement="Placement.Bottom">
                                 <MudIcon Icon="@Icons.Material.Filled.Battery3Bar" Size="Size.Medium" Color="@(CurrentPower > 0 ? Color.Tertiary : Color.Secondary)" />
                             </MudTooltip>
-                            <MudText Class="mt-n1" Typo="Typo.h6">@BatteryLevel %</MudText>
+                            <MudText Typo="Typo.subtitle1">@BatteryLevel %</MudText>
                         }
                         else
                         {
@@ -52,7 +52,7 @@
                             <MudTooltip Text="Opbrengst vandaag" Arrow="true" Placement="Placement.Bottom">
                                 <MudIcon Icon="@Icons.Material.Filled.ElectricalServices" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
-                            <MudText Class="mt-n1" Typo="Typo.h6">@String.Format("{0:F1}", LastDayEnergy) kWh</MudText>
+                            <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", LastDayEnergy) kWh</MudText>
                         }
                         else
                         {
@@ -68,7 +68,7 @@
                             <MudTooltip Text="Opbrengst deze maand" Arrow="true" Placement="Placement.Bottom">
                                 <MudIcon Icon="@Icons.Material.Filled.ElectricalServices" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
-                            <MudText Class="mt-n1" Typo="Typo.h6">@String.Format("{0:F1}", LastMonthEnergy) kWh</MudText>
+                            <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", LastMonthEnergy) kWh</MudText>
                         }
                         else
                         {
