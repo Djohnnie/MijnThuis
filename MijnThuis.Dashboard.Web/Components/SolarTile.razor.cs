@@ -6,7 +6,7 @@ namespace MijnThuis.Dashboard.Web.Components;
 
 public partial class SolarTile
 {
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(10));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(1));
 
     [Inject]
     private IMediator _mediator { get; set; }
@@ -27,6 +27,8 @@ public partial class SolarTile
 
     private async Task RunTimer()
     {
+        await RefreshData();
+
         while (await _periodicTimer.WaitForNextTickAsync())
         {
             await RefreshData();

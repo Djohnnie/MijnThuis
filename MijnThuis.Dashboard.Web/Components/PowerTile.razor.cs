@@ -27,6 +27,8 @@ public partial class PowerTile
 
     private async Task RunTimer()
     {
+        await RefreshData();
+
         while (await _periodicTimer.WaitForNextTickAsync())
         {
             await RefreshData();

@@ -10,5 +10,4 @@ public record CarOverview
     public bool IsLocked { get; init; }
     public bool IsCharging { get; init; }
     public bool IsPreconditioning { get; init; }
-    public string Location { get; init; }
 }

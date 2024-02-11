@@ -7,7 +7,7 @@ namespace MijnThuis.Dashboard.Web.Components;
 
 public partial class CarTile
 {
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(10));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(1));
 
     [Inject]
     private IMediator _mediator { get; set; }
@@ -31,6 +31,8 @@ public partial class CarTile
 
     private async Task RunTimer()
     {
+        await RefreshData();
+
         while (await _periodicTimer.WaitForNextTickAsync())
         {
             await RefreshData();
@@ -47,17 +49,19 @@ public partial class CarTile
         TemperatureOutside = response.TemperatureOutside;
         IsReady = true;
 
-        Title = "Huidige status van de auto";
+        //Title = "Huidige status van de auto";
 
-        if (response.IsCharging)
-        {
-            Title = "De auto is aan het opladen";
-        }
+        //if (response.IsCharging)
+        //{
+        //    Title = "De auto is aan het opladen";
+        //}
 
-        if (response.IsPreconditioning)
-        {
-            Title = "De auto is aan het voorverwarmen";
-        }
+        //if (response.IsPreconditioning)
+        //{
+        //    Title = "De auto is aan het voorverwarmen";
+        //}
+
+        Title = response.Address;
 
         await InvokeAsync(StateHasChanged);
     }

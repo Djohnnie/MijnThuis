@@ -16,8 +16,12 @@ public class GetCarOverviewQueryHandler : IRequestHandler<GetCarOverviewQuery, G
 
     public async Task<GetCarOverviewResponse> Handle(GetCarOverviewQuery request, CancellationToken cancellationToken)
     {
-        var result = await _carService.GetOverview();
+        var overviewResult = await _carService.GetOverview();
+        var locationResult = await _carService.GetLocation();
 
-        return result.Adapt<GetCarOverviewResponse>();
+        var result = overviewResult.Adapt<GetCarOverviewResponse>();
+        result.Address = string.Join(", ", locationResult.Address.Split(", ").Take(2));
+
+        return result;
     }
 }

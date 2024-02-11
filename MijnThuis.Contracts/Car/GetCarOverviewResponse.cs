@@ -10,5 +10,5 @@ public record GetCarOverviewResponse
     public int RemainingRange { get; init; }
     public int TemperatureInside { get; init; }
     public int TemperatureOutside { get; init; }
-    public string Location { get; init; }
+    public string Address { get; set; }
 }

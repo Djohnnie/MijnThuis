@@ -8,6 +8,7 @@ namespace MijnThuis.Integrations.Car;
 public interface ICarService
 {
     Task<CarOverview> GetOverview();
+    Task<CarLocation> GetLocation();
     Task<bool> Lock();
     Task<bool> Unlock();
     Task<bool> Honk();
@@ -40,8 +41,18 @@ public class CarService : BaseService, ICarService
             RemainingRange = (int)result.ChargeState.BatteryRange,
             TemperatureInside = (int)result.ClimateState.InsideTemp,
             TemperatureOutside = (int)result.ClimateState.OutsideTemp,
-            IsPreconditioning = result.ClimateState.IsPreconditioning,
-            Location = "Home"
+            IsPreconditioning = result.ClimateState.IsPreconditioning
+        };
+    }
+
+    public async Task<CarLocation> GetLocation()
+    {
+        using var client = InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<LocationResponse>($"{_vinNumber}/location");
+
+        return new CarLocation
+        {
+            Address = result.Address
         };
     }
 
@@ -168,4 +179,10 @@ public class VehicleState
 {
     [JsonPropertyName("locked")]
     public bool Locked { get; set; }
+}
+
+public class LocationResponse
+{
+    [JsonPropertyName("address")]
+    public string Address { get; set; }
 }

@@ -10,10 +10,6 @@
                 <MudText Typo="Typo.body1">Auto</MudText>
                 <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(Title) ? "Huidige status van de auto" : Title)</MudText>
             </CardHeaderContent>
-            <CardHeaderActions>
-                <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" />
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Default" />
-            </CardHeaderActions>
         </MudCardHeader>
         <MudCardContent>
             <MudGrid>
@@ -21,8 +17,10 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudIcon Icon="@Icons.Material.Filled.Battery5Bar" Size="Size.Medium" Title="Beschikbaar batterijpercentage" Color="Color.Tertiary" />
-                            <MudText Typo="Typo.h6">@BatteryLevel %</MudText>
+                            <MudTooltip Text="Beschikbaar batterijpercentage" Arrow="true" Placement="Placement.Bottom">
+                                <MudIcon Icon="@Icons.Material.Filled.Battery5Bar" Size="Size.Medium" Color="@(BatteryLevel < 50 ? Color.Secondary : Color.Tertiary)" />
+                            </MudTooltip>
+                            <MudText Class="mt-n1" Typo="Typo.h6">@BatteryLevel %</MudText>
                         }
                         else
                         {
@@ -35,8 +33,10 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudIcon Icon="@Icons.Material.Filled.CardTravel" Size="Size.Medium" Title="Beschikbaar rijbereik" Color="Color.Secondary" />
-                            <MudText Typo="Typo.h6">@RemainingRange km</MudText>
+                            <MudTooltip Text="Beschikbaar rijbereik" Arrow="true" Placement="Placement.Bottom">
+                                <MudIcon Icon="@Icons.Material.Filled.CardTravel" Size="Size.Medium" Color="@(BatteryLevel < 50 ? Color.Secondary : Color.Tertiary)" />
+                            </MudTooltip>
+                            <MudText Class="mt-n1" Typo="Typo.h6">@RemainingRange km</MudText>
                         }
                         else
                         {
@@ -49,8 +49,10 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Binnentemperatuur" Color="Color.Primary" />
-                            <MudText Typo="Typo.h6">@TemperatureInside °C</MudText>
+                            <MudTooltip Text="Binnentemperatuur" Arrow="true" Placement="Placement.Bottom">
+                                <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Primary" />
+                            </MudTooltip>
+                            <MudText Class="mt-n1" Typo="Typo.h6">@TemperatureInside °C</MudText>
                         }
                         else
                         {
@@ -63,8 +65,10 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Buitentemperatuur" Color="Color.Primary" />
-                            <MudText Typo="Typo.h6">@TemperatureOutside °C</MudText>
+                            <MudTooltip Text="Buitentemperatuur" Arrow="true" Placement="Placement.Bottom">
+                                <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Title="Buitentemperatuur" Color="Color.Primary" />
+                            </MudTooltip>
+                            <MudText Class="mt-n1" Typo="Typo.h6">@TemperatureOutside °C</MudText>
                         }
                         else
                         {

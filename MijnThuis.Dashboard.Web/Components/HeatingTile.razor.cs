@@ -6,7 +6,7 @@ namespace MijnThuis.Dashboard.Web.Components;
 
 public partial class HeatingTile
 {
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(10));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(1));
 
     [Inject]
     private IMediator _mediator { get; set; }
@@ -15,7 +15,9 @@ public partial class HeatingTile
     public string Title { get; set; }
     public decimal RoomTemperature { get; set; }
     public decimal OutdoorTemperature { get; set; }
+    public string Status { get; set; }
     public string NextSetpoint { get; set; }
+    public string NextSwitchTime { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -26,6 +28,8 @@ public partial class HeatingTile
 
     private async Task RunTimer()
     {
+        await RefreshData();
+
         while (await _periodicTimer.WaitForNextTickAsync())
         {
             await RefreshData();
@@ -37,7 +41,9 @@ public partial class HeatingTile
         var response = await _mediator.Send(new GetHeatingOverviewQuery());
         RoomTemperature = response.RoomTemperature;
         OutdoorTemperature = response.OutdoorTemperature;
-        NextSetpoint = $"{response.NextSetpoint:F1} °C om {response.NextSwitchTime:HH:mm}";
+        Status = "Uit";
+        NextSetpoint = $"{response.NextSetpoint:F1}";
+        NextSwitchTime = $"{response.NextSwitchTime:HH:mm}";
         IsReady = true;
 
         await InvokeAsync(StateHasChanged);
