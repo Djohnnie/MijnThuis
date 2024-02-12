@@ -15,11 +15,32 @@ public class LockCarCommandHandler : IRequestHandler<LockCarCommand, CarCommandR
 
     public async Task<CarCommandResponse> Handle(LockCarCommand request, CancellationToken cancellationToken)
     {
-        var result = await _carService.Lock();
+        var lockResult = await _carService.Lock();
+
+        if (!lockResult)
+        {
+            return new CarCommandResponse
+            {
+                Success = false
+            };
+        }
+
+        var isLocked = false;
+
+        while (!isLocked)
+        {
+            var overviewResult = await _carService.GetOverview();
+            isLocked = overviewResult.IsLocked;
+
+            if (!isLocked)
+            {
+                await Task.Delay(1000);
+            }
+        }
 
         return new CarCommandResponse
         {
-            Success = result
+            Success = lockResult
         };
     }
 }

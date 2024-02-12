@@ -15,11 +15,32 @@ public class UnlockCarCommandHandler : IRequestHandler<UnlockCarCommand, CarComm
 
     public async Task<CarCommandResponse> Handle(UnlockCarCommand request, CancellationToken cancellationToken)
     {
-        var result = await _carService.Unlock();
+        var lockResult = await _carService.Unlock();
+
+        if (!lockResult)
+        {
+            return new CarCommandResponse
+            {
+                Success = false
+            };
+        }
+
+        var isUnlocked = false;
+
+        while (!isUnlocked)
+        {
+            var overviewResult = await _carService.GetOverview();
+            isUnlocked = !overviewResult.IsLocked;
+
+            if (!isUnlocked)
+            {
+                await Task.Delay(1000);
+            }
+        }
 
         return new CarCommandResponse
         {
-            Success = result
+            Success = lockResult
         };
     }
 }

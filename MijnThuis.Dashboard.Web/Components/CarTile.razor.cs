@@ -18,6 +18,9 @@ public partial class CarTile
     public int TemperatureInside { get; set; }
     public int TemperatureOutside { get; set; }
 
+    public bool LockPending { get; set; }
+    public bool UnlockPending { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         _ = RunTimer();
@@ -75,9 +78,16 @@ public partial class CarTile
     public async Task LockCommand()
     {
         var mediator = ScopedServices.GetRequiredService<IMediator>();
-        await mediator.Send(new LockCarCommand());
-        //await RefreshData();
-        IsLocked = true;
+
+        LockPending = true;
+        await InvokeAsync(StateHasChanged);
+
+        var commandResult = await mediator.Send(new LockCarCommand());
+
+        LockPending = false;
+        IsLocked = commandResult.Success;
+
+        await InvokeAsync(StateHasChanged);
     }
 
     public async Task UnlockCommand()
@@ -86,9 +96,16 @@ public partial class CarTile
         if (result == true)
         {
             var mediator = ScopedServices.GetRequiredService<IMediator>();
-            await mediator.Send(new UnlockCarCommand());
-            IsLocked = false;
-            //await RefreshData();
+
+            UnlockPending = true;
+            await InvokeAsync(StateHasChanged);
+
+            var commandResult = await mediator.Send(new UnlockCarCommand());
+
+            UnlockPending = false;
+            IsLocked = !commandResult.Success;
+
+            await InvokeAsync(StateHasChanged);
         }
     }
 
