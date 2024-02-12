@@ -1,4 +1,6 @@
-﻿<MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+﻿@inherits OwningComponentBase
+
+<MudItem xs="12" sm="6" md="6" lg="4" xl="3">
     <MudCard Outlined>
         <MudCardHeader>
             <CardHeaderAvatar>
@@ -50,7 +52,7 @@
                         @if (IsReady)
                         {
                             <MudTooltip Text="Temperatuur" Arrow="true" Placement="Placement.Bottom">
-                                <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Secondary" />
+                                <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@InsideTemperature °C</MudText>
                         }
@@ -66,7 +68,7 @@
                         @if (IsReady)
                         {
                             <MudTooltip Text="Buitentemperatuur" Arrow="true" Placement="Placement.Bottom">
-                                <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Secondary" />
+                                <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@OutsideTemperature °C</MudText>
                         }

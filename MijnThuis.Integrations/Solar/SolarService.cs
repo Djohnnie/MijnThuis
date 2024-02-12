@@ -53,7 +53,7 @@ public class SolarService : BaseService, ISolarService
             return new BatteryLevel
             {
                 Level = result.Storage.Batteries.Single().Telemetries.Last().Level,
-                Health = result.Storage.Batteries.Single().Telemetries.Last().EnergyAvailable / result.Storage.Batteries.Single().Nameplate
+                Health = result.Storage.Batteries.Single().Telemetries.Last().EnergyAvailable / result.Storage.Batteries.Single().Nameplate * 100M,
             };
         }
         catch (Exception ex)

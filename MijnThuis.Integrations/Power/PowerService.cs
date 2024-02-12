@@ -7,6 +7,10 @@ namespace MijnThuis.Integrations.Power;
 public interface IPowerService
 {
     Task<PowerOverview> GetOverview();
+    //Task<bool> GetTvStatus();
+    //Task SetTvStatus(bool status);
+    //Task GetBureauStatus();
+    //Task SetBureauStatus(bool status);
 }
 
 public class PowerService : BaseService, IPowerService
@@ -27,6 +31,33 @@ public class PowerService : BaseService, IPowerService
             PowerPeak = result.PowerPeak
         };
     }
+
+    //public async Task<bool> GetTvStatus()
+    //{
+    //    using var client = InitializeHttpClient();
+    //    var result = await client.GetFromJsonAsync<BaseResponse>("api/v1/data");
+
+    //    return new PowerOverview
+    //    {
+    //        CurrentPower = result.CurrentPower,
+    //        PowerPeak = result.PowerPeak
+    //    };
+    //}
+
+    //public async Task SetTvStatus(bool status)
+    //{
+
+    //}
+
+    //public async Task GetBureauStatus()
+    //{
+
+    //}
+
+    //public async Task SetBureauStatus(bool status)
+    //{
+
+    //}
 }
 
 public class BaseService

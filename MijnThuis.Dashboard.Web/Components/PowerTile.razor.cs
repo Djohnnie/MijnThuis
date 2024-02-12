@@ -1,5 +1,4 @@
 using MediatR;
-using Microsoft.AspNetCore.Components;
 using MijnThuis.Contracts.Power;
 
 namespace MijnThuis.Dashboard.Web.Components;
@@ -7,9 +6,6 @@ namespace MijnThuis.Dashboard.Web.Components;
 public partial class PowerTile
 {
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(10));
-
-    [Inject]
-    private IMediator _mediator { get; set; }
 
     public bool IsReady { get; set; }
     public string Title { get; set; }
@@ -39,7 +35,9 @@ public partial class PowerTile
     {
         try
         {
-            var response = await _mediator.Send(new GetPowerOverviewQuery());
+            var mediator = ScopedServices.GetRequiredService<IMediator>();
+
+            var response = await mediator.Send(new GetPowerOverviewQuery());
             CurrentPower = response.CurrentPower;
             PowerPeak = response.PowerPeak / 1000M;
             EnergyToday = response.EnergyToday;
@@ -48,14 +46,16 @@ public partial class PowerTile
 
             await InvokeAsync(StateHasChanged);
         }
-        catch
+        catch (Exception ex)
         {
-            // Nothing we can do...
+            var logger = ScopedServices.GetRequiredService<ILogger<PowerTile>>();
+            logger.LogError(ex, "Failed to refresh power data");
         }
     }
 
     public async Task WakeOnLan()
     {
-        await _mediator.Send(new WakeOnLanCommand());
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+        await mediator.Send(new WakeOnLanCommand());
     }
 }

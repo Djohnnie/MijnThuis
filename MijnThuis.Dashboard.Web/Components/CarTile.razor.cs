@@ -1,5 +1,4 @@
 using MediatR;
-using Microsoft.AspNetCore.Components;
 using MijnThuis.Contracts.Car;
 using MudBlazor;
 
@@ -8,9 +7,6 @@ namespace MijnThuis.Dashboard.Web.Components;
 public partial class CarTile
 {
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(1));
-
-    [Inject]
-    private IMediator _mediator { get; set; }
 
     internal MudMessageBox Message { get; set; }
 
@@ -41,34 +37,45 @@ public partial class CarTile
 
     private async Task RefreshData()
     {
-        var response = await _mediator.Send(new GetCarOverviewQuery());
-        IsLocked = response.IsLocked;
-        BatteryLevel = response.BatteryLevel;
-        RemainingRange = response.RemainingRange;
-        TemperatureInside = response.TemperatureInside;
-        TemperatureOutside = response.TemperatureOutside;
-        IsReady = true;
+        try
+        {
+            var mediator = ScopedServices.GetRequiredService<IMediator>();
 
-        //Title = "Huidige status van de auto";
+            var response = await mediator.Send(new GetCarOverviewQuery());
+            IsLocked = response.IsLocked;
+            BatteryLevel = response.BatteryLevel;
+            RemainingRange = response.RemainingRange;
+            TemperatureInside = response.TemperatureInside;
+            TemperatureOutside = response.TemperatureOutside;
+            IsReady = true;
 
-        //if (response.IsCharging)
-        //{
-        //    Title = "De auto is aan het opladen";
-        //}
+            //Title = "Huidige status van de auto";
 
-        //if (response.IsPreconditioning)
-        //{
-        //    Title = "De auto is aan het voorverwarmen";
-        //}
+            //if (response.IsCharging)
+            //{
+            //    Title = "De auto is aan het opladen";
+            //}
 
-        Title = response.Address;
+            //if (response.IsPreconditioning)
+            //{
+            //    Title = "De auto is aan het voorverwarmen";
+            //}
 
-        await InvokeAsync(StateHasChanged);
+            Title = response.Address;
+
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            var logger = ScopedServices.GetRequiredService<ILogger<CarTile>>();
+            logger.LogError(ex, "Failed to refresh car data");
+        }
     }
 
     public async Task LockCommand()
     {
-        await _mediator.Send(new LockCarCommand());
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+        await mediator.Send(new LockCarCommand());
         //await RefreshData();
         IsLocked = true;
     }
@@ -78,7 +85,8 @@ public partial class CarTile
         bool? result = await Message.Show();
         if (result == true)
         {
-            await _mediator.Send(new UnlockCarCommand());
+            var mediator = ScopedServices.GetRequiredService<IMediator>();
+            await mediator.Send(new UnlockCarCommand());
             IsLocked = false;
             //await RefreshData();
         }
@@ -86,13 +94,15 @@ public partial class CarTile
 
     public async Task PreheatCommand()
     {
-        await _mediator.Send(new PreheatCarCommand());
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+        await mediator.Send(new PreheatCarCommand());
         await RefreshData();
     }
 
     public async Task FartCommand()
     {
-        await _mediator.Send(new CarFartCommand());
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+        await mediator.Send(new CarFartCommand());
         await RefreshData();
     }
 

@@ -1,5 +1,4 @@
 using MediatR;
-using Microsoft.AspNetCore.Components;
 using MijnThuis.Contracts.Heating;
 
 namespace MijnThuis.Dashboard.Web.Components;
@@ -7,9 +6,6 @@ namespace MijnThuis.Dashboard.Web.Components;
 public partial class HeatingTile
 {
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(1));
-
-    [Inject]
-    private IMediator _mediator { get; set; }
 
     public bool IsReady { get; set; }
     public string Title { get; set; }
@@ -38,14 +34,24 @@ public partial class HeatingTile
 
     private async Task RefreshData()
     {
-        var response = await _mediator.Send(new GetHeatingOverviewQuery());
-        RoomTemperature = response.RoomTemperature;
-        OutdoorTemperature = response.OutdoorTemperature;
-        Status = "Uit";
-        NextSetpoint = $"{response.NextSetpoint:F1}";
-        NextSwitchTime = $"{response.NextSwitchTime:HH:mm}";
-        IsReady = true;
+        try
+        {
+            var mediator = ScopedServices.GetRequiredService<IMediator>();
 
-        await InvokeAsync(StateHasChanged);
+            var response = await mediator.Send(new GetHeatingOverviewQuery());
+            RoomTemperature = response.RoomTemperature;
+            OutdoorTemperature = response.OutdoorTemperature;
+            Status = "Uit";
+            NextSetpoint = $"{response.NextSetpoint:F1}";
+            NextSwitchTime = $"{response.NextSwitchTime:HH:mm}";
+            IsReady = true;
+
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            var logger = ScopedServices.GetRequiredService<ILogger<HeatingTile>>();
+            logger.LogError(ex, "Failed to refresh heating data");
+        }
     }
 }

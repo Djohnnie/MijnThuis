@@ -1,4 +1,6 @@
-﻿<MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+﻿@inherits OwningComponentBase
+
+<MudItem xs="12" sm="6" md="6" lg="4" xl="3">
     <MudCard Outlined>
         <MudCardHeader>
             <CardHeaderAvatar>
@@ -36,7 +38,7 @@
                             <MudTooltip Text="Batterij" Arrow="true" Placement="Placement.Bottom">
                                 <MudIcon Icon="@Icons.Material.Filled.Battery3Bar" Size="Size.Medium" Color="@(CurrentPower > 0 ? Color.Tertiary : Color.Secondary)" />
                             </MudTooltip>
-                            <MudText Typo="Typo.subtitle1">@BatteryLevel %</MudText>
+                            <MudText Typo="Typo.subtitle1">@BatteryLevel% (@BatteryHealth%)</MudText>
                         }
                         else
                         {

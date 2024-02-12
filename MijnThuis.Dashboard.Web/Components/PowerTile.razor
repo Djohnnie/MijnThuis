@@ -1,4 +1,6 @@
-﻿<MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+﻿@inherits OwningComponentBase
+
+<MudItem xs="12" sm="6" md="6" lg="4" xl="3">
     <MudCard Outlined>
         <MudCardHeader>
             <CardHeaderAvatar>
@@ -50,7 +52,7 @@
                         @if (IsReady)
                         {
                             <MudTooltip Text="Energie aangekocht vandaag" Arrow="true" Placement="Placement.Bottom">
-                                <MudIcon Icon="@Icons.Material.Filled.Today" Size="Size.Medium" Color="Color.Tertiary" />
+                                <MudIcon Icon="@Icons.Material.Filled.Today" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", EnergyToday) kWh</MudText>
                         }
@@ -66,7 +68,7 @@
                         @if (IsReady)
                         {
                             <MudTooltip Text="Energie aangekocht deze maand" Arrow="true" Placement="Placement.Bottom">
-                                <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Color="Color.Tertiary" />
+                                <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", EnergyThisMonth) kWh</MudText>
                         }
