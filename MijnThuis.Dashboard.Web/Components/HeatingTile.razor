@@ -22,7 +22,7 @@
                             <MudTooltip Text="Huidige temperatuur" Arrow="true" Placement="Placement.Bottom">
                                 <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="@(RoomTemperature < Setpoint ? Color.Secondary : Color.Tertiary)" />
                             </MudTooltip>
-                            <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", RoomTemperature) °C (@String.Format("{0:F1}", Setpoint) °C)</MudText>
+                            <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", RoomTemperature) °C (@String.Format("{0:F0}", Setpoint) °C)</MudText>
                         }
                         else
                         {
