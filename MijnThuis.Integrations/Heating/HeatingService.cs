@@ -14,6 +14,12 @@ namespace MijnThuis.Integrations.Heating;
 public interface IHeatingService
 {
     Task<HeatingOverview> GetOverview();
+
+    Task<bool> SetManualHeating(decimal temperature);
+
+    Task<bool> SetScheduledHeating();
+
+    Task<bool> SetAntiFrostHeating();
 }
 
 public class HeatingService : BaseService, IHeatingService
@@ -29,29 +35,57 @@ public class HeatingService : BaseService, IHeatingService
 
     public async Task<HeatingOverview> GetOverview()
     {
-        try
-        {
-            using var client = await InitializeHttpClient();
-            var result = await client.GetFromJsonAsync<DashboardResponse>("api/homes/dashboard");
+        using var client = await InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<DashboardResponse>("api/homes/dashboard");
 
-            var appliance = result.Appliances.Single();
-            var climateZone = appliance.ClimateZones.Single();
+        var appliance = result.Appliances.Single();
+        var climateZone = appliance.ClimateZones.Single();
 
-            return new HeatingOverview
-            {
-                Mode = climateZone.Preheat.Active ? "Preheat" : climateZone.Mode,
-                RoomTemperature = climateZone.RoomTemperature,
-                Setpoint = climateZone.Setpoint,
-                OutdoorTemperature = appliance.OutdoorTemperatureInformation.OutdoorTemperature,
-                NextSetpoint = climateZone.NextSetpoint,
-                NextSwitchTime = climateZone.NextSwitchTime
-            };
-        }
-        catch (Exception ex)
+        return new HeatingOverview
         {
-            Console.WriteLine(ex.Message);
-            return new HeatingOverview();
-        }
+            Mode = climateZone.Preheat.Active ? "Preheat" : climateZone.Mode,
+            RoomTemperature = climateZone.RoomTemperature,
+            Setpoint = climateZone.Setpoint,
+            OutdoorTemperature = appliance.OutdoorTemperatureInformation.OutdoorTemperature,
+            NextSetpoint = climateZone.NextSetpoint,
+            NextSwitchTime = climateZone.NextSwitchTime
+        };
+    }
+
+    public async Task<bool> SetManualHeating(decimal temperature)
+    {
+        using var client = await InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<DashboardResponse>("api/homes/dashboard");
+
+        var climateZone = result.Appliances.Single().ClimateZones.Single();
+
+        var response = await client.PostAsJsonAsync($"api/climate-zones/{climateZone.Id}/modes/manual", new { roomTemperatureSetPoint = temperature });
+
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> SetScheduledHeating()
+    {
+        using var client = await InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<DashboardResponse>("api/homes/dashboard");
+
+        var climateZone = result.Appliances.Single().ClimateZones.Single();
+
+        var response = await client.PostAsJsonAsync($"api/climate-zones/{climateZone.Id}/modes/schedule", new { heatingProgramId = 1 });
+
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> SetAntiFrostHeating()
+    {
+        using var client = await InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<DashboardResponse>("api/homes/dashboard");
+
+        var climateZone = result.Appliances.Single().ClimateZones.Single();
+
+        var response = await client.PostAsJsonAsync($"api/climate-zones/{climateZone.Id}/modes/anti-frost", new { });
+
+        return response.IsSuccessStatusCode;
     }
 }
 
@@ -194,6 +228,9 @@ public class TemperatureInformation
 
 public class ClimateZone
 {
+    [JsonPropertyName("climateZoneId")]
+    public string Id { get; set; }
+
     [JsonPropertyName("roomTemperature")]
     public decimal RoomTemperature { get; set; }
 

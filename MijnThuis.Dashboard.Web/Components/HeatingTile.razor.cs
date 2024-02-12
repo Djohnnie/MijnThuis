@@ -15,6 +15,10 @@ public partial class HeatingTile
     public string Status { get; set; }
     public string NextSetpoint { get; set; }
     public string NextSwitchTime { get; set; }
+    public bool ScheduledHeatingPending { get; set; }
+    public bool Manual22HeatingPending { get; set; }
+    public bool Manual16HeatingPending { get; set; }
+    public bool AntiFrostHeatingPending { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -55,5 +59,61 @@ public partial class HeatingTile
             var logger = ScopedServices.GetRequiredService<ILogger<HeatingTile>>();
             logger.LogError(ex, "Failed to refresh heating data");
         }
+    }
+
+    protected async Task SetScheduledHeatingCommand()
+    {
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+
+        ScheduledHeatingPending = true;
+        await InvokeAsync(StateHasChanged);
+
+        await mediator.Send(new SetScheduledHeatingCommand());
+
+        ScheduledHeatingPending = false;
+
+        await RefreshData();
+    }
+
+    protected async Task SetManual22HeatingCommand()
+    {
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+
+        Manual22HeatingPending = true;
+        await InvokeAsync(StateHasChanged);
+
+        await mediator.Send(new SetManual22HeatingCommand());
+
+        Manual22HeatingPending = false;
+
+        await RefreshData();
+    }
+
+    protected async Task SetManual16HeatingCommand()
+    {
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+
+        Manual16HeatingPending = true;
+        await InvokeAsync(StateHasChanged);
+
+        await mediator.Send(new SetManual16HeatingCommand());
+
+        Manual16HeatingPending = false;
+
+        await RefreshData();
+    }
+
+    protected async Task SetAntiFrostHeatingCommand()
+    {
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+
+        AntiFrostHeatingPending = true;
+        await InvokeAsync(StateHasChanged);
+
+        await mediator.Send(new SetAntiFrostHeatingCommand());
+
+        AntiFrostHeatingPending = false;
+
+        await RefreshData();
     }
 }

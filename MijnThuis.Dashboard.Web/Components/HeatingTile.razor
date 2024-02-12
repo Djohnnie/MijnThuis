@@ -82,18 +82,61 @@
             </MudGrid>
         </MudCardContent>
         <MudCardActions>
-            <MudTooltip Text="Op schema zetten" Arrow="true" Placement="Placement.Bottom">
-                <MudIconButton Icon="@Icons.Material.Filled.Schedule" Size="Size.Large" Color="@(Status == "Schema" ? Color.Tertiary : Color.Default)" />
-            </MudTooltip>
-            <MudTooltip Text="Op handmatig zetten (22 °C)" Arrow="true" Placement="Placement.Bottom">
-                <MudIconButton Icon="@Icons.Material.Filled.BlurOn" Size="Size.Large" Color="@(Status == "Handmatig" && Setpoint == 22M ? Color.Tertiary : Color.Default)" />
-            </MudTooltip>
-            <MudTooltip Text="Op handmatig zetten (16 °C)" Arrow="true" Placement="Placement.Bottom">
-                <MudIconButton Icon="@Icons.Material.Filled.BlurOff" Size="Size.Large" Color="@(Status == "Handmatig" && Setpoint == 16M ? Color.Tertiary : Color.Default)" />
-            </MudTooltip>
-            <MudTooltip Text="Uitzetten" Arrow="true" Placement="Placement.Bottom">
-                <MudIconButton Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Large" Color="@(Status == "Uit/Vorstbeveiliging" ? Color.Secondary : Color.Default)" />
-            </MudTooltip>
+            @if (ScheduledHeatingPending)
+            {
+                <MudIconButton Size="Size.Large" Disabled="true">
+                    <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+                </MudIconButton>
+            }
+            else
+            {
+                <MudTooltip Text="Op schema zetten" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.Schedule" Size="Size.Large" Color="@(Status == "Schema" ? Color.Tertiary : Color.Default)"
+                                   OnClick="SetScheduledHeatingCommand" />
+                </MudTooltip>
+            }
+
+            @if (Manual22HeatingPending)
+            {
+                <MudIconButton Size="Size.Large" Disabled="true">
+                    <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+                </MudIconButton>
+            }
+            else
+            {
+                <MudTooltip Text="Op handmatig zetten (22 °C)" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.BlurOn" Size="Size.Large" Color="@(Status == "Handmatig" && Setpoint == 22M ? Color.Tertiary : Color.Default)"
+                                   OnClick="SetManual22HeatingCommand" />
+                </MudTooltip>
+            }
+
+            @if (Manual16HeatingPending)
+            {
+                <MudIconButton Size="Size.Large" Disabled="true">
+                    <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+                </MudIconButton>
+            }
+            else
+            {
+                <MudTooltip Text="Op handmatig zetten (16 °C)" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.BlurOff" Size="Size.Large" Color="@(Status == "Handmatig" && Setpoint == 16M ? Color.Tertiary : Color.Default)"
+                                   OnClick="SetManual16HeatingCommand" />
+                </MudTooltip>
+            }
+
+            @if (AntiFrostHeatingPending)
+            {
+                <MudIconButton Size="Size.Large" Disabled="true">
+                    <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+                </MudIconButton>
+            }
+            else
+            {
+                <MudTooltip Text="Uitzetten" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Large" Color="@(Status == "Uit/Vorstbeveiliging" ? Color.Secondary : Color.Default)"
+                                   OnClick="SetAntiFrostHeatingCommand" />
+                </MudTooltip>
+            }
         </MudCardActions>
     </MudCard>
 </MudItem>
