@@ -82,16 +82,39 @@
             </MudGrid>
         </MudCardContent>
         <MudCardActions>
-            <MudTooltip Text="TV" Arrow="true" Placement="Placement.Bottom">
-                <MudIconButton Icon="@Icons.Material.Filled.Tv" Size="Size.Large" Color="Color.Primary" Disabled="@(!IsReady)" />
-            </MudTooltip>
-            <MudTooltip Text="Bureau" Arrow="true" Placement="Placement.Bottom">
-                <MudIconButton Icon="@Icons.Material.Filled.Desk" Size="Size.Large" Color="Color.Primary" Disabled="@(!IsReady)" />
-            </MudTooltip>
-            <MudTooltip Text="Computer wakker maken" Arrow="true" Placement="Placement.Bottom">
-                <MudIconButton Icon="@Icons.Material.Filled.Computer" Size="Size.Large" Color="Color.Primary"
-                               OnClick="WakeOnLan" Disabled="@(!IsReady)" />
-            </MudTooltip>
+            @if (ToggleTvPowerSwitchPending)
+            {
+                <MudIconButton Size="Size.Large" Disabled="true">
+                    <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+                </MudIconButton>
+            }
+            else
+            {
+                <MudTooltip Text="TV" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.Tv" Size="Size.Large" Color="@(IsTvOn ? Color.Tertiary : Color.Secondary)"
+                                   Disabled="@(!IsReady)" OnClick="ToggleTvPowerSwitchCommand" />
+                </MudTooltip>
+            }
+
+            @if (ToggleBureauPowerSwitchPending)
+            {
+                <MudIconButton Size="Size.Large" Disabled="true">
+                    <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+                </MudIconButton>
+            }
+            else
+            {
+                <MudTooltip Text="Bureau" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.Desk" Size="Size.Large" Color="@(IsBureauOn ? Color.Tertiary : Color.Secondary)"
+                                   Disabled="@(!IsReady)" OnClick="ToggleBureauPowerSwitchCommand" />
+                </MudTooltip>
+            }
+
+            @* <MudTooltip Text="Computer wakker maken" Arrow="true" Placement="Placement.Bottom">
+            <MudIconButton Icon="@Icons.Material.Filled.Computer" Size="Size.Large" Color="Color.Primary"
+            OnClick="WakeOnLan" Disabled="@(!IsReady)" />
+            </MudTooltip> *@
+
         </MudCardActions>
     </MudCard>
 </MudItem>

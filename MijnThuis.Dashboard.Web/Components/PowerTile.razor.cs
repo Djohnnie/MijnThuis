@@ -1,4 +1,5 @@
 using MediatR;
+using MijnThuis.Contracts.Car;
 using MijnThuis.Contracts.Power;
 
 namespace MijnThuis.Dashboard.Web.Components;
@@ -13,6 +14,10 @@ public partial class PowerTile
     public decimal PowerPeak { get; set; }
     public decimal EnergyToday { get; set; }
     public decimal EnergyThisMonth { get; set; }
+    public bool IsTvOn { get; set; }
+    public bool ToggleTvPowerSwitchPending { get; set; }
+    public bool IsBureauOn { get; set; }
+    public bool ToggleBureauPowerSwitchPending { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -42,6 +47,8 @@ public partial class PowerTile
             PowerPeak = response.PowerPeak / 1000M;
             EnergyToday = response.EnergyToday;
             EnergyThisMonth = response.EnergyThisMonth;
+            IsTvOn = response.IsTvOn;
+            IsBureauOn = response.IsBureauOn;
             IsReady = true;
 
             await InvokeAsync(StateHasChanged);
@@ -51,6 +58,34 @@ public partial class PowerTile
             var logger = ScopedServices.GetRequiredService<ILogger<PowerTile>>();
             logger.LogError(ex, "Failed to refresh power data");
         }
+    }
+
+    public async Task ToggleTvPowerSwitchCommand()
+    {
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+
+        ToggleTvPowerSwitchPending = true;
+        await InvokeAsync(StateHasChanged);
+
+        var commandResult = await mediator.Send(new SetTvPowerSwitchCommand { IsOn = !IsTvOn });
+
+        ToggleTvPowerSwitchPending = false;
+
+        await RefreshData();
+    }
+
+    public async Task ToggleBureauPowerSwitchCommand()
+    {
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+
+        ToggleBureauPowerSwitchPending = true;
+        await InvokeAsync(StateHasChanged);
+
+        var commandResult = await mediator.Send(new SetBureauPowerSwitchCommand { IsOn = !IsBureauOn });
+
+        ToggleBureauPowerSwitchPending = false;
+
+        await RefreshData();
     }
 
     public async Task WakeOnLan()
