@@ -20,9 +20,9 @@
                         @if (IsReady)
                         {
                             <MudTooltip Text="Huidige temperatuur" Arrow="true" Placement="Placement.Bottom">
-                                <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="@(RoomTemperature < 22M ? Color.Secondary : Color.Tertiary)" />
+                                <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="@(RoomTemperature < Setpoint ? Color.Secondary : Color.Tertiary)" />
                             </MudTooltip>
-                            <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", RoomTemperature) °C</MudText>
+                            <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", RoomTemperature) °C (@String.Format("{0:F1}", Setpoint) °C)</MudText>
                         }
                         else
                         {
@@ -36,7 +36,7 @@
                         @if (IsReady)
                         {
                             <MudTooltip Text="Buitentemperatuur" Arrow="true" Placement="Placement.Bottom">
-                                <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="@(OutdoorTemperature < 22M ? Color.Secondary : Color.Tertiary)" />
+                                <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", OutdoorTemperature) °C</MudText>
                         }
@@ -82,9 +82,18 @@
             </MudGrid>
         </MudCardContent>
         <MudCardActions>
-            <MudIconButton Icon="@Icons.Material.Filled.BlurOn" Size="Size.Large" Color="Color.Default" />
-            <MudIconButton Icon="@Icons.Material.Filled.BlurOff" Size="Size.Large" Color="Color.Default" />
-            <MudIconButton Icon="@Icons.Material.Filled.Schedule" Size="Size.Large" Color="Color.Default" />
+            <MudTooltip Text="Op schema zetten" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.Schedule" Size="Size.Large" Color="@(Status == "Schema" ? Color.Tertiary : Color.Default)" />
+            </MudTooltip>
+            <MudTooltip Text="Op handmatig zetten (22 °C)" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.BlurOn" Size="Size.Large" Color="@(Status == "Handmatig" && Setpoint == 22M ? Color.Tertiary : Color.Default)" />
+            </MudTooltip>
+            <MudTooltip Text="Op handmatig zetten (16 °C)" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.BlurOff" Size="Size.Large" Color="@(Status == "Handmatig" && Setpoint == 16M ? Color.Tertiary : Color.Default)" />
+            </MudTooltip>
+            <MudTooltip Text="Uitzetten" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Large" Color="@(Status == "Uit/Vorstbeveiliging" ? Color.Secondary : Color.Default)" />
+            </MudTooltip>
         </MudCardActions>
     </MudCard>
 </MudItem>

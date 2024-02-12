@@ -16,8 +16,18 @@ public class GetHeatingOverviewQueryHandler : IRequestHandler<GetHeatingOverview
 
     public async Task<GetHeatingOverviewResponse> Handle(GetHeatingOverviewQuery request, CancellationToken cancellationToken)
     {
-        var result = await _heatingService.GetOverview();
+        var heatingResult = await _heatingService.GetOverview();
 
-        return result.Adapt<GetHeatingOverviewResponse>();
+        var result = heatingResult.Adapt<GetHeatingOverviewResponse>();
+        result.Mode = heatingResult.Mode switch
+        {
+            "Preheat" => "Voorverwarmen",
+            "Manual" => "Handmatig",
+            "Scheduling" => "Schema",
+            "FrostProtection" => "Uit/Vorstbeveiliging",
+            "TemporaryOverride" => "Tijdelijke overname",
+            _ => "Uit"
+        };
+        return result;
     }
 }

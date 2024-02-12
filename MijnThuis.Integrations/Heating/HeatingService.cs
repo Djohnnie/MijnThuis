@@ -39,7 +39,9 @@ public class HeatingService : BaseService, IHeatingService
 
             return new HeatingOverview
             {
+                Mode = climateZone.Preheat.Active ? "Preheat" : climateZone.Mode,
                 RoomTemperature = climateZone.RoomTemperature,
+                Setpoint = climateZone.Setpoint,
                 OutdoorTemperature = appliance.OutdoorTemperatureInformation.OutdoorTemperature,
                 NextSetpoint = climateZone.NextSetpoint,
                 NextSwitchTime = climateZone.NextSwitchTime
@@ -63,7 +65,7 @@ public class BaseService
     private readonly string _authClientId;
     private readonly string _authUsername;
     private readonly string _authPassword;
-    private AuthResponse _authToken;
+    private AuthResponse? _authToken;
 
     protected BaseService(IConfiguration configuration)
     {
@@ -79,7 +81,11 @@ public class BaseService
 
     protected async Task<HttpClient> InitializeHttpClient()
     {
-        _authToken = await GetAuthToken();
+        if (_authToken == null || _authToken.ExpiresOn <= TimeProvider.System.GetLocalNow().ToUnixTimeSeconds())
+        {
+            _authToken = await GetAuthToken();
+        }
+
         var accessToken = _authToken.AccessToken;
 
         var client = new HttpClient();
@@ -191,9 +197,27 @@ public class ClimateZone
     [JsonPropertyName("roomTemperature")]
     public decimal RoomTemperature { get; set; }
 
+    [JsonPropertyName("zoneMode")]
+    public string Mode { get; set; }
+
+    [JsonPropertyName("setpoint")]
+    public decimal Setpoint { get; set; }
+
     [JsonPropertyName("nextSetpoint")]
     public decimal NextSetpoint { get; set; }
 
     [JsonPropertyName("nextSwitchTime")]
     public DateTime NextSwitchTime { get; set; }
+
+    [JsonPropertyName("preHeat")]
+    public Preheat Preheat { get; set; }
+}
+
+public class Preheat
+{
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; }
+
+    [JsonPropertyName("active")]
+    public bool Active { get; set; }
 }

@@ -10,6 +10,7 @@ public partial class HeatingTile
     public bool IsReady { get; set; }
     public string Title { get; set; }
     public decimal RoomTemperature { get; set; }
+    public decimal Setpoint { get; set; }
     public decimal OutdoorTemperature { get; set; }
     public string Status { get; set; }
     public string NextSetpoint { get; set; }
@@ -40,8 +41,9 @@ public partial class HeatingTile
 
             var response = await mediator.Send(new GetHeatingOverviewQuery());
             RoomTemperature = response.RoomTemperature;
+            Setpoint = response.Setpoint;
             OutdoorTemperature = response.OutdoorTemperature;
-            Status = "Uit";
+            Status = response.Mode;
             NextSetpoint = $"{response.NextSetpoint:F1}";
             NextSwitchTime = $"{response.NextSwitchTime:HH:mm}";
             IsReady = true;

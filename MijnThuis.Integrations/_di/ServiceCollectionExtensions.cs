@@ -14,7 +14,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IPowerService, PowerService>();
         services.AddTransient<IWakeOnLanService, WakeOnLanService>();
         services.AddTransient<ISolarService, SolarService>();
-        services.AddTransient<IHeatingService, HeatingService>();
+        services.AddScoped<IHeatingService, HeatingService>();
         services.AddTransient<ICarService, CarService>();
         services.AddTransient<ISaunaService, SaunaService>();
 
