@@ -19,7 +19,7 @@ public static class WebApplicationEndpointExtensions
                 State = "Parked",
                 BatteryLevel = 55,
                 RemainingRange = 204,
-                Location = "Veldkant 33C, 2550 Kontich"
+                Address = "Veldkant 33C, 2550 Kontich"
             };
 
         }).WithName("GetCarOverview").WithOpenApi();

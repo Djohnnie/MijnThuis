@@ -15,6 +15,7 @@ builder.Services.AddServerSideBlazor().AddInteractiveServerComponents();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddMudServices();
 builder.Services.AddApplication();
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 

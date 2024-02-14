@@ -16,7 +16,7 @@ public static class WebApplicationEndpointExtensions
         {
             return new GetPowerOverviewResponse
             {
-                ActivePower = 134
+                CurrentPower = 134
             };
 
         }).WithName("GetPowerOverview").WithOpenApi();
