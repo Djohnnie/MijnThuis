@@ -19,7 +19,7 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudTooltip Text="Huidig vermogen" Arrow="true" Placement="Placement.Bottom">
+                            <MudTooltip Text="Huidig vermogen" Arrow="true" Placement="Placement.Right">
                                 <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(CurrentPower < 0 ? Color.Tertiary : Color.Secondary)" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@CurrentPower W</MudText>
@@ -35,7 +35,7 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudTooltip Text="Piekvermogen" Arrow="true" Placement="Placement.Bottom">
+                            <MudTooltip Text="Piekvermogen" Arrow="true" Placement="Placement.Left">
                                 <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(PowerPeak < 2.5M ? Color.Tertiary : Color.Secondary)" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", PowerPeak) kW</MudText>
@@ -51,7 +51,7 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudTooltip Text="Energie aangekocht vandaag" Arrow="true" Placement="Placement.Bottom">
+                            <MudTooltip Text="Energie aangekocht vandaag" Arrow="true" Placement="Placement.Right">
                                 <MudIcon Icon="@Icons.Material.Filled.Today" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", EnergyToday) kWh</MudText>
@@ -67,7 +67,7 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudTooltip Text="Energie aangekocht deze maand" Arrow="true" Placement="Placement.Bottom">
+                            <MudTooltip Text="Energie aangekocht deze maand" Arrow="true" Placement="Placement.Left">
                                 <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", EnergyThisMonth) kWh</MudText>

@@ -19,7 +19,7 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudTooltip Text="Huidige temperatuur" Arrow="true" Placement="Placement.Bottom">
+                            <MudTooltip Text="Huidige temperatuur" Arrow="true" Placement="Placement.Right">
                                 <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="@(RoomTemperature < Setpoint ? Color.Secondary : Color.Tertiary)" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", RoomTemperature) °C (@String.Format("{0:F0}", Setpoint) °C)</MudText>
@@ -35,7 +35,7 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudTooltip Text="Buitentemperatuur" Arrow="true" Placement="Placement.Bottom">
+                            <MudTooltip Text="Buitentemperatuur" Arrow="true" Placement="Placement.Left">
                                 <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", OutdoorTemperature) °C</MudText>
@@ -51,7 +51,7 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudTooltip Text="Status" Arrow="true" Placement="Placement.Bottom">
+                            <MudTooltip Text="Status" Arrow="true" Placement="Placement.Right">
                                 <MudIcon Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Medium" Color="@(Status == "Verwarmen" ? Color.Secondary : Color.Primary)" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@Status</MudText>
@@ -67,7 +67,7 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudTooltip Text="Planning" Arrow="true" Placement="Placement.Bottom">
+                            <MudTooltip Text="Planning" Arrow="true" Placement="Placement.Left">
                                 <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@NextSetpoint °C (@NextSwitchTime)</MudText>

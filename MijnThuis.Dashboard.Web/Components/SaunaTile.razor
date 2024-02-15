@@ -19,7 +19,7 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudTooltip Text="Status" Arrow="true" Placement="Placement.Bottom">
+                            <MudTooltip Text="Status" Arrow="true" Placement="Placement.Right">
                                 <MudIcon Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@State</MudText>
@@ -35,7 +35,7 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudTooltip Text="Huidig vermogen" Arrow="true" Placement="Placement.Bottom">
+                            <MudTooltip Text="Huidig vermogen" Arrow="true" Placement="Placement.Left">
                                 <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(Power > 0M ? Color.Secondary : Color.Tertiary)" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", Power) kW</MudText>
@@ -51,7 +51,7 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudTooltip Text="Temperatuur" Arrow="true" Placement="Placement.Bottom">
+                            <MudTooltip Text="Temperatuur" Arrow="true" Placement="Placement.Right">
                                 <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@InsideTemperature °C</MudText>
@@ -67,7 +67,7 @@
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)
                         {
-                            <MudTooltip Text="Buitentemperatuur" Arrow="true" Placement="Placement.Bottom">
+                            <MudTooltip Text="Buitentemperatuur" Arrow="true" Placement="Placement.Left">
                                 <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Primary" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@OutsideTemperature °C</MudText>
