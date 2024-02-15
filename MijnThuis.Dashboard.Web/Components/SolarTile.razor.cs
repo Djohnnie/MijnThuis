@@ -42,8 +42,8 @@ public partial class SolarTile
             CurrentPower = response.CurrentPower;
             LastDayEnergy = response.LastDayEnergy / 1000M;
             LastMonthEnergy = response.LastMonthEnergy / 1000M;
-            BatteryLevel = (int)response.BatteryLevel;
-            BatteryHealth = (int)response.BatteryHealth;
+            BatteryLevel = response.BatteryLevel;
+            BatteryHealth = response.BatteryHealth;
             IsReady = true;
 
             await InvokeAsync(StateHasChanged);

@@ -25,8 +25,8 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
         var batteryResult = await GetBatteryLevel();
 
         var result = solarResult.Adapt<GetSolarOverviewResponse>();
-        result.BatteryLevel = batteryResult.Level;
-        result.BatteryHealth = batteryResult.Health;
+        result.BatteryLevel = (int)Math.Round(batteryResult.Level);
+        result.BatteryHealth = (int)Math.Round(batteryResult.Health);
 
         return result;
     }
