@@ -14,6 +14,7 @@ public partial class CarTile
     public string Title { get; set; }
     public bool IsLocked { get; set; }
     public int BatteryLevel { get; set; }
+    public int BatteryHealth { get; set; }
     public int RemainingRange { get; set; }
     public int TemperatureInside { get; set; }
     public int TemperatureOutside { get; set; }
@@ -47,6 +48,7 @@ public partial class CarTile
             var response = await mediator.Send(new GetCarOverviewQuery());
             IsLocked = response.IsLocked;
             BatteryLevel = response.BatteryLevel;
+            BatteryHealth = response.BatteryHealth;
             RemainingRange = response.RemainingRange;
             TemperatureInside = response.TemperatureInside;
             TemperatureOutside = response.TemperatureOutside;

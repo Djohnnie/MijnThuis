@@ -8,6 +8,7 @@ namespace MijnThuis.Integrations.Car;
 public interface ICarService
 {
     Task<CarOverview> GetOverview();
+    Task<BatteryHealth> GetBatteryHealth();
     Task<CarLocation> GetLocation();
     Task<bool> Lock();
     Task<bool> Unlock();
@@ -42,6 +43,19 @@ public class CarService : BaseService, ICarService
             TemperatureInside = (int)result.ClimateState.InsideTemp,
             TemperatureOutside = (int)result.ClimateState.OutsideTemp,
             IsPreconditioning = result.ClimateState.IsPreconditioning
+        };
+    }
+
+    public async Task<BatteryHealth> GetBatteryHealth()
+    {
+        using var client = InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<BatteryHealthResponse>($"battery_health");
+
+        var batteryHealth = result.Results.Single(x => x.Vin == _vinNumber);
+
+        return new BatteryHealth
+        {
+            Percentage = batteryHealth.Percentage
         };
     }
 
@@ -185,4 +199,19 @@ public class LocationResponse
 {
     [JsonPropertyName("address")]
     public string Address { get; set; }
+}
+
+public class BatteryHealthResponse
+{
+    [JsonPropertyName("results")]
+    public List<VehicleBatteryHealth> Results { get; set; }
+}
+
+public class VehicleBatteryHealth
+{
+    [JsonPropertyName("vin")]
+    public string Vin { get; set; }
+
+    [JsonPropertyName("health_percent")]
+    public decimal Percentage { get; set; }
 }
