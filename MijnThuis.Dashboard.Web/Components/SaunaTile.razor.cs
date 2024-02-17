@@ -14,6 +14,10 @@ public partial class SaunaTile
     public int OutsideTemperature { get; set; }
     public decimal Power { get; set; }
 
+    public bool StartSaunaPending { get; set; }
+    public bool StartInfraredPending { get; set; }
+    public bool StopSaunaPending { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         _ = RunTimer();
@@ -41,7 +45,7 @@ public partial class SaunaTile
             State = response.State;
             InsideTemperature = response.InsideTemperature;
             OutsideTemperature = response.OutsideTemperature;
-            Power = response.Power / 1000M;
+            Power = response.Power;
             IsReady = true;
 
             await InvokeAsync(StateHasChanged);
@@ -51,5 +55,47 @@ public partial class SaunaTile
             var logger = ScopedServices.GetRequiredService<ILogger<SaunaTile>>();
             logger.LogError(ex, "Failed to refresh sauna data");
         }
+    }
+
+    public async Task StartSaunaCommand()
+    {
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+
+        StartSaunaPending = true;
+        await InvokeAsync(StateHasChanged);
+
+        await mediator.Send(new StartSaunaCommand());
+
+        StartSaunaPending = false;
+
+        await RefreshData();
+    }
+
+    public async Task StartInfraredCommand()
+    {
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+
+        StartInfraredPending = true;
+        await InvokeAsync(StateHasChanged);
+
+        await mediator.Send(new StartInfraredCommand());
+
+        StartInfraredPending = false;
+
+        await RefreshData();
+    }
+
+    public async Task StopSaunaCommand()
+    {
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+
+        StopSaunaPending = true;
+        await InvokeAsync(StateHasChanged);
+
+        await mediator.Send(new StopSaunaCommand());
+
+        StopSaunaPending = false;
+
+        await RefreshData();
     }
 }

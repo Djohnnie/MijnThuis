@@ -82,9 +82,47 @@
             </MudGrid>
         </MudCardContent>
         <MudCardActions>
-            <MudIconButton Icon="@Icons.Material.Filled.Gradient" Size="Size.Large" Color="Color.Default" />
-            <MudIconButton Icon="@Icons.Material.Filled.Waves" Size="Size.Large" Color="Color.Default" />
-            <MudIconButton Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Large" Color="Color.Default" />
+            @if (StartSaunaPending)
+            {
+                <MudIconButton Size="Size.Large" Disabled="true">
+                    <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+                </MudIconButton>
+            }
+            else
+            {
+                <MudTooltip Text="Sauna" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.Gradient" Size="Size.Large" Color="@(State == "Sauna" ? Color.Secondary : Color.Default)"
+                                   OnClick="StartSaunaCommand" />
+                </MudTooltip>
+            }
+
+            @if (StartInfraredPending)
+            {
+                <MudIconButton Size="Size.Large" Disabled="true">
+                    <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+                </MudIconButton>
+            }
+            else
+            {
+                <MudTooltip Text="Infrarood" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.Waves" Size="Size.Large" Color="@(State == "Infrarood" ? Color.Secondary : Color.Default)"
+                                   OnClick="StartInfraredCommand" />
+                </MudTooltip>
+            }
+
+            @if (StopSaunaPending)
+            {
+                <MudIconButton Size="Size.Large" Disabled="true">
+                    <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+                </MudIconButton>
+            }
+            else
+            {
+                <MudTooltip Text="Uitzetten" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Large" Color="@(State == "Uit" ? Color.Tertiary : Color.Default)"
+                                   OnClick="StopSaunaCommand" />
+                </MudTooltip>
+            }
         </MudCardActions>
     </MudCard>
 </MudItem>

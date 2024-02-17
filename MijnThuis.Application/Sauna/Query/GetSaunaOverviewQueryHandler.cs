@@ -30,13 +30,13 @@ public class GetSaunaOverviewQueryHandler : IRequestHandler<GetSaunaOverviewQuer
             State = state,
             InsideTemperature = insideTemperature,
             OutsideTemperature = outsideTemperature,
-            Power = power
+            Power = power / 1000M
         };
     }
 
     private Task<string> GetState()
     {
-        return GetCachedValue("HEATING_OVERVIEW", _saunaService.GetState, 1);
+        return GetCachedValue("SAUNA_STATE", _saunaService.GetState, 1);
     }
 
     private async Task<T> GetCachedValue<T>(string key, Func<Task<T>> valueFactory, int absoluteExpiration)
