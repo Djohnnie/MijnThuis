@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Caching.Memory;
 using MijnThuis.Contracts.Heating;
 using MijnThuis.Integrations.Heating;
 
@@ -7,10 +8,14 @@ namespace MijnThuis.Application.Heating.Commands;
 public class SetAntiFrostHeatingCommandHandler : IRequestHandler<SetAntiFrostHeatingCommand, HeatingCommandResponse>
 {
     private readonly IHeatingService _heatingService;
+    private readonly IMemoryCache _memoryCache;
 
-    public SetAntiFrostHeatingCommandHandler(IHeatingService heatingService)
+    public SetAntiFrostHeatingCommandHandler(
+        IHeatingService heatingService,
+        IMemoryCache memoryCache)
     {
         _heatingService = heatingService;
+        _memoryCache = memoryCache;
     }
 
     public async Task<HeatingCommandResponse> Handle(SetAntiFrostHeatingCommand request, CancellationToken cancellationToken)
@@ -37,6 +42,8 @@ public class SetAntiFrostHeatingCommandHandler : IRequestHandler<SetAntiFrostHea
                 await Task.Delay(1000);
             }
         }
+
+        _memoryCache.Remove("HEATING_OVERVIEW");
 
         return new HeatingCommandResponse
         {
