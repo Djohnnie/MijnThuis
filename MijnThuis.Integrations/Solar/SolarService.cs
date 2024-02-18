@@ -52,7 +52,7 @@ public class SolarService : BaseService, ISolarService
 
             return new BatteryLevel
             {
-                Level = result.Storage.Batteries.Single().Telemetries.Last().Level,
+                Level = result.Storage.Batteries.Single().Telemetries.Last().Level ?? 0M,
                 Health = result.Storage.Batteries.Single().Telemetries.Last().EnergyAvailable / result.Storage.Batteries.Single().Nameplate * 100M,
             };
         }
@@ -170,7 +170,7 @@ public class Battery
 public class Telemetry
 {
     [JsonPropertyName("batteryPercentageState")]
-    public decimal Level { get; init; }
+    public decimal? Level { get; init; }
 
     [JsonPropertyName("fullPackEnergyAvailable")]
     public decimal EnergyAvailable { get; init; }
