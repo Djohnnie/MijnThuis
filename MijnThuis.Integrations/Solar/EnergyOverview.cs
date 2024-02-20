@@ -6,3 +6,9 @@ public class EnergyOverview
     public decimal Consumed { get; set; }
     public decimal Purchased { get; set; }
 }
+
+public class EnergyProduced
+{
+    public decimal LastDayEnergy { get; init; }
+    public decimal LastMonthEnergy { get; init; }
+}

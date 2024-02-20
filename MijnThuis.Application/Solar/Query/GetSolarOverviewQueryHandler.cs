@@ -23,22 +23,29 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
     {
         var solarResult = await GetOverview();
         var batteryResult = await GetBatteryLevel();
+        var energyResult = await GetEnergy();
 
         var result = solarResult.Adapt<GetSolarOverviewResponse>();
-        result.BatteryLevel = (int)Math.Round(batteryResult.Level);
         result.BatteryHealth = (int)Math.Round(batteryResult.Health);
+        result.LastDayEnergy = energyResult.LastDayEnergy / 1000M;
+        result.LastMonthEnergy = energyResult.LastMonthEnergy / 1000M;
 
         return result;
     }
 
     private Task<SolarOverview> GetOverview()
     {
-        return GetCachedValue("SOLAR_OVERVIEW", _solarService.GetOverview, 5);
+        return _solarService.GetOverview();
     }
 
     private Task<BatteryLevel> GetBatteryLevel()
     {
-        return GetCachedValue("SOLAR_BATTERY_LEVEL", _solarService.GetBatteryLevel, 5);
+        return GetCachedValue("SOLAR_BATTERY_LEVEL", _solarService.GetBatteryLevel, 60);
+    }
+
+    private Task<EnergyProduced> GetEnergy()
+    {
+        return GetCachedValue("SOLAR_ENERGY", _solarService.GetEnergy, 15);
     }
 
     private async Task<T> GetCachedValue<T>(string key, Func<Task<T>> valueFactory, int absoluteExpiration)

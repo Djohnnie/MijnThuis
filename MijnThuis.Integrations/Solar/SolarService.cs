@@ -1,5 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using IdentityModel;
+using Microsoft.Extensions.Configuration;
+using MijnThuis.Integrations.Heating;
+using System.Net;
 using System.Net.Http.Json;
+using System.Text.Encodings.Web;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace MijnThuis.Integrations.Solar;
@@ -9,6 +14,8 @@ public interface ISolarService
     Task<SolarOverview> GetOverview();
 
     Task<BatteryLevel> GetBatteryLevel();
+
+    Task<EnergyProduced> GetEnergy();
 
     Task<EnergyOverview> GetEnergyToday();
 
@@ -28,14 +35,13 @@ public class SolarService : BaseService, ISolarService
 
     public async Task<SolarOverview> GetOverview()
     {
-        using var client = InitializeHttpClient();
-        var result = await client.GetFromJsonAsync<OverviewResponse>($"site/{_siteId}/overview?api_key={_authToken}");
+        using var client = await InitializeAuthenticatedHttpClient();
+        var result = await client.GetFromJsonAsync<PowerflowResponse>($"services/m/so/dashboard/v2/site/{_siteId}/powerflow/latest/?components=consumption,grid,storage");
 
         return new SolarOverview
         {
-            CurrentPower = result.Overview.CurrentPower.Power,
-            LastDayEnergy = result.Overview.LastDayData.Energy,
-            LastMonthEnergy = result.Overview.LastMonthData.Energy,
+            CurrentPower = result.SolarProduction.CurrentPower,
+            BatteryLevel = result.Storage.ChargeLevel,
         };
     }
 
@@ -61,6 +67,18 @@ public class SolarService : BaseService, ISolarService
             Console.WriteLine(ex.Message);
             throw;
         }
+    }
+
+    public async Task<EnergyProduced> GetEnergy()
+    {
+        using var client = await InitializeAuthenticatedHttpClient();
+        var result = await client.GetFromJsonAsync<EnergyProducedResponse>($"services/m/so/dashboard/site/{_siteId}/energyOverview");
+
+        return new EnergyProduced
+        {
+            LastDayEnergy = result.EnergyProducedOverviewList.SingleOrDefault(x=>x.TimePeriod == "LAST_DAY")?.Energy ?? 0,
+            LastMonthEnergy = result.EnergyProducedOverviewList.SingleOrDefault(x => x.TimePeriod == "LAST_MONTH")?.Energy ?? 0
+        };
     }
 
     public async Task<EnergyOverview> GetEnergyToday()
@@ -101,10 +119,18 @@ public class SolarService : BaseService, ISolarService
 public class BaseService
 {
     private readonly string _baseAddress;
+    private readonly string _appBaseAddress;
+    private readonly string _authUsername;
+    private readonly string _authPassword;
+
+    private SolarAuth _authToken;
 
     protected BaseService(IConfiguration configuration)
     {
         _baseAddress = configuration.GetValue<string>("SOLAR_API_BASE_ADDRESS");
+        _appBaseAddress = configuration.GetValue<string>("SOLAR_APP_BASE_ADDRESS");
+        _authUsername = configuration.GetValue<string>("SOLAR_APP_AUTH_USERNAME");
+        _authPassword = configuration.GetValue<string>("SOLAR_APP_AUTH_PASSWORD");
     }
 
     protected HttpClient InitializeHttpClient()
@@ -114,6 +140,84 @@ public class BaseService
 
         return client;
     }
+
+    protected async Task<HttpClient> InitializeAuthenticatedHttpClient()
+    {
+        if (_authToken == null || _authToken.ExpiresOn >= DateTime.Now)
+        {
+            _authToken = await GetAuthToken();
+        }
+
+        var client = new HttpClient();
+        client.BaseAddress = new Uri(_appBaseAddress);
+        client.DefaultRequestHeaders.Add("x-csrf-token", _authToken.CsrfToken);
+        client.DefaultRequestHeaders.Add("client-version", "3.12");
+        client.DefaultRequestHeaders.Add("Cookie", _authToken.Cookies);
+
+        return client;
+    }
+
+    private async Task<SolarAuth> GetAuthToken()
+    {
+        var cookies = new CookieContainer();
+        var handler = new HttpClientHandler
+        {
+            CookieContainer = cookies
+        };
+
+        using var authClient = new HttpClient(handler);
+        var response = await authClient.PostAsync($"{_appBaseAddress}/solaredge-apigw/api/login?j_username={_authUsername}&j_password={_authPassword}", null);
+
+        var csrf_token = cookies.GetCookies(new Uri("https://api.solaredge.com")).Cast<Cookie>().FirstOrDefault(x => x.Name == "CSRF-TOKEN")?.Value;
+
+        var cookieBuilder = new StringBuilder();
+
+        foreach (var cookie in cookies.GetAllCookies().Cast<Cookie>())
+        {
+            Console.WriteLine($"COOKIE {cookie.Domain}: {cookie.Name} = {cookie.Value}");
+            cookieBuilder.Append($"{cookie.Name}={cookie.Value}; ");
+        }
+
+        return new SolarAuth
+        {
+            Cookies = cookieBuilder.ToString(),
+            CsrfToken = csrf_token,
+            ExpiresOn = DateTime.Now.AddHours(24)
+        };
+    }
+}
+
+public class SolarAuth
+{
+    public string Cookies { get; set; }
+
+    public string CsrfToken { get; set; }
+
+    public DateTime ExpiresOn { get; set; }
+}
+
+public class PowerflowResponse
+{
+    [JsonPropertyName("solarProduction")]
+    public SolarProduction SolarProduction { get; set; }
+
+    [JsonPropertyName("storage")]
+    public StorageDetails Storage { get; set; }
+}
+
+public class SolarProduction
+{
+    [JsonPropertyName("currentPower")]
+    public decimal CurrentPower { get; set; }
+}
+
+public class StorageDetails
+{
+    [JsonPropertyName("currentPower")]
+    public decimal CurrentPower { get; set; }
+
+    [JsonPropertyName("chargeLevel")]
+    public int ChargeLevel { get; set; }
 }
 
 public class OverviewResponse
@@ -174,6 +278,21 @@ public class Telemetry
 
     [JsonPropertyName("fullPackEnergyAvailable")]
     public decimal EnergyAvailable { get; init; }
+}
+
+public class EnergyProducedResponse
+{
+    [JsonPropertyName("energyProducedOverviewList")]
+    public List<EnergyProducedPeriodResponse> EnergyProducedOverviewList { get; set; }
+}
+
+public class EnergyProducedPeriodResponse
+{
+    [JsonPropertyName("timePeriod")]
+    public string TimePeriod { get; set; }
+
+    [JsonPropertyName("energy")]
+    public decimal Energy { get; set; }
 }
 
 public class EnergyResponse

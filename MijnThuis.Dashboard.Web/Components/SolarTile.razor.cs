@@ -40,8 +40,8 @@ public partial class SolarTile
 
             var response = await mediator.Send(new GetSolarOverviewQuery());
             CurrentPower = response.CurrentPower;
-            LastDayEnergy = response.LastDayEnergy / 1000M;
-            LastMonthEnergy = response.LastMonthEnergy / 1000M;
+            LastDayEnergy = response.LastDayEnergy;
+            LastMonthEnergy = response.LastMonthEnergy;
             BatteryLevel = response.BatteryLevel;
             BatteryHealth = response.BatteryHealth;
             IsReady = true;
