@@ -6,11 +6,11 @@ namespace MijnThuis.Dashboard.Web.Components;
 
 public partial class PowerTile
 {
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(10));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(5));
 
     public bool IsReady { get; set; }
     public string Title { get; set; }
-    public int CurrentPower { get; set; }
+    public decimal CurrentPower { get; set; }
     public decimal PowerPeak { get; set; }
     public decimal EnergyToday { get; set; }
     public decimal EnergyThisMonth { get; set; }
@@ -43,7 +43,7 @@ public partial class PowerTile
             var mediator = ScopedServices.GetRequiredService<IMediator>();
 
             var response = await mediator.Send(new GetPowerOverviewQuery());
-            CurrentPower = response.CurrentPower;
+            CurrentPower = response.CurrentPower / 1000M;
             PowerPeak = response.PowerPeak / 1000M;
             EnergyToday = response.EnergyToday;
             EnergyThisMonth = response.EnergyThisMonth;

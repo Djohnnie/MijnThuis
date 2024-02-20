@@ -22,7 +22,7 @@
                             <MudTooltip Text="Huidig vermogen" Arrow="true" Placement="Placement.Right">
                                 <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(CurrentPower < 0 ? Color.Tertiary : Color.Secondary)" />
                             </MudTooltip>
-                            <MudText Typo="Typo.subtitle1">@CurrentPower W</MudText>
+                            <MudText Typo="Typo.subtitle1">@String.Format("{0:F2}", CurrentPower) kW</MudText>
                         }
                         else
                         {

@@ -20,9 +20,9 @@
                         @if (IsReady)
                         {
                             <MudTooltip Text="Huidig vermogen" Arrow="true" Placement="Placement.Right">
-                                <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(CurrentPower == 0 ? Color.Secondary : Color.Tertiary)" />
+                                <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(CurrentPower <= 0 ? Color.Secondary : Color.Tertiary)" />
                             </MudTooltip>
-                            <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", CurrentPower) kW</MudText>
+                            <MudText Typo="Typo.subtitle1">@String.Format("{0:F2}", CurrentPower) kW</MudText>
                         }
                         else
                         {

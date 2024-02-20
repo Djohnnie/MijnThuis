@@ -38,9 +38,20 @@ public class SolarService : BaseService, ISolarService
         using var client = await InitializeAuthenticatedHttpClient();
         var result = await client.GetFromJsonAsync<PowerflowResponse>($"services/m/so/dashboard/v2/site/{_siteId}/powerflow/latest/?components=consumption,grid,storage");
 
+        var currentPower = 0M;
+
+        if (result.SolarProduction.IsProducing)
+        {
+            currentPower = result.SolarProduction.CurrentPower;
+        }
+        else if (result.Storage.Status == "discharging")
+        {
+            currentPower = -result.Storage.CurrentPower;
+        }
+
         return new SolarOverview
         {
-            CurrentPower = result.SolarProduction.CurrentPower,
+            CurrentPower = currentPower,
             BatteryLevel = result.Storage.ChargeLevel,
         };
     }
@@ -76,7 +87,7 @@ public class SolarService : BaseService, ISolarService
 
         return new EnergyProduced
         {
-            LastDayEnergy = result.EnergyProducedOverviewList.SingleOrDefault(x=>x.TimePeriod == "LAST_DAY")?.Energy ?? 0,
+            LastDayEnergy = result.EnergyProducedOverviewList.SingleOrDefault(x => x.TimePeriod == "LAST_DAY")?.Energy ?? 0,
             LastMonthEnergy = result.EnergyProducedOverviewList.SingleOrDefault(x => x.TimePeriod == "LAST_MONTH")?.Energy ?? 0
         };
     }
@@ -209,6 +220,9 @@ public class SolarProduction
 {
     [JsonPropertyName("currentPower")]
     public decimal CurrentPower { get; set; }
+
+    [JsonPropertyName("isProducing")]
+    public bool IsProducing { get; set; }
 }
 
 public class StorageDetails
@@ -218,6 +232,9 @@ public class StorageDetails
 
     [JsonPropertyName("chargeLevel")]
     public int ChargeLevel { get; set; }
+
+    [JsonPropertyName("status")]
+    public string Status { get; set; }
 }
 
 public class OverviewResponse
