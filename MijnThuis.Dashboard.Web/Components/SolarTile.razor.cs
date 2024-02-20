@@ -1,15 +1,17 @@
 using MediatR;
 using MijnThuis.Contracts.Solar;
+using MudBlazor;
 
 namespace MijnThuis.Dashboard.Web.Components;
 
 public partial class SolarTile
 {
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(5));
-    
+
     public bool IsReady { get; set; }
     public string Title { get; set; }
     public decimal CurrentPower { get; set; }
+    public string BatteryBar { get; set; }
     public int BatteryLevel { get; set; }
     public int BatteryHealth { get; set; }
     public decimal LastDayEnergy { get; set; }
@@ -43,6 +45,18 @@ public partial class SolarTile
             LastDayEnergy = response.LastDayEnergy;
             LastMonthEnergy = response.LastMonthEnergy;
             BatteryLevel = response.BatteryLevel;
+            BatteryBar = BatteryLevel switch
+            {
+                0 => Icons.Material.Filled.Battery0Bar,
+                < 10 => Icons.Material.Filled.Battery1Bar,
+                < 20 => Icons.Material.Filled.Battery2Bar,
+                < 40 => Icons.Material.Filled.Battery3Bar,
+                < 60 => Icons.Material.Filled.Battery4Bar,
+                < 80 => Icons.Material.Filled.Battery5Bar,
+                < 100 => Icons.Material.Filled.Battery6Bar,
+                100 => Icons.Material.Filled.BatteryFull,
+                _ => Icons.Material.Filled.Battery0Bar,
+            };
             BatteryHealth = response.BatteryHealth;
             IsReady = true;
 

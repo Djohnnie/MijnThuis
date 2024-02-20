@@ -185,7 +185,6 @@ public class BaseService
 
         foreach (var cookie in cookies.GetAllCookies().Cast<Cookie>())
         {
-            Console.WriteLine($"COOKIE {cookie.Domain}: {cookie.Name} = {cookie.Value}");
             cookieBuilder.Append($"{cookie.Name}={cookie.Value}; ");
         }
 

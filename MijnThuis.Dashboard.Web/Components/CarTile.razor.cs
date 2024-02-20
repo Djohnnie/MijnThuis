@@ -14,6 +14,7 @@ public partial class CarTile
     public string Title { get; set; }
     public bool IsLocked { get; set; }
     public int BatteryLevel { get; set; }
+    public string BatteryBar { get; set; }
     public int BatteryHealth { get; set; }
     public int RemainingRange { get; set; }
     public int TemperatureInside { get; set; }
@@ -48,6 +49,18 @@ public partial class CarTile
             var response = await mediator.Send(new GetCarOverviewQuery());
             IsLocked = response.IsLocked;
             BatteryLevel = response.BatteryLevel;
+            BatteryBar = BatteryLevel switch
+            {
+                0 => Icons.Material.Filled.Battery0Bar,
+                < 10 => Icons.Material.Filled.Battery1Bar,
+                < 20 => Icons.Material.Filled.Battery2Bar,
+                < 40 => Icons.Material.Filled.Battery3Bar,
+                < 60 => Icons.Material.Filled.Battery4Bar,
+                < 80 => Icons.Material.Filled.Battery5Bar,
+                < 100 => Icons.Material.Filled.Battery6Bar,
+                100 => Icons.Material.Filled.BatteryFull,
+                _ => Icons.Material.Filled.Battery0Bar,
+            };
             BatteryHealth = response.BatteryHealth;
             RemainingRange = response.RemainingRange;
             TemperatureInside = response.TemperatureInside;

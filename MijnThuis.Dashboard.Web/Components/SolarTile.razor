@@ -36,7 +36,7 @@
                         @if (IsReady)
                         {
                             <MudTooltip Text="Batterij" Arrow="true" Placement="Placement.Left">
-                                <MudIcon Icon="@Icons.Material.Filled.Battery3Bar" Size="Size.Medium" Color="@(CurrentPower > 0 ? Color.Tertiary : Color.Secondary)" />
+                                <MudIcon Icon="@BatteryBar" Size="Size.Medium" Color="@(BatteryLevel > 0 ? Color.Tertiary : Color.Secondary)" />
                             </MudTooltip>
                             <MudText Typo="Typo.subtitle1">@BatteryLevel% (@BatteryHealth%)</MudText>
                         }
