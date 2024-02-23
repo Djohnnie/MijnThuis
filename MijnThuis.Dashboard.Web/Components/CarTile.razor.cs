@@ -51,9 +51,9 @@ public partial class CarTile
             BatteryLevel = response.BatteryLevel;
             BatteryBar = BatteryLevel switch
             {
-                0 => Icons.Material.Filled.Battery0Bar,
-                < 10 => Icons.Material.Filled.Battery1Bar,
-                < 20 => Icons.Material.Filled.Battery2Bar,
+                < 10 => Icons.Material.Filled.Battery0Bar,
+                < 20 => Icons.Material.Filled.Battery1Bar,
+                < 30 => Icons.Material.Filled.Battery2Bar,
                 < 40 => Icons.Material.Filled.Battery3Bar,
                 < 60 => Icons.Material.Filled.Battery4Bar,
                 < 80 => Icons.Material.Filled.Battery5Bar,
@@ -66,18 +66,6 @@ public partial class CarTile
             TemperatureInside = response.TemperatureInside;
             TemperatureOutside = response.TemperatureOutside;
             IsReady = true;
-
-            //Title = "Huidige status van de auto";
-
-            //if (response.IsCharging)
-            //{
-            //    Title = "De auto is aan het opladen";
-            //}
-
-            //if (response.IsPreconditioning)
-            //{
-            //    Title = "De auto is aan het voorverwarmen";
-            //}
 
             Title = response.Address;
 
