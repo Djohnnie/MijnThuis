@@ -36,22 +36,42 @@ public class SolarService : BaseService, ISolarService
     public async Task<SolarOverview> GetOverview()
     {
         using var client = await InitializeAuthenticatedHttpClient();
+
         var result = await client.GetFromJsonAsync<PowerflowResponse>($"services/m/so/dashboard/v2/site/{_siteId}/powerflow/latest/?components=consumption,grid,storage");
 
-        var currentPower = 0M;
+        var currentSolarPower = 0M;
+        var currentBatteryPower = 0M;
+        var currentGridPower = 0M;
 
         if (result.SolarProduction.IsProducing)
         {
-            currentPower = result.SolarProduction.CurrentPower;
+            currentSolarPower = result.SolarProduction.CurrentPower;
         }
-        else if (result.Storage.Status == "discharging")
+
+        if (result.Storage.Status == "charging")
         {
-            currentPower = -result.Storage.CurrentPower;
+            currentBatteryPower = result.Storage.CurrentPower;
+        }
+        else
+        {
+            currentBatteryPower = -result.Storage.CurrentPower;
+        }
+
+        if (result.Grid.Status == "import")
+        {
+            currentGridPower = result.Grid.CurrentPower;
+        }
+        else
+        {
+            currentGridPower = -result.Grid.CurrentPower;
         }
 
         return new SolarOverview
         {
-            CurrentPower = currentPower,
+            CurrentSolarPower = currentSolarPower,
+            CurrentBatteryPower = currentBatteryPower,
+            CurrentGridPower = currentGridPower,
+            CurrentConsumptionPower = result.Consumption.CurrentPower,
             BatteryLevel = result.Storage.ChargeLevel,
         };
     }
@@ -213,6 +233,12 @@ public class PowerflowResponse
 
     [JsonPropertyName("storage")]
     public StorageDetails Storage { get; set; }
+
+    [JsonPropertyName("grid")]
+    public GridDetails Grid { get; set; }
+
+    [JsonPropertyName("consumption")]
+    public ConsumptionDetails Consumption { get; set; }
 }
 
 public class SolarProduction
@@ -234,6 +260,21 @@ public class StorageDetails
 
     [JsonPropertyName("status")]
     public string Status { get; set; }
+}
+
+public class GridDetails
+{
+    [JsonPropertyName("currentPower")]
+    public decimal CurrentPower { get; set; }
+
+    [JsonPropertyName("status")]
+    public string Status { get; set; }
+}
+
+public class ConsumptionDetails
+{
+    [JsonPropertyName("currentPower")]
+    public decimal CurrentPower { get; set; }
 }
 
 public class OverviewResponse

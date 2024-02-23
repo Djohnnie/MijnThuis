@@ -2,6 +2,9 @@
 
 public class SolarOverview
 {
-    public decimal CurrentPower { get; set; }
+    public decimal CurrentSolarPower { get; set; }
+    public decimal CurrentBatteryPower { get; set; }
+    public decimal CurrentGridPower { get; set; }
+    public decimal CurrentConsumptionPower { get; set; }
     public int BatteryLevel { get; set; }
 }

@@ -29,12 +29,14 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
     public async Task<GetPowerOverviewResponse> Handle(GetPowerOverviewQuery request, CancellationToken cancellationToken)
     {
         var powerResult = await _powerService.GetOverview();
+        var consumptionResult = await _solarService.GetOverview();
         var energyTodayResult = await GetEnergyToday();
         var energyThisMonthResult = await GetEnergyThisMonth();
         var tvPowerSwitchOverview = await _shellyService.GetTvPowerSwitchOverview();
         var bureauPowerSwitchOverview = await _shellyService.GetBureauPowerSwitchOverview();
 
         var result = powerResult.Adapt<GetPowerOverviewResponse>();
+        result.CurrentConsumption = consumptionResult.CurrentConsumptionPower;
         result.EnergyToday = energyTodayResult.Purchased / 1000M;
         result.EnergyThisMonth = energyThisMonthResult.Purchased / 1000M;
         result.IsTvOn = tvPowerSwitchOverview.IsOn;

@@ -10,7 +10,9 @@ public partial class SolarTile
 
     public bool IsReady { get; set; }
     public string Title { get; set; }
-    public decimal CurrentPower { get; set; }
+    public decimal CurrentSolarPower { get; set; }
+    public decimal CurrentBatteryPower { get; set; }
+    public decimal CurrentGridPower { get; set; }
     public string BatteryBar { get; set; }
     public int BatteryLevel { get; set; }
     public int BatteryHealth { get; set; }
@@ -41,7 +43,9 @@ public partial class SolarTile
             var mediator = ScopedServices.GetRequiredService<IMediator>();
 
             var response = await mediator.Send(new GetSolarOverviewQuery());
-            CurrentPower = response.CurrentPower;
+            CurrentSolarPower = response.CurrentSolarPower;
+            CurrentBatteryPower = response.CurrentBatteryPower;
+            CurrentGridPower = response.CurrentGridPower;
             LastDayEnergy = response.LastDayEnergy;
             LastMonthEnergy = response.LastMonthEnergy;
             BatteryLevel = response.BatteryLevel;

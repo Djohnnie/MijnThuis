@@ -43,7 +43,7 @@ public partial class PowerTile
             var mediator = ScopedServices.GetRequiredService<IMediator>();
 
             var response = await mediator.Send(new GetPowerOverviewQuery());
-            CurrentPower = response.CurrentPower / 1000M;
+            CurrentPower = response.CurrentConsumption;
             PowerPeak = response.PowerPeak / 1000M;
             EnergyToday = response.EnergyToday;
             EnergyThisMonth = response.EnergyThisMonth;
