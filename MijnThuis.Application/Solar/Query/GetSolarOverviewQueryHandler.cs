@@ -40,7 +40,7 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
 
     private Task<BatteryLevel> GetBatteryLevel()
     {
-        return GetCachedValue("SOLAR_BATTERY_LEVEL", _solarService.GetBatteryLevel, 60);
+        return GetCachedValue("SOLAR_BATTERY_LEVEL", _solarService.GetBatteryLevel, 15);
     }
 
     private Task<EnergyProduced> GetEnergy()
