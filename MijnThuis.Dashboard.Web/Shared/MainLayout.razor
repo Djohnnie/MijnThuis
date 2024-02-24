@@ -18,11 +18,12 @@
     </MudMainContent>
 </MudLayout>
 
-@code {
+@code
+{
     MudTheme _theme = new();
     string modeIcon => _isDarkMode ? Icons.Outlined.DarkMode : @Icons.Outlined.LightMode;
     bool _isDarkMode = true;
-    
+
     void ToggleDarkMode()
     {
         _isDarkMode = !_isDarkMode;

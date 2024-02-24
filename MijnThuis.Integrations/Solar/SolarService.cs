@@ -96,7 +96,12 @@ public class SolarService : BaseService, ISolarService
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            throw;
+
+            return new BatteryLevel
+            {
+                Level = 0,
+                Health = 0
+            };
         }
     }
 
