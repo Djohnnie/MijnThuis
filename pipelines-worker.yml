@@ -4,7 +4,7 @@ trigger:
     - master
   paths:
     include:
-    - MijnThuis.Dashboard.Worker/*
+    - MijnThuis.Worker/*
     - MijnThuis.Integrations/*
     - pipeline-worker.yml
 
