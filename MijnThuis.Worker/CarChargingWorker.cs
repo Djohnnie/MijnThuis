@@ -17,6 +17,9 @@ public class CarChargingWorker : BackgroundService
         _logger = logger;
     }
 
+    // 2A  - 230V = 460W
+    // 3A  - 230V = 690W
+    // 4A  - 230V = 920W
     // 5A  - 230V = 1150W
     // 6A  - 230V = 1380W
     // 7A  - 230V = 1610W
