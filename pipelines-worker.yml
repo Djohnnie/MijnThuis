@@ -4,11 +4,9 @@ trigger:
     - master
   paths:
     include:
-    - MijnThuis.Dashboard.Web/*
+    - MijnThuis.Dashboard.Worker/*
     - MijnThuis.Integrations/*
-    - MijnThuis.Application/*
-    - MijnThuis.Contracts/*
-    - pipeline-web.yml
+    - pipeline-worker.yml
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -33,20 +31,20 @@ steps:
   inputs:
     command: 'restore'
     projects: | 
-      **/MijnThuis.Worker.csproj
+      **/MijnThuis.Dashboard.Web.csproj
 
 - task: DotNetCoreCLI@2
   displayName: Build Solution
   inputs:
     command: 'build'
     projects: | 
-      **/MijnThuis.Worker.csproj
+      **/MijnThuis.Dashboard.Web.csproj
 
 - script: |
-    dotnet publish ./MijnThuis.Worker --configuration "Release" --output ./MijnThuis.Worker/bin/Release/publish
+    dotnet publish ./MijnThuis.Dashboard.Web --configuration "Release" --output ./MijnThuis.Dashboard.Web/bin/Release/publish
 
 - script: |
-    cd ./MijnThuis.Worker
-    docker build -t djohnnie/mijnthuis-worker .
+    cd ./MijnThuis.Dashboard.Web
+    docker build -t djohnnie/mijnthuis-web .
     docker login -u '$(dockerId)' -p '$(dockerPwd)'
-    docker push djohnnie/mijnthuis-worker
+    docker push djohnnie/mijnthuis-web

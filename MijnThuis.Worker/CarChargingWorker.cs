@@ -58,7 +58,7 @@ public class CarChargingWorker : BackgroundService
 
                     if (currentSolarPower.Count == 10)
                     {
-                        currentAverageSolarPower = currentSolarPower.Average(); //+ (carOverview.IsCharging ? carOverview.ChargingAmps * 230M : 0M);
+                        currentAverageSolarPower = currentSolarPower.Average();
                         currentAvailableSolarPower = currentAverageSolarPower - solarOverview.CurrentConsumptionPower + (carOverview.IsCharging ? carOverview.ChargingAmps * 230M / 1000M : 0M);
                         maxPossibleCurrent = currentAvailableSolarPower * 1000M / 230M;
                         _logger.LogInformation($"Battery charge level: {solarOverview.BatteryLevel} %");
