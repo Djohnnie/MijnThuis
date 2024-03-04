@@ -37,6 +37,7 @@ public class CarChargingWorker : BackgroundService
         var currentAverageSolarPower = 0M;
         var currentAvailableSolarPower = 0M;
         var maxPossibleCurrent = 0M;
+        var carIsReadyToCharge = false;
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -53,6 +54,7 @@ public class CarChargingWorker : BackgroundService
                 {
                     _logger.LogInformation("The car is located at 'Thuis' and the charge port is open!");
 
+                    carIsReadyToCharge = true;
                     var solarOverview = await solarService.GetOverview();
                     currentSolarPower.Add(solarOverview.CurrentSolarPower);
 
@@ -92,6 +94,7 @@ public class CarChargingWorker : BackgroundService
                 else
                 {
                     _logger.LogInformation("The car is not ready for charging!");
+                    carIsReadyToCharge = false;
                 }
             }
             catch (Exception ex)
@@ -100,7 +103,7 @@ public class CarChargingWorker : BackgroundService
             }
 
             var stopTimer = Stopwatch.GetTimestamp();
-            var duration = TimeSpan.FromSeconds(10) - TimeSpan.FromTicks(stopTimer - startTimer);
+            var duration = (carIsReadyToCharge ? TimeSpan.FromSeconds(10) : TimeSpan.FromMinutes(5)) - TimeSpan.FromTicks(stopTimer - startTimer);
 
             if (duration > TimeSpan.Zero)
             {
