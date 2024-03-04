@@ -31,20 +31,20 @@ steps:
   inputs:
     command: 'restore'
     projects: | 
-      **/MijnThuis.Dashboard.Web.csproj
+      **/MijnThuis.Worker.csproj
 
 - task: DotNetCoreCLI@2
   displayName: Build Solution
   inputs:
     command: 'build'
     projects: | 
-      **/MijnThuis.Dashboard.Web.csproj
+      **/MijnThuis.Worker.csproj
 
 - script: |
-    dotnet publish ./MijnThuis.Dashboard.Web --configuration "Release" --output ./MijnThuis.Dashboard.Web/bin/Release/publish
+    dotnet publish ./MijnThuis.Worker --configuration "Release" --output ./MijnThuis.Worker/bin/Release/publish
 
 - script: |
-    cd ./MijnThuis.Dashboard.Web
-    docker build -t djohnnie/mijnthuis-web .
+    cd ./MijnThuis.Worker
+    docker build -t djohnnie/mijnthuis-worker .
     docker login -u '$(dockerId)' -p '$(dockerPwd)'
-    docker push djohnnie/mijnthuis-web
+    docker push djohnnie/mijnthuis-worker
