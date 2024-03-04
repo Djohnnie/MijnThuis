@@ -119,6 +119,16 @@
                 <MudIconButton Icon="@Icons.Material.Filled.Air" Size="Size.Large" Color="Color.Primary"
                                OnClick="FartCommand" Disabled="@(!IsReady)" />
             </MudTooltip>
+
+            <MudTooltip Text="Starten met opladen" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.PlayCircle" Size="Size.Large" Color="Color.Primary"
+                               OnClick="FartCommand" Disabled="@(!IsReady)" />
+            </MudTooltip>
+
+            <MudTooltip Text="Stoppen met opladen" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.StopCircle" Size="Size.Large" Color="Color.Primary"
+                            OnClick="FartCommand" Disabled="@(!IsReady)" />
+            </MudTooltip>
         </MudCardActions>
     </MudCard>
 </MudItem>

@@ -10,4 +10,6 @@ public record CarOverview
     public bool IsLocked { get; init; }
     public bool IsCharging { get; init; }
     public bool IsPreconditioning { get; init; }
+    public int ChargingAmps { get; init; }
+    public bool IsChargePortOpen { get; init; }
 }

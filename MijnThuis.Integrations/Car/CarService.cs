@@ -15,8 +15,8 @@ public interface ICarService
     Task<bool> Honk();
     Task<bool> Fart();
     Task<bool> Preheat();
-    Task<bool> OpenFrunk();
-    Task<bool> ToggleTrunk();
+    Task<bool> StartCharging(int chargingAmps);
+    Task<bool> StopCharging();
 }
 
 public class CarService : BaseService, ICarService
@@ -42,7 +42,9 @@ public class CarService : BaseService, ICarService
             RemainingRange = (int)(result.ChargeState.BatteryRange * 1.60934M),
             TemperatureInside = (int)result.ClimateState.InsideTemp,
             TemperatureOutside = (int)result.ClimateState.OutsideTemp,
-            IsPreconditioning = result.ClimateState.IsPreconditioning
+            IsPreconditioning = result.ClimateState.IsPreconditioning,
+            ChargingAmps = result.ChargeState.ChargingAmps,
+            IsChargePortOpen = result.ChargeState.IsChargePortOpen
         };
     }
 
@@ -66,7 +68,8 @@ public class CarService : BaseService, ICarService
 
         return new CarLocation
         {
-            Address = result.Address
+            Address = result.Address,
+            Location = result.Location
         };
     }
 
@@ -102,18 +105,20 @@ public class CarService : BaseService, ICarService
         return result.Result;
     }
 
-    public async Task<bool> OpenFrunk()
+    public async Task<bool> StartCharging(int chargingAmps)
     {
         using var client = InitializeHttpClient();
-        var result = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/remote_boombox");
 
-        return result.Result;
+        var result1 = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/set_charging_amps?amps={chargingAmps}");
+        var result2 = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/start_charging");
+
+        return result1.Result;
     }
 
-    public async Task<bool> ToggleTrunk()
+    public async Task<bool> StopCharging()
     {
         using var client = InitializeHttpClient();
-        var result = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/lock");
+        var result = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/stop_charging");
 
         return result.Result;
     }
@@ -175,6 +180,12 @@ public class ChargeState
 
     [JsonPropertyName("charging_state")]
     public string ChargingState { get; set; }
+
+    [JsonPropertyName("charge_amps")]
+    public int ChargingAmps { get; set; }
+
+    [JsonPropertyName("charge_port_door_open")]
+    public bool IsChargePortOpen { get; set; }
 }
 
 public class ClimateState
@@ -199,6 +210,9 @@ public class LocationResponse
 {
     [JsonPropertyName("address")]
     public string Address { get; set; }
+
+    [JsonPropertyName("saved_location")]
+    public string Location { get; set; }
 }
 
 public class BatteryHealthResponse

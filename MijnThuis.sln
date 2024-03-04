@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MijnThuis.Application", "Mi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MijnThuis.Integrations", "MijnThuis.Integrations\MijnThuis.Integrations.csproj", "{212371A2-6082-49B4-A1B3-662B3EF2DB17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MijnThuis.Dashboard.App", "MijnThuis.Dashboard.App\MijnThuis.Dashboard.App.csproj", "{B9F21BA5-C343-46F9-9737-99268D4A8E6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MijnThuis.Dashboard.App", "MijnThuis.Dashboard.App\MijnThuis.Dashboard.App.csproj", "{B9F21BA5-C343-46F9-9737-99268D4A8E6E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MijnThuis.Worker", "MijnThuis.Worker\MijnThuis.Worker.csproj", "{BE81604F-1789-4B39-A434-3188EC8EBB4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,6 +87,14 @@ Global
 		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Release|x64.ActiveCfg = Release|Any CPU
 		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Release|x64.Build.0 = Release|Any CPU
 		{B9F21BA5-C343-46F9-9737-99268D4A8E6E}.Release|x64.Deploy.0 = Release|Any CPU
+		{BE81604F-1789-4B39-A434-3188EC8EBB4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE81604F-1789-4B39-A434-3188EC8EBB4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE81604F-1789-4B39-A434-3188EC8EBB4F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BE81604F-1789-4B39-A434-3188EC8EBB4F}.Debug|x64.Build.0 = Debug|Any CPU
+		{BE81604F-1789-4B39-A434-3188EC8EBB4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE81604F-1789-4B39-A434-3188EC8EBB4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE81604F-1789-4B39-A434-3188EC8EBB4F}.Release|x64.ActiveCfg = Release|Any CPU
+		{BE81604F-1789-4B39-A434-3188EC8EBB4F}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
