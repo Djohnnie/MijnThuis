@@ -17,6 +17,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISolarService, SolarService>();
         services.AddScoped<IHeatingService, HeatingService>();
         services.AddTransient<ICarService, CarService>();
+        services.AddTransient<IChargerService, ChargerService>();
         services.AddTransient<ISaunaService, SaunaService>();
 
         return services;

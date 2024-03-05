@@ -79,6 +79,38 @@
                         }
                     </MudPaper>
                 </MudItem>
+                <MudItem xs="6">
+                    <MudPaper Class="d-flex gap-4" Elevation="0">
+                        @if (IsReady)
+                        {
+                            <MudTooltip Text="Adrien Dezaegerplein" Arrow="true" Placement="Placement.Right">
+                                <MudIcon Icon="@Icons.Material.Filled.ElectricCar" Size="Size.Medium" Color="@(Charger1Available ? Color.Tertiary : Color.Secondary)" />
+                            </MudTooltip>
+                            <MudText Typo="Typo.subtitle1">@Charger1</MudText>
+                        }
+                        else
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        }
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudPaper Class="d-flex gap-4" Elevation="0">
+                        @if (IsReady)
+                        {
+                            <MudTooltip Text="Breendonkstraat" Arrow="true" Placement="Placement.Left">
+                                <MudIcon Icon="@Icons.Material.Filled.ElectricCar" Size="Size.Medium" Color="@(Charger2Available ? Color.Tertiary : Color.Secondary)" />
+                            </MudTooltip>
+                            <MudText Typo="Typo.subtitle1">@Charger2</MudText>
+                        }
+                        else
+                        {
+                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                        }
+                    </MudPaper>
+                </MudItem>
             </MudGrid>
         </MudCardContent>
         <MudCardActions>
@@ -120,7 +152,7 @@
                                OnClick="FartCommand" Disabled="@(!IsReady)" />
             </MudTooltip>
 
-            <MudTooltip Text="Starten met opladen" Arrow="true" Placement="Placement.Bottom">
+            @* <MudTooltip Text="Starten met opladen" Arrow="true" Placement="Placement.Bottom">
                 <MudIconButton Icon="@Icons.Material.Filled.PlayCircle" Size="Size.Large" Color="Color.Primary"
                                OnClick="FartCommand" Disabled="@(!IsReady)" />
             </MudTooltip>
@@ -128,7 +160,7 @@
             <MudTooltip Text="Stoppen met opladen" Arrow="true" Placement="Placement.Bottom">
                 <MudIconButton Icon="@Icons.Material.Filled.StopCircle" Size="Size.Large" Color="Color.Primary"
                             OnClick="FartCommand" Disabled="@(!IsReady)" />
-            </MudTooltip>
+            </MudTooltip> *@
         </MudCardActions>
     </MudCard>
 </MudItem>

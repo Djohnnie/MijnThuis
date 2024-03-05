@@ -12,4 +12,8 @@ public record GetCarOverviewResponse
     public int TemperatureOutside { get; init; }
     public int BatteryHealth { get; set; }
     public string Address { get; set; }
+    public string Charger1 { get; set; }
+    public bool Charger1Available { get; set; }
+    public string Charger2 { get; set; }
+    public bool Charger2Available { get; set; }
 }

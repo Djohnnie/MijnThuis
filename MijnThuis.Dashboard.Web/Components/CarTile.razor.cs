@@ -19,6 +19,10 @@ public partial class CarTile
     public int RemainingRange { get; set; }
     public int TemperatureInside { get; set; }
     public int TemperatureOutside { get; set; }
+    public string Charger1 { get; set; }
+    public bool Charger1Available { get; set; }
+    public string Charger2 { get; set; }
+    public bool Charger2Available { get; set; }
 
     public bool LockPending { get; set; }
     public bool UnlockPending { get; set; }
@@ -65,6 +69,10 @@ public partial class CarTile
             RemainingRange = response.RemainingRange;
             TemperatureInside = response.TemperatureInside;
             TemperatureOutside = response.TemperatureOutside;
+            Charger1 = response.Charger1;
+            Charger1Available = response.Charger1Available;
+            Charger2 = response.Charger2;
+            Charger2Available = response.Charger2Available;
             IsReady = true;
 
             Title = response.Address;
