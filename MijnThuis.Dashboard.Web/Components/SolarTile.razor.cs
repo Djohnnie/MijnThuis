@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Components;
 using MijnThuis.Contracts.Solar;
 using MudBlazor;
 
@@ -6,6 +7,9 @@ namespace MijnThuis.Dashboard.Web.Components;
 
 public partial class SolarTile
 {
+    [Inject]
+    protected NavigationManager NavigationManager { get; set; }
+
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(5));
 
     public bool IsReady { get; set; }
@@ -71,5 +75,10 @@ public partial class SolarTile
             var logger = ScopedServices.GetRequiredService<ILogger<SolarTile>>();
             logger.LogError(ex, "Failed to refresh solar data");
         }
+    }
+
+    public void MoreCommand()
+    {
+        NavigationManager.NavigateTo($"solar{new Uri(NavigationManager.Uri).Query}");
     }
 }

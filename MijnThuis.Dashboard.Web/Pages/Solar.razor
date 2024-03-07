@@ -1,0 +1,50 @@
+﻿@inherits OwningComponentBase
+
+@page "/solar"
+@using MijnThuis.Dashboard.Web.Components
+
+<PageTitle>Mijn Thuis - Zonneopbrengst</PageTitle>
+
+<MudGrid>
+
+    <MudItem xs="12" sm="12" md="1" lg="1" xl="2">
+        <MudTooltip Text="Ga terug" Arrow="true" Placement="Placement.Right">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Default" />
+        </MudTooltip>
+    </MudItem>
+
+    <MudItem xs="12" sm="12" md="10" lg="10" xl="8">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.BatteryChargingFull" />
+                    </MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">Thuisbatterij</MudText>
+                    <MudText Typo="Typo.body2">Laadgeschiedenis van de thuisbatterij</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudChart ChartType="ChartType.Line" ChartSeries="@_series" ChartOptions="@_options" Width="100%"></MudChart>
+            </MudCardContent>
+            @* <MudCardActions>
+                <MudTooltip Text="Vandaag" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.Today" Size="Size.Large" Color="Color.Primary"
+                                   OnClick="UnlockCommand" />
+                </MudTooltip>
+                <MudTooltip Text="3 dagen" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Large" Color="Color.Primary"
+                                   OnClick="UnlockCommand" />
+                </MudTooltip>
+                <MudTooltip Text="Week" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Large" Color="Color.Primary"
+                                   OnClick="UnlockCommand" />
+                </MudTooltip>
+            </MudCardActions> *@
+        </MudCard>
+    </MudItem>
+
+</MudGrid>
+

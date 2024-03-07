@@ -1,9 +1,6 @@
-﻿using IdentityModel;
-using Microsoft.Extensions.Configuration;
-using MijnThuis.Integrations.Heating;
+﻿using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Encodings.Web;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -20,6 +17,8 @@ public interface ISolarService
     Task<EnergyOverview> GetEnergyToday();
 
     Task<EnergyOverview> GetEnergyThisMonth();
+
+    Task<StorageData> GetStorageData(StorageDataRange range);
 }
 
 public class SolarService : BaseService, ISolarService
@@ -148,6 +147,25 @@ public class SolarService : BaseService, ISolarService
             Produced = result.EnergyDetails.Meters.Single(m => m.Type == "Production").Values.Sum(v => v.Value),
             Consumed = result.EnergyDetails.Meters.Single(m => m.Type == "Consumption").Values.Sum(v => v.Value),
             Purchased = result.EnergyDetails.Meters.Single(m => m.Type == "Purchased").Values.Sum(v => v.Value),
+        };
+    }
+
+    public async Task<StorageData> GetStorageData(StorageDataRange range)
+    {
+        var today = TimeProvider.System.GetLocalNow().Date;
+        var start = $"{today.AddDays(-2):yyyy-MM-dd HH:mm:00}";
+        var end = $"{today.AddDays(1).AddSeconds(-1):yyyy-MM-dd HH:mm:00}";
+
+        using var client = InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<StorageOverview>($"site/{_siteId}/storageData?api_key={_authToken}&startTime={start}&endTime={end}");
+
+        return new StorageData
+        {
+            Entries = result.Storage.Batteries.Single().Telemetries.Select(x => new StorageDataEntry
+            {
+                //Timestamp = $"{x.TimeStamp:HH:mm}",
+                ChargeState = x.Level ?? 0M
+            }).ToList()
         };
     }
 }
@@ -335,6 +353,9 @@ public class Battery
 
 public class Telemetry
 {
+    //[JsonPropertyName("timeStamp")]
+    //public DateTime TimeStamp { get; set; }
+
     [JsonPropertyName("batteryPercentageState")]
     public decimal? Level { get; init; }
 

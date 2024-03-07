@@ -10,8 +10,13 @@
             </CardHeaderAvatar>
             <CardHeaderContent>
                 <MudText Typo="Typo.body1">Zonnepanelen</MudText>
-                <MudText Typo="Typo.body2">De huidige opbrengst</MudText>
+                <MudText Typo="Typo.body2">De huidige zonneopbrengst</MudText>
             </CardHeaderContent>
+            <CardHeaderActions>
+                <MudTooltip Text="Meer details" Arrow="true" Placement="Placement.Left">
+                    <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" OnClick="MoreCommand" />
+                </MudTooltip>
+            </CardHeaderActions>
         </MudCardHeader>
         <MudCardContent>
             <MudGrid>
