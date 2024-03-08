@@ -18,6 +18,7 @@ public class CarChargingWorker : BackgroundService
         _logger = logger;
     }
 
+    // 1A  - 230V = 230W
     // 2A  - 230V = 460W
     // 3A  - 230V = 690W
     // 4A  - 230V = 920W
@@ -30,6 +31,9 @@ public class CarChargingWorker : BackgroundService
     // 11A - 230V = 2530W
     // 12A - 230V = 2760W
     // 13A - 230V = 2990W
+    // 14A - 230V = 3220W
+    // 15A - 230V = 3450W
+    // 16A - 230V = 3680W
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -38,8 +42,10 @@ public class CarChargingWorker : BackgroundService
         var carService = serviceScope.ServiceProvider.GetService<ICarService>();
         var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
 
-        var currentSolarPower = new List<decimal>();
+        var collectedSolarPower = new List<decimal>();
+        var collectedConsumedPower = new List<decimal>();
         var currentAverageSolarPower = 0M;
+        var currentAverageConsumedPower = 0M;
         var currentAvailableSolarPower = 0M;
         var maxPossibleCurrent = 0M;
         var carIsReadyToCharge = false;
@@ -51,7 +57,7 @@ public class CarChargingWorker : BackgroundService
             var startTimer = Stopwatch.GetTimestamp();
 
             var logBuilder = new StringBuilder();
-            logBuilder.AppendLine("Checking car charging state...");
+            logBuilder.AppendLine("Checking solar power, consumption and car charging state...");
 
             try
             {
@@ -65,6 +71,8 @@ public class CarChargingWorker : BackgroundService
                 if (carLocation.Location == "Thuis" && carOverview.IsChargePortOpen)
                 {
                     logBuilder.AppendLine("The car is located at 'Thuis' and the charge port is open!");
+                    logBuilder.AppendLine($"Collecting data for calculating average... ({collectedSolarPower.Count + 1}/10)");
+                    logBuilder.AppendLine();
 
                     carIsReadyToCharge = true;
 
@@ -72,24 +80,28 @@ public class CarChargingWorker : BackgroundService
                     var solarOverview = await solarService.GetOverview();
 
                     // Add the current solar power (in kW) to a list for calculating the average.
-                    currentSolarPower.Add(solarOverview.CurrentSolarPower);
+                    collectedSolarPower.Add(solarOverview.CurrentSolarPower);
+                    collectedConsumedPower.Add(solarOverview.CurrentConsumptionPower);
 
                     // If 10 measurements have been collected, we can calculate an average.
-                    if (currentSolarPower.Count == 10)
+                    if (collectedSolarPower.Count >= 10)
                     {
                         // Calculate the average solar power in kW.
-                        currentAverageSolarPower = currentSolarPower.Average();
+                        currentAverageSolarPower = collectedSolarPower.Average();
+                        currentAverageConsumedPower = collectedConsumedPower.Average();
 
                         // Calculate the available solar power, by subtracting the current consumption
                         // and adding the power used by the car charging (if it is charging).
-                        currentAvailableSolarPower = currentAverageSolarPower - solarOverview.CurrentConsumptionPower + (carOverview.IsCharging ? carOverview.ChargingAmps * 230M / 1000M : 0M);
+                        currentAvailableSolarPower = currentAverageSolarPower - currentAverageConsumedPower + (carOverview.IsCharging ? carOverview.ChargingAmps * 230M / 1000M : 0M);
 
                         // Calculate the maximum current based on the available solar power.
                         maxPossibleCurrent = currentAvailableSolarPower * 1000M / 230M;
 
                         logBuilder.AppendLine($"Battery charge level: {solarOverview.BatteryLevel} %");
                         logBuilder.AppendLine($"Average solar power past minute: {currentAverageSolarPower:F2} kW");
-                        logBuilder.AppendLine($"    [{string.Join(';', currentSolarPower.Select(x => $"{x:F2}"))}]");
+                        logBuilder.AppendLine($"    [{string.Join(", ", collectedSolarPower.Select(x => $"{x:F2}"))}]");
+                        logBuilder.AppendLine($"Average consumed power past minute: {currentAverageConsumedPower:F2} kW");
+                        logBuilder.AppendLine($"    [{string.Join(", ", collectedConsumedPower.Select(x => $"{x:F2}"))}]");
 
                         // If the car is already charging, log the current charging amps.
                         if (carOverview.IsCharging)
@@ -102,21 +114,21 @@ public class CarChargingWorker : BackgroundService
                         }
 
                         logBuilder.AppendLine($"Remaining power: {currentAvailableSolarPower:F2} kW");
-                        logBuilder.AppendLine($"    Average solar power {currentAverageSolarPower:F2} kW");
-                        logBuilder.AppendLine($"    Current consumption {solarOverview.CurrentConsumptionPower:F2} kW");
-                        logBuilder.AppendLine($"    Car charging power {(carOverview.IsCharging ? carOverview.ChargingAmps * 230M / 1000M : 0M)} kW");
+                        logBuilder.AppendLine($"  = Average solar power {currentAverageSolarPower:F2} kW");
+                        logBuilder.AppendLine($"  - Average consumption {currentAverageConsumedPower:F2} kW");
+                        logBuilder.AppendLine($"  + Car charging power {(carOverview.IsCharging ? carOverview.ChargingAmps * 230M / 1000M : 0M)} kW");
                         logBuilder.AppendLine($"Maximum current available: {maxPossibleCurrent:F2} A");
-                        logBuilder.AppendLine($"Maximum charging current available: {carOverview.MaxChargingAmps} A");
 
                         maxPossibleCurrent = maxPossibleCurrent > carOverview.MaxChargingAmps ? carOverview.MaxChargingAmps - (maxPossibleCurrent - carOverview.MaxChargingAmps < 2 ? 1 : 0) : maxPossibleCurrent - 1;
 
-                        logBuilder.AppendLine($"Maximum current available (recalculated): {(int)maxPossibleCurrent} A");
+                        logBuilder.AppendLine($"Maximum current available (recalculated): {(int)maxPossibleCurrent}/{carOverview.MaxChargingAmps} A");
                         logBuilder.AppendLine($"Maximum power available (recalculated): {(int)maxPossibleCurrent * 230M / 1000M} kW");
                         logBuilder.AppendLine();
 
                         // Clear the list for calculating the average to
                         // prepare it for the next calculation.
-                        currentSolarPower.Clear();
+                        collectedSolarPower.Clear();
+                        collectedConsumedPower.Clear();
 
                         // If the home battery is charged over 95% and the car is not charging
                         // or the car is charging at a different charging amps level and the
@@ -148,7 +160,7 @@ public class CarChargingWorker : BackgroundService
                     carIsReadyToCharge = false;
                 }
 
-                _logger.LogInformation(logBuilder.ToString());
+                _logger.LogInformation(logBuilder.ToString().TrimEnd());
             }
             catch (Exception ex)
             {
