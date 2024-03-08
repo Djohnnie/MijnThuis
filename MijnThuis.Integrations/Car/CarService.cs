@@ -45,7 +45,9 @@ public class CarService : BaseService, ICarService
             IsPreconditioning = result.ClimateState.IsPreconditioning,
             ChargingAmps = result.ChargeState.ChargingAmps,
             MaxChargingAmps = result.ChargeState.MaxChargingAmps,
-            IsChargePortOpen = result.ChargeState.IsChargePortOpen
+            IsChargePortOpen = result.ChargeState.IsChargePortOpen,
+            ChargeEnergyAdded = result.ChargeState.ChargeEnergyAdded,
+            ChargeRangeAdded = result.ChargeState.ChargeMilesAdded * 1.60934M,
         };
     }
 
@@ -190,6 +192,12 @@ public class ChargeState
 
     [JsonPropertyName("charge_port_door_open")]
     public bool IsChargePortOpen { get; set; }
+
+    [JsonPropertyName("charge_energy_added")]
+    public decimal ChargeEnergyAdded { get; set; }
+
+    [JsonPropertyName("charge_miles_added_ideal")]
+    public decimal ChargeMilesAdded { get; set; }
 }
 
 public class ClimateState

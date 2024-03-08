@@ -36,6 +36,11 @@ public class GetCarOverviewQueryHandler : IRequestHandler<GetCarOverviewQuery, G
         var result = overviewResult.Adapt<GetCarOverviewResponse>();
         result.BatteryHealth = (int)Math.Round(batteryResult.Percentage);
         result.Address = string.Join(", ", locationResult.Address.Split(", ").Take(2));
+        if (overviewResult.IsCharging)
+        {
+            result.ChargingCurrent = $"{overviewResult.ChargingAmps}/{overviewResult.MaxChargingAmps} A";
+            result.ChargingRange = $"{overviewResult.ChargeEnergyAdded:F1} kWh ({overviewResult.ChargeRangeAdded:F0} km)";
+        }
         result.Charger1 = $"{charger1Result.NumberOfChargersAvailable} / {charger1Result.NumberOfChargers}";
         result.Charger1Available = charger1Result.NumberOfChargersAvailable > 0;
         result.Charger2 = $"{charger2Result.NumberOfChargersAvailable} / {charger2Result.NumberOfChargers}";

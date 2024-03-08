@@ -79,6 +79,41 @@
                         }
                     </MudPaper>
                 </MudItem>
+                @if( IsCharging )
+                {
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            @if (IsReady)
+                            {
+                                <MudTooltip Text="Oplaadstroom" Arrow="true" Placement="Placement.Right">
+                                    <MudIcon Icon="@Icons.Material.Filled.BatteryChargingFull" Size="Size.Medium" Color="@Color.Tertiary" />
+                                </MudTooltip>
+                                <MudText Typo="Typo.subtitle1">@ChargingCurrent</MudText>
+                            }
+                            else
+                            {
+                                <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                                <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                            }
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudPaper Class="d-flex gap-4" Elevation="0">
+                            @if (IsReady)
+                            {
+                                <MudTooltip Text="Opgeladen range" Arrow="true" Placement="Placement.Left">
+                                    <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Medium" Color="@Color.Tertiary" />
+                                </MudTooltip>
+                                <MudText Typo="Typo.subtitle1">@ChargingRange</MudText>
+                            }
+                            else
+                            {
+                                <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                                <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                            }
+                        </MudPaper>
+                    </MudItem>
+                }
                 <MudItem xs="6">
                     <MudPaper Class="d-flex gap-4" Elevation="0">
                         @if (IsReady)

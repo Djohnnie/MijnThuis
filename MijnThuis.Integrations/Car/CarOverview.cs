@@ -1,4 +1,6 @@
-﻿namespace MijnThuis.Integrations.Car;
+﻿using System.Text.Json.Serialization;
+
+namespace MijnThuis.Integrations.Car;
 
 public record CarOverview
 {
@@ -13,4 +15,6 @@ public record CarOverview
     public int ChargingAmps { get; init; }
     public int MaxChargingAmps { get; init; }
     public bool IsChargePortOpen { get; init; }
+    public decimal ChargeEnergyAdded { get; init; }
+    public decimal ChargeRangeAdded { get; init; }
 }
