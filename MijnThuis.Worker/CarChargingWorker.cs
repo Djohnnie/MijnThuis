@@ -81,12 +81,12 @@ public class CarChargingWorker : BackgroundService
                         // Calculate the available solar power, by subtracting the current consumption
                         // and adding the power used by the car charging (if it is charging).
                         currentAvailableSolarPower = currentAverageSolarPower - solarOverview.CurrentConsumptionPower + (carOverview.IsCharging ? carOverview.ChargingAmps * 230M / 1000M : 0M);
-                        
+
                         // Calculate the maximum current based on the available solar power.
                         maxPossibleCurrent = currentAvailableSolarPower * 1000M / 230M;
                         _logger.LogInformation($"Battery charge level: {solarOverview.BatteryLevel} %");
                         _logger.LogInformation($"Average solar power past minute: {currentAverageSolarPower:F2} kW [{string.Join(';', currentSolarPower.Select(x => $"{x:F2}"))}]");
-                       
+
                         // If the car is already charging, log the current charging amps.
                         if (carOverview.IsCharging)
                         {
@@ -96,10 +96,15 @@ public class CarChargingWorker : BackgroundService
                         {
                             _logger.LogInformation("Car is not charging!");
                         }
-                        _logger.LogInformation($"Remaining power: Average solar power {currentAverageSolarPower:F2} kW - Current consumption {solarOverview.CurrentConsumptionPower:F2} kW + Car charging power {carOverview.ChargingAmps * 230M / 1000M} kW");
+                        _logger.LogInformation($"Remaining power: Average solar power {currentAverageSolarPower:F2} kW - Current consumption {solarOverview.CurrentConsumptionPower:F2} kW + Car charging power {(carOverview.IsCharging ? carOverview.ChargingAmps * 230M / 1000M : 0M)} kW");
                         _logger.LogInformation($"Remaining power: {currentAvailableSolarPower:F2} kW");
                         _logger.LogInformation($"Maximum current available: {maxPossibleCurrent:F2} A");
-                        
+
+                        maxPossibleCurrent = maxPossibleCurrent > carOverview.MaxChargingAmps ? carOverview.MaxChargingAmps : maxPossibleCurrent;
+
+                        _logger.LogInformation($"Maximum charging current available: {carOverview.MaxChargingAmps} A");
+                        _logger.LogInformation($"Maximum current available (recalculated): {(int)maxPossibleCurrent} A");
+
                         // Clear the list for calculating the average to
                         // prepare it for the next calculation.
                         currentSolarPower.Clear();

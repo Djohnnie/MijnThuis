@@ -44,6 +44,7 @@ public class CarService : BaseService, ICarService
             TemperatureOutside = (int)result.ClimateState.OutsideTemp,
             IsPreconditioning = result.ClimateState.IsPreconditioning,
             ChargingAmps = result.ChargeState.ChargingAmps,
+            MaxChargingAmps = result.ChargeState.MaxChargingAmps,
             IsChargePortOpen = result.ChargeState.IsChargePortOpen
         };
     }
@@ -183,6 +184,9 @@ public class ChargeState
 
     [JsonPropertyName("charge_amps")]
     public int ChargingAmps { get; set; }
+
+    [JsonPropertyName("charge_current_request_max")]
+    public int MaxChargingAmps { get; set; }
 
     [JsonPropertyName("charge_port_door_open")]
     public bool IsChargePortOpen { get; set; }

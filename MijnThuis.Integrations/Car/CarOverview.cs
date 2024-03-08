@@ -11,5 +11,6 @@ public record CarOverview
     public bool IsCharging { get; init; }
     public bool IsPreconditioning { get; init; }
     public int ChargingAmps { get; init; }
+    public int MaxChargingAmps { get; init; }
     public bool IsChargePortOpen { get; init; }
 }
