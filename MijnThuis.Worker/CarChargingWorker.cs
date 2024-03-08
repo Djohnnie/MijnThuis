@@ -101,15 +101,15 @@ public class CarChargingWorker : BackgroundService
                             logBuilder.AppendLine("Car is not charging!");
                         }
 
-                        maxPossibleCurrent = maxPossibleCurrent > carOverview.MaxChargingAmps ? carOverview.MaxChargingAmps - (maxPossibleCurrent - carOverview.MaxChargingAmps < 2 ? 1 : 0) : maxPossibleCurrent - 1;
-
-
                         logBuilder.AppendLine($"Remaining power: {currentAvailableSolarPower:F2} kW");
                         logBuilder.AppendLine($"    Average solar power {currentAverageSolarPower:F2} kW");
                         logBuilder.AppendLine($"    Current consumption {solarOverview.CurrentConsumptionPower:F2} kW");
                         logBuilder.AppendLine($"    Car charging power {(carOverview.IsCharging ? carOverview.ChargingAmps * 230M / 1000M : 0M)} kW");
                         logBuilder.AppendLine($"Maximum current available: {maxPossibleCurrent:F2} A");
                         logBuilder.AppendLine($"Maximum charging current available: {carOverview.MaxChargingAmps} A");
+
+                        maxPossibleCurrent = maxPossibleCurrent > carOverview.MaxChargingAmps ? carOverview.MaxChargingAmps - (maxPossibleCurrent - carOverview.MaxChargingAmps < 2 ? 1 : 0) : maxPossibleCurrent - 1;
+
                         logBuilder.AppendLine($"Maximum current available (recalculated): {(int)maxPossibleCurrent} A");
                         logBuilder.AppendLine($"Maximum power available (recalculated): {(int)maxPossibleCurrent * 230M / 1000M} kW");
                         logBuilder.AppendLine();
