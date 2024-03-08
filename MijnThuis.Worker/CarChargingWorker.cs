@@ -122,7 +122,7 @@ public class CarChargingWorker : BackgroundService
                         // or the car is charging at a different charging amps level and the
                         // available charging amps level is higher or equal to 2A: Start charging
                         // the car at the maximum possible current.
-                        if (solarOverview.BatteryLevel >= 95 && (!carOverview.IsCharging || carOverview.ChargingAmps != (int)maxPossibleCurrent) && (int)maxPossibleCurrent >= 2)
+                        if (solarOverview.BatteryLevel > 95 && (!carOverview.IsCharging || carOverview.ChargingAmps != (int)maxPossibleCurrent) && (int)maxPossibleCurrent >= 2)
                         {
                             logBuilder.AppendLine("-----------------------------");
                             logBuilder.AppendLine($"Start charging at {(int)maxPossibleCurrent} A");
@@ -133,7 +133,7 @@ public class CarChargingWorker : BackgroundService
                         // If the car is already charging and the current home battery level has
                         // dropped below 95% or the maximum possible current has dropped below 2A:
                         // Stop charging the car.
-                        if (carOverview.IsCharging && (solarOverview.BatteryLevel < 95 || (int)maxPossibleCurrent < 2))
+                        if (carOverview.IsCharging && (solarOverview.BatteryLevel <= 95 || (int)maxPossibleCurrent < 2))
                         {
                             logBuilder.AppendLine("-----------------------------");
                             logBuilder.AppendLine("Stop charging!");
