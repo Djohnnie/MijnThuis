@@ -9,7 +9,7 @@
 
     <MudItem xs="12" sm="12" md="1" lg="1" xl="2">
         <MudTooltip Text="Ga terug" Arrow="true" Placement="Placement.Right">
-            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Default" />
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Default" OnClick="BackCommand" />
         </MudTooltip>
     </MudItem>
 
@@ -29,20 +29,24 @@
             <MudCardContent>
                 <MudChart ChartType="ChartType.Line" ChartSeries="@_series" ChartOptions="@_options" Width="100%"></MudChart>
             </MudCardContent>
-            @* <MudCardActions>
+            <MudCardActions>
                 <MudTooltip Text="Vandaag" Arrow="true" Placement="Placement.Bottom">
                     <MudIconButton Icon="@Icons.Material.Filled.Today" Size="Size.Large" Color="Color.Primary"
-                                   OnClick="UnlockCommand" />
+                                   OnClick="BatteryTodayCommand" />
                 </MudTooltip>
                 <MudTooltip Text="3 dagen" Arrow="true" Placement="Placement.Bottom">
                     <MudIconButton Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Large" Color="Color.Primary"
-                                   OnClick="UnlockCommand" />
+                                   OnClick="BatteryThreeDaysCommand" />
                 </MudTooltip>
                 <MudTooltip Text="Week" Arrow="true" Placement="Placement.Bottom">
                     <MudIconButton Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Large" Color="Color.Primary"
-                                   OnClick="UnlockCommand" />
+                                   OnClick="BatteryWeekCommand" />
                 </MudTooltip>
-            </MudCardActions> *@
+                <MudTooltip Text="Week" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Large" Color="Color.Primary"
+                                   OnClick="BatteryMonthCommand" />
+                </MudTooltip>
+            </MudCardActions>
         </MudCard>
     </MudItem>
 

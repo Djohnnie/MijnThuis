@@ -153,8 +153,21 @@ public class SolarService : BaseService, ISolarService
     public async Task<StorageData> GetStorageData(StorageDataRange range)
     {
         var today = TimeProvider.System.GetLocalNow().Date;
-        var start = $"{today.AddDays(-2):yyyy-MM-dd HH:mm:00}";
-        var end = $"{today.AddDays(1).AddSeconds(-1):yyyy-MM-dd HH:mm:00}";
+        var start = $"{today:yyyy-MM-dd HH:mm:ss}";
+        var end = $"{today.AddDays(1).AddSeconds(-1):yyyy-MM-dd HH:mm:ss}";
+
+        switch (range)
+        {
+            case StorageDataRange.ThreeDays:
+                start = $"{today.AddDays(-2):yyyy-MM-dd HH:mm:ss}";
+                break;
+            case StorageDataRange.Week:
+                start = $"{today.AddDays(-5):yyyy-MM-dd HH:mm:ss}";
+                break;
+            case StorageDataRange.Month:
+                start = $"{today.AddDays(-28):yyyy-MM-dd HH:mm:ss}";
+                break;
+        }
 
         using var client = InitializeHttpClient();
         var result = await client.GetFromJsonAsync<StorageOverview>($"site/{_siteId}/storageData?api_key={_authToken}&startTime={start}&endTime={end}");

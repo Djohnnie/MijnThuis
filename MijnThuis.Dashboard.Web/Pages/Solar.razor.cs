@@ -1,35 +1,71 @@
+using Microsoft.AspNetCore.Components;
 using MijnThuis.Integrations.Solar;
 using MudBlazor;
 
-namespace MijnThuis.Dashboard.Web.Pages
+namespace MijnThuis.Dashboard.Web.Pages;
+
+public partial class Solar
 {
-    public partial class Solar
+    [Inject]
+    protected NavigationManager NavigationManager { get; set; }
+
+    private readonly List<ChartSeries> _series = new();
+    private readonly ChartOptions _options = new();
+    private string[] XAxisLabels { get; set; }
+
+    protected override async Task OnInitializedAsync()
     {
-        private readonly List<ChartSeries> _series = new();
-        private readonly ChartOptions _options = new();
-        private string[] XAxisLabels { get; set; }
+        await RefreshData(StorageDataRange.Today);
 
-        protected override async Task OnInitializedAsync()
+        await base.OnInitializedAsync();
+    }
+
+    private async Task RefreshData(StorageDataRange dataRange)
+    {
+        var solarService = ScopedServices.GetRequiredService<ISolarService>();
+
+        var data = await solarService.GetStorageData(dataRange);
+
+        _series.Clear();
+        _series.Add(new ChartSeries { Name = "Battery", Data = data.Entries.Select(x => (double)x.ChargeState).ToArray() });
+
+        _options.YAxisTicks = 10;
+        _options.YAxisLines = true;
+        _options.DisableLegend = true;
+        _options.InterpolationOption = InterpolationOption.Straight;
+
+        XAxisLabels = data.Entries.Select(x =>
         {
-            var solarService = ScopedServices.GetRequiredService<ISolarService>();
+            var label = string.Empty;
 
-            var data = await solarService.GetStorageData(StorageDataRange.Today);
+            return label;
+        }).ToArray();
 
-            _series.Add(new ChartSeries { Name = "Battery", Data = data.Entries.Select(x => (double)x.ChargeState).ToArray() });
+        await InvokeAsync(StateHasChanged);
+    }
 
-            _options.YAxisTicks = 10;
-            _options.YAxisLines = true;
-            _options.DisableLegend = true;
-            _options.InterpolationOption = InterpolationOption.Straight;
+    public void BackCommand()
+    {
+        NavigationManager.NavigateTo($"/{new Uri(NavigationManager.Uri).Query}");
+    }
 
-            XAxisLabels = data.Entries.Select(x =>
-            {
-                var label = string.Empty;
+    public async Task BatteryTodayCommand()
+    {
+        await RefreshData(StorageDataRange.Today);
+    }
 
-                return label;
-            }).ToArray();
+    public async Task BatteryThreeDaysCommand()
+    {
+        await RefreshData(StorageDataRange.ThreeDays);
+    }
 
-            await base.OnInitializedAsync();
-        }
+    public async Task BatteryWeekCommand()
+    {
+        await RefreshData(StorageDataRange.Week);
+    }
+
+    public async Task BatteryMonthCommand()
+    {
+        await RefreshData(StorageDataRange.Month);
     }
 }
