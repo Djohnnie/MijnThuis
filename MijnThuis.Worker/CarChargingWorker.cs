@@ -83,8 +83,8 @@ public class CarChargingWorker : BackgroundService
                     collectedSolarPower.Add(solarOverview.CurrentSolarPower);
                     collectedConsumedPower.Add(solarOverview.CurrentConsumptionPower);
 
-                    // If 10 measurements have been collected, we can calculate an average.
-                    if (collectedSolarPower.Count >= 10)
+                    // If 20 measurements have been collected, we can calculate an average.
+                    if (collectedSolarPower.Count >= 20)
                     {
                         // Calculate the average solar power in kW.
                         currentAverageSolarPower = collectedSolarPower.Average();
