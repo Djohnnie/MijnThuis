@@ -3,8 +3,23 @@ using MijnThuis.Application.DependencyInjection;
 using MijnThuis.Dashboard.Web.Data;
 using MijnThuis.Dashboard.Web.Middleware;
 using MudBlazor.Services;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel((context, options) =>
+{
+    var certificateFilename = context.Configuration.GetValue<string>("CERTIFICATE_FILENAME");
+    var certificatePassword = context.Configuration.GetValue<string>("CERTIFICATE_PASSWORD");
+
+    if (certificateFilename == null)
+    {
+        options.Listen(IPAddress.Any, 8080);
+    }
+    else
+    {
+        options.Listen(IPAddress.Any, 8080, listenOption => listenOption.UseHttps(certificateFilename, certificatePassword));
+    }
+});
 
 StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
 
