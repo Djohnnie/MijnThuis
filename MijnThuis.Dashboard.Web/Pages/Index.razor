@@ -1,19 +1,86 @@
 ﻿@using MijnThuis.Dashboard.Web.Components
+@using MijnThuis.Dashboard.Web.Middleware
 
+@inject ExtraPageArguments ExtraPageArguments
 @page "/"
 
 <PageTitle>Mijn Thuis</PageTitle>
 
-<MudGrid>
+<MudGrid Style="@Style">
 
-    <PowerTile />
-    
-    <SolarTile />
-    
-    <HeatingTile />
-    
-    <CarTile />
+    @if (ExtraPageArguments.IsTesla)
+    {
+        <MudItem xs="12">
+            <PowerTile />
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+            <PowerTile />
+        </MudItem>
+    }
 
-    <SaunaTile />
+    @if (ExtraPageArguments.IsTesla)
+    {
+        <MudItem xs="12">
+            <SolarTile />
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+            <SolarTile />
+        </MudItem>
+    }
+
+    @if (ExtraPageArguments.IsTesla)
+    {
+        <MudItem xs="12">
+            <HeatingTile />
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+            <HeatingTile />
+        </MudItem>
+    }
+
+    @if (ExtraPageArguments.IsTesla)
+    {
+        <MudItem xs="12">
+            <CarTile />
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+            <CarTile />
+        </MudItem>
+    }
+
+    @if (ExtraPageArguments.IsTesla)
+    {
+        <MudItem xs="12">
+            <SaunaTile />
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+            <SaunaTile />
+        </MudItem>
+    }
 
 </MudGrid>
+
+@code
+{
+    private string Style { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Style = ExtraPageArguments.IsTesla ? "zoom: 1.75;" : "";
+    }
+}

@@ -1,128 +1,126 @@
 ﻿@inherits OwningComponentBase
 
-<MudItem xs="12" sm="6" md="6" lg="4" xl="3">
-    <MudCard Outlined>
-        <MudCardHeader>
-            <CardHeaderAvatar>
-                <MudAvatar Color="Color.Primary">
-                    <MudIcon Icon="@Icons.Material.Filled.Gradient" Title="Favorite" />
-                </MudAvatar>
-            </CardHeaderAvatar>
-            <CardHeaderContent>
-                <MudText Typo="Typo.body1">Sauna</MudText>
-                <MudText Typo="Typo.body2">De huidige status van de sauna</MudText>
-            </CardHeaderContent>
-        </MudCardHeader>
-        <MudCardContent>
-            <MudGrid>
-                <MudItem xs="6">
-                    <MudPaper Class="d-flex gap-4" Elevation="0">
-                        @if (IsReady)
-                        {
-                            <MudTooltip Text="Status" Arrow="true" Placement="Placement.Right">
-                                <MudIcon Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Medium" Color="Color.Primary" />
-                            </MudTooltip>
-                            <MudText Typo="Typo.subtitle1">@State</MudText>
-                        }
-                        else
-                        {
-                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                        }
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="6">
-                    <MudPaper Class="d-flex gap-4" Elevation="0">
-                        @if (IsReady)
-                        {
-                            <MudTooltip Text="Huidig vermogen" Arrow="true" Placement="Placement.Left">
-                                <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(Power > 0M ? Color.Secondary : Color.Tertiary)" />
-                            </MudTooltip>
-                            <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", Power) kW</MudText>
-                        }
-                        else
-                        {
-                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                        }
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="6">
-                    <MudPaper Class="d-flex gap-4" Elevation="0">
-                        @if (IsReady)
-                        {
-                            <MudTooltip Text="Temperatuur" Arrow="true" Placement="Placement.Right">
-                                <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Primary" />
-                            </MudTooltip>
-                            <MudText Typo="Typo.subtitle1">@InsideTemperature °C</MudText>
-                        }
-                        else
-                        {
-                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                        }
-                    </MudPaper>
-                </MudItem>
-                <MudItem xs="6">
-                    <MudPaper Class="d-flex gap-4" Elevation="0">
-                        @if (IsReady)
-                        {
-                            <MudTooltip Text="Buitentemperatuur" Arrow="true" Placement="Placement.Left">
-                                <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Primary" />
-                            </MudTooltip>
-                            <MudText Typo="Typo.subtitle1">@OutsideTemperature °C</MudText>
-                        }
-                        else
-                        {
-                            <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                            <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                        }
-                    </MudPaper>
-                </MudItem>
-            </MudGrid>
-        </MudCardContent>
-        <MudCardActions>
-            @if (StartSaunaPending)
-            {
-                <MudIconButton Size="Size.Large" Disabled="true">
-                    <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
-                </MudIconButton>
-            }
-            else
-            {
-                <MudTooltip Text="Sauna" Arrow="true" Placement="Placement.Bottom">
-                    <MudIconButton Icon="@Icons.Material.Filled.Gradient" Size="Size.Large" Color="@(State == "Sauna" ? Color.Secondary : Color.Default)"
-                                   OnClick="StartSaunaCommand" />
-                </MudTooltip>
-            }
+<MudCard Outlined>
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <MudAvatar Color="Color.Primary">
+                <MudIcon Icon="@Icons.Material.Filled.Gradient" Title="Favorite" />
+            </MudAvatar>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.body1">Sauna</MudText>
+            <MudText Typo="Typo.body2">De huidige status van de sauna</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudGrid>
+            <MudItem xs="6">
+                <MudPaper Class="d-flex gap-4" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Status" Arrow="true" Placement="Placement.Right">
+                            <MudIcon Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Medium" Color="Color.Primary" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@State</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6">
+                <MudPaper Class="d-flex gap-4" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Huidig vermogen" Arrow="true" Placement="Placement.Left">
+                            <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(Power > 0M ? Color.Secondary : Color.Tertiary)" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", Power) kW</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6">
+                <MudPaper Class="d-flex gap-4" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Temperatuur" Arrow="true" Placement="Placement.Right">
+                            <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Primary" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@InsideTemperature °C</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6">
+                <MudPaper Class="d-flex gap-4" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Buitentemperatuur" Arrow="true" Placement="Placement.Left">
+                            <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Primary" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@OutsideTemperature °C</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+    <MudCardActions>
+        @if (StartSaunaPending)
+        {
+            <MudIconButton Size="Size.Large" Disabled="true">
+                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+            </MudIconButton>
+        }
+        else
+        {
+            <MudTooltip Text="Sauna" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.Gradient" Size="Size.Large" Color="@(State == "Sauna" ? Color.Secondary : Color.Default)"
+                               OnClick="StartSaunaCommand" />
+            </MudTooltip>
+        }
 
-            @if (StartInfraredPending)
-            {
-                <MudIconButton Size="Size.Large" Disabled="true">
-                    <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
-                </MudIconButton>
-            }
-            else
-            {
-                <MudTooltip Text="Infrarood" Arrow="true" Placement="Placement.Bottom">
-                    <MudIconButton Icon="@Icons.Material.Filled.Waves" Size="Size.Large" Color="@(State == "Infrarood" ? Color.Secondary : Color.Default)"
-                                   OnClick="StartInfraredCommand" />
-                </MudTooltip>
-            }
+        @if (StartInfraredPending)
+        {
+            <MudIconButton Size="Size.Large" Disabled="true">
+                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+            </MudIconButton>
+        }
+        else
+        {
+            <MudTooltip Text="Infrarood" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.Waves" Size="Size.Large" Color="@(State == "Infrarood" ? Color.Secondary : Color.Default)"
+                               OnClick="StartInfraredCommand" />
+            </MudTooltip>
+        }
 
-            @if (StopSaunaPending)
-            {
-                <MudIconButton Size="Size.Large" Disabled="true">
-                    <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
-                </MudIconButton>
-            }
-            else
-            {
-                <MudTooltip Text="Uitzetten" Arrow="true" Placement="Placement.Bottom">
-                    <MudIconButton Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Large" Color="@(State == "Uit" ? Color.Tertiary : Color.Default)"
-                                   OnClick="StopSaunaCommand" />
-                </MudTooltip>
-            }
-        </MudCardActions>
-    </MudCard>
-</MudItem>
+        @if (StopSaunaPending)
+        {
+            <MudIconButton Size="Size.Large" Disabled="true">
+                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+            </MudIconButton>
+        }
+        else
+        {
+            <MudTooltip Text="Uitzetten" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Large" Color="@(State == "Uit" ? Color.Tertiary : Color.Default)"
+                               OnClick="StopSaunaCommand" />
+            </MudTooltip>
+        }
+    </MudCardActions>
+</MudCard>
