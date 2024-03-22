@@ -2,13 +2,9 @@ using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using MijnThuis.Application.DependencyInjection;
 using MijnThuis.Dashboard.Web.Middleware;
 using MudBlazor.Services;
-#if !DEBUG
 using System.Net;
-#endif
 
 var builder = WebApplication.CreateBuilder(args);
-
-#if !DEBUG
 builder.WebHost.ConfigureKestrel((context, options) =>
 {
     var certificateFilename = context.Configuration.GetValue<string>("CERTIFICATE_FILENAME");
@@ -23,7 +19,6 @@ builder.WebHost.ConfigureKestrel((context, options) =>
         options.Listen(IPAddress.Any, 5001, listenOption => listenOption.UseHttps(certificateFilename, certificatePassword));
     }
 });
-#endif
 
 StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
 
