@@ -12,11 +12,11 @@ builder.WebHost.ConfigureKestrel((context, options) =>
 
     if (certificateFilename == null)
     {
-        options.Listen(IPAddress.Any, 5000);
+        options.Listen(IPAddress.Any, 8080);
     }
     else
     {
-        options.Listen(IPAddress.Any, 5001, listenOption => listenOption.UseHttps(certificateFilename, certificatePassword));
+        options.Listen(IPAddress.Any, 8080, listenOption => listenOption.UseHttps(certificateFilename, certificatePassword));
     }
 });
 
