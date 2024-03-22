@@ -1,13 +1,33 @@
-﻿
+﻿using MijnThuis.Dashboard.App.Configuration;
+using MijnThuis.Dashboard.App.Factories;
+
 namespace MijnThuis.Dashboard.App;
 
 public partial class App : Application
 {
-    public App(MainPage mainPage)
+    private readonly PageFactory _pageFactory;
+
+    public App(
+        IClientConfiguration clientConfiguration,
+        PageFactory pageFactory)
     {
+        _pageFactory = pageFactory;
+
         InitializeComponent();
 
-        MainPage = mainPage;
+        if (string.IsNullOrEmpty(clientConfiguration.AccessKey))
+        {
+            MainPage = NavigationPage<SettingsPage>();
+        }
+        else
+        {
+            MainPage = NavigationPage<MainPage>();
+        }
+    }
+
+    private Page NavigationPage<TPage>() where TPage : ContentPage
+    {
+        return _pageFactory.CreatePage<TPage>();
     }
 
     protected override Window CreateWindow(IActivationState? activationState)

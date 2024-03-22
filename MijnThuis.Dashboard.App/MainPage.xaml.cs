@@ -1,16 +1,21 @@
 ﻿
+using MijnThuis.Dashboard.App.Configuration;
+
 namespace MijnThuis.Dashboard.App;
 
 public partial class MainPage : ContentPage
 {
-    public MainPage()
+    private readonly IClientConfiguration _clientConfiguration;
+
+    public MainPage(IClientConfiguration clientConfiguration)
     {
         InitializeComponent();
+        _clientConfiguration = clientConfiguration;
     }
 
     public void Reload()
     {
-        mainWebView.Source = "http://192.168.10.2:8809/?accessKey=cddf6b39-ebc4-4744-ad09-6c486c28120d";
+        mainWebView.Source = $"https://thuis.djohnnie.be:8809/?accessKey={_clientConfiguration.AccessKey}";
         mainWebView.Reload();
     }
 }
