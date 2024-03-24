@@ -88,7 +88,7 @@
                     @if (IsReady)
                     {
                         <MudTooltip Text="Opbrengst vandaag" Arrow="true" Placement="Placement.Right">
-                            <MudIcon Icon="@Icons.Material.Filled.ElectricalServices" Size="Size.Medium" Color="Color.Primary" />
+                            <MudIcon Icon="@Icons.Material.Filled.SolarPower" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
                         <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", LastDayEnergy) kWh</MudText>
                     }
@@ -104,7 +104,7 @@
                     @if (IsReady)
                     {
                         <MudTooltip Text="Opbrengst deze maand" Arrow="true" Placement="Placement.Left">
-                            <MudIcon Icon="@Icons.Material.Filled.ElectricalServices" Size="Size.Medium" Color="Color.Primary" />
+                            <MudIcon Icon="@Icons.Material.Filled.SolarPower" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
                         <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", LastMonthEnergy) kWh</MudText>
                     }
