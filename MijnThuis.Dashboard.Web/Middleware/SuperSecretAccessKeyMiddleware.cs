@@ -25,7 +25,7 @@ public class SuperSecretAccessKeyMiddleware
 
         if ((context.Request.Path == "/" || context.Request.Path == "/solar") && accessKey != _superSecretAccessKey)
         {
-            throw new UnauthorizedAccessException("You are not authorized to access this resource.");
+            await context.Response.WriteAsync("<html><head><title>Mijn Thuis</title></head><body><h1>Mijn Thuis</h1></body></html>");
         }
 
         await _next(context);
