@@ -42,6 +42,7 @@ public class CarChargingWorker : BackgroundService
         var carService = serviceScope.ServiceProvider.GetService<ICarService>();
         var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
 
+        const int numberOfSamplesToCollect = 20;
         var collectedSolarPower = new List<decimal>();
         var collectedConsumedPower = new List<decimal>();
         var currentAverageSolarPower = 0M;
@@ -71,7 +72,7 @@ public class CarChargingWorker : BackgroundService
                 if (carLocation.Location == "Thuis" && carOverview.IsChargePortOpen)
                 {
                     logBuilder.AppendLine("The car is located at 'Thuis' and the charge port is open!");
-                    logBuilder.AppendLine($"Collecting data for calculating average... ({collectedSolarPower.Count + 1}/10)");
+                    logBuilder.AppendLine($"Collecting data for calculating average... ({collectedSolarPower.Count + 1}/{numberOfSamplesToCollect})");
                     logBuilder.AppendLine();
 
                     carIsReadyToCharge = true;
@@ -84,7 +85,7 @@ public class CarChargingWorker : BackgroundService
                     collectedConsumedPower.Add(solarOverview.CurrentConsumptionPower);
 
                     // If 20 measurements have been collected, we can calculate an average.
-                    if (collectedSolarPower.Count >= 20)
+                    if (collectedSolarPower.Count >= numberOfSamplesToCollect)
                     {
                         // Calculate the average solar power in kW.
                         currentAverageSolarPower = collectedSolarPower.Average();
