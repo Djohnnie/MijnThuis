@@ -17,6 +17,8 @@ public interface IHeatingService
 
     Task<bool> SetManualHeating(decimal temperature);
 
+    Task<bool> SetTemporaryOverrideHeating(decimal temperature);
+
     Task<bool> SetScheduledHeating();
 
     Task<bool> SetAntiFrostHeating();
@@ -60,6 +62,18 @@ public class HeatingService : BaseService, IHeatingService
         var climateZone = result.Appliances.Single().ClimateZones.Single();
 
         var response = await client.PostAsJsonAsync($"api/climate-zones/{climateZone.Id}/modes/manual", new { roomTemperatureSetPoint = temperature });
+
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> SetTemporaryOverrideHeating(decimal temperature)
+    {
+        using var client = await InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<DashboardResponse>("api/homes/dashboard");
+
+        var climateZone = result.Appliances.Single().ClimateZones.Single();
+
+        var response = await client.PostAsJsonAsync($"api/climate-zones/{climateZone.Id}/modes/temporary-override", new { roomTemperatureSetPoint = temperature });
 
         return response.IsSuccessStatusCode;
     }

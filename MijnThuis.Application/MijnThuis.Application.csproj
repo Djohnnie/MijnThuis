@@ -17,4 +17,8 @@
     <ProjectReference Include="..\MijnThuis.Integrations\MijnThuis.Integrations.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Lamps\Commands\" />
+  </ItemGroup>
+
 </Project>

@@ -19,6 +19,7 @@ public partial class HeatingTile
     public bool Manual22HeatingPending { get; set; }
     public bool Manual16HeatingPending { get; set; }
     public bool AntiFrostHeatingPending { get; set; }
+    public bool TemporaryOverrideHeatingPending { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,6 +72,20 @@ public partial class HeatingTile
         await mediator.Send(new SetScheduledHeatingCommand());
 
         ScheduledHeatingPending = false;
+
+        await RefreshData();
+    }
+
+    protected async Task SetTemporaryOverrideHeatingCommand()
+    {
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+
+        TemporaryOverrideHeatingPending = true;
+        await InvokeAsync(StateHasChanged);
+
+        await mediator.Send(new SetTemporaryOverride22HeatingCommand());
+
+        TemporaryOverrideHeatingPending = false;
 
         await RefreshData();
     }

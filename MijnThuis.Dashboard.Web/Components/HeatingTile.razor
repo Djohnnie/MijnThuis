@@ -94,6 +94,19 @@
                                OnClick="SetScheduledHeatingCommand" />
             </MudTooltip>
         }
+        @if (TemporaryOverrideHeatingPending)
+        {
+            <MudIconButton Size="Size.Large" Disabled="true">
+                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+            </MudIconButton>
+        }
+        else
+        {
+            <MudTooltip Text="Op tijdelijke overname zetten" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.Timer" Size="Size.Large" Color="@(Status == "Tijdelijke overname" ? Color.Tertiary : Color.Default)"
+                               OnClick="SetTemporaryOverrideHeatingCommand" />
+            </MudTooltip>
+        }
 
         @if (Manual22HeatingPending)
         {
