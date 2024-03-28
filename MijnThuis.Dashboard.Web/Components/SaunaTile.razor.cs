@@ -5,7 +5,7 @@ namespace MijnThuis.Dashboard.Web.Components;
 
 public partial class SaunaTile
 {
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(60));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(15));
 
     public bool IsReady { get; set; }
     public string Title { get; set; }

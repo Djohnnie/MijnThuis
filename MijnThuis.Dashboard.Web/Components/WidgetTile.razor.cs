@@ -7,7 +7,7 @@ namespace MijnThuis.Dashboard.Web.Components;
 
 public partial class WidgetTile
 {
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(1));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(5));
 
     public bool IsReady { get; set; }
     public int BatteryLevel { get; set; }
