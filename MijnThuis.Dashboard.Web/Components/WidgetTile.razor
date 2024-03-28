@@ -1,0 +1,99 @@
+﻿@inherits OwningComponentBase
+
+<MudCard Outlined Class="d-flex justify-center align-content-center flex-grow-1 gap-4 pa-4">
+    <MudPaper Class="d-flex justify-center align-content-center flex-grow-1 gap-4 pt-1" Width="24%" Elevation="0">
+        @if (IsReady)
+        {
+            <MudPaper Elevation="0">
+                <MudProgressCircular Color="@(CurrentBatteryPower >= 0 ? Color.Tertiary : Color.Secondary)" Style="height:70px;width:70px;" Value="@BatteryLevel" />
+            </MudPaper>
+            <MudPaper class="ml-n16 mt-3" Elevation="0">
+                <MudIcon Icon="@BatteryBar" Color="@(CurrentBatteryPower >= 0 ? Color.Tertiary : Color.Secondary)" Size="Size.Medium" Title="Favorite" />
+            </MudPaper>
+            <MudPaper class="ml-n15 mt-9" Style="width:64px;" Elevation="0">
+                <MudText class="@(CurrentBatteryPower >= 0 ? "mud-tertiary-text" : "mud-secondary-text")" Align="Align.Center">@BatteryLevel%</MudText>
+            </MudPaper>
+        }
+        else
+        {
+            <MudPaper Elevation="0">
+                <MudProgressCircular Color="Color.Primary" Style="height:70px;width:70px;" Indeterminate="true" />
+            </MudPaper>
+            <MudPaper class="ml-n16 mt-3" Elevation="0">
+                <MudIcon Icon="@Icons.Material.Filled.Battery3Bar" Color="Color.Primary" Size="Size.Medium" Title="Favorite" />
+            </MudPaper>
+        }
+    </MudPaper>
+    <MudPaper Class="d-flex justify-center flex-grow-1" Width="33%" Elevation="0">
+        <MudGrid Class="d-flex ma-1">
+            <MudItem Class="d-flex" xs="12">
+                <MudPaper Class="d-flex ma-n2 gap-4" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Huidige verbruik in huis" Arrow="true" Placement="Placement.Left">
+                            <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(CurrentPower > 0 ? Color.Secondary : Color.Tertiary)" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@($"{CurrentPower:F2}") kW</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12">
+                <MudPaper Class="d-flex ma-n2 gap-4" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Huidig vermogen van het net" Arrow="true" Placement="Placement.Left">
+                            <MudIcon Icon="@Icons.Material.Filled.ElectricMeter" Size="Size.Medium" Color="@(CurrentGridPower > 0 ? Color.Secondary : Color.Tertiary)" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@($"{CurrentGridPower:F2}") kW</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+    <MudPaper Class="d-flex justify-center flex-grow-1" Width="33%" Elevation="0">
+        <MudGrid Class="d-flex ma-1">
+            <MudItem xs="12">
+                <MudPaper Class="d-flex ma-n2 gap-4" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Huidig vermogen van de zon" Arrow="true" Placement="Placement.Left">
+                            <MudIcon Icon="@Icons.Material.Filled.SolarPower" Size="Size.Medium" Color="@(CurrentSolarPower > 0 ? Color.Tertiary : Color.Secondary)" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@($"{CurrentSolarPower:F2}") kW</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12">
+                <MudPaper Class="d-flex ma-n2 gap-4" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Huidig vermogen van de batterij" Arrow="true" Placement="Placement.Left">
+                            <MudIcon Icon="@Icons.Material.Filled.BatteryChargingFull" Size="Size.Medium" Color="@(CurrentBatteryPower >= 0 ? Color.Tertiary : Color.Secondary)" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@($"{CurrentBatteryPower:F2}") kW</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudCard>

@@ -1,0 +1,54 @@
+﻿@inherits OwningComponentBase
+
+<MudCard Outlined>
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <MudAvatar Color="Color.Primary">
+                <MudIcon Icon="@Icons.Material.Filled.ElectricalServices" Title="Favorite" />
+            </MudAvatar>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.body1">Verlichting</MudText>
+            <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(Title) ? "De huidige verlichting" : Title)</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudGrid>
+            <MudItem xs="6">
+                <MudPaper Class="d-flex gap-4" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Huidig vermogen" Arrow="true" Placement="Placement.Right">
+                            <MudIcon Icon="@Icons.Material.Filled.Lightbulb" Size="Size.Medium" Color="@(CurrentPower <= 0 ? Color.Tertiary : Color.Secondary)" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F2}", CurrentPower) kW</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6">
+                <MudPaper Class="d-flex gap-4" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Piekvermogen" Arrow="true" Placement="Placement.Left">
+                            <MudIcon Icon="@Icons.Material.Filled.LightMode" Size="Size.Medium" Color="@(PowerPeak < 2.5M ? Color.Tertiary : Color.Secondary)" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", PowerPeak) kW</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+    <MudCardActions>
+
+    </MudCardActions>
+</MudCard>
