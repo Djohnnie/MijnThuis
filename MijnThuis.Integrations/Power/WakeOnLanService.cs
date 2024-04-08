@@ -1,5 +1,4 @@
-﻿using System.Net.NetworkInformation;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Net;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
@@ -15,55 +14,25 @@ public interface IWakeOnLanService
 public class WakeOnLanService : BaseService, IWakeOnLanService
 {
     private readonly string _wakeOnLanMacAddress;
+    private readonly string _wakeOnLanIpAddress;
     private readonly ILogger _logger;
 
     public WakeOnLanService(IConfiguration configuration, ILogger<WakeOnLanService> logger) : base(configuration)
     {
         _wakeOnLanMacAddress = configuration.GetValue<string>("WAKE_ON_LAN_MAC_ADDRESS");
+        _wakeOnLanIpAddress = configuration.GetValue<string>("WAKE_ON_LAN_IP_ADDRESS");
         _logger = logger;
     }
 
     public async Task Wake()
     {
-        await WakeOnLan(_wakeOnLanMacAddress);
+        await WakeOnLan();
     }
 
-    private async Task WakeOnLan(string macAddress)
+    private async Task WakeOnLan()
     {
-        byte[] magicPacket = BuildMagicPacket(macAddress);
-        foreach (NetworkInterface networkInterface in NetworkInterface.GetAllNetworkInterfaces().Where((n) =>
-            n.NetworkInterfaceType != NetworkInterfaceType.Loopback && n.OperationalStatus == OperationalStatus.Up))
-        {
-            _logger.LogInformation($"Sending WakeOnLan to {networkInterface.Name} ({networkInterface.Description})");
-
-            IPInterfaceProperties iPInterfaceProperties = networkInterface.GetIPProperties();
-            foreach (MulticastIPAddressInformation multicastIPAddressInformation in iPInterfaceProperties.MulticastAddresses)
-            {
-                IPAddress multicastIpAddress = multicastIPAddressInformation.Address;
-                if (multicastIpAddress.ToString().StartsWith("ff02::1%", StringComparison.OrdinalIgnoreCase)) // Ipv6: All hosts on LAN (with zone index)
-                {
-                    _logger.LogInformation($"Sending WakeOnLan to {multicastIpAddress} on {networkInterface.Name} ({networkInterface.Description})");
-
-                    UnicastIPAddressInformation? unicastIPAddressInformation = iPInterfaceProperties.UnicastAddresses.Where((u) =>
-                        u.Address.AddressFamily == AddressFamily.InterNetworkV6 && !u.Address.IsIPv6LinkLocal).FirstOrDefault();
-                    if (unicastIPAddressInformation != null)
-                    {
-                        await SendWakeOnLan(unicastIPAddressInformation.Address, multicastIpAddress, magicPacket);
-                    }
-                }
-                else if (multicastIpAddress.ToString().Equals("224.0.0.1")) // Ipv4: All hosts on LAN
-                {
-                    _logger.LogInformation($"Sending WakeOnLan to {multicastIpAddress} on {networkInterface.Name} ({networkInterface.Description})");
-
-                    UnicastIPAddressInformation? unicastIPAddressInformation = iPInterfaceProperties.UnicastAddresses.Where((u) =>
-                        u.Address.AddressFamily == AddressFamily.InterNetwork && !iPInterfaceProperties.GetIPv4Properties().IsAutomaticPrivateAddressingActive).FirstOrDefault();
-                    if (unicastIPAddressInformation != null)
-                    {
-                        await SendWakeOnLan(unicastIPAddressInformation.Address, multicastIpAddress, magicPacket);
-                    }
-                }
-            }
-        }
+        byte[] magicPacket = BuildMagicPacket(_wakeOnLanMacAddress);
+        await SendWakeOnLan(IPAddress.Any, IPAddress.Parse(_wakeOnLanIpAddress), magicPacket);
     }
 
     private byte[] BuildMagicPacket(string macAddress) // MacAddress in any standard HEX format

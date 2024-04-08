@@ -118,15 +118,15 @@
         else
         {
             <MudTooltip Text="Bureau" Arrow="true" Placement="Placement.Bottom">
-                <MudIconButton Icon="@Icons.Material.Filled.WaterDrop" Size="Size.Large" Color="@(IsVijverOn ? Color.Tertiary : Color.Secondary)"
+                <MudIconButton Icon="@Icons.Material.Filled.Water" Size="Size.Large" Color="@(IsVijverOn ? Color.Tertiary : Color.Secondary)"
                                Disabled="@(!IsReady)" OnClick="ToggleVijverPowerSwitchCommand" />
             </MudTooltip>
         }
 
-        @* <MudTooltip Text="Computer wakker maken" Arrow="true" Placement="Placement.Bottom">
-        <MudIconButton Icon="@Icons.Material.Filled.Computer" Size="Size.Large" Color="Color.Primary"
-        OnClick="WakeOnLan" Disabled="@(!IsReady)" />
-        </MudTooltip> *@
+        <MudTooltip Text="Computer wakker maken" Arrow="true" Placement="Placement.Bottom">
+            <MudIconButton Icon="@Icons.Material.Filled.Computer" Size="Size.Large" Color="Color.Primary"
+                           OnClick="WakeOnLan" Disabled="@(!IsReady)" />
+        </MudTooltip>
 
     </MudCardActions>
 </MudCard>
