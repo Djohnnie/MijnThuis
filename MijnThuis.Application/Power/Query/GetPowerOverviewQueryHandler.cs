@@ -34,6 +34,7 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         var energyThisMonthResult = await GetEnergyThisMonth();
         var tvPowerSwitchOverview = await _shellyService.GetTvPowerSwitchOverview();
         var bureauPowerSwitchOverview = await _shellyService.GetBureauPowerSwitchOverview();
+        var vijverPowerSwitchOverview = await _shellyService.GetVijverPowerSwitchOverview();
 
         var result = powerResult.Adapt<GetPowerOverviewResponse>();
         result.CurrentConsumption = consumptionResult.CurrentConsumptionPower;
@@ -41,6 +42,7 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         result.EnergyThisMonth = energyThisMonthResult.Purchased / 1000M;
         result.IsTvOn = tvPowerSwitchOverview.IsOn;
         result.IsBureauOn = bureauPowerSwitchOverview.IsOn;
+        result.IsVijverOn = vijverPowerSwitchOverview.IsOn;
 
         return result;
     }

@@ -18,6 +18,8 @@ public partial class PowerTile
     public bool ToggleTvPowerSwitchPending { get; set; }
     public bool IsBureauOn { get; set; }
     public bool ToggleBureauPowerSwitchPending { get; set; }
+    public bool IsVijverOn { get; set; }
+    public bool ToggleVijverPowerSwitchPending { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -49,6 +51,7 @@ public partial class PowerTile
             EnergyThisMonth = response.EnergyThisMonth;
             IsTvOn = response.IsTvOn;
             IsBureauOn = response.IsBureauOn;
+            IsVijverOn = response.IsVijverOn;
             IsReady = true;
 
             await InvokeAsync(StateHasChanged);
@@ -84,6 +87,20 @@ public partial class PowerTile
         var commandResult = await mediator.Send(new SetBureauPowerSwitchCommand { IsOn = !IsBureauOn });
 
         ToggleBureauPowerSwitchPending = false;
+
+        await RefreshData();
+    }
+
+    public async Task ToggleVijverPowerSwitchCommand()
+    {
+        var mediator = ScopedServices.GetRequiredService<IMediator>();
+
+        ToggleVijverPowerSwitchPending = true;
+        await InvokeAsync(StateHasChanged);
+
+        var commandResult = await mediator.Send(new SetVijverPowerSwitchCommand { IsOn = !IsVijverOn });
+
+        ToggleVijverPowerSwitchPending = false;
 
         await RefreshData();
     }

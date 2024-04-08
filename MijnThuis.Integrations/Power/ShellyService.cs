@@ -8,19 +8,23 @@ public interface IShellyService
 {
     Task<PowerSwitchOverview> GetTvPowerSwitchOverview();
     Task<PowerSwitchOverview> GetBureauPowerSwitchOverview();
+    Task<PowerSwitchOverview> GetVijverPowerSwitchOverview();
     Task<bool> SetTvPowerSwitch(bool isOn);
     Task<bool> SetBureauPowerSwitch(bool isOn);
+    Task<bool> SetVijverPowerSwitch(bool isOn);
 }
 
 public class ShellyService : IShellyService
 {
     private readonly string _tvPowerSwitchAddress;
     private readonly string _bureauPowerSwitchAddress;
+    private readonly string _vijverPowerSwitchAddress;
 
     public ShellyService(IConfiguration configuration)
     {
         _tvPowerSwitchAddress = configuration.GetValue<string>("TV_POWER_SWITCH_BASE_ADDRESS");
         _bureauPowerSwitchAddress = configuration.GetValue<string>("BUREAU_POWER_SWITCH_BASE_ADDRESS");
+        _vijverPowerSwitchAddress = configuration.GetValue<string>("VIJVER_POWER_SWITCH_BASE_ADDRESS");
     }
 
     public async Task<PowerSwitchOverview> GetTvPowerSwitchOverview()
@@ -47,6 +51,18 @@ public class ShellyService : IShellyService
         };
     }
 
+    public async Task<PowerSwitchOverview> GetVijverPowerSwitchOverview()
+    {
+        using var client = InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<StatusResponse>($"{_vijverPowerSwitchAddress}/status");
+
+        return new PowerSwitchOverview
+        {
+            IsOn = result.Relays.Single().IsOn,
+            Power = result.Meters.Single().Power
+        };
+    }
+
     public async Task<bool> SetTvPowerSwitch(bool isOn)
     {
         using var client = InitializeHttpClient();
@@ -59,6 +75,14 @@ public class ShellyService : IShellyService
     {
         using var client = InitializeHttpClient();
         var result = await client.GetAsync($"{_bureauPowerSwitchAddress}/relay/0?turn={(isOn ? "on" : "off")}");
+
+        return result.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> SetVijverPowerSwitch(bool isOn)
+    {
+        using var client = InitializeHttpClient();
+        var result = await client.GetAsync($"{_vijverPowerSwitchAddress}/relay/0?turn={(isOn ? "on" : "off")}");
 
         return result.IsSuccessStatusCode;
     }

@@ -109,6 +109,20 @@
             </MudTooltip>
         }
 
+        @if (ToggleVijverPowerSwitchPending)
+        {
+            <MudIconButton Size="Size.Large" Disabled="true">
+                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+            </MudIconButton>
+        }
+        else
+        {
+            <MudTooltip Text="Bureau" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.WaterDrop" Size="Size.Large" Color="@(IsVijverOn ? Color.Tertiary : Color.Secondary)"
+                               Disabled="@(!IsReady)" OnClick="ToggleVijverPowerSwitchCommand" />
+            </MudTooltip>
+        }
+
         @* <MudTooltip Text="Computer wakker maken" Arrow="true" Placement="Placement.Bottom">
         <MudIconButton Icon="@Icons.Material.Filled.Computer" Size="Size.Large" Color="Color.Primary"
         OnClick="WakeOnLan" Disabled="@(!IsReady)" />

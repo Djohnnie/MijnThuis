@@ -9,4 +9,5 @@ public record GetPowerOverviewResponse
     public decimal EnergyThisMonth { get; set; }
     public bool IsTvOn { get; set; }
     public bool IsBureauOn { get; set; }
+    public bool IsVijverOn { get; set; }
 }
