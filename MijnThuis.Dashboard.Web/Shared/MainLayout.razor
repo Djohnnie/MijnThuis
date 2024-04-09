@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
+<MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
@@ -21,8 +21,30 @@
 @code
 {
     MudTheme _theme = new();
+    MudThemeProvider _mudThemeProvider = new MudThemeProvider();
     string modeIcon => _isDarkMode ? Icons.Outlined.DarkMode : @Icons.Outlined.LightMode;
-    bool _isDarkMode = true;
+    bool _isDarkMode;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
+
+            await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
+
+            StateHasChanged();
+        }
+    }
+
+    private Task OnSystemPreferenceChanged(bool newValue)
+    {
+        _isDarkMode = newValue;
+
+        StateHasChanged();
+
+        return Task.CompletedTask;
+    }
 
     void ToggleDarkMode()
     {
