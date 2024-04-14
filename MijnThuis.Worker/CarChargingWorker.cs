@@ -166,6 +166,8 @@ public class CarChargingWorker : BackgroundService
                 _logger.LogError(ex, ex.Message);
             }
 
+            _logger.LogInformation(logBuilder.ToString().TrimEnd());
+
             // Calculate the duration for this whole process.
             var stopTimer = Stopwatch.GetTimestamp();
 
@@ -174,14 +176,10 @@ public class CarChargingWorker : BackgroundService
             // house or it is not connected), wait for 5 minutes before the next iteration.
             var duration = (carIsReadyToCharge ? TimeSpan.FromSeconds(10) : TimeSpan.FromMinutes(5)) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
 
-            logBuilder.AppendLine($"Waiting for {TimeSpan.FromSeconds(10)} - {TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency)} = {duration}...");
-
             if (duration > TimeSpan.Zero)
             {
                 await Task.Delay(duration, stoppingToken);
             }
-
-            _logger.LogInformation(logBuilder.ToString().TrimEnd());
         }
     }
 }
