@@ -42,7 +42,7 @@ public class CarChargingWorker : BackgroundService
         var carService = serviceScope.ServiceProvider.GetService<ICarService>();
         var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
 
-        const int numberOfSamplesToCollect = 20;
+        const int numberOfSamplesToCollect = 6;
         var collectedSolarPower = new List<decimal>();
         var collectedConsumedPower = new List<decimal>();
         var currentAverageSolarPower = 0M;
@@ -99,9 +99,9 @@ public class CarChargingWorker : BackgroundService
                         maxPossibleCurrent = currentAvailableSolarPower * 1000M / 230M;
 
                         logBuilder.AppendLine($"Battery charge level: {solarOverview.BatteryLevel} %");
-                        logBuilder.AppendLine($"Average solar power past minute: {currentAverageSolarPower:F2} kW");
+                        logBuilder.AppendLine($"Average solar power from collected samples: {currentAverageSolarPower:F2} kW");
                         logBuilder.AppendLine($"    [{string.Join(", ", collectedSolarPower.Select(x => $"{x:F2}"))}]");
-                        logBuilder.AppendLine($"Average consumed power past minute: {currentAverageConsumedPower:F2} kW");
+                        logBuilder.AppendLine($"Average consumed power from collected samples: {currentAverageConsumedPower:F2} kW");
                         logBuilder.AppendLine($"    [{string.Join(", ", collectedConsumedPower.Select(x => $"{x:F2}"))}]");
 
                         // If the car is already charging, log the current charging amps.
@@ -172,9 +172,9 @@ public class CarChargingWorker : BackgroundService
             // If the car is ready to charge, wait for a total of 10 seconds before the next
             // iteration. If the car is not ready to charge (because it is not parked near the
             // house or it is not connected), wait for 5 minutes before the next iteration.
-            var duration = (carIsReadyToCharge ? TimeSpan.FromSeconds(10) : TimeSpan.FromMinutes(5)) - TimeSpan.FromTicks(stopTimer - startTimer);
+            var duration = (carIsReadyToCharge ? TimeSpan.FromSeconds(10) : TimeSpan.FromMinutes(5)) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
 
-            logBuilder.AppendLine($"Waiting for {TimeSpan.FromSeconds(10)} - {TimeSpan.FromTicks(stopTimer - startTimer)} = {duration}...");
+            logBuilder.AppendLine($"Waiting for {TimeSpan.FromSeconds(10)} - {TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency)} = {duration}...");
 
             if (duration > TimeSpan.Zero)
             {
