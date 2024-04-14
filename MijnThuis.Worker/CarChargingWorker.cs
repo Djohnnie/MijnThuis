@@ -174,7 +174,7 @@ public class CarChargingWorker : BackgroundService
             // house or it is not connected), wait for 5 minutes before the next iteration.
             var duration = (carIsReadyToCharge ? TimeSpan.FromSeconds(10) : TimeSpan.FromMinutes(5)) - TimeSpan.FromTicks(stopTimer - startTimer);
 
-            logBuilder.AppendLine($"Waiting for {duration}...");
+            logBuilder.AppendLine($"Waiting for {TimeSpan.FromSeconds(10)} - {TimeSpan.FromTicks(stopTimer - startTimer)} = {duration}...");
 
             if (duration > TimeSpan.Zero)
             {
