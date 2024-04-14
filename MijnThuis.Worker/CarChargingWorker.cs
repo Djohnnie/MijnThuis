@@ -160,8 +160,6 @@ public class CarChargingWorker : BackgroundService
                     logBuilder.AppendLine("The car is not ready for charging!");
                     carIsReadyToCharge = false;
                 }
-
-                _logger.LogInformation(logBuilder.ToString().TrimEnd());
             }
             catch (Exception ex)
             {
@@ -176,10 +174,14 @@ public class CarChargingWorker : BackgroundService
             // house or it is not connected), wait for 5 minutes before the next iteration.
             var duration = (carIsReadyToCharge ? TimeSpan.FromSeconds(10) : TimeSpan.FromMinutes(5)) - TimeSpan.FromTicks(stopTimer - startTimer);
 
+            logBuilder.AppendLine($"Waiting for {duration}...");
+
             if (duration > TimeSpan.Zero)
             {
                 await Task.Delay(duration, stoppingToken);
             }
+
+            _logger.LogInformation(logBuilder.ToString().TrimEnd());
         }
     }
 }
