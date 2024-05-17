@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using MijnThuis.Application.DependencyInjection;
+using MijnThuis.Dashboard.Web.Copilot;
 using MijnThuis.Dashboard.Web.Middleware;
 using MudBlazor.Services;
 using System.Net;
@@ -31,6 +32,7 @@ builder.Services.AddSingleton<ExtraPageArguments>();
 builder.Services.AddMudServices();
 builder.Services.AddApplication();
 builder.Services.AddMemoryCache();
+builder.Services.AddTransient<ICopilotHelper, CopilotHelper>();
 
 var app = builder.Build();
 

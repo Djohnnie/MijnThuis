@@ -1,0 +1,14 @@
+﻿@inherits OwningComponentBase
+
+<MudCard Outlined Class="d-flex justify-center align-content-center flex-grow-1 gap-1 pa-1">
+    <MudPaper Class="d-flex justify-center align-content-center flex-grow-1 gap-0 pa-1" Elevation="0">
+        <MudGrid Class="d-flex justify-center align-content-center gap-0 pa-1">
+            <MudItem xs="12">
+                <MudTextField T="string" Label="Wat wil je vragen aan je MijnThuis Copilot?" Variant="Variant.Outlined" @bind-Value="@Prompt" Lines="3" />
+            </MudItem>
+            <MudItem xs="10">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" FullWidth="true" OnClick="() => ExecutePrompt()">Stel je vraag</MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudCard>

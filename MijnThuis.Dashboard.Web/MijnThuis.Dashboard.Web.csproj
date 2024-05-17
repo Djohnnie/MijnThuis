@@ -8,10 +8,11 @@
 
 	<ItemGroup>
 		<PackageReference Include="MudBlazor" Version="6.15.0" />
+		<PackageReference Include="Microsoft.SemanticKernel" Version="1.11.1" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\MijnThuis.Application\MijnThuis.Application.csproj" />
+		<ProjectReference Include="..\MijnThuis.Application\MijnThuis.Application.csproj" />
 	</ItemGroup>
 
 </Project>
