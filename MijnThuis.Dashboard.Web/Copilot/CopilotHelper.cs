@@ -50,7 +50,11 @@ public class CopilotHelper : ICopilotHelper
         builder.Services.AddMemoryCache();
         builder.Services.AddSingleton(_configuration);
 
-        builder.Plugins.AddFromType<MijnThuisCopilotFunctions>();
+        builder.Plugins.AddFromType<MijnThuisCopilotSolarFunctions>();
+        builder.Plugins.AddFromType<MijnThuisCopilotPowerFunctions>();
+        builder.Plugins.AddFromType<MijnThuisCopilotCarFunctions>();
+        builder.Plugins.AddFromType<MijnThuisCopilotHeatingFunctions>();
+        builder.Plugins.AddFromType<MijnThuisCopilotSaunaFunctions>();
 
         var kernel = builder.Build();
 
