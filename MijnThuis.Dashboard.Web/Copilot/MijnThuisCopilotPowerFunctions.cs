@@ -15,10 +15,34 @@ public class MijnThuisCopilotPowerFunctions
     }
 
     [KernelFunction]
-    [Description("Gets the current power usage?")]
+    [Description("Gets the current power usage in kW.")]
     public async Task<decimal> GetPowerUsage()
     {
         var response = await _mediator.Send(new GetPowerOverviewQuery());
         return response.CurrentPower;
+    }
+
+    [KernelFunction]
+    [Description("Gets the power peek for this month in kW.")]
+    public async Task<decimal> GetPowerPeek()
+    {
+        var response = await _mediator.Send(new GetPowerOverviewQuery());
+        return response.PowerPeak;
+    }
+
+    [KernelFunction]
+    [Description("Gets the energy use for today in kWh.")]
+    public async Task<decimal> GetEnergyUseToday()
+    {
+        var response = await _mediator.Send(new GetPowerOverviewQuery());
+        return response.EnergyToday;
+    }
+
+    [KernelFunction]
+    [Description("Gets the energy use for this month in kWh.")]
+    public async Task<decimal> GetEnergyUseThisMonth()
+    {
+        var response = await _mediator.Send(new GetPowerOverviewQuery());
+        return response.EnergyThisMonth;
     }
 }
