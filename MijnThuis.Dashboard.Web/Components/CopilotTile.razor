@@ -1,10 +1,14 @@
 ﻿@inherits OwningComponentBase
+@inject IJSRuntime JS
 
 <MudCard Outlined Class="d-flex justify-center align-content-center flex-grow-1 gap-1 pa-1">
     <MudPaper Class="d-flex justify-center align-content-center flex-grow-1 gap-0 pa-1" Elevation="0">
         <MudGrid Class="d-flex justify-center align-content-center gap-0 pa-1">
-            <MudItem xs="12">
+            <MudItem xs="11">
                 <MudTextField T="string" Label="Wat wil je vragen aan je MijnThuis Copilot?" Variant="Variant.Outlined" @bind-Value="@Prompt" Lines="3" />
+            </MudItem>
+            <MudItem xs="1">
+                <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Mic" DisableElevation="true" OnClick="() => ExecuteTTS()" />
             </MudItem>
             <MudItem xs="10">
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" FullWidth="true" OnClick="() => ExecutePrompt()">Stel je vraag</MudButton>
@@ -12,3 +16,31 @@
         </MudGrid>
     </MudPaper>
 </MudCard>
+
+<script src="https://aka.ms/csspeech/jsbrowserpackageraw"></script>
+<script>
+    window.executeTextToSpeech = async (language, key, region) => {
+        var speechConfig = SpeechSDK.SpeechConfig.fromSubscription(key, region);
+
+        speechConfig.speechRecognitionLanguage = language;
+        var audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
+        recognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
+        var result = await recognize(recognizer);
+
+        if (result.reason = SpeechSDK.ResultReason.RecognizedSpeech) {
+            return result.text;
+        }
+
+        return "";
+    };
+
+    async function recognize(speechRecognizer) {
+        return new Promise(function (resolve, reject) {
+            speechRecognizer.recognizeOnceAsync(result => {
+                resolve(result);
+            }, err => {
+                reject(err);
+            });
+        })
+    }
+</script>
