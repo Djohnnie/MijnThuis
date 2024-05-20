@@ -31,6 +31,7 @@ public class CopilotHelper : ICopilotHelper
 
         ChatHistory chatHistory = [];
         chatHistory.AddSystemMessage("Please answer in only one sentence.");
+        chatHistory.AddSystemMessage("If you don't have an answer to a question, please excuse yourself and explain you don't have an answer.");
         chatHistory.AddUserMessage(prompt);
         var response = await chatCompletionService.GetChatMessageContentAsync(chatHistory, executionSettings, kernel);
 
@@ -50,6 +51,7 @@ public class CopilotHelper : ICopilotHelper
         builder.Services.AddMemoryCache();
         builder.Services.AddSingleton(_configuration);
 
+        builder.Plugins.AddFromType<MijnThuisCopilotGeneralFunctions>();
         builder.Plugins.AddFromType<MijnThuisCopilotSolarFunctions>();
         builder.Plugins.AddFromType<MijnThuisCopilotPowerFunctions>();
         builder.Plugins.AddFromType<MijnThuisCopilotCarFunctions>();

@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@using MijnThuis.Dashboard.Web.Notifications
+
+@inherits LayoutComponentBase
 
 <MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
 <MudDialogProvider />
@@ -9,6 +11,7 @@
         <MudIcon Icon="@Icons.Material.Filled.Home" Color="Color.Inherit" />
         <MudText Typo="Typo.h5" Class="ml-3">Mijn Thuis</MudText>
         <MudSpacer />
+        <MudIconButton @onclick="SpeechToText" Color="Color.Inherit" Icon="@Icons.Material.Filled.Mic" />
         <MudIconButton @onclick="ToggleDarkMode" Color="Color.Inherit" Icon="@modeIcon" />
     </MudAppBar>
     <MudMainContent>
@@ -20,6 +23,8 @@
 
 @code
 {
+    [Inject] private SpeechToTextNotificationService _sttService { get; set; }
+
     MudTheme _theme = new();
     MudThemeProvider _mudThemeProvider = new MudThemeProvider();
     string modeIcon => _isDarkMode ? Icons.Outlined.DarkMode : @Icons.Outlined.LightMode;
@@ -49,5 +54,10 @@
     void ToggleDarkMode()
     {
         _isDarkMode = !_isDarkMode;
+    }
+
+    void SpeechToText()
+    {
+        _sttService.NotifyEventClick(this);
     }
 }
