@@ -5,7 +5,7 @@
 <MudPaper Class="d-flex justify-center align-content-center flex-grow-1 gap-0 pa-0" Elevation="0">
     <MudGrid Class="d-flex justify-center align-content-center gap-0 pa-0">
         <MudItem xs="12">
-            <MudTextField T="string" Label="Jouw vraag aan de MijnThuis Copilot" Variant="Variant.Outlined" @bind-Value="@Prompt" OnKeyDown="ExecutePromptOnKeyDown" @ref="InputFieldRef"
+            <MudTextField T="string" Label="MijnThuis Copilot" Variant="Variant.Outlined" @bind-Value="@Prompt" OnKeyDown="ExecutePromptOnKeyDown" @ref="InputFieldRef"
                           Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Chat" OnAdornmentClick="@(() => ExecutePrompt())" TextUpdateSuppression="false" AutoGrow />
         </MudItem>
     </MudGrid>
