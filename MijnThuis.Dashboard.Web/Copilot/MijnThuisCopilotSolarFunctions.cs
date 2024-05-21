@@ -15,7 +15,7 @@ public class MijnThuisCopilotSolarFunctions
     }
 
     [KernelFunction]
-    [Description("Gets the current solar battery charge state in percentage?")]
+    [Description("Gets the current solar battery charge state in percentage. A value of 100% is fully charged.")]
     public async Task<int> GetSolarBatteryChargeState()
     {
         var response = await _mediator.Send(new GetSolarOverviewQuery());
@@ -23,7 +23,7 @@ public class MijnThuisCopilotSolarFunctions
     }
 
     [KernelFunction]
-    [Description("Gets the current solar battery health in percentage?")]
+    [Description("Gets the current solar battery health in percentage. A value larger than 100% is a very good health.")]
     public async Task<int> GetSolarBatteryHealthState()
     {
         var response = await _mediator.Send(new GetSolarOverviewQuery());
@@ -31,10 +31,26 @@ public class MijnThuisCopilotSolarFunctions
     }
 
     [KernelFunction]
-    [Description("Gets the current solar energy in kWh?")]
-    public async Task<decimal> GetSolarEnergy()
+    [Description("Gets the current solar power in kW. A zero value is no solar power.")]
+    public async Task<decimal> GetSolarPower()
     {
         var response = await _mediator.Send(new GetSolarOverviewQuery());
         return response.CurrentSolarPower;
+    }
+
+    [KernelFunction]
+    [Description("Gets the current battery power in kW. A negative value is power draining the battery. A positive value is power charging the battery.")]
+    public async Task<decimal> GetBatteryPower()
+    {
+        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        return response.CurrentBatteryPower;
+    }
+
+    [KernelFunction]
+    [Description("Gets the current grid power in kW. A positive value is power returned to the grid. A negative value is power taken from the grid.")]
+    public async Task<decimal> GetGridPower()
+    {
+        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        return response.CurrentGridPower;
     }
 }

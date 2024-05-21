@@ -15,11 +15,11 @@ public class MijnThuisCopilotPowerFunctions
     }
 
     [KernelFunction]
-    [Description("Gets the current power usage in kW.")]
+    [Description("Gets the current live power usage in kW.")]
     public async Task<decimal> GetPowerUsage()
     {
         var response = await _mediator.Send(new GetPowerOverviewQuery());
-        return response.CurrentPower;
+        return response.CurrentPower / 1000;
     }
 
     [KernelFunction]
@@ -27,7 +27,7 @@ public class MijnThuisCopilotPowerFunctions
     public async Task<decimal> GetPowerPeek()
     {
         var response = await _mediator.Send(new GetPowerOverviewQuery());
-        return response.PowerPeak;
+        return response.PowerPeak / 1000;
     }
 
     [KernelFunction]

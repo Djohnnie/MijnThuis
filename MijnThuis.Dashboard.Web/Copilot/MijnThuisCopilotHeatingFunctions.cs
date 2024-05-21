@@ -23,7 +23,7 @@ public class MijnThuisCopilotHeatingFunctions
     }
 
     [KernelFunction]
-    [Description("Gets the current temperature inside the house.")]
+    [Description("Gets the current temperature inside the house in degrees Celcius.")]
     public async Task<decimal> GetInsideTemperature()
     {
         var response = await _mediator.Send(new GetHeatingOverviewQuery());
@@ -31,7 +31,7 @@ public class MijnThuisCopilotHeatingFunctions
     }
 
     [KernelFunction]
-    [Description("Gets the current outside temperature.")]
+    [Description("Gets the current outside temperature in degrees Celcius.")]
     public async Task<decimal> GetOutdoorTemperature()
     {
         var response = await _mediator.Send(new GetHeatingOverviewQuery());
