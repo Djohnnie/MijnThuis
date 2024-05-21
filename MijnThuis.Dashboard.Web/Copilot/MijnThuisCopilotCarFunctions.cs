@@ -23,6 +23,30 @@ public class MijnThuisCopilotCarFunctions
     }
 
     [KernelFunction]
+    [Description("Is the car locked?")]
+    public async Task<bool> IsCarLocked()
+    {
+        var response = await _mediator.Send(new GetCarOverviewQuery());
+        return response.IsLocked;
+    }
+
+    [KernelFunction]
+    [Description("Is the car charging?")]
+    public async Task<bool> IsCharging()
+    {
+        var response = await _mediator.Send(new GetCarOverviewQuery());
+        return response.IsCharging;
+    }
+
+    [KernelFunction]
+    [Description("Gets the remaining range for my car in km.")]
+    public async Task<int> GetRange()
+    {
+        var response = await _mediator.Send(new GetCarOverviewQuery());
+        return response.RemainingRange;
+    }
+
+    [KernelFunction]
     [Description("Gets the remaining car battery percentage.")]
     public async Task<int> GetCarBattery()
     {
