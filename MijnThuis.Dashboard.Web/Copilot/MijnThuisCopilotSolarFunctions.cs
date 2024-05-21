@@ -15,6 +15,22 @@ public class MijnThuisCopilotSolarFunctions
     }
 
     [KernelFunction]
+    [Description("Gets the solar energy generated today in kWh.")]
+    public async Task<decimal> GetSolarEnergyToday()
+    {
+        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        return response.LastDayEnergy;
+    }
+
+    [KernelFunction]
+    [Description("Gets the solar energy generated this month in kWh.")]
+    public async Task<decimal> GetSolarEnergyThisMonth()
+    {
+        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        return response.LastMonthEnergy;
+    }
+
+    [KernelFunction]
     [Description("Gets the current solar battery charge state in percentage. A value of 100% is fully charged.")]
     public async Task<int> GetSolarBatteryChargeState()
     {
