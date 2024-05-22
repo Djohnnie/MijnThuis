@@ -15,8 +15,8 @@ public class MijnThuisCopilotCarFunctions
     }
 
     [KernelFunction]
-    [Description("Gets the location of the car.")]
-    public async Task<string> GetPowerUsage()
+    [Description("Gets the location where the car is parked or driving.")]
+    public async Task<string> GetCarLocation()
     {
         var response = await _mediator.Send(new GetCarOverviewQuery());
         return response.Address;
