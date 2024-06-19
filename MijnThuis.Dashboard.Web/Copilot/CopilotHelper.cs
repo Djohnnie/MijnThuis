@@ -30,8 +30,7 @@ public class CopilotHelper : ICopilotHelper
         };
 
         ChatHistory chatHistory = [];
-        //chatHistory.AddSystemMessage("Please answer in only one sentence.");
-        //chatHistory.AddSystemMessage("If you don't have an answer to a question, please excuse yourself and explain you don't have an answer.");
+        chatHistory.AddSystemMessage("If your answer contains a decimal number, always show 1 digit after the decimal point.");
         chatHistory.AddUserMessage(prompt);
         var response = await chatCompletionService.GetChatMessageContentAsync(chatHistory, executionSettings, kernel);
 
