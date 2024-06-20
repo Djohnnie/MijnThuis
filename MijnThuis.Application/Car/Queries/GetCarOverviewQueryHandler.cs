@@ -30,8 +30,8 @@ public class GetCarOverviewQueryHandler : IRequestHandler<GetCarOverviewQuery, G
         var overviewResult = await _carService.GetOverview();
         var batteryResult = await _carService.GetBatteryHealth();
         var locationResult = await _carService.GetLocation();
-        //var charger1Result = await _chargerService.GetChargerOverview(charger1Id);
-        //var charger2Result = await _chargerService.GetChargerOverview(charger2Id);
+        var charger1Result = await _chargerService.GetChargerOverview(charger1Id);
+        var charger2Result = await _chargerService.GetChargerOverview(charger2Id);
 
         var result = overviewResult.Adapt<GetCarOverviewResponse>();
         result.BatteryHealth = (int)Math.Round(batteryResult.Percentage);
@@ -41,10 +41,10 @@ public class GetCarOverviewQueryHandler : IRequestHandler<GetCarOverviewQuery, G
             result.ChargingCurrent = $"{overviewResult.ChargingAmps}/{overviewResult.MaxChargingAmps} A";
             result.ChargingRange = $"{overviewResult.ChargeEnergyAdded:F1} kWh ({overviewResult.ChargeRangeAdded:F0} km)";
         }
-        result.Charger1 = "?/?"; //$"{charger1Result.NumberOfChargersAvailable} / {charger1Result.NumberOfChargers}";
-        result.Charger1Available = false; //charger1Result.NumberOfChargersAvailable > 0;
-        result.Charger2 = "?/?"; //$"{charger2Result.NumberOfChargersAvailable} / {charger2Result.NumberOfChargers}";
-        result.Charger2Available = false; //charger2Result.NumberOfChargersAvailable > 0;
+        result.Charger1 = $"{charger1Result.NumberOfChargersAvailable} / {charger1Result.NumberOfChargers}";
+        result.Charger1Available = charger1Result.NumberOfChargersAvailable > 0;
+        result.Charger2 = $"{charger2Result.NumberOfChargersAvailable} / {charger2Result.NumberOfChargers}";
+        result.Charger2Available = charger2Result.NumberOfChargersAvailable > 0;
 
         return result;
     }
