@@ -12,34 +12,26 @@ public interface IChargerService
 
 public class ChargerService : BaseChargerService, IChargerService
 {
+    private readonly string _sessionId;
+
     public ChargerService(IConfiguration configuration) : base(configuration)
     {
+        _sessionId = configuration.GetValue<string>("CHARGER_SESSION_ID");
     }
 
     public async Task<ChargerOverview> GetChargerOverview(string chargerId)
     {
         using var client = InitializeHttpClient();
 
-        var request = new GetChargersRequest
-        {
-            Latitude = 51.05M,
-            Longitude = 4.35M,
-            Types = ["type2", "type2_cable"],
-            Radius = 800,
-            Limit = 10,
-            GetStatus = true
-        };
-
-        var response = await client.PostAsJsonAsync("1/get_chargers", request);
-        var results = await response.Content.ReadFromJsonAsync<GetChargersResponse>();
-        var charger = results.Chargers.SingleOrDefault(x => $"{x.Id}" == chargerId);
+        var response = await client.GetFromJsonAsync<GetChargersResponse>($"1/get_chargers?ids={chargerId}&get_status=true&session_id={_sessionId}");
+        var result = response.Chargers.Single(x => $"{x.Id}" == chargerId);
 
         return new ChargerOverview
         {
-            ChargerId = $"{charger.Id}",
-            Description = charger.Name,
-            NumberOfChargers = charger.Connectors.Count,
-            NumberOfChargersAvailable = charger.Connectors.Count(x => x.Status == "OPERATIONAL")
+            ChargerId = $"{result.Id}",
+            Description = result.Name,
+            NumberOfChargers = result.Connectors.Count,
+            NumberOfChargersAvailable = result.Connectors.Count(x => x.Status == "AVAILABLE")
         };
     }
 }
@@ -66,27 +58,6 @@ public class BaseChargerService
 
         return client;
     }
-}
-
-public class GetChargersRequest
-{
-    [JsonPropertyName("lat")]
-    public decimal Latitude { get; set; }
-
-    [JsonPropertyName("lon")]
-    public decimal Longitude { get; set; }
-
-    [JsonPropertyName("types")]
-    public string[] Types { get; set; }
-
-    [JsonPropertyName("radius")]
-    public decimal Radius { get; set; }
-
-    [JsonPropertyName("limit")]
-    public int Limit { get; set; }
-
-    [JsonPropertyName("get_status")]
-    public bool GetStatus { get; set; }
 }
 
 public class GetChargersResponse
