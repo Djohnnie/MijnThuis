@@ -53,15 +53,22 @@ public class CarService : BaseService, ICarService
 
     public async Task<BatteryHealth> GetBatteryHealth()
     {
-        using var client = InitializeHttpClient();
-        var result = await client.GetFromJsonAsync<BatteryHealthResponse>($"battery_health");
-
-        var batteryHealth = result.Results.Single(x => x.Vin == _vinNumber);
-
-        return new BatteryHealth
+        try
         {
-            Percentage = batteryHealth.Percentage
-        };
+            using var client = InitializeHttpClient();
+            var result = await client.GetFromJsonAsync<BatteryHealthResponse>($"battery_health");
+
+            var batteryHealth = result.Results.Single(x => x.Vin == _vinNumber);
+
+            return new BatteryHealth
+            {
+                Percentage = batteryHealth.Percentage
+            };
+        }
+        catch
+        {
+            return new BatteryHealth { Percentage = 0 };
+        }
     }
 
     public async Task<CarLocation> GetLocation()
