@@ -23,8 +23,8 @@ public class PowerService : BaseService, IPowerService
 
         return new PowerOverview
         {
-            CurrentPower = result.CurrentPower,
-            PowerPeak = result.PowerPeak
+            CurrentPower = (int)result.CurrentPower,
+            PowerPeak = (int)result.PowerPeak
         };
     }
 }
@@ -50,8 +50,8 @@ public class BaseService
 public class BaseResponse
 {
     [JsonPropertyName("active_power_w")]
-    public int CurrentPower { get; set; }
+    public decimal CurrentPower { get; set; }
 
     [JsonPropertyName("montly_power_peak_w")]
-    public int PowerPeak { get; set; }
+    public decimal PowerPeak { get; set; }
 }
