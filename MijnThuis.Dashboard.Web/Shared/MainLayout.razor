@@ -27,7 +27,7 @@
 
     MudTheme _theme = new();
     MudThemeProvider _mudThemeProvider = new MudThemeProvider();
-    string modeIcon => _isDarkMode ? Icons.Outlined.DarkMode : @Icons.Outlined.LightMode;
+    string modeIcon => _isDarkMode ? @Icons.Material.Outlined.DarkMode : @Icons.Material.Outlined.LightMode;
     bool _isDarkMode;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

@@ -31,7 +31,7 @@ public partial class Solar
 
         _options.YAxisTicks = 10;
         _options.YAxisLines = true;
-        _options.DisableLegend = true;
+        _options.ShowLegend = false;
         _options.InterpolationOption = InterpolationOption.Straight;
 
         XAxisLabels = data.Entries.Select(x =>

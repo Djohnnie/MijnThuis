@@ -1,24 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Mapster" Version="7.4.0" />
-    <PackageReference Include="MediatR" Version="12.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Mapster" Version="7.4.0" />
+		<PackageReference Include="MediatR" Version="12.4.1" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.0-rc.2.24473.5" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\MijnThuis.Contracts\MijnThuis.Contracts.csproj" />
-    <ProjectReference Include="..\MijnThuis.Integrations\MijnThuis.Integrations.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\MijnThuis.Contracts\MijnThuis.Contracts.csproj" />
+		<ProjectReference Include="..\MijnThuis.Integrations\MijnThuis.Integrations.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Lamps\Commands\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="Lamps\Commands\" />
+	</ItemGroup>
 
 </Project>

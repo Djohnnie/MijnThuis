@@ -16,7 +16,7 @@ public static class WebApplicationEndpointExtensions
         {
             return new GetSolarOverviewResponse
             {
-                CurrentPower = 259,
+                CurrentBatteryPower = 259,
                 BatteryLevel = 34
             };
 

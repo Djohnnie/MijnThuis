@@ -109,7 +109,7 @@ public partial class CarTile
 
     public async Task UnlockCommand()
     {
-        bool? result = await Message.Show();
+        bool? result = await Message.ShowAsync();
         if (result == true)
         {
             var mediator = ScopedServices.GetRequiredService<IMediator>();
