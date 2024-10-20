@@ -52,7 +52,7 @@ internal class HomeBatteryChargingWorker : BackgroundService
                     _logger.LogInformation("A new day and last charge was yesterday. 'Charged' has been reset!");
                 }
 
-                if (charged == null && DateTime.Now > DateTime.Today.AddHours(DELAY_IN_HOURS))
+                if (charged == null && DateTime.Now.Hour < 6 && DateTime.Now > DateTime.Today.AddHours(DELAY_IN_HOURS))
                 {
                     var batteryLevel = await modbusService.GetBatteryLevel();
 
