@@ -22,12 +22,12 @@ public interface IModbusService
 internal class ModbusService : BaseService, IModbusService
 {
     private readonly string _modbusAddress;
-    private readonly string _modbusPort;
+    private readonly int _modbusPort;
 
     public ModbusService(IConfiguration configuration) : base(configuration)
     {
         _modbusAddress = configuration.GetValue<string>("MODBUS_ADDRESS");
-        _modbusPort = configuration.GetValue<string>("MODBUS_PORT");
+        _modbusPort = configuration.GetValue<int>("MODBUS_PORT");
     }
 
     public Task<SolarOverview> GetOverview()
@@ -37,7 +37,7 @@ internal class ModbusService : BaseService, IModbusService
 
     public async Task<BatteryLevel> GetBatteryLevel()
     {
-        using var modbusClient = new ModbusClient("192.168.10.201", 1502);
+        using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
         await modbusClient.Connect();
 
         var soe = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Energy);
