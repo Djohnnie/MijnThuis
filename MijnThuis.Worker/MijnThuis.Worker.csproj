@@ -8,6 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Djohnnie.SolarEdge.ModBus.TCP" Version="0.1.0.12" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0-rc.2.24473.5" />
 		<PackageReference Include="SendGrid" Version="9.29.3" />
 	</ItemGroup>
@@ -15,5 +16,5 @@
 	<ItemGroup>
 		<ProjectReference Include="..\MijnThuis.Integrations\MijnThuis.Integrations.csproj" />
 	</ItemGroup>
-	
+
 </Project>

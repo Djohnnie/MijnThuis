@@ -9,13 +9,16 @@ namespace MijnThuis.Application.Solar.Query;
 public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuery, GetSolarOverviewResponse>
 {
     private readonly ISolarService _solarService;
+    private readonly IModbusService _modbusService;
     private readonly IMemoryCache _memoryCache;
 
     public GetSolarOverviewQueryHandler(
         ISolarService solarService,
+        IModbusService modbusService,
         IMemoryCache memoryCache)
     {
         _solarService = solarService;
+        _modbusService = modbusService;
         _memoryCache = memoryCache;
     }
 
@@ -26,6 +29,7 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
         var energyResult = await GetEnergy();
 
         var result = solarResult.Adapt<GetSolarOverviewResponse>();
+        result.BatteryLevel = (int)Math.Round(batteryResult.Level);
         result.BatteryHealth = (int)Math.Round(batteryResult.Health);
         result.LastDayEnergy = energyResult.LastDayEnergy / 1000M;
         result.LastMonthEnergy = energyResult.LastMonthEnergy / 1000M;
@@ -40,7 +44,7 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
 
     private Task<BatteryLevel> GetBatteryLevel()
     {
-        return GetCachedValue("SOLAR_BATTERY_LEVEL", _solarService.GetBatteryLevel, 15);
+        return GetCachedValue("SOLAR_BATTERY_LEVEL", _modbusService.GetBatteryLevel, 5);
     }
 
     private Task<EnergyProduced> GetEnergy()
