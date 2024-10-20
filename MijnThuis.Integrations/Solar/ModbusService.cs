@@ -18,6 +18,8 @@ public interface IModbusService
     Task<EnergyOverview> GetEnergyThisMonth();
 
     Task<StorageData> GetStorageData(StorageDataRange range);
+
+    Task StartChargingBattery(TimeSpan duration, int power);
 }
 internal class ModbusService : BaseService, IModbusService
 {
@@ -70,5 +72,18 @@ internal class ModbusService : BaseService, IModbusService
     public Task<StorageData> GetStorageData(StorageDataRange range)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task StartChargingBattery(TimeSpan duration, int power)
+    {
+        using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+        await modbusClient.Connect();
+
+        await modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)4);
+        await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Timeout, (uint)duration.TotalSeconds);
+        await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Mode, (ushort)3);
+        await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Charge_Limit, (float)power);
+
+        modbusClient.Disconnect();
     }
 }
