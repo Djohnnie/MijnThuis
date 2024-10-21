@@ -49,33 +49,49 @@ internal class HomeBatteryChargingWorker : BackgroundService
                 if (charged.HasValue && charged.Value.Date < DateTime.Today.Date)
                 {
                     charged = null;
-                    _logger.LogInformation("A new day and last charge was yesterday. 'Charged' has been reset!");
+                    _logger.LogInformation("Today is a new day and last charge was yesterday. 'Charged' has been reset!");
                 }
 
                 if (charged == null && DateTime.Now.Hour < 6 && DateTime.Now > DateTime.Today.AddHours(DELAY_IN_HOURS))
                 {
+                    _logger.LogInformation($"Today is a new day, and the time is between {DELAY_IN_HOURS}AM and 6AM.");
+
                     var batteryLevel = await modbusService.GetBatteryLevel();
 
                     if (batteryLevel.Level < 20)
                     {
                         _logger.LogInformation($"Battery level is below 20%: Start charging at {DateTime.Now}!");
+
                         var zw6 = await forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, 43M, 2.5M);
                         var no3 = await forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, -137M, 1.2M);
                         var zo4 = await forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 10M, -47M, 1.6M);
                         var totalWattHoursEstimate = zw6.EstimatedWattHoursToday + no3.EstimatedWattHoursToday + zo4.EstimatedWattHoursToday;
-                        _logger.LogInformation($"{zw6.EstimatedWattHoursToday}Wh + {no3.EstimatedWattHoursToday}Wh + {zo4.EstimatedWattHoursToday}Wh = {totalWattHoursEstimate}Wh");
 
-                        var wattHoursToCharge = 10000 - totalWattHoursEstimate;
-                        var durationInSeconds = wattHoursToCharge * 3.6M;
-                        _logger.LogInformation($"Battery should charge {wattHoursToCharge}Wh!");
+                        _logger.LogInformation($"Total estimated solar energy today: {zw6.EstimatedWattHoursToday}Wh + {no3.EstimatedWattHoursToday}Wh + {zo4.EstimatedWattHoursToday}Wh = {totalWattHoursEstimate}Wh");
+
+                        var wattHoursToCharge = 9700 - batteryLevel.Level * 97 - totalWattHoursEstimate;
 
                         if (wattHoursToCharge > 0)
                         {
+                            _logger.LogInformation($"Battery should charge {wattHoursToCharge}Wh!");
+
+                            var durationInSeconds = wattHoursToCharge * 3.6M;
                             durationInSeconds = durationInSeconds > 18000 ? 18000 : durationInSeconds;
+                            var chargingDuration = TimeSpan.FromSeconds((double)durationInSeconds);
 
                             // Charge the battery with the remaining watt hours.
-                            await modbusService.StartChargingBattery(TimeSpan.FromSeconds((double)durationInSeconds), 1000);
+                            await modbusService.StartChargingBattery(chargingDuration, 1000);
+
+                            _logger.LogInformation($"Battery started charging at 1000W with a duration of {chargingDuration}.");
                         }
+                        else
+                        {
+                            _logger.LogInformation("Battery should not charge!");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"Battery level is above 20%: No need to charge at {DateTime.Now}!");
                     }
 
                     charged = DateTime.Now;
