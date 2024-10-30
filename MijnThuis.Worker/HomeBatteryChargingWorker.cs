@@ -79,8 +79,23 @@ internal class HomeBatteryChargingWorker : BackgroundService
                             durationInSeconds = durationInSeconds > 18000 ? 18000 : durationInSeconds;
                             var chargingDuration = TimeSpan.FromSeconds((double)durationInSeconds);
 
-                            // Charge the battery with the remaining watt hours.
-                            await modbusService.StartChargingBattery(chargingDuration, 1000);
+                            var retries = 0;
+                            try
+                            {
+                                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+
+                                // Charge the battery with the remaining watt hours.
+                                await modbusService.StartChargingBattery(chargingDuration, 1000);
+                            }
+                            catch
+                            {
+                                retries++;
+
+                                if (retries > 5)
+                                {
+                                    throw;
+                                }
+                            }
 
                             _logger.LogInformation($"Battery started charging at 1000W with a duration of {chargingDuration}.");
                         }
