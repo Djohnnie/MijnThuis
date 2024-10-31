@@ -22,12 +22,17 @@ public partial class SolarTile
     public int BatteryHealth { get; set; }
     public decimal LastDayEnergy { get; set; }
     public decimal LastMonthEnergy { get; set; }
+    public decimal SolarForecastToday { get; set; }
+    public decimal SolarForecastTomorrow { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        _ = RunTimer();
+        if (firstRender)
+        {
+            _ = RunTimer();
+        }
 
-        await base.OnInitializedAsync();
+        return base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task RunTimer()
@@ -44,9 +49,7 @@ public partial class SolarTile
     {
         try
         {
-            var mediator = ScopedServices.GetRequiredService<IMediator>();
-
-            var response = await mediator.Send(new GetSolarOverviewQuery());
+            var response = await Mediator.Send(new GetSolarOverviewQuery());
             CurrentSolarPower = response.CurrentSolarPower;
             CurrentBatteryPower = response.CurrentBatteryPower;
             CurrentGridPower = response.CurrentGridPower;
@@ -66,14 +69,15 @@ public partial class SolarTile
                 _ => Icons.Material.Filled.Battery0Bar,
             };
             BatteryHealth = response.BatteryHealth;
+            SolarForecastToday = response.SolarForecastToday;
+            SolarForecastTomorrow = response.SolarForecastTomorrow;
             IsReady = true;
 
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
-            var logger = ScopedServices.GetRequiredService<ILogger<SolarTile>>();
-            logger.LogError(ex, "Failed to refresh solar data");
+            Logger.LogError(ex, "Failed to refresh solar data");
         }
     }
 

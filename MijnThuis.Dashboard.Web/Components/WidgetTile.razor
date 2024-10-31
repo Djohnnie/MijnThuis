@@ -1,4 +1,6 @@
-﻿@inherits OwningComponentBase
+﻿@using MediatR;
+@inject IMediator Mediator;
+@inject ILogger<WidgetTile> Logger;
 
 <MudCard Outlined Class="d-flex justify-center align-content-center flex-grow-1 gap-4 pa-4">
     <MudPaper Class="d-flex justify-center align-content-center flex-grow-1 gap-4 pt-1" Width="24%" Elevation="0">

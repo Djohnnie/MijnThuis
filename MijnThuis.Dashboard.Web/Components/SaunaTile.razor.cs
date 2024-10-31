@@ -18,11 +18,14 @@ public partial class SaunaTile
     public bool StartInfraredPending { get; set; }
     public bool StopSaunaPending { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        _ = RunTimer();
+        if (firstRender)
+        {
+            _ = RunTimer();
+        }
 
-        await base.OnInitializedAsync();
+        return base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task RunTimer()
@@ -39,9 +42,7 @@ public partial class SaunaTile
     {
         try
         {
-            var mediator = ScopedServices.GetRequiredService<IMediator>();
-
-            var response = await mediator.Send(new GetSaunaOverviewQuery());
+            var response = await Mediator.Send(new GetSaunaOverviewQuery());
             State = response.State;
             InsideTemperature = response.InsideTemperature;
             OutsideTemperature = response.OutsideTemperature;
@@ -52,19 +53,16 @@ public partial class SaunaTile
         }
         catch (Exception ex)
         {
-            var logger = ScopedServices.GetRequiredService<ILogger<SaunaTile>>();
-            logger.LogError(ex, "Failed to refresh sauna data");
+            Logger.LogError(ex, "Failed to refresh sauna data");
         }
     }
 
     public async Task StartSaunaCommand()
     {
-        var mediator = ScopedServices.GetRequiredService<IMediator>();
-
         StartSaunaPending = true;
         await InvokeAsync(StateHasChanged);
 
-        await mediator.Send(new StartSaunaCommand());
+        await Mediator.Send(new StartSaunaCommand());
 
         StartSaunaPending = false;
 
@@ -73,12 +71,10 @@ public partial class SaunaTile
 
     public async Task StartInfraredCommand()
     {
-        var mediator = ScopedServices.GetRequiredService<IMediator>();
-
         StartInfraredPending = true;
         await InvokeAsync(StateHasChanged);
 
-        await mediator.Send(new StartInfraredCommand());
+        await Mediator.Send(new StartInfraredCommand());
 
         StartInfraredPending = false;
 
@@ -87,12 +83,10 @@ public partial class SaunaTile
 
     public async Task StopSaunaCommand()
     {
-        var mediator = ScopedServices.GetRequiredService<IMediator>();
-
         StopSaunaPending = true;
         await InvokeAsync(StateHasChanged);
 
-        await mediator.Send(new StopSaunaCommand());
+        await Mediator.Send(new StopSaunaCommand());
 
         StopSaunaPending = false;
 

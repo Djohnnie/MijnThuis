@@ -20,6 +20,8 @@ public interface IModbusService
     Task<StorageData> GetStorageData(StorageDataRange range);
 
     Task StartChargingBattery(TimeSpan duration, int power);
+
+    Task StopChargingBattery();
 }
 internal class ModbusService : BaseService, IModbusService
 {
@@ -83,6 +85,16 @@ internal class ModbusService : BaseService, IModbusService
         await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Timeout, (uint)duration.TotalSeconds);
         await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Mode, (ushort)3);
         await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Charge_Limit, (float)power);
+
+        modbusClient.Disconnect();
+    }
+
+    public async Task StopChargingBattery()
+    {
+        using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+        await modbusClient.Connect();
+
+        await modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)1);
 
         modbusClient.Disconnect();
     }

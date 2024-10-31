@@ -20,10 +20,10 @@ public partial class CopilotTile
     protected override void OnInitialized()
     {
         _sttService.EventClick += _sttService_EventClick;
-        var config = ScopedServices.GetRequiredService<IConfiguration>();
-        TTSKey = config.GetValue<string>("SPEECH_API_KEY");
-        TTSRegion = config.GetValue<string>("SPEECH_REGION");
-        TTSLanguage = config.GetValue<string>("SPEECH_LANGUAGE");
+
+        TTSKey = Configuration.GetValue<string>("SPEECH_API_KEY");
+        TTSRegion = Configuration.GetValue<string>("SPEECH_REGION");
+        TTSLanguage = Configuration.GetValue<string>("SPEECH_LANGUAGE");
     }
 
     private async void _sttService_EventClick(object? sender, EventArgs e)
@@ -38,13 +38,11 @@ public partial class CopilotTile
 
     public async Task ExecutePrompt()
     {
-        var copilotHelper = ScopedServices.GetRequiredService<ICopilotHelper>();
-
         var prompt = Prompt;
         Prompt = $"De MijnThuis Copilot is aan het nadenken over uw vraag '{prompt}'...";
         StateHasChanged();
 
-        Prompt = await copilotHelper.ExecutePrompt(prompt);
+        Prompt = await CopilotHelper.ExecutePrompt(prompt);
 
         StateHasChanged();
     }

@@ -30,11 +30,14 @@ public partial class CarTile
     public bool LockPending { get; set; }
     public bool UnlockPending { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        _ = RunTimer();
+        if (firstRender)
+        {
+            _ = RunTimer();
+        }
 
-        await base.OnInitializedAsync();
+        return base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task RunTimer()
@@ -51,9 +54,7 @@ public partial class CarTile
     {
         try
         {
-            var mediator = ScopedServices.GetRequiredService<IMediator>();
-
-            var response = await mediator.Send(new GetCarOverviewQuery());
+            var response = await Mediator.Send(new GetCarOverviewQuery());
             IsLocked = response.IsLocked;
             BatteryLevel = response.BatteryLevel;
             BatteryBar = BatteryLevel switch
@@ -87,19 +88,16 @@ public partial class CarTile
         }
         catch (Exception ex)
         {
-            var logger = ScopedServices.GetRequiredService<ILogger<CarTile>>();
-            logger.LogError(ex, "Failed to refresh car data");
+            Logger.LogError(ex, "Failed to refresh car data");
         }
     }
 
     public async Task LockCommand()
     {
-        var mediator = ScopedServices.GetRequiredService<IMediator>();
-
         LockPending = true;
         await InvokeAsync(StateHasChanged);
 
-        var commandResult = await mediator.Send(new LockCarCommand());
+        var commandResult = await Mediator.Send(new LockCarCommand());
 
         LockPending = false;
         IsLocked = commandResult.Success;
@@ -112,12 +110,10 @@ public partial class CarTile
         bool? result = await Message.ShowAsync();
         if (result == true)
         {
-            var mediator = ScopedServices.GetRequiredService<IMediator>();
-
             UnlockPending = true;
             await InvokeAsync(StateHasChanged);
 
-            var commandResult = await mediator.Send(new UnlockCarCommand());
+            var commandResult = await Mediator.Send(new UnlockCarCommand());
 
             UnlockPending = false;
             IsLocked = !commandResult.Success;
@@ -128,15 +124,13 @@ public partial class CarTile
 
     public async Task PreheatCommand()
     {
-        var mediator = ScopedServices.GetRequiredService<IMediator>();
-        await mediator.Send(new PreheatCarCommand());
+        await Mediator.Send(new PreheatCarCommand());
         await RefreshData();
     }
 
     public async Task FartCommand()
     {
-        var mediator = ScopedServices.GetRequiredService<IMediator>();
-        await mediator.Send(new CarFartCommand());
+        await Mediator.Send(new CarFartCommand());
         await RefreshData();
     }
 

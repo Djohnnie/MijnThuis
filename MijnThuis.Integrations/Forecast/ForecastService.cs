@@ -22,6 +22,8 @@ public class ForecastService : BaseForecastService, IForecastService
 
         var response = await client.GetFromJsonAsync<GetForecastEstimateResponse>($"estimate/{latitude}/{longitude}/{declination}/{azimuth}/{power}");
 
+        await Task.Delay(1000);
+
         return new ForecastOverview
         {
             EstimatedWattHoursToday = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today)],

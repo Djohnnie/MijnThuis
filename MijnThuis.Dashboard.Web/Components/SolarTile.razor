@@ -1,4 +1,6 @@
-﻿@inherits OwningComponentBase
+﻿@using MediatR;
+@inject IMediator Mediator;
+@inject ILogger<SolarTile> Logger;
 
 <MudCard Outlined>
     <MudCardHeader>
@@ -107,6 +109,38 @@
                             <MudIcon Icon="@Icons.Material.Filled.SolarPower" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
                         <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", LastMonthEnergy) kWh</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6">
+                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Voorspelde opbrengst vandaag" Arrow="true" Placement="Placement.Right">
+                            <MudIcon Icon="@Icons.Material.Filled.SolarPower" Size="Size.Medium" Color="Color.Primary" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", SolarForecastToday) kWh</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6">
+                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Voorspelde opbrengst morgen" Arrow="true" Placement="Placement.Left">
+                            <MudIcon Icon="@Icons.Material.Filled.SolarPower" Size="Size.Medium" Color="Color.Primary" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", SolarForecastTomorrow) kWh</MudText>
                     }
                     else
                     {

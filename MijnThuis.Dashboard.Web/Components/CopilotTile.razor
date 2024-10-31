@@ -1,5 +1,7 @@
-﻿@inherits OwningComponentBase
-@implements IDisposable
+﻿@using MijnThuis.Dashboard.Web.Copilot
+
+@inject IConfiguration Configuration
+@inject ICopilotHelper CopilotHelper
 @inject IJSRuntime JS
 
 <MudPaper Class="d-flex justify-center align-content-center flex-grow-1 gap-0 pa-0" Elevation="0">

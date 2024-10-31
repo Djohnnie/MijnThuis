@@ -1,4 +1,6 @@
-﻿@inherits OwningComponentBase
+﻿@using MediatR;
+@inject IMediator Mediator;
+@inject ILogger<CarTile> Logger;
 
 <MudCard Outlined>
     <MudCardHeader>

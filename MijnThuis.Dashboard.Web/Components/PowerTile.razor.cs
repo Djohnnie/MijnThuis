@@ -1,5 +1,4 @@
 using MediatR;
-using MijnThuis.Contracts.Car;
 using MijnThuis.Contracts.Power;
 
 namespace MijnThuis.Dashboard.Web.Components;
@@ -21,11 +20,14 @@ public partial class PowerTile
     public bool IsVijverOn { get; set; }
     public bool ToggleVijverPowerSwitchPending { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        _ = RunTimer();
+        if (firstRender)
+        {
+            _ = RunTimer();
+        }
 
-        await base.OnInitializedAsync();
+        return base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task RunTimer()
@@ -42,9 +44,7 @@ public partial class PowerTile
     {
         try
         {
-            var mediator = ScopedServices.GetRequiredService<IMediator>();
-
-            var response = await mediator.Send(new GetPowerOverviewQuery());
+            var response = await Mediator.Send(new GetPowerOverviewQuery());
             CurrentPower = response.CurrentConsumption;
             PowerPeak = response.PowerPeak / 1000M;
             EnergyToday = response.EnergyToday;
@@ -58,19 +58,16 @@ public partial class PowerTile
         }
         catch (Exception ex)
         {
-            var logger = ScopedServices.GetRequiredService<ILogger<PowerTile>>();
-            logger.LogError(ex, "Failed to refresh power data");
+            Logger.LogError(ex, "Failed to refresh power data");
         }
     }
 
     public async Task ToggleTvPowerSwitchCommand()
     {
-        var mediator = ScopedServices.GetRequiredService<IMediator>();
-
         ToggleTvPowerSwitchPending = true;
         await InvokeAsync(StateHasChanged);
 
-        var commandResult = await mediator.Send(new SetTvPowerSwitchCommand { IsOn = !IsTvOn });
+        var commandResult = await Mediator.Send(new SetTvPowerSwitchCommand { IsOn = !IsTvOn });
 
         ToggleTvPowerSwitchPending = false;
 
@@ -79,12 +76,10 @@ public partial class PowerTile
 
     public async Task ToggleBureauPowerSwitchCommand()
     {
-        var mediator = ScopedServices.GetRequiredService<IMediator>();
-
         ToggleBureauPowerSwitchPending = true;
         await InvokeAsync(StateHasChanged);
 
-        var commandResult = await mediator.Send(new SetBureauPowerSwitchCommand { IsOn = !IsBureauOn });
+        var commandResult = await Mediator.Send(new SetBureauPowerSwitchCommand { IsOn = !IsBureauOn });
 
         ToggleBureauPowerSwitchPending = false;
 
@@ -93,12 +88,10 @@ public partial class PowerTile
 
     public async Task ToggleVijverPowerSwitchCommand()
     {
-        var mediator = ScopedServices.GetRequiredService<IMediator>();
-
         ToggleVijverPowerSwitchPending = true;
         await InvokeAsync(StateHasChanged);
 
-        var commandResult = await mediator.Send(new SetVijverPowerSwitchCommand { IsOn = !IsVijverOn });
+        var commandResult = await Mediator.Send(new SetVijverPowerSwitchCommand { IsOn = !IsVijverOn });
 
         ToggleVijverPowerSwitchPending = false;
 
@@ -107,7 +100,6 @@ public partial class PowerTile
 
     public async Task WakeOnLan()
     {
-        var mediator = ScopedServices.GetRequiredService<IMediator>();
-        await mediator.Send(new WakeOnLanCommand());
+        await Mediator.Send(new WakeOnLanCommand());
     }
 }

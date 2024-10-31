@@ -18,11 +18,14 @@ public partial class LampsTile
     public bool IsBureauOn { get; set; }
     public bool ToggleBureauPowerSwitchPending { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        _ = RunTimer();
+        if (firstRender)
+        {
+            _ = RunTimer();
+        }
 
-        await base.OnInitializedAsync();
+        return base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task RunTimer()
@@ -39,9 +42,7 @@ public partial class LampsTile
     {
         try
         {
-            var mediator = ScopedServices.GetRequiredService<IMediator>();
-
-            var response = await mediator.Send(new GetLampsOverviewQuery());
+            var response = await Mediator.Send(new GetLampsOverviewQuery());
             //CurrentPower = response.CurrentConsumption;
             //PowerPeak = response.PowerPeak / 1000M;
             //EnergyToday = response.EnergyToday;
@@ -54,8 +55,7 @@ public partial class LampsTile
         }
         catch (Exception ex)
         {
-            var logger = ScopedServices.GetRequiredService<ILogger<PowerTile>>();
-            logger.LogError(ex, "Failed to refresh lights data");
+            Logger.LogError(ex, "Failed to refresh lights data");
         }
     }
 }

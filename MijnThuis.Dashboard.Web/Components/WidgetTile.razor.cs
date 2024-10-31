@@ -17,11 +17,14 @@ public partial class WidgetTile
     public decimal CurrentBatteryPower { get; set; }
     public decimal CurrentGridPower { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        _ = RunTimer();
+        if (firstRender)
+        {
+            _ = RunTimer();
+        }
 
-        await base.OnInitializedAsync();
+        return base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task RunTimer()
@@ -38,9 +41,8 @@ public partial class WidgetTile
     {
         try
         {
-            var mediator = ScopedServices.GetRequiredService<IMediator>();
-            var powerResponse = await mediator.Send(new GetPowerOverviewQuery());
-            var solarResponse = await mediator.Send(new GetSolarOverviewQuery());
+            var powerResponse = await Mediator.Send(new GetPowerOverviewQuery());
+            var solarResponse = await Mediator.Send(new GetSolarOverviewQuery());
             BatteryLevel = solarResponse.BatteryLevel;
             CurrentPower = powerResponse.CurrentConsumption;
             CurrentSolarPower = solarResponse.CurrentSolarPower;
@@ -64,8 +66,7 @@ public partial class WidgetTile
         }
         catch (Exception ex)
         {
-            var logger = ScopedServices.GetRequiredService<ILogger<WidgetTile>>();
-            logger.LogError(ex, "Failed to refresh solar data");
+            Logger.LogError(ex, "Failed to refresh solar data");
         }
     }
 
