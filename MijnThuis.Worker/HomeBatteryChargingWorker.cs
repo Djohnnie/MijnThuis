@@ -24,7 +24,7 @@ internal class HomeBatteryChargingWorker : BackgroundService
         // https://api.forecast.solar/estimate/:lat/:lon/:dec/:az/:kwp
         // https://api.forecast.solar/estimate/51.06/4.36/39/43/5
         //
-        // 6 panels SW: 2.5kWp (223° of 43°, 39°)
+        // 6 panels SW: 2.4kWp (223° of 43°, 39°)
         // 3 panelen NE: 1.2kWp (43° of -137°, 38°)
         // 4 panelen SE: 1.6kWp (133° of -47°, 10°)
 
@@ -87,26 +87,34 @@ internal class HomeBatteryChargingWorker : BackgroundService
                 {
                     _logger.LogInformation($"Today is a new day, and the time is between {START_TIME_IN_HOURS}AM and {END_TIME_IN_HOURS}AM.");
 
-                    var zw6 = await forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, 43M, 2.5M);
+                    var zw6 = await forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, 43M, 2.4M);
                     var no3 = await forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, -137M, 1.2M);
                     var zo4 = await forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 10M, -47M, 1.6M);
                     var totalWattHoursEstimate = zw6.EstimatedWattHoursToday + no3.EstimatedWattHoursToday + zo4.EstimatedWattHoursToday;
 
+                    var sunrise = zw6.Sunrise;
+                    var sunset = zw6.Sunset;
+
                     _logger.LogInformation($"Total estimated solar energy today: {zw6.EstimatedWattHoursToday}Wh (6xZW) + {no3.EstimatedWattHoursToday}Wh (3xNO) + {zo4.EstimatedWattHoursToday}Wh (4xZO) = {totalWattHoursEstimate}Wh");
+                    _logger.LogInformation($"Sunrise at {sunrise.TimeOfDay} and Sunset at {sunset.TimeOfDay}");
 
                     if (batteryLevel.Level < BATTERY_LEVEL_THRESHOLD)
                     {
                         _logger.LogInformation($"Battery level is below {BATTERY_LEVEL_THRESHOLD}%: Prepare for charging at {DateTime.Now}!");
 
                         var fullEnergy = 9700;
-                        var idleEnergy = STANDBY_USAGE * (24 - END_TIME_IN_HOURS);
-                        var wattHoursToCharge = fullEnergy - batteryLevel.Level * (fullEnergy / 100M) - totalWattHoursEstimate;
+                        var idleEnergy = STANDBY_USAGE * (decimal)(sunset - sunrise).TotalHours;
+                        var wattHoursToCharge = fullEnergy - batteryLevel.Level * (fullEnergy / 100M) - totalWattHoursEstimate + idleEnergy;
+                        var maxWattHoursToCharge = fullEnergy - batteryLevel.Level * (fullEnergy / 100M);
+
+                        wattHoursToCharge = wattHoursToCharge > maxWattHoursToCharge ? maxWattHoursToCharge : wattHoursToCharge;
 
                         if (wattHoursToCharge > 0)
                         {
                             _logger.LogInformation($"Battery level: {batteryLevel.Level}%");
-                            _logger.LogInformation($"Idle energy: {idleEnergy}Wh");
-                            _logger.LogInformation($"Battery should charge {wattHoursToCharge}Wh!");
+                            _logger.LogInformation($"Idle energy: {(int)idleEnergy}Wh");
+                            _logger.LogInformation($"Maximum battery charge: {(int)maxWattHoursToCharge}Wh");
+                            _logger.LogInformation($"Battery should charge {(int)wattHoursToCharge}Wh!");
 
                             var maxDuration = (END_TIME_IN_HOURS - START_TIME_IN_HOURS) * 3600;
                             var durationInSeconds = wattHoursToCharge * 3600M / CHARGING_POWER;
