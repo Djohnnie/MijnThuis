@@ -2,6 +2,7 @@
 using Djohnnie.SolarEdge.ModBus.TCP.Constants;
 using Djohnnie.SolarEdge.ModBus.TCP.Types;
 using Microsoft.Extensions.Configuration;
+using UInt16 = Djohnnie.SolarEdge.ModBus.TCP.Types.UInt16;
 
 namespace MijnThuis.Integrations.Solar;
 
@@ -18,6 +19,8 @@ public interface IModbusService
     Task<EnergyOverview> GetEnergyThisMonth();
 
     Task<StorageData> GetStorageData(StorageDataRange range);
+
+    Task<bool> IsNotMaxSelfConsumption();
 
     Task StartChargingBattery(TimeSpan duration, int power);
 
@@ -74,6 +77,19 @@ internal class ModbusService : BaseService, IModbusService
     public Task<StorageData> GetStorageData(StorageDataRange range)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<bool> IsNotMaxSelfConsumption()
+    {
+        using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+        await modbusClient.Connect();
+
+        var storageControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
+        var remoteControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
+
+        modbusClient.Disconnect();
+
+        return storageControlMode.Value != 1 && remoteControlMode.Value != 3;
     }
 
     public async Task StartChargingBattery(TimeSpan duration, int power)

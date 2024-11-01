@@ -52,6 +52,32 @@ internal class HomeBatteryChargingWorker : BackgroundService
                 var modbusService = serviceScope.ServiceProvider.GetService<IModbusService>();
                 var batteryLevel = await modbusService.GetBatteryLevel();
 
+                if (!chargeUntil.HasValue)
+                {
+                    var retries = 0;
+                    try
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+
+                        if (await modbusService.IsNotMaxSelfConsumption())
+                        {
+                            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+                            await modbusService.StopChargingBattery();
+
+                            _logger.LogInformation($"Battery has been restored to Maximum Self Consumption storage control mode!");
+                        }
+                    }
+                    catch
+                    {
+                        retries++;
+
+                        if (retries > 5)
+                        {
+                            throw;
+                        }
+                    }
+                }
+
                 if (charged.HasValue && chargeUntil.HasValue && DateTime.Now > chargeUntil.Value)
                 {
                     _logger.LogInformation($"Battery has been charged until {chargeUntil.Value} and is at level {batteryLevel.Level}!");

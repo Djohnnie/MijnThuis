@@ -151,4 +151,27 @@
             </MudItem>
         </MudGrid>
     </MudCardContent>
+    <MudCardActions>
+
+        <MudTooltip Text="Batterij opladen gedurende 1 uur" Arrow="true" Placement="Placement.Bottom">
+            <MudIconButton Icon="@Icons.Material.Filled.Battery1Bar" Size="Size.Large" Color="Color.Primary"
+                           Disabled="@(!IsReady)" OnClick="ChargeBatteryForOneHourCommand" />
+        </MudTooltip>
+
+        <MudTooltip Text="Batterij opladen gedurende 2 uur" Arrow="true" Placement="Placement.Bottom">
+            <MudIconButton Icon="@Icons.Material.Filled.Battery2Bar" Size="Size.Large" Color="Color.Primary"
+                           Disabled="@(!IsReady)" OnClick="ChargeBatteryForTwoHoursCommand" />
+        </MudTooltip>
+
+        <MudTooltip Text="Batterij opladen gedurende 4 uur" Arrow="true" Placement="Placement.Bottom">
+            <MudIconButton Icon="@Icons.Material.Filled.Battery4Bar" Size="Size.Large" Color="Color.Primary"
+                           Disabled="@(!IsReady)" OnClick="ChargeBatteryForFourHoursCommand" />
+        </MudTooltip>
+
+        <MudTooltip Text="Stoppen met opladen" Arrow="true" Placement="Placement.Bottom">
+            <MudIconButton Icon="@Icons.Material.Filled.BatteryAlert" Size="Size.Large" Color="Color.Primary"
+                           Disabled="@(!IsReady)" OnClick="StopChargingBatteryCommand" />
+        </MudTooltip>
+
+    </MudCardActions>
 </MudCard>

@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Components;
+using MijnThuis.Contracts.Power;
 using MijnThuis.Contracts.Solar;
 using MudBlazor;
 
@@ -79,6 +80,34 @@ public partial class SolarTile
         {
             Logger.LogError(ex, "Failed to refresh solar data");
         }
+    }
+
+    public async Task ChargeBatteryForOneHourCommand()
+    {
+        await Mediator.Send(new ChargeBatteryCommand { Duration = TimeSpan.FromHours(1), Power = 1500 });
+
+        await RefreshData();
+    }
+
+    public async Task ChargeBatteryForTwoHoursCommand()
+    {
+        await Mediator.Send(new ChargeBatteryCommand { Duration = TimeSpan.FromHours(2), Power = 1500 });
+
+        await RefreshData();
+    }
+
+    public async Task ChargeBatteryForFourHoursCommand()
+    {
+        await Mediator.Send(new ChargeBatteryCommand { Duration = TimeSpan.FromHours(4), Power = 1500 });
+
+        await RefreshData();
+    }
+
+    public async Task StopChargingBatteryCommand()
+    {
+        await Mediator.Send(new StopChargingBatteryCommand());
+
+        await RefreshData();
     }
 
     public void MoreCommand()
