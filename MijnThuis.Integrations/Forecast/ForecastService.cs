@@ -21,27 +21,28 @@ public class ForecastService : BaseForecastService, IForecastService
     {
         using var client = InitializeHttpClient();
 
-        var response = await client.GetFromJsonAsync<GetForecastEstimateResponse>($"estimate/{latitude}/{longitude}/{declination}/{azimuth}/{power}");
+        var response = await client.GetFromJsonAsync<GetForecastEstimateResponse>($"{_apiKey}/estimate/{latitude}/{longitude}/{declination}/{azimuth}/{power}");
         var wattHoursPeriodTimes = response.Result.WattHoursPeriod.Keys.Select(x => DateTime.ParseExact(x, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)).Where(x => x.Day == DateTime.Today.Day);
 
         return new ForecastOverview
         {
             EstimatedWattHoursToday = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today)],
             EstimatedWattHoursTomorrow = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today.AddDays(1))],
-            Sunrise = wattHoursPeriodTimes.First(),
-            Sunset = wattHoursPeriodTimes.Last()
+            Sunrise = wattHoursPeriodTimes.First().TimeOfDay,
+            Sunset = wattHoursPeriodTimes.Last().TimeOfDay
         };
     }
 }
 
 public class BaseForecastService
 {
-    private readonly string _baseAddress;
-    private readonly string _apiKey;
+    protected readonly string _baseAddress;
+    protected readonly string _apiKey;
 
     protected BaseForecastService(IConfiguration configuration)
     {
         _baseAddress = configuration.GetValue<string>("FORECAST_API_BASE_ADDRESS");
+        _apiKey = configuration.GetValue<string>("FORECAST_API_KEY");
     }
 
     protected HttpClient InitializeHttpClient()

@@ -96,7 +96,7 @@ internal class HomeBatteryChargingWorker : BackgroundService
                     var sunset = zw6.Sunset;
 
                     _logger.LogInformation($"Total estimated solar energy today: {zw6.EstimatedWattHoursToday}Wh (6xZW) + {no3.EstimatedWattHoursToday}Wh (3xNO) + {zo4.EstimatedWattHoursToday}Wh (4xZO) = {totalWattHoursEstimate}Wh");
-                    _logger.LogInformation($"Sunrise at {sunrise.TimeOfDay} and Sunset at {sunset.TimeOfDay}");
+                    _logger.LogInformation($"Sunrise at {sunrise} and Sunset at {sunset}");
 
                     if (batteryLevel.Level < BATTERY_LEVEL_THRESHOLD)
                     {

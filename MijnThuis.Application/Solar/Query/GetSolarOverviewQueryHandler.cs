@@ -67,7 +67,6 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
     private Task<ForecastOverview> GetForecast(decimal latitude, decimal longitude, decimal declination, decimal azimuth, decimal power)
     {
         return GetCachedValue($"SOLAR_FORECAST[{latitude}|{longitude}|{declination}|{azimuth}|{power}]", () => _forecastService.GetSolarForecastEstimate(latitude, longitude, declination, azimuth, power), 60);
-        //return GetCachedValue($"SOLAR_FORECAST[{latitude}|{longitude}|{declination}|{azimuth}|{power}]", () => Task.FromResult(new ForecastOverview()), 60);
     }
 
     private async Task<T> GetCachedValue<T>(string key, Func<Task<T>> valueFactory, int absoluteExpiration)
