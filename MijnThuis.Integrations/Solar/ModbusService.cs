@@ -49,13 +49,15 @@ internal class ModbusService : BaseService, IModbusService
 
         var soe = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Energy);
         var soh = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Health);
+        var max = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_Max_Energy);
 
         modbusClient.Disconnect();
 
         return new BatteryLevel
         {
             Level = Convert.ToDecimal(soe.Value),
-            Health = Convert.ToDecimal(soh.Value)
+            Health = Convert.ToDecimal(soh.Value),
+            MaxEnergy = Convert.ToDecimal(max.Value)
         };
     }
 
