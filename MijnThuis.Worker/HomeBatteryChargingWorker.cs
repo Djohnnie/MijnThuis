@@ -111,6 +111,7 @@ internal class HomeBatteryChargingWorker : BackgroundService
                     _logger.LogInformation("Today is a new day and last charge was yesterday. 'Charged' has been reset!");
                 }
 
+                // If the battery has not been charged today and the chargeFrom flag has a value that is in the past.
                 if (charged == null && chargeFrom.HasValue && DateTime.Now > chargeFrom.Value && DateTime.Now.Hour < END_TIME_IN_HOURS)
                 {
                     var retries = 0;
@@ -118,6 +119,7 @@ internal class HomeBatteryChargingWorker : BackgroundService
                     {
                         await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
+                        // Calculate the charging duration based on the chargeFrom flag and the end time.
                         var chargingDuration = DateTime.Today.AddHours(END_TIME_IN_HOURS) - chargeFrom.Value;
 
                         // Charge the battery at the configured charging power for the estimated charge duration.
@@ -134,6 +136,8 @@ internal class HomeBatteryChargingWorker : BackgroundService
                             throw;
                         }
                     }
+
+                    charged = DateTime.Now;
                 }
 
                 // If the battery has not been charged today and the time is between START and END.
@@ -180,7 +184,7 @@ internal class HomeBatteryChargingWorker : BackgroundService
                             var durationInSeconds = wattHoursToCharge * 3600M / CHARGING_POWER;
                             // Limit the charge duration to the maximum duration.
                             durationInSeconds = durationInSeconds > maxDuration ? maxDuration : durationInSeconds;
-                            // Set the chargeUntil flag, by adding the charging duration to the current time.
+                            // Set the chargeFrom flag, by subtracting the charging duration from the end time.
                             var chargingDuration = TimeSpan.FromSeconds((double)durationInSeconds);
                             chargeFrom = DateTime.Today.AddHours(END_TIME_IN_HOURS) - chargingDuration;
                         }
@@ -193,8 +197,6 @@ internal class HomeBatteryChargingWorker : BackgroundService
                     {
                         _logger.LogInformation($"Battery level is above {BATTERY_LEVEL_THRESHOLD}%: No need to charge at {DateTime.Now}!");
                     }
-
-                    charged = DateTime.Now;
                 }
 
 
