@@ -34,11 +34,11 @@ internal class HomeBatteryChargingWorker : BackgroundService
         // While the service is not requested to stop...
         while (!stoppingToken.IsCancellationRequested)
         {
+            // Use a timestamp to calculate the duration of the whole process.
+            var startTimer = Stopwatch.GetTimestamp();
+
             try
             {
-                // Use a timestamp to calculate the duration of the whole process.
-                var startTimer = Stopwatch.GetTimestamp();
-
                 using var serviceScope = _serviceProvider.CreateScope();
                 var forecastService = serviceScope.ServiceProvider.GetService<IForecastService>();
                 var modbusService = serviceScope.ServiceProvider.GetService<IModbusService>();
@@ -109,6 +109,39 @@ internal class HomeBatteryChargingWorker : BackgroundService
                 {
                     charged = null;
                     _logger.LogInformation("Today is a new day and last charge was yesterday. 'Charged' has been reset!");
+                }
+
+                // If charging the battery has started.
+                if (charged.HasValue && chargeFrom.HasValue && DateTime.Now > chargeFrom.Value && DateTime.Now.Hour < END_TIME_IN_HOURS)
+                {
+                    var retries = 0;
+                    try
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+
+                        // If the battery is in storage control mode, but not charging from PC and AC
+                        if (await modbusService.IsNotChargingInRemoteControlMode())
+                        {
+                            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+
+                            // Calculate remaining duration to charge the battery.
+                            var chargingDuration = DateTime.Today.AddHours(END_TIME_IN_HOURS) - DateTime.Now;
+
+                            // Restore the battery to Maximum Self Consumption storage control mode.
+                            await modbusService.StartChargingBattery(chargingDuration, CHARGING_POWER);
+
+                            _logger.LogInformation($"Battery was in remote control mode, but was not charging! Charging has been restored!");
+                        }
+                    }
+                    catch
+                    {
+                        retries++;
+
+                        if (retries > 5)
+                        {
+                            throw;
+                        }
+                    }
                 }
 
                 // If the battery has not been charged today and the chargeFrom flag has a value that is in the past.
@@ -187,6 +220,8 @@ internal class HomeBatteryChargingWorker : BackgroundService
                             // Set the chargeFrom flag, by subtracting the charging duration from the end time.
                             var chargingDuration = TimeSpan.FromSeconds((double)durationInSeconds);
                             chargeFrom = DateTime.Today.AddHours(END_TIME_IN_HOURS) - chargingDuration;
+
+                            _logger.LogInformation($"Battery should charge from {chargeFrom}!");
                         }
                         else
                         {
@@ -198,18 +233,6 @@ internal class HomeBatteryChargingWorker : BackgroundService
                         _logger.LogInformation($"Battery level is above {BATTERY_LEVEL_THRESHOLD}%: No need to charge at {DateTime.Now}!");
                     }
                 }
-
-
-                // Calculate the duration for this whole process.
-                var stopTimer = Stopwatch.GetTimestamp();
-
-                // Wait for a maximum of 5 minutes before the next iteration.
-                var duration = TimeSpan.FromMinutes(5) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
-
-                if (duration > TimeSpan.Zero)
-                {
-                    await Task.Delay(duration, stoppingToken);
-                }
             }
             catch (Exception ex)
             {
@@ -217,6 +240,17 @@ internal class HomeBatteryChargingWorker : BackgroundService
                 _logger.LogError(ex, ex.Message);
 
                 await Task.Delay(TimeSpan.FromMinutes(5));
+            }
+
+            // Calculate the duration for this whole process.
+            var stopTimer = Stopwatch.GetTimestamp();
+
+            // Wait for a maximum of 5 minutes before the next iteration.
+            var duration = TimeSpan.FromMinutes(5) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
+
+            if (duration > TimeSpan.Zero)
+            {
+                await Task.Delay(duration, stoppingToken);
             }
         }
     }

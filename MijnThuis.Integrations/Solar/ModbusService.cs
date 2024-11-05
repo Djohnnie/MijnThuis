@@ -22,6 +22,8 @@ public interface IModbusService
 
     Task<bool> IsNotMaxSelfConsumption();
 
+    Task<bool> IsNotChargingInRemoteControlMode();
+
     Task StartChargingBattery(TimeSpan duration, int power);
 
     Task StopChargingBattery();
@@ -92,6 +94,19 @@ internal class ModbusService : BaseService, IModbusService
         modbusClient.Disconnect();
 
         return storageControlMode.Value != 1 && remoteControlMode.Value != 3;
+    }
+
+    public async Task<bool> IsNotChargingInRemoteControlMode()
+    {
+        using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+        await modbusClient.Connect();
+
+        var storageControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
+        var remoteControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
+
+        modbusClient.Disconnect();
+
+        return storageControlMode.Value == 4 && remoteControlMode.Value != 3;
     }
 
     public async Task StartChargingBattery(TimeSpan duration, int power)
