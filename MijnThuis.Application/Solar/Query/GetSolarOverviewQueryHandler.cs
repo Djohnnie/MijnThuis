@@ -41,6 +41,7 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
         var result = solarResult.Adapt<GetSolarOverviewResponse>();
         result.BatteryLevel = (int)Math.Round(batteryResult.Level);
         result.BatteryHealth = (int)Math.Round(batteryResult.Health);
+        result.BatteryMaxEnergy = (int)Math.Round(batteryResult.MaxEnergy);
         result.LastDayEnergy = energyResult.LastDayEnergy / 1000M;
         result.LastMonthEnergy = energyResult.LastMonthEnergy / 1000M;
         result.SolarForecastToday = (zw6.EstimatedWattHoursToday + no3.EstimatedWattHoursToday + zo4.EstimatedWattHoursToday) / 1000M;

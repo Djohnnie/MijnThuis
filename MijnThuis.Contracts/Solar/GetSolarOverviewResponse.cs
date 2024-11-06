@@ -11,4 +11,5 @@ public record GetSolarOverviewResponse
     public decimal SolarForecastTomorrow { get; set; }
     public int BatteryLevel { get; set; }
     public int BatteryHealth { get; set; }
+    public int BatteryMaxEnergy { get; set; }
 }
