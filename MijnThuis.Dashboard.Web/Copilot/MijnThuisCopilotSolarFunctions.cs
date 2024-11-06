@@ -69,4 +69,22 @@ public class MijnThuisCopilotSolarFunctions
         var response = await _mediator.Send(new GetSolarOverviewQuery());
         return response.CurrentGridPower;
     }
+
+    [KernelFunction]
+    [Description("Gets the solar energy forecast for today.")]
+    [return: Description("The solar energy forecast for today in kWh.")]
+    public async Task<decimal> GetSolarForecastToday()
+    {
+        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        return response.SolarForecastToday;
+    }
+
+    [KernelFunction]
+    [Description("Gets the solar energy forecast for tomorrow.")]
+    [return: Description("The solar energy forecast for tomorrow in kWh.")]
+    public async Task<decimal> GetSolarForecastTomorrow()
+    {
+        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        return response.SolarForecastTomorrow;
+    }
 }
