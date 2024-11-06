@@ -121,4 +121,9 @@ public partial class HeatingTile
 
         await RefreshData();
     }
+
+    public void Dispose()
+    {
+        _periodicTimer?.Dispose();
+    }
 }

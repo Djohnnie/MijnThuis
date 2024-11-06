@@ -102,4 +102,9 @@ public partial class PowerTile
     {
         await Mediator.Send(new WakeOnLanCommand());
     }
+
+    public void Dispose()
+    {
+        _periodicTimer?.Dispose();
+    }
 }
