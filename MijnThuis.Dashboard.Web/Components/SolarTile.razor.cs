@@ -1,4 +1,3 @@
-using MediatR;
 using Microsoft.AspNetCore.Components;
 using MijnThuis.Contracts.Solar;
 using MudBlazor;
@@ -41,7 +40,15 @@ public partial class SolarTile
 
         while (await _periodicTimer.WaitForNextTickAsync())
         {
-            await RefreshData();
+            try
+            {
+                await RefreshData();
+            }
+            catch (ObjectDisposedException)
+            {
+                _periodicTimer.Dispose();
+                break;
+            }
         }
     }
 
@@ -112,10 +119,5 @@ public partial class SolarTile
     public void MoreCommand()
     {
         NavigationManager.NavigateTo($"solar{new Uri(NavigationManager.Uri).Query}");
-    }
-
-    public void Dispose()
-    {
-        _periodicTimer?.Dispose();
     }
 }

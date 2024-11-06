@@ -1,4 +1,3 @@
-using MediatR;
 using MijnThuis.Contracts.Sauna;
 
 namespace MijnThuis.Dashboard.Web.Components;
@@ -34,7 +33,15 @@ public partial class SaunaTile
 
         while (await _periodicTimer.WaitForNextTickAsync())
         {
-            await RefreshData();
+            try
+            {
+                await RefreshData();
+            }
+            catch (ObjectDisposedException)
+            {
+                _periodicTimer.Dispose();
+                break;
+            }
         }
     }
 
@@ -91,10 +98,5 @@ public partial class SaunaTile
         StopSaunaPending = false;
 
         await RefreshData();
-    }
-
-    public void Dispose()
-    {
-        _periodicTimer?.Dispose();
     }
 }

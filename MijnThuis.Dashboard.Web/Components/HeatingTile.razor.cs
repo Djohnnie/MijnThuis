@@ -1,4 +1,3 @@
-using MediatR;
 using MijnThuis.Contracts.Heating;
 
 namespace MijnThuis.Dashboard.Web.Components;
@@ -37,7 +36,15 @@ public partial class HeatingTile
 
         while (await _periodicTimer.WaitForNextTickAsync())
         {
-            await RefreshData();
+            try
+            {
+                await RefreshData();
+            }
+            catch (ObjectDisposedException)
+            {
+                _periodicTimer.Dispose();
+                break;
+            }
         }
     }
 
@@ -120,10 +127,5 @@ public partial class HeatingTile
         AntiFrostHeatingPending = false;
 
         await RefreshData();
-    }
-
-    public void Dispose()
-    {
-        _periodicTimer?.Dispose();
     }
 }

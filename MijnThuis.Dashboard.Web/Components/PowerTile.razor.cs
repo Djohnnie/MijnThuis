@@ -1,4 +1,3 @@
-using MediatR;
 using MijnThuis.Contracts.Power;
 
 namespace MijnThuis.Dashboard.Web.Components;
@@ -36,7 +35,15 @@ public partial class PowerTile
 
         while (await _periodicTimer.WaitForNextTickAsync())
         {
-            await RefreshData();
+            try
+            {
+                await RefreshData();
+            }
+            catch (ObjectDisposedException)
+            {
+                _periodicTimer.Dispose();
+                break;
+            }
         }
     }
 
@@ -101,10 +108,5 @@ public partial class PowerTile
     public async Task WakeOnLan()
     {
         await Mediator.Send(new WakeOnLanCommand());
-    }
-
-    public void Dispose()
-    {
-        _periodicTimer?.Dispose();
     }
 }

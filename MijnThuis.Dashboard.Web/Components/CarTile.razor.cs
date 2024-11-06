@@ -1,4 +1,3 @@
-using MediatR;
 using MijnThuis.Contracts.Car;
 using MudBlazor;
 
@@ -46,7 +45,15 @@ public partial class CarTile
 
         while (await _periodicTimer.WaitForNextTickAsync())
         {
-            await RefreshData();
+            try
+            {
+                await RefreshData();
+            }
+            catch (ObjectDisposedException)
+            {
+                _periodicTimer.Dispose();
+                break;
+            }
         }
     }
 
@@ -132,10 +139,5 @@ public partial class CarTile
     {
         await Mediator.Send(new CarFartCommand());
         await RefreshData();
-    }
-
-    public void Dispose()
-    {
-        _periodicTimer?.Dispose();
     }
 }
