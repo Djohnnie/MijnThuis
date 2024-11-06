@@ -71,8 +71,8 @@ public class MijnThuisCopilotSolarFunctions
     }
 
     [KernelFunction]
-    [Description("Gets the maximum energy capacity of the home battery.")]
-    [return: Description("The maximum energy capacity of the home battery in Wh.")]
+    [Description("Gets the maximum energy capacity of the home battery in Watthours.")]
+    [return: Description("The maximum energy capacity of the home battery in Watthours.")]
     public async Task<int> GetBatteryMaximumEnergy()
     {
         var response = await _mediator.Send(new GetSolarOverviewQuery());
