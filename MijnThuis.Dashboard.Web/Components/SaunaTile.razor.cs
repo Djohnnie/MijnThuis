@@ -99,4 +99,9 @@ public partial class SaunaTile
 
         await RefreshData();
     }
+
+    public void Dispose()
+    {
+        _periodicTimer.Dispose();
+    }
 }

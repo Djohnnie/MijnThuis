@@ -140,4 +140,9 @@ public partial class CarTile
         await Mediator.Send(new CarFartCommand());
         await RefreshData();
     }
+
+    public void Dispose()
+    {
+        _periodicTimer.Dispose();
+    }
 }

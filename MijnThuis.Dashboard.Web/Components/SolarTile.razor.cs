@@ -120,4 +120,9 @@ public partial class SolarTile
     {
         NavigationManager.NavigateTo($"solar{new Uri(NavigationManager.Uri).Query}");
     }
+
+    public void Dispose()
+    {
+        _periodicTimer.Dispose();
+    }
 }
