@@ -9,7 +9,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Djohnnie.SolarEdge.ModBus.TCP" Version="0.1.0.14" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0-rc.2.24473.5" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
 		<PackageReference Include="SendGrid" Version="9.29.3" />
 	</ItemGroup>
 
