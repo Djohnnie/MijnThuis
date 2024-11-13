@@ -1,4 +1,5 @@
 using MijnThuis.Dashboard.App.Configuration;
+using Microsoft.Maui.ApplicationModel;
 
 namespace MijnThuis.Dashboard.App;
 

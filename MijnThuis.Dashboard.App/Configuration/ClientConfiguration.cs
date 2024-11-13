@@ -1,4 +1,5 @@
-﻿namespace MijnThuis.Dashboard.App.Configuration;
+﻿using Microsoft.Maui.Storage;
+namespace MijnThuis.Dashboard.App.Configuration;
 
 public interface IClientConfiguration
 {
