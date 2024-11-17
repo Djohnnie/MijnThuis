@@ -20,7 +20,7 @@ internal class HomeBatteryChargingWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         const int START_TIME_IN_HOURS = 1;
-        const int END_TIME_IN_HOURS = 7;
+        const int END_TIME_IN_HOURS = 6;
         const int BATTERY_LEVEL_THRESHOLD = 100;
         const int CHARGING_POWER = 1500;
         const int STANDBY_USAGE = 250;
@@ -125,7 +125,7 @@ internal class HomeBatteryChargingWorker : BackgroundService
                             await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
                             // Calculate remaining duration to charge the battery.
-                            var chargingDuration = DateTime.Today.AddHours(END_TIME_IN_HOURS) - DateTime.Now;
+                            var chargingDuration = DateTime.Today.AddHours(END_TIME_IN_HOURS).AddMinutes(-5) - DateTime.Now;
 
                             // Restore the battery to Maximum Self Consumption storage control mode.
                             await modbusService.StartChargingBattery(chargingDuration, CHARGING_POWER);
@@ -153,7 +153,7 @@ internal class HomeBatteryChargingWorker : BackgroundService
                         await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
                         // Calculate the charging duration based on the chargeFrom flag and the end time.
-                        var chargingDuration = DateTime.Today.AddHours(END_TIME_IN_HOURS) - chargeFrom.Value;
+                        var chargingDuration = DateTime.Today.AddHours(END_TIME_IN_HOURS).AddMinutes(-5) - chargeFrom.Value;
 
                         // Charge the battery at the configured charging power for the estimated charge duration.
                         await modbusService.StartChargingBattery(chargingDuration, CHARGING_POWER);
