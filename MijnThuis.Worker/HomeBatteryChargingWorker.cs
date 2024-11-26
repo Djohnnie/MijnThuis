@@ -6,24 +6,26 @@ namespace MijnThuis.Worker;
 
 internal class HomeBatteryChargingWorker : BackgroundService
 {
+    private readonly IConfiguration _configuration;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<HomeBatteryChargingWorker> _logger;
 
     public HomeBatteryChargingWorker(
-        IServiceProvider serviceProvider,
+        IConfiguration configuration, IServiceProvider serviceProvider,
         ILogger<HomeBatteryChargingWorker> logger)
     {
+        _configuration = configuration;
         _serviceProvider = serviceProvider;
         _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        const int START_TIME_IN_HOURS = 1;
-        const int END_TIME_IN_HOURS = 6;
-        const int BATTERY_LEVEL_THRESHOLD = 100;
-        const int CHARGING_POWER = 1500;
-        const int STANDBY_USAGE = 250;
+        var startTimeInHours = _configuration.GetValue<int>("START_TIME_IN_HOURS");
+        var endTimeInHours = _configuration.GetValue<int>("END_TIME_IN_HOURS");
+        var gridChargingPower = _configuration.GetValue<int>("GRID_CHARGING_POWER");
+        var batteryLevelThreshold = _configuration.GetValue<int>("BATTERY_LEVEL_THRESHOLD");
+        var standbyUsage = _configuration.GetValue<int>("STANDBY_USAGE");
 
         // Keep a flag to know if the battery was charged today.
         DateTime? charged = null;
@@ -77,9 +79,9 @@ internal class HomeBatteryChargingWorker : BackgroundService
                 }
 
                 // If the battery has been charged and the charge duration has passed.
-                if (charged.HasValue && chargeFrom.HasValue && DateTime.Now > chargeFrom.Value && DateTime.Now > DateTime.Today.AddHours(END_TIME_IN_HOURS))
+                if (charged.HasValue && chargeFrom.HasValue && DateTime.Now > chargeFrom.Value && DateTime.Now > DateTime.Today.AddHours(endTimeInHours))
                 {
-                    _logger.LogInformation($"Battery has been charged from {chargeFrom.Value} until {DateTime.Today.AddHours(END_TIME_IN_HOURS)} and is at level {batteryLevel.Level}!");
+                    _logger.LogInformation($"Battery has been charged from {chargeFrom.Value} until {DateTime.Today.AddHours(endTimeInHours)} and is at level {batteryLevel.Level}!");
 
                     var retries = 0;
                     try
@@ -112,7 +114,7 @@ internal class HomeBatteryChargingWorker : BackgroundService
                 }
 
                 // If charging the battery has started.
-                if (charged.HasValue && chargeFrom.HasValue && DateTime.Now > chargeFrom.Value && DateTime.Now.Hour < END_TIME_IN_HOURS)
+                if (charged.HasValue && chargeFrom.HasValue && DateTime.Now > chargeFrom.Value && DateTime.Now.Hour < endTimeInHours)
                 {
                     var retries = 0;
                     try
@@ -125,10 +127,10 @@ internal class HomeBatteryChargingWorker : BackgroundService
                             await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
                             // Calculate remaining duration to charge the battery.
-                            var chargingDuration = DateTime.Today.AddHours(END_TIME_IN_HOURS).AddMinutes(-5) - DateTime.Now;
+                            var chargingDuration = DateTime.Today.AddHours(endTimeInHours).AddMinutes(-5) - DateTime.Now;
 
                             // Restore the battery to Maximum Self Consumption storage control mode.
-                            await modbusService.StartChargingBattery(chargingDuration, CHARGING_POWER);
+                            await modbusService.StartChargingBattery(chargingDuration, gridChargingPower);
 
                             _logger.LogInformation($"Battery was in remote control mode, but was not charging! Charging has been restored!");
                         }
@@ -145,7 +147,7 @@ internal class HomeBatteryChargingWorker : BackgroundService
                 }
 
                 // If the battery has not been charged today and the chargeFrom flag has a value that is in the past.
-                if (charged == null && chargeFrom.HasValue && DateTime.Now > chargeFrom.Value && DateTime.Now.Hour < END_TIME_IN_HOURS)
+                if (charged == null && chargeFrom.HasValue && DateTime.Now > chargeFrom.Value && DateTime.Now.Hour < endTimeInHours)
                 {
                     var retries = 0;
                     try
@@ -153,12 +155,12 @@ internal class HomeBatteryChargingWorker : BackgroundService
                         await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
                         // Calculate the charging duration based on the chargeFrom flag and the end time.
-                        var chargingDuration = DateTime.Today.AddHours(END_TIME_IN_HOURS).AddMinutes(-5) - chargeFrom.Value;
+                        var chargingDuration = DateTime.Today.AddHours(endTimeInHours).AddMinutes(-5) - chargeFrom.Value;
 
                         // Charge the battery at the configured charging power for the estimated charge duration.
-                        await modbusService.StartChargingBattery(chargingDuration, CHARGING_POWER);
+                        await modbusService.StartChargingBattery(chargingDuration, gridChargingPower);
                         _logger.LogInformation($"Battery has been set to Remote Control storage control mode!");
-                        _logger.LogInformation($"Battery started charging at {CHARGING_POWER}W with a duration of {chargingDuration} until {DateTime.Today.AddHours(END_TIME_IN_HOURS)}.");
+                        _logger.LogInformation($"Battery started charging at {gridChargingPower}W with a duration of {chargingDuration} until {DateTime.Today.AddHours(endTimeInHours)}.");
                     }
                     catch
                     {
@@ -174,9 +176,9 @@ internal class HomeBatteryChargingWorker : BackgroundService
                 }
 
                 // If the battery has not been charged today and the time is between START and END.
-                if (charged == null && chargeFrom == null && DateTime.Now.Hour < END_TIME_IN_HOURS && DateTime.Now > DateTime.Today.AddHours(START_TIME_IN_HOURS))
+                if (charged == null && chargeFrom == null && DateTime.Now.Hour < endTimeInHours && DateTime.Now > DateTime.Today.AddHours(startTimeInHours))
                 {
-                    _logger.LogInformation($"Today is a new day, and the time is between {START_TIME_IN_HOURS}AM and {END_TIME_IN_HOURS}AM.");
+                    _logger.LogInformation($"Today is a new day, and the time is between {startTimeInHours}AM and {endTimeInHours}AM.");
 
                     // Gets the solar forecast estimates for today and for each solar orientation plane.
                     // 6 panels facing ZW, 3 panels facing NO, and 4 panels facing ZO.
@@ -186,14 +188,14 @@ internal class HomeBatteryChargingWorker : BackgroundService
                     _logger.LogInformation($"Sunrise at {forecastOverview.Sunrise} and Sunset at {forecastOverview.Sunset}");
 
                     // If the battery level is below the threshold.
-                    if (batteryLevel.Level < BATTERY_LEVEL_THRESHOLD)
+                    if (batteryLevel.Level < batteryLevelThreshold)
                     {
-                        _logger.LogInformation($"Battery level is below {BATTERY_LEVEL_THRESHOLD}%: Prepare for charging at {DateTime.Now}!");
+                        _logger.LogInformation($"Battery level is below {batteryLevelThreshold}%: Prepare for charging at {DateTime.Now}!");
 
                         // Gets the maximum energy the battery can store.
                         var fullEnergy = batteryLevel.MaxEnergy;
                         // Calculate the estimated idle energy consumption during the night.
-                        var idleEnergy = STANDBY_USAGE * (decimal)(forecastOverview.Sunset - forecastOverview.Sunrise).TotalHours;
+                        var idleEnergy = standbyUsage * (decimal)(forecastOverview.Sunset - forecastOverview.Sunrise).TotalHours;
                         // Calculate the estimated energy to charge, based on the current
                         // charge level, the solar forecast and the estimated ide energy.
                         var wattHoursToCharge = fullEnergy - batteryLevel.Level * (fullEnergy / 100M) - forecastOverview.EstimatedWattHoursToday + idleEnergy;
@@ -212,14 +214,14 @@ internal class HomeBatteryChargingWorker : BackgroundService
                             _logger.LogInformation($"Battery should charge {(int)wattHoursToCharge}Wh!");
 
                             // Calculate the maximum duration to charge the battery.
-                            var maxDuration = (END_TIME_IN_HOURS - START_TIME_IN_HOURS) * 3600;
+                            var maxDuration = (endTimeInHours - startTimeInHours) * 3600;
                             // Calculate the duration to charge the battery, based on the estimated charge energy.
-                            var durationInSeconds = wattHoursToCharge * 3600M / CHARGING_POWER;
+                            var durationInSeconds = wattHoursToCharge * 3600M / gridChargingPower;
                             // Limit the charge duration to the maximum duration.
                             durationInSeconds = durationInSeconds > maxDuration ? maxDuration : durationInSeconds;
                             // Set the chargeFrom flag, by subtracting the charging duration from the end time.
                             var chargingDuration = TimeSpan.FromSeconds((double)durationInSeconds);
-                            chargeFrom = DateTime.Today.AddHours(END_TIME_IN_HOURS) - chargingDuration;
+                            chargeFrom = DateTime.Today.AddHours(endTimeInHours) - chargingDuration;
 
                             _logger.LogInformation($"Battery should charge from {chargeFrom}!");
                         }
@@ -230,7 +232,7 @@ internal class HomeBatteryChargingWorker : BackgroundService
                     }
                     else
                     {
-                        _logger.LogInformation($"Battery level is above {BATTERY_LEVEL_THRESHOLD}%: No need to charge at {DateTime.Now}!");
+                        _logger.LogInformation($"Battery level is above {batteryLevelThreshold}%: No need to charge at {DateTime.Now}!");
                     }
                 }
             }
