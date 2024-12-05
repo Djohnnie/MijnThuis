@@ -33,61 +33,71 @@ internal class HomeBatteryNotificationWorker : BackgroundService
         // While the service is not requested to stop...
         while (!stoppingToken.IsCancellationRequested)
         {
-            // Use a timestamp to calculate the duration of the whole process.
-            var startTimer = Stopwatch.GetTimestamp();
-
-            if (notifiedFullBatteryToday.HasValue && notifiedFullBatteryToday.Value != DateOnly.FromDateTime(DateTime.Today))
+            try
             {
-                notifiedFullBatteryToday = null;
+                // Use a timestamp to calculate the duration of the whole process.
+                var startTimer = Stopwatch.GetTimestamp();
+
+                if (notifiedFullBatteryToday.HasValue && notifiedFullBatteryToday.Value != DateOnly.FromDateTime(DateTime.Today))
+                {
+                    notifiedFullBatteryToday = null;
+                }
+
+                if (notifiedLowBatteryToday.HasValue && notifiedLowBatteryToday.Value != DateOnly.FromDateTime(DateTime.Today))
+                {
+                    notifiedLowBatteryToday = null;
+                }
+
+                if (notifiedEmptyBatteryToday.HasValue && notifiedEmptyBatteryToday.Value != DateOnly.FromDateTime(DateTime.Today))
+                {
+                    notifiedEmptyBatteryToday = null;
+                }
+
+                // Initialize dependencies and variables.
+                using var serviceScope = _serviceProvider.CreateScope();
+                var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
+
+                // Get information about solar energy.
+                var solarOverview = await solarService.GetOverview();
+
+                if (solarOverview.BatteryLevel == 100 && notifiedFullBatteryToday == null)
+                {
+                    notifiedFullBatteryToday = DateOnly.FromDateTime(DateTime.Today);
+                    await SendEmail("De thuisbatterij is volledig opgeladen (100%)!",
+                        sendGridSender, sendGridReceiver, sendGridApiKey);
+                }
+
+                if (solarOverview.BatteryLevel < 20 && notifiedLowBatteryToday == null)
+                {
+                    notifiedLowBatteryToday = DateOnly.FromDateTime(DateTime.Today);
+                    await SendEmail("De thuisbatterij is bijna leeg (< 20%)!",
+                        sendGridSender, sendGridReceiver, sendGridApiKey);
+                }
+
+                if (solarOverview.BatteryLevel == 0 && notifiedEmptyBatteryToday == null)
+                {
+                    notifiedEmptyBatteryToday = DateOnly.FromDateTime(DateTime.Today);
+                    await SendEmail("De thuisbatterij is helemaal leeg (0%)!",
+                        sendGridSender, sendGridReceiver, sendGridApiKey);
+                }
+
+                // Calculate the duration for this whole process.
+                var stopTimer = Stopwatch.GetTimestamp();
+
+                // Wait for a maximum of 5 minutes before the next iteration.
+                var duration = TimeSpan.FromMinutes(5) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
+
+                if (duration > TimeSpan.Zero)
+                {
+                    await Task.Delay(duration, stoppingToken);
+                }
             }
-
-            if (notifiedLowBatteryToday.HasValue && notifiedLowBatteryToday.Value != DateOnly.FromDateTime(DateTime.Today))
+            catch (Exception ex)
             {
-                notifiedLowBatteryToday = null;
-            }
+                _logger.LogInformation($"Something went wrong: {ex.Message}");
+                _logger.LogError(ex, ex.Message);
 
-            if (notifiedEmptyBatteryToday.HasValue && notifiedEmptyBatteryToday.Value != DateOnly.FromDateTime(DateTime.Today))
-            {
-                notifiedEmptyBatteryToday = null;
-            }
-
-            // Initialize dependencies and variables.
-            using var serviceScope = _serviceProvider.CreateScope();
-            var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
-
-            // Get information about solar energy.
-            var solarOverview = await solarService.GetOverview();
-
-            if (solarOverview.BatteryLevel == 100 && notifiedFullBatteryToday == null)
-            {
-                notifiedFullBatteryToday = DateOnly.FromDateTime(DateTime.Today);
-                await SendEmail("De thuisbatterij is volledig opgeladen (100%)!",
-                    sendGridSender, sendGridReceiver, sendGridApiKey);
-            }
-
-            if (solarOverview.BatteryLevel < 20 && notifiedLowBatteryToday == null)
-            {
-                notifiedLowBatteryToday = DateOnly.FromDateTime(DateTime.Today);
-                await SendEmail("De thuisbatterij is bijna leeg (< 20%)!",
-                    sendGridSender, sendGridReceiver, sendGridApiKey);
-            }
-
-            if (solarOverview.BatteryLevel == 0 && notifiedEmptyBatteryToday == null)
-            {
-                notifiedEmptyBatteryToday = DateOnly.FromDateTime(DateTime.Today);
-                await SendEmail("De thuisbatterij is helemaal leeg (0%)!",
-                    sendGridSender, sendGridReceiver, sendGridApiKey);
-            }
-
-            // Calculate the duration for this whole process.
-            var stopTimer = Stopwatch.GetTimestamp();
-
-            // Wait for a maximum of 5 minutes before the next iteration.
-            var duration = TimeSpan.FromMinutes(5) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
-
-            if (duration > TimeSpan.Zero)
-            {
-                await Task.Delay(duration, stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
         }
     }
