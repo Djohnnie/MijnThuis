@@ -106,13 +106,18 @@ public class SolarService : BaseService, ISolarService
 
     public async Task<EnergyProduced> GetEnergy()
     {
+        var today = TimeProvider.System.GetLocalNow().Date;
+        var begin = $"{new DateTime(today.Year, today.Month, 1):yyyy-MM-dd}";
+        var end = $"{new DateTime(today.Year, today.Month, 1).AddMonths(1).AddDays(-1):yyyy-MM-dd}";
+
+        // https://monitoring.solaredge.com/services/dashboard/energy/sites/{siteId}?start-date=2024-12-01&end-date=2024-12-31&chart-time-unit=days&measurement-types=production,consumption,production-distribution-with-storage,consumption-distribution-with-storage,import,export,yield
         using var client = await InitializeAuthenticatedHttpClient();
-        var result = await client.GetFromJsonAsync<EnergyProducedResponse>($"services/m/so/dashboard/site/{_siteId}/energyOverview");
+        var response = await client.GetFromJsonAsync<EnergyOverviewResponse>($"services/dashboard/energy/sites/{_siteId}?start-date={begin}&end-date={end}&chart-time-unit=days&measurement-types=production");
 
         return new EnergyProduced
         {
-            LastDayEnergy = result.EnergyProducedOverviewList.SingleOrDefault(x => x.TimePeriod == "LAST_DAY")?.Energy ?? 0,
-            LastMonthEnergy = result.EnergyProducedOverviewList.SingleOrDefault(x => x.TimePeriod == "LAST_MONTH")?.Energy ?? 0
+            LastDayEnergy = response.Chart.Measurements.SingleOrDefault(x => x.MeasurementTime.Date == today)?.Production ?? 0M,
+            LastMonthEnergy = response.Chart.Measurements.Where(x => x.Production.HasValue).Sum(x => x.Production) ?? 0M
         };
     }
 
@@ -416,4 +421,34 @@ public class EnergyValue
 {
     [JsonPropertyName("value")]
     public decimal Value { get; set; }
+}
+
+public class EnergyOverviewResponse
+{
+    [JsonPropertyName("summary")]
+    public EnergySummary Summary { get; set; }
+
+    [JsonPropertyName("chart")]
+    public EnergyChart Chart { get; set; }
+}
+
+public class EnergySummary
+{
+    [JsonPropertyName("production")]
+    public decimal Production { get; set; }
+}
+
+public class EnergyChart
+{
+    [JsonPropertyName("measurements")]
+    public List<EnergyMeasurement> Measurements { get; set; }
+}
+
+public class EnergyMeasurement
+{
+    [JsonPropertyName("measurementTime")]
+    public DateTime MeasurementTime { get; set; }
+
+    [JsonPropertyName("production")]
+    public decimal? Production { get; set; }
 }
