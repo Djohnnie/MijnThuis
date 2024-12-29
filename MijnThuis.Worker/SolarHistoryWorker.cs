@@ -43,6 +43,15 @@ internal class SolarHistoryWorker : BackgroundService
                 // Gets the latest solar history database entry
                 var latestEntry = await dbContext.SolarHistory.OrderByDescending(x => x.Date).FirstOrDefaultAsync();
 
+                if (latestEntry != null && latestEntry.Date.Year == previousMonth.Year && latestEntry.Date.Month == previousMonth.Month)
+                {
+                    _logger.LogInformation("Solar history is up to date.");
+
+                    await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+
+                    continue;
+                }
+
                 if (latestEntry != null)
                 {
                     startHistoryFrom = new DateTime(latestEntry.Date.Year, latestEntry.Date.Month, 1);
@@ -53,6 +62,8 @@ internal class SolarHistoryWorker : BackgroundService
 
                 while (dateToProcess < previousMonth)
                 {
+                    _logger.LogInformation($"Processing solar history for {dateToProcess.Month}/{dateToProcess.Year}...");
+
                     var solarEnergy = await solarService.GetEnergyOverview(dateToProcess);
 
                     var existingEntries = await dbContext.SolarHistory

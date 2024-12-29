@@ -9,7 +9,7 @@ builder.Services.AddIntegrations();
 builder.Services.AddHostedService<CarChargingWorker>();
 builder.Services.AddHostedService<HomeBatteryChargingWorker>();
 builder.Services.AddHostedService<HomeBatteryNotificationWorker>();
-//builder.Services.AddHostedService<SolarHistoryWorker>();
+builder.Services.AddHostedService<SolarHistoryWorker>();
 
 
 var host = builder.Build();
