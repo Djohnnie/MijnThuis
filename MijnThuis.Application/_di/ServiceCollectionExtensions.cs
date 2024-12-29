@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using MijnThuis.DataAccess.DependencyInjection;
 using MijnThuis.Integrations.DependencyInjection;
 using System.Reflection;
 
@@ -11,6 +12,7 @@ public static class ServiceCollectionExtensions
         services.AddMediatR(c => c.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
         services.AddIntegrations();
+        services.AddDataAccess();
 
         return services;
     }

@@ -14,6 +14,8 @@ public interface ISolarService
 
     Task<EnergyProduced> GetEnergy();
 
+    Task<EnergyOverviewResponse> GetEnergyOverview(DateTime date);
+
     Task<EnergyOverview> GetEnergyToday();
 
     Task<EnergyOverview> GetEnergyThisMonth();
@@ -110,15 +112,25 @@ public class SolarService : BaseService, ISolarService
         var begin = $"{new DateTime(today.Year, today.Month, 1):yyyy-MM-dd}";
         var end = $"{new DateTime(today.Year, today.Month, 1).AddMonths(1).AddDays(-1):yyyy-MM-dd}";
 
-        // https://monitoring.solaredge.com/services/dashboard/energy/sites/{siteId}?start-date=2024-12-01&end-date=2024-12-31&chart-time-unit=days&measurement-types=production,consumption,production-distribution-with-storage,consumption-distribution-with-storage,import,export,yield
         using var client = await InitializeAuthenticatedHttpClient();
-        var response = await client.GetFromJsonAsync<EnergyOverviewResponse>($"services/dashboard/energy/sites/{_siteId}?start-date={begin}&end-date={end}&chart-time-unit=days&measurement-types=production");
+        var response = await client.GetFromJsonAsync<EnergyOverviewResponse>($"services/dashboard/energy/sites/{_siteId}?start-date={begin}&end-date={end}&chart-time-unit=days&measurement-types=production,consumption,production-distribution-with-storage,consumption-distribution-with-storage,import,export");
 
         return new EnergyProduced
         {
             LastDayEnergy = response.Chart.Measurements.SingleOrDefault(x => x.MeasurementTime.Date == today)?.Production ?? 0M,
             LastMonthEnergy = response.Chart.Measurements.Where(x => x.Production.HasValue).Sum(x => x.Production) ?? 0M
         };
+    }
+
+    public async Task<EnergyOverviewResponse> GetEnergyOverview(DateTime date)
+    {
+        var begin = $"{new DateTime(date.Year, date.Month, 1):yyyy-MM-dd}";
+        var end = $"{new DateTime(date.Year, date.Month, 1).AddMonths(1).AddDays(-1):yyyy-MM-dd}";
+
+        using var client = await InitializeAuthenticatedHttpClient();
+        var response = await client.GetFromJsonAsync<EnergyOverviewResponse>($"services/dashboard/energy/sites/{_siteId}?start-date={begin}&end-date={end}&chart-time-unit=days&measurement-types=production,consumption,production-distribution-with-storage,consumption-distribution-with-storage,import,export");
+
+        return response;
     }
 
     public async Task<EnergyOverview> GetEnergyToday()
@@ -451,4 +463,43 @@ public class EnergyMeasurement
 
     [JsonPropertyName("production")]
     public decimal? Production { get; set; }
+
+    [JsonPropertyName("productionDistribution")]
+    public ProductionDistribution ProductionDistribution { get; set; }
+
+    [JsonPropertyName("consumption")]
+    public decimal? Consumption { get; set; }
+
+    [JsonPropertyName("consumptionDistribution")]
+    public ConsumptionDistribution ConsumptionDistribution { get; set; }
+
+    [JsonPropertyName("export")]
+    public decimal? Export { get; set; }
+
+    [JsonPropertyName("import")]
+    public decimal? Import { get; set; }
+}
+
+public class ProductionDistribution
+{
+    [JsonPropertyName("productionToHome")]
+    public decimal? ToHome { get; set; }
+
+    [JsonPropertyName("productionToBattery")]
+    public decimal? ToBattery { get; set; }
+
+    [JsonPropertyName("productionToGrid")]
+    public decimal? ToGrid { get; set; }
+}
+
+public class ConsumptionDistribution
+{
+    [JsonPropertyName("consumptionFromBattery")]
+    public decimal? FromBattery { get; set; }
+
+    [JsonPropertyName("consumptionFromSolar")]
+    public decimal? FromSolar { get; set; }
+
+    [JsonPropertyName("consumptionFromGrid")]
+    public decimal? FromGrid { get; set; }
 }

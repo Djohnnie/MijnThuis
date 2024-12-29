@@ -14,6 +14,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\MijnThuis.Contracts\MijnThuis.Contracts.csproj" />
+		<ProjectReference Include="..\MijnThuis.DataAccess\MijnThuis.DataAccess.csproj" />
 		<ProjectReference Include="..\MijnThuis.Integrations\MijnThuis.Integrations.csproj" />
 	</ItemGroup>
 
