@@ -11,7 +11,11 @@ public partial class Solar
 
     private readonly List<ChartSeries> _series = new();
     private readonly ChartOptions _options = new();
-    private string[] XAxisLabels { get; set; }
+
+    private readonly List<ChartSeries> _series2 = new();
+    private readonly ChartOptions _options2 = new();
+
+    private string[] XAxisLabels { get; set; } = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" };
 
     protected override async Task OnInitializedAsync()
     {
@@ -34,12 +38,15 @@ public partial class Solar
         _options.ShowLegend = false;
         _options.InterpolationOption = InterpolationOption.Straight;
 
-        XAxisLabels = data.Entries.Select(x =>
-        {
-            var label = string.Empty;
 
-            return label;
-        }).ToArray();
+        _options2.YAxisTicks = 10;
+        _options2.YAxisRequireZeroPoint = true;
+
+        _series2.Clear();
+        _series2.Add(new ChartSeries() { Name = "Belgium", Data = new double[] { -40, -20, -25, -27, -46, -46, -48, -44, -15 } });
+        //_series2.Add(new ChartSeries() { Name = "United States", Data = new double[] { 40, 20, 25, 27, 46, 46, 48, 44, 15 } });
+        _series2.Add(new ChartSeries() { Name = "Germany", Data = new double[] { -19, -24, -35, -13, -28, -15, -13, -16, -40 } });
+        _series2.Add(new ChartSeries() { Name = "Sweden", Data = new double[] { -8, -6, -11, -13, -4, -16, -10, -16, -20 } });
 
         await InvokeAsync(StateHasChanged);
     }

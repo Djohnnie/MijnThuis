@@ -8,7 +8,8 @@ public class MijnThuisDbContext : DbContext
 {
     private readonly IConfiguration _configuration;
 
-    public DbSet<SolarHistoryEntry> SolarHistory { get; set; }
+    public DbSet<SolarEnergyHistoryEntry> SolarEnergyHistory { get; set; }
+    public DbSet<SolarPowerHistoryEntry> SolarPowerHistory { get; set; }
 
     public MijnThuisDbContext(IConfiguration configuration)
     {
@@ -22,9 +23,17 @@ public class MijnThuisDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<SolarHistoryEntry>(entityBuilder =>
+        modelBuilder.Entity<SolarEnergyHistoryEntry>(entityBuilder =>
         {
-            entityBuilder.ToTable("SOLAR_HISTORY");
+            entityBuilder.ToTable("SOLAR_ENERGY_HISTORY");
+            entityBuilder.HasKey(x => x.Id).IsClustered(false);
+            entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
+            entityBuilder.HasIndex(x => x.SysId).IsClustered();
+        });
+
+        modelBuilder.Entity<SolarPowerHistoryEntry>(entityBuilder =>
+        {
+            entityBuilder.ToTable("SOLAR_POWER_HISTORY");
             entityBuilder.HasKey(x => x.Id).IsClustered(false);
             entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
             entityBuilder.HasIndex(x => x.SysId).IsClustered();

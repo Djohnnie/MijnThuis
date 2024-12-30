@@ -1,6 +1,12 @@
-﻿namespace MijnThuis.DataAccess.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public class SolarHistoryEntry
+namespace MijnThuis.DataAccess.Entities;
+
+public class SolarPowerHistoryEntry
 {
     public Guid Id { get; set; }
     public long SysId { get; set; }
@@ -15,5 +21,6 @@ public class SolarHistoryEntry
     public decimal ConsumptionFromBattery { get; set; }
     public decimal ConsumptionFromSolar { get; set; }
     public decimal ConsumptionFromGrid { get; set; }
+    public decimal StorageLevel { get; set; }
     public DateTime DataCollected { get; set; }
 }

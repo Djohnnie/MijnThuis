@@ -16,6 +16,8 @@ public interface ISolarService
 
     Task<EnergyOverviewResponse> GetEnergyOverview(DateTime date);
 
+    Task<PowerOverviewResponse> GetPowerOverview(DateTime date);
+
     Task<EnergyOverview> GetEnergyToday();
 
     Task<EnergyOverview> GetEnergyThisMonth();
@@ -129,6 +131,17 @@ public class SolarService : BaseService, ISolarService
 
         using var client = await InitializeAuthenticatedHttpClient();
         var response = await client.GetFromJsonAsync<EnergyOverviewResponse>($"services/dashboard/energy/sites/{_siteId}?start-date={begin}&end-date={end}&chart-time-unit=days&measurement-types=production,consumption,production-distribution-with-storage,consumption-distribution-with-storage,import,export");
+
+        return response;
+    }
+
+    public async Task<PowerOverviewResponse> GetPowerOverview(DateTime date)
+    {
+        var begin = $"{date:yyyy-MM-dd}";
+        var end = $"{date:yyyy-MM-dd}";
+
+        using var client = await InitializeAuthenticatedHttpClient();
+        var response = await client.GetFromJsonAsync<PowerOverviewResponse>($"services/dashboard/power/sites/{_siteId}?start-date={begin}&end-date={end}&chart-time-unit=quarter-hours&measurement-types=production,consumption,production-distribution-with-storage,consumption-distribution-with-storage,import,export,storage-charge-level");
 
         return response;
     }
@@ -444,6 +457,12 @@ public class EnergyOverviewResponse
     public EnergyChart Chart { get; set; }
 }
 
+public class PowerOverviewResponse
+{
+    [JsonPropertyName("measurements")]
+    public List<PowerMeasurement> Measurements { get; set; }
+}
+
 public class EnergySummary
 {
     [JsonPropertyName("production")]
@@ -472,6 +491,33 @@ public class EnergyMeasurement
 
     [JsonPropertyName("consumptionDistribution")]
     public ConsumptionDistribution ConsumptionDistribution { get; set; }
+
+    [JsonPropertyName("export")]
+    public decimal? Export { get; set; }
+
+    [JsonPropertyName("import")]
+    public decimal? Import { get; set; }
+}
+
+public class PowerMeasurement
+{
+    [JsonPropertyName("measurementTime")]
+    public DateTime MeasurementTime { get; set; }
+
+    [JsonPropertyName("production")]
+    public decimal? Production { get; set; }
+
+    [JsonPropertyName("productionDistribution")]
+    public ProductionDistribution ProductionDistribution { get; set; }
+
+    [JsonPropertyName("consumption")]
+    public decimal? Consumption { get; set; }
+
+    [JsonPropertyName("consumptionDistribution")]
+    public ConsumptionDistribution ConsumptionDistribution { get; set; }
+
+    [JsonPropertyName("storageLevel")]
+    public decimal? StorageLevel { get; set; }
 
     [JsonPropertyName("export")]
     public decimal? Export { get; set; }

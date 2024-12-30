@@ -50,4 +50,26 @@
         </MudCard>
     </MudItem>
 
+    <MudItem xs="12" sm="12" md="10" lg="10" xl="8">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.BatteryChargingFull" />
+                    </MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">Zonnezever</MudText>
+                    <MudText Typo="Typo.body2">Laadgeschiedenis van de thuisbatterij</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudChart ChartType="ChartType.StackedBar" ChartSeries="@_series2" ChartOptions="@_options2" XAxisLabels="@XAxisLabels" Width="100%"></MudChart>
+            </MudCardContent>
+            <MudCardActions>
+                
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+
 </MudGrid>

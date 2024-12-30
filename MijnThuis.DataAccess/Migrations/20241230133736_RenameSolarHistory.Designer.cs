@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MijnThuis.DataAccess;
 
@@ -11,9 +12,11 @@ using MijnThuis.DataAccess;
 namespace MijnThuis.DataAccess.Migrations
 {
     [DbContext(typeof(MijnThuisDbContext))]
-    partial class MijnThuisDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241230133736_RenameSolarHistory")]
+    partial class RenameSolarHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace MijnThuis.DataAccess.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("MijnThuis.DataAccess.Entities.SolarEnergyHistoryEntry", b =>
+            modelBuilder.Entity("MijnThuis.DataAccess.Entities.SolarHistoryEntry", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -79,68 +82,6 @@ namespace MijnThuis.DataAccess.Migrations
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("SysId"));
 
                     b.ToTable("SOLAR_ENERGY_HISTORY", (string)null);
-                });
-
-            modelBuilder.Entity("MijnThuis.DataAccess.Entities.SolarPowerHistoryEntry", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Consumption")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("ConsumptionFromBattery")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("ConsumptionFromGrid")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("ConsumptionFromSolar")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("DataCollected")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("Export")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Import")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Production")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("ProductionToBattery")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("ProductionToGrid")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("ProductionToHome")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("StorageLevel")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<long>("SysId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SysId"));
-
-                    b.HasKey("Id");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
-
-                    b.HasIndex("SysId");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("SysId"));
-
-                    b.ToTable("SOLAR_POWER_HISTORY", (string)null);
                 });
 #pragma warning restore 612, 618
         }
