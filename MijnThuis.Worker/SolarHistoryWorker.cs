@@ -142,7 +142,7 @@ internal class SolarHistoryWorker : BackgroundService
         var dateToProcess = startHistoryFrom;
         var now = DateTime.Now;
 
-        while (dateToProcess < yesterday)
+        while (dateToProcess <= yesterday)
         {
             _logger.LogInformation($"Processing solar power history for {dateToProcess.Day}/{dateToProcess.Month}/{dateToProcess.Year}...");
 
@@ -154,7 +154,7 @@ internal class SolarHistoryWorker : BackgroundService
 
             foreach (var measurement in solarPower.Measurements.OrderBy(x => x.MeasurementTime))
             {
-                if (!existingEntries.Any(x => x.Date.Date == measurement.MeasurementTime))
+                if (!existingEntries.Any(x => x.Date == measurement.MeasurementTime))
                 {
                     dbContext.SolarPowerHistory.Add(new SolarPowerHistoryEntry
                     {
