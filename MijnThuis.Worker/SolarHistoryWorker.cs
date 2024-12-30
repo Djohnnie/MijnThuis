@@ -62,8 +62,6 @@ internal class SolarHistoryWorker : BackgroundService
         {
             _logger.LogInformation("Solar energy history is up to date.");
 
-            await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
-
             return;
         }
 
@@ -132,8 +130,6 @@ internal class SolarHistoryWorker : BackgroundService
         if (latestEntry != null && latestEntry.Date == yesterday)
         {
             _logger.LogInformation("Solar power history is up to date.");
-
-            await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
 
             return;
         }
