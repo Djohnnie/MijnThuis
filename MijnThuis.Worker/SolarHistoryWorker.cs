@@ -70,6 +70,8 @@ internal class SolarHistoryWorker : BackgroundService
             startHistoryFrom = new DateTime(latestEntry.Date.Year, latestEntry.Date.Month, 1);
         }
 
+        _logger.LogInformation($"Solar energy history should update from {startHistoryFrom.Month}/{startHistoryFrom.Year} until {previousMonth.Month}/{previousMonth.Year}.");
+
         var dateToProcess = startHistoryFrom;
         var now = DateTime.Now;
 
@@ -110,6 +112,8 @@ internal class SolarHistoryWorker : BackgroundService
 
             dateToProcess = dateToProcess.AddMonths(1);
         }
+
+        _logger.LogInformation("Solar energy history has been updated for now.");
     }
 
     private async Task FetchSolarPowerHistory(CancellationToken stoppingToken)
@@ -138,6 +142,8 @@ internal class SolarHistoryWorker : BackgroundService
         {
             startHistoryFrom = new DateTime(latestEntry.Date.Year, latestEntry.Date.Month, latestEntry.Date.Day);
         }
+
+        _logger.LogInformation($"Solar power history should update from {startHistoryFrom.Day}/{startHistoryFrom.Month}/{startHistoryFrom.Year} until {yesterday.Day}/{yesterday.Month}/{yesterday.Year}.");
 
         var dateToProcess = startHistoryFrom;
         var now = DateTime.Now;
@@ -180,5 +186,7 @@ internal class SolarHistoryWorker : BackgroundService
 
             dateToProcess = dateToProcess.AddDays(1);
         }
+
+        _logger.LogInformation("Solar power history has been updated for now.");
     }
 }
