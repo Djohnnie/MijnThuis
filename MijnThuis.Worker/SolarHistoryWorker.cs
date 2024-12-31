@@ -131,7 +131,7 @@ internal class SolarHistoryWorker : BackgroundService
         // Gets the latest solar history database entry
         var latestEntry = await dbContext.SolarPowerHistory.OrderByDescending(x => x.Date).FirstOrDefaultAsync();
 
-        if (latestEntry != null && latestEntry.Date == yesterday)
+        if (latestEntry != null && latestEntry.Date.Date == yesterday.Date)
         {
             _logger.LogInformation("Solar power history is up to date.");
 
