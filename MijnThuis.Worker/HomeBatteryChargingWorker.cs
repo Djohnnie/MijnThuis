@@ -1,4 +1,5 @@
 ﻿using MijnThuis.Integrations.Forecast;
+using MijnThuis.Integrations.Power;
 using MijnThuis.Integrations.Solar;
 using System.Diagnostics;
 
@@ -23,7 +24,9 @@ internal class HomeBatteryChargingWorker : BackgroundService
     {
         var startTimeInHours = _configuration.GetValue<int>("START_TIME_IN_HOURS");
         var endTimeInHours = _configuration.GetValue<int>("END_TIME_IN_HOURS");
+        var iterationInMinutes = _configuration.GetValue<int>("ITERATION_IN_MINUTES");
         var gridChargingPower = _configuration.GetValue<int>("GRID_CHARGING_POWER");
+        var gridPowerThreshold = _configuration.GetValue<int>("GRID_CHARGING_THRESHOLD");
         var batteryLevelThreshold = _configuration.GetValue<int>("BATTERY_LEVEL_THRESHOLD");
         var standbyUsage = _configuration.GetValue<int>("STANDBY_USAGE");
 
@@ -44,9 +47,11 @@ internal class HomeBatteryChargingWorker : BackgroundService
                 using var serviceScope = _serviceProvider.CreateScope();
                 var forecastService = serviceScope.ServiceProvider.GetService<IForecastService>();
                 var modbusService = serviceScope.ServiceProvider.GetService<IModbusService>();
+                var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
 
                 // Gets the current battery level.
                 var batteryLevel = await modbusService.GetBatteryLevel();
+                var powerOverview = await solarService.GetOverview();
 
                 // If the battery is not performing its nightly charge cycle.
                 if (!chargeFrom.HasValue)
@@ -121,18 +126,32 @@ internal class HomeBatteryChargingWorker : BackgroundService
                     {
                         await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
-                        // If the battery is in storage control mode, but not charging from PC and AC
-                        if (await modbusService.IsNotChargingInRemoteControlMode())
+                        // If the current grid power usage is below the threshold, we can safely continue charging the battery.
+                        if (powerOverview.CurrentConsumptionPower * 1000M < gridPowerThreshold)
+                        {
+                            // If the battery is in storage control mode, but not charging from PC and AC
+                            if (await modbusService.IsNotChargingInRemoteControlMode())
+                            {
+                                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+
+                                // Calculate remaining duration to charge the battery.
+                                var chargingDuration = DateTime.Today.AddHours(endTimeInHours).AddMinutes(-5) - DateTime.Now;
+
+                                // Restore the battery to Maximum Self Consumption storage control mode.
+                                await modbusService.StartChargingBattery(chargingDuration, gridChargingPower);
+
+                                _logger.LogInformation($"Battery was in remote control mode, but was not charging! Charging has been restored!");
+                            }
+                        }
+                        else
                         {
                             await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
-                            // Calculate remaining duration to charge the battery.
-                            var chargingDuration = DateTime.Today.AddHours(endTimeInHours).AddMinutes(-5) - DateTime.Now;
-
                             // Restore the battery to Maximum Self Consumption storage control mode.
-                            await modbusService.StartChargingBattery(chargingDuration, gridChargingPower);
+                            await modbusService.StopChargingBattery();
+                            _logger.LogInformation($"Battery has been temporarily restored to Maximum Self Consumption storage control mode to keep power consumption below the threshold!");
 
-                            _logger.LogInformation($"Battery was in remote control mode, but was not charging! Charging has been restored!");
+                            charged = null;
                         }
                     }
                     catch
@@ -152,15 +171,26 @@ internal class HomeBatteryChargingWorker : BackgroundService
                     var retries = 0;
                     try
                     {
-                        await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+                        // If the current grid power usage is below the threshold, we can safely start charging the battery.
+                        if (powerOverview.CurrentConsumptionPower * 1000M < gridPowerThreshold - gridChargingPower)
+                        {
+                            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
-                        // Calculate the charging duration based on the chargeFrom flag and the end time.
-                        var chargingDuration = DateTime.Today.AddHours(endTimeInHours).AddMinutes(-5) - chargeFrom.Value;
+                            // Calculate the charging duration based on the chargeFrom flag and the end time.
+                            var chargingDuration = DateTime.Today.AddHours(endTimeInHours).AddMinutes(-5) - chargeFrom.Value;
 
-                        // Charge the battery at the configured charging power for the estimated charge duration.
-                        await modbusService.StartChargingBattery(chargingDuration, gridChargingPower);
-                        _logger.LogInformation($"Battery has been set to Remote Control storage control mode!");
-                        _logger.LogInformation($"Battery started charging at {gridChargingPower}W with a duration of {chargingDuration} until {DateTime.Today.AddHours(endTimeInHours)}.");
+                            // Charge the battery at the configured charging power for the estimated charge duration.
+                            await modbusService.StartChargingBattery(chargingDuration, gridChargingPower);
+                            _logger.LogInformation($"Battery has been set to Remote Control storage control mode!");
+                            _logger.LogInformation($"Battery started charging at {gridChargingPower}W with a duration of {chargingDuration} until {DateTime.Today.AddHours(endTimeInHours)}.");
+
+
+                            charged = DateTime.Now;
+                        }
+                        else
+                        {
+                            _logger.LogInformation($"Battery should start charging, but the current power consumption of {powerOverview.CurrentConsumptionPower}kW is larger than the threshold!");
+                        }
                     }
                     catch
                     {
@@ -171,8 +201,6 @@ internal class HomeBatteryChargingWorker : BackgroundService
                             throw;
                         }
                     }
-
-                    charged = DateTime.Now;
                 }
 
                 // If the battery has not been charged today and the time is between START and END.
@@ -240,15 +268,13 @@ internal class HomeBatteryChargingWorker : BackgroundService
             {
                 _logger.LogInformation($"Something went wrong: {ex.Message}");
                 _logger.LogError(ex, ex.Message);
-
-                await Task.Delay(TimeSpan.FromMinutes(5));
             }
 
             // Calculate the duration for this whole process.
             var stopTimer = Stopwatch.GetTimestamp();
 
             // Wait for a maximum of 5 minutes before the next iteration.
-            var duration = TimeSpan.FromMinutes(5) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
+            var duration = TimeSpan.FromMinutes(iterationInMinutes) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
 
             if (duration > TimeSpan.Zero)
             {
