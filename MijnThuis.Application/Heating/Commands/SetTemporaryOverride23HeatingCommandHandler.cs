@@ -5,12 +5,12 @@ using MijnThuis.Integrations.Heating;
 
 namespace MijnThuis.Application.Heating.Commands;
 
-public class SetTemporaryOverride22HeatingCommandHandler : IRequestHandler<SetTemporaryOverride22HeatingCommand, HeatingCommandResponse>
+public class SetTemporaryOverride23HeatingCommandHandler : IRequestHandler<SetTemporaryOverride23HeatingCommand, HeatingCommandResponse>
 {
     private readonly IHeatingService _heatingService;
     private readonly IMemoryCache _memoryCache;
 
-    public SetTemporaryOverride22HeatingCommandHandler(
+    public SetTemporaryOverride23HeatingCommandHandler(
         IHeatingService heatingService,
         IMemoryCache memoryCache)
     {
@@ -18,9 +18,9 @@ public class SetTemporaryOverride22HeatingCommandHandler : IRequestHandler<SetTe
         _memoryCache = memoryCache;
     }
 
-    public async Task<HeatingCommandResponse> Handle(SetTemporaryOverride22HeatingCommand request, CancellationToken cancellationToken)
+    public async Task<HeatingCommandResponse> Handle(SetTemporaryOverride23HeatingCommand request, CancellationToken cancellationToken)
     {
-        var heatingResult = await _heatingService.SetTemporaryOverrideHeating(22M);
+        var heatingResult = await _heatingService.SetTemporaryOverrideHeating(23M);
 
         if (!heatingResult)
         {
@@ -35,7 +35,7 @@ public class SetTemporaryOverride22HeatingCommandHandler : IRequestHandler<SetTe
         while (!isManual)
         {
             var overviewResult = await _heatingService.GetOverview();
-            isManual = overviewResult.Mode == "TemporaryOverride" && overviewResult.Setpoint == 22M;
+            isManual = overviewResult.Mode == "TemporaryOverride" && overviewResult.Setpoint == 23M;
 
             if (!isManual)
             {

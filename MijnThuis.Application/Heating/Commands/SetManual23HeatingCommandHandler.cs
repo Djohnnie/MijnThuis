@@ -5,12 +5,12 @@ using MijnThuis.Integrations.Heating;
 
 namespace MijnThuis.Application.Heating.Commands;
 
-public class SetManual22HeatingCommandHandler : IRequestHandler<SetManual22HeatingCommand, HeatingCommandResponse>
+public class SetManual23HeatingCommandHandler : IRequestHandler<SetManual23HeatingCommand, HeatingCommandResponse>
 {
     private readonly IHeatingService _heatingService;
     private readonly IMemoryCache _memoryCache;
 
-    public SetManual22HeatingCommandHandler(
+    public SetManual23HeatingCommandHandler(
         IHeatingService heatingService,
         IMemoryCache memoryCache)
     {
@@ -18,9 +18,9 @@ public class SetManual22HeatingCommandHandler : IRequestHandler<SetManual22Heati
         _memoryCache = memoryCache;
     }
 
-    public async Task<HeatingCommandResponse> Handle(SetManual22HeatingCommand request, CancellationToken cancellationToken)
+    public async Task<HeatingCommandResponse> Handle(SetManual23HeatingCommand request, CancellationToken cancellationToken)
     {
-        var heatingResult = await _heatingService.SetManualHeating(22M);
+        var heatingResult = await _heatingService.SetManualHeating(23M);
 
         if (!heatingResult)
         {
@@ -35,7 +35,7 @@ public class SetManual22HeatingCommandHandler : IRequestHandler<SetManual22Heati
         while (!isManual)
         {
             var overviewResult = await _heatingService.GetOverview();
-            isManual = overviewResult.Mode == "Manual" && overviewResult.Setpoint == 22M;
+            isManual = overviewResult.Mode == "Manual" && overviewResult.Setpoint == 23M;
 
             if (!isManual)
             {

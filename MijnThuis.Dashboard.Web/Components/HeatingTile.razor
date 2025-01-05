@@ -105,13 +105,13 @@
         }
         else
         {
-            <MudTooltip Text="Op tijdelijke overname zetten" Arrow="true" Placement="Placement.Bottom">
+            <MudTooltip Text="Op tijdelijke overname zetten (23 °C)" Arrow="true" Placement="Placement.Bottom">
                 <MudIconButton Icon="@Icons.Material.Filled.Timer" Size="Size.Large" Color="@(Status == "Tijdelijke overname" ? Color.Tertiary : Color.Default)"
                                OnClick="SetTemporaryOverrideHeatingCommand" />
             </MudTooltip>
         }
 
-        @if (Manual22HeatingPending)
+        @if (Manual23HeatingPending)
         {
             <MudIconButton Size="Size.Large" Disabled="true">
                 <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
@@ -119,9 +119,9 @@
         }
         else
         {
-            <MudTooltip Text="Op handmatig zetten (22 °C)" Arrow="true" Placement="Placement.Bottom">
-                <MudIconButton Icon="@Icons.Material.Filled.BlurOn" Size="Size.Large" Color="@(Status == "Handmatig" && Setpoint == 22M ? Color.Tertiary : Color.Default)"
-                               OnClick="SetManual22HeatingCommand" />
+            <MudTooltip Text="Op handmatig zetten (23 °C)" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.BlurOn" Size="Size.Large" Color="@(Status == "Handmatig" && Setpoint == 23M ? Color.Tertiary : Color.Default)"
+                               OnClick="SetManual23HeatingCommand" />
             </MudTooltip>
         }
 

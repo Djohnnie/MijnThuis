@@ -15,7 +15,7 @@ public partial class HeatingTile
     public string NextSetpoint { get; set; }
     public string NextSwitchTime { get; set; }
     public bool ScheduledHeatingPending { get; set; }
-    public bool Manual22HeatingPending { get; set; }
+    public bool Manual23HeatingPending { get; set; }
     public bool Manual16HeatingPending { get; set; }
     public bool AntiFrostHeatingPending { get; set; }
     public bool TemporaryOverrideHeatingPending { get; set; }
@@ -86,21 +86,21 @@ public partial class HeatingTile
         TemporaryOverrideHeatingPending = true;
         await InvokeAsync(StateHasChanged);
 
-        await Mediator.Send(new SetTemporaryOverride22HeatingCommand());
+        await Mediator.Send(new SetTemporaryOverride23HeatingCommand());
 
         TemporaryOverrideHeatingPending = false;
 
         await RefreshData();
     }
 
-    protected async Task SetManual22HeatingCommand()
+    protected async Task SetManual23HeatingCommand()
     {
-        Manual22HeatingPending = true;
+        Manual23HeatingPending = true;
         await InvokeAsync(StateHasChanged);
 
-        await Mediator.Send(new SetManual22HeatingCommand());
+        await Mediator.Send(new SetManual23HeatingCommand());
 
-        Manual22HeatingPending = false;
+        Manual23HeatingPending = false;
 
         await RefreshData();
     }
