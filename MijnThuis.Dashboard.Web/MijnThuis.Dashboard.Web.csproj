@@ -7,9 +7,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Blazor-ApexCharts" Version="5.1.0" />
 		<PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.42.0" />
-		<PackageReference Include="MudBlazor" Version="8.0.0-preview.3" />
-		<PackageReference Include="Microsoft.SemanticKernel" Version="1.32.0" />
+		<PackageReference Include="MudBlazor" Version="8.2.0" />
+		<PackageReference Include="Microsoft.SemanticKernel" Version="1.36.1" />
 	</ItemGroup>
 
 	<ItemGroup>

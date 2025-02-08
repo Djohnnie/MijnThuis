@@ -1,3 +1,4 @@
+using ApexCharts;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using MijnThuis.Application.DependencyInjection;
 using MijnThuis.Dashboard.Web.Copilot;
@@ -31,6 +32,14 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor().AddInteractiveServerComponents();
 builder.Services.AddSingleton<ExtraPageArguments>();
 builder.Services.AddMudServices();
+//builder.Services.AddApexCharts(e =>
+//{
+//    e.GlobalOptions = new ApexChartBaseOptions
+//    {
+//        Debug = true,
+//        Theme = new Theme { Palette = PaletteType.Palette6 }
+//    };
+//});
 builder.Services.AddApplication();
 builder.Services.AddMemoryCache();
 builder.Services.AddTransient<ICopilotHelper, CopilotHelper>();

@@ -2,6 +2,7 @@
 
 @page "/solar"
 @using MijnThuis.Dashboard.Web.Components
+@using MijnThuis.Contracts.Solar
 
 <PageTitle>Mijn Thuis - Zonneopbrengst</PageTitle>
 
@@ -11,6 +12,230 @@
         <MudTooltip Text="Ga terug" Arrow="true" Placement="Placement.Right">
             <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Default" OnClick="BackCommand" />
         </MudTooltip>
+    </MudItem>
+
+    <MudItem xs="12" sm="12" md="11" lg="11" xl="10">
+    </MudItem>
+
+    <MudItem xs="12" sm="12" md="6" lg="6" xl="6">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.SolarPower" />
+                    </MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">Zonneproductie 2024</MudText>
+                    <MudText Typo="Typo.body2">Zonneproductie verbruikt, naar batterij en naar het net in 2024.</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <ApexCharts.ApexChart TItem="SolarPowerHistoryEntry" @ref="_apexChart2"
+                                      Title="Order Net Value" Options="_options2">
+
+                    <ApexCharts.ApexPointSeries TItem="SolarPowerHistoryEntry"
+                                                Items="SolarPowerYesterday"
+                                                Name="Naar batterij"
+                                                XValue="@(e => e.Date)"
+                                                YValue="@(e => e.ProductionToBattery)"
+                                                SeriesType="ApexCharts.SeriesType.Area" />
+
+                    <ApexCharts.ApexPointSeries TItem="SolarPowerHistoryEntry"
+                                                Items="SolarPowerYesterday"
+                                                Name="Naar huis"
+                                                XValue="@(e => e.Date)"
+                                                YValue="@(e => e.ProductionToHome)"
+                                                SeriesType="ApexCharts.SeriesType.Area" />
+
+                    <ApexCharts.ApexPointSeries TItem="SolarPowerHistoryEntry"
+                                                Items="SolarPowerYesterday"
+                                                Name="Naar net"
+                                                XValue="e => e.Date"
+                                                YValue="e => e.ProductionToGrid"
+                                                SeriesType="ApexCharts.SeriesType.Area" />
+                </ApexCharts.ApexChart>
+            </MudCardContent>
+            <MudCardActions>
+
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+
+    <MudItem xs="12" sm="12" md="6" lg="6" xl="6">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.SolarPower" />
+                    </MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">Zonneproductie 2024</MudText>
+                    <MudText Typo="Typo.body2">Zonneproductie verbruikt, naar batterij en naar het net in 2024.</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <ApexCharts.ApexChart TItem="SolarEnergyHistoryEntry" @ref="_apexChart"
+                                      Title="Order Net Value" Options="_options">
+
+                    @* <ApexCharts.ApexPointSeries TItem="SolarEnergyHistoryEntry"
+                                                Items="Data"
+                                                Name="Opbrengst uit de zon"
+                                                XValue="e => e.Date"
+                                                YValue="e => -e.ConsumptionFromSolar"
+                                                SeriesType="ApexCharts.SeriesType.Bar" />
+
+                    <ApexCharts.ApexPointSeries TItem="SolarEnergyHistoryEntry"
+                                                Items="Data"
+                                                Name="Opbrengst uit de batterij"
+                                                XValue="@(e => e.Date)"
+                                                YValue="@(e => -e.ConsumptionFromBattery)"
+                                                SeriesType="ApexCharts.SeriesType.Bar" />
+
+                    <ApexCharts.ApexPointSeries TItem="SolarEnergyHistoryEntry"
+                                                Items="Data"
+                                                Name="Opbrengst uit het net"
+                                                XValue="@(e => e.Date)"
+                                                YValue="@(e => -e.ConsumptionFromGrid)"
+                                                SeriesType="ApexCharts.SeriesType.Bar" /> *@
+
+                    <ApexCharts.ApexPointSeries TItem="SolarEnergyHistoryEntry"
+                                                Items="Data"
+                                                Name="Opbrengst uit de zon"
+                                                XValue="e => e.Date"
+                                                YValue="e => e.ProductionToHome"
+                                                SeriesType="ApexCharts.SeriesType.Bar" />
+
+                    <ApexCharts.ApexPointSeries TItem="SolarEnergyHistoryEntry"
+                                                Items="Data"
+                                                Name="Opbrengst uit de batterij"
+                                                XValue="@(e => e.Date)"
+                                                YValue="@(e => e.ProductionToBattery)"
+                                                SeriesType="ApexCharts.SeriesType.Bar" />
+
+                    <ApexCharts.ApexPointSeries TItem="SolarEnergyHistoryEntry"
+                                                Items="Data"
+                                                Name="Opbrengst uit het net"
+                                                XValue="@(e => e.Date)"
+                                                YValue="@(e => e.ProductionToGrid)"
+                                                SeriesType="ApexCharts.SeriesType.Bar" />
+                </ApexCharts.ApexChart>
+            </MudCardContent>
+            <MudCardActions>
+
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+
+    @* <MudItem xs="12" sm="12" md="6" lg="6" xl="6">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.SolarPower" />
+                    </MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">Zonneproductie 2024</MudText>
+                    <MudText Typo="Typo.body2">Zonneproductie verbruikt, naar batterij en naar het net in 2024.</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudChart ChartType="ChartType.StackedBar" ChartSeries="@_series2" ChartOptions="@_options2" XAxisLabels="@XAxisLabels" Width="100%"></MudChart>
+            </MudCardContent>
+            <MudCardActions>
+
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+
+    <MudItem xs="12" sm="12" md="6" lg="6" xl="6">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.BatteryChargingFull" />
+                    </MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">Zonneconsumptie 2024</MudText>
+                    <MudText Typo="Typo.body2">Zonneconsumptie van de zon, van de batterij en van het net in 2024.</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudChart ChartType="ChartType.StackedBar" ChartSeries="@_series3" ChartOptions="@_options3" XAxisLabels="@XAxisLabels" Width="100%"></MudChart>
+            </MudCardContent>
+            <MudCardActions>
+
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+
+    <MudItem xs="6" sm="6" md="6" lg="6" xl="6">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.BatteryChargingFull" />
+                    </MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">Zonnezever</MudText>
+                    <MudText Typo="Typo.body2">Laadgeschiedenis van de thuisbatterij</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudChart ChartType="ChartType.Bar" ChartSeries="@_series4" ChartOptions="@_options4" XAxisLabels="@XAxisLabels" Width="100%"></MudChart>
+            </MudCardContent>
+            <MudCardActions>
+
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+
+    <MudItem xs="6" sm="6" md="6" lg="6" xl="6">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.BatteryChargingFull" />
+                    </MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">Zonnezever</MudText>
+                    <MudText Typo="Typo.body2">Laadgeschiedenis van de thuisbatterij</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudChart ChartType="ChartType.StackedBar" ChartSeries="@_series5" ChartOptions="@_options5" XAxisLabels="@XAxisLabels" Width="100%"></MudChart>
+            </MudCardContent>
+            <MudCardActions>
+
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+
+    <MudItem xs="6" sm="6" md="6" lg="6" xl="6">
+        <MudCard Outlined>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.BatteryChargingFull" />
+                    </MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.body1">Zonnezever</MudText>
+                    <MudText Typo="Typo.body2">Laadgeschiedenis van de thuisbatterij</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudChart ChartType="ChartType.StackedBar" ChartSeries="@_seriesA" ChartOptions="@_optionsA" Width="100%"></MudChart>
+            </MudCardContent>
+            <MudCardActions>
+
+            </MudCardActions>
+        </MudCard>
     </MudItem>
 
     <MudItem xs="12" sm="12" md="10" lg="10" xl="8">
@@ -48,94 +273,6 @@
                 </MudTooltip>
             </MudCardActions>
         </MudCard>
-    </MudItem>
-
-    <MudItem xs="12" sm="12" md="10" lg="10" xl="8">
-        <MudCard Outlined>
-            <MudCardHeader>
-                <CardHeaderAvatar>
-                    <MudAvatar Color="Color.Primary">
-                        <MudIcon Icon="@Icons.Material.Filled.BatteryChargingFull" />
-                    </MudAvatar>
-                </CardHeaderAvatar>
-                <CardHeaderContent>
-                    <MudText Typo="Typo.body1">Zonnezever</MudText>
-                    <MudText Typo="Typo.body2">Laadgeschiedenis van de thuisbatterij</MudText>
-                </CardHeaderContent>
-            </MudCardHeader>
-            <MudCardContent>
-                <MudChart ChartType="ChartType.StackedBar" ChartSeries="@_series2" ChartOptions="@_options2" XAxisLabels="@XAxisLabels" Width="100%"></MudChart>
-            </MudCardContent>
-            <MudCardActions>
-                
-            </MudCardActions>
-        </MudCard>
-    </MudItem>
-
-    <MudItem xs="12" sm="12" md="10" lg="10" xl="8">
-        <MudCard Outlined>
-            <MudCardHeader>
-                <CardHeaderAvatar>
-                    <MudAvatar Color="Color.Primary">
-                        <MudIcon Icon="@Icons.Material.Filled.BatteryChargingFull" />
-                    </MudAvatar>
-                </CardHeaderAvatar>
-                <CardHeaderContent>
-                    <MudText Typo="Typo.body1">Zonnezever</MudText>
-                    <MudText Typo="Typo.body2">Laadgeschiedenis van de thuisbatterij</MudText>
-                </CardHeaderContent>
-            </MudCardHeader>
-            <MudCardContent>
-                <MudChart ChartType="ChartType.StackedBar" ChartSeries="@_series3" ChartOptions="@_options3" XAxisLabels="@XAxisLabels" Width="100%"></MudChart>
-            </MudCardContent>
-            <MudCardActions>
-
-            </MudCardActions>
-        </MudCard>
-    </MudItem>
-
-    <MudItem xs="12" sm="12" md="10" lg="10" xl="8">
-        <MudCard Outlined>
-            <MudCardHeader>
-                <CardHeaderAvatar>
-                    <MudAvatar Color="Color.Primary">
-                        <MudIcon Icon="@Icons.Material.Filled.BatteryChargingFull" />
-                    </MudAvatar>
-                </CardHeaderAvatar>
-                <CardHeaderContent>
-                    <MudText Typo="Typo.body1">Zonnezever</MudText>
-                    <MudText Typo="Typo.body2">Laadgeschiedenis van de thuisbatterij</MudText>
-                </CardHeaderContent>
-            </MudCardHeader>
-            <MudCardContent>
-                <MudChart ChartType="ChartType.StackedBar" ChartSeries="@_series4" ChartOptions="@_options4" XAxisLabels="@XAxisLabels" Width="100%"></MudChart>
-            </MudCardContent>
-            <MudCardActions>
-
-            </MudCardActions>
-        </MudCard>
-    </MudItem>
-
-    <MudItem xs="12" sm="12" md="10" lg="10" xl="8">
-        <MudCard Outlined>
-            <MudCardHeader>
-                <CardHeaderAvatar>
-                    <MudAvatar Color="Color.Primary">
-                        <MudIcon Icon="@Icons.Material.Filled.BatteryChargingFull" />
-                    </MudAvatar>
-                </CardHeaderAvatar>
-                <CardHeaderContent>
-                    <MudText Typo="Typo.body1">Zonnezever</MudText>
-                    <MudText Typo="Typo.body2">Laadgeschiedenis van de thuisbatterij</MudText>
-                </CardHeaderContent>
-            </MudCardHeader>
-            <MudCardContent>
-                <MudChart ChartType="ChartType.StackedBar" ChartSeries="@_series5" ChartOptions="@_options5" XAxisLabels="@XAxisLabels" Width="100%"></MudChart>
-            </MudCardContent>
-            <MudCardActions>
-
-            </MudCardActions>
-        </MudCard>
-    </MudItem>
+    </MudItem> *@
 
 </MudGrid>

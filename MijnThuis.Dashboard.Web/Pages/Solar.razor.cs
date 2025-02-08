@@ -1,8 +1,8 @@
+using ApexCharts;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.Integrations.Solar;
-using MudBlazor;
 
 namespace MijnThuis.Dashboard.Web.Pages;
 
@@ -11,25 +11,95 @@ public partial class Solar
     [Inject]
     protected NavigationManager NavigationManager { get; set; }
 
-    private readonly List<ChartSeries> _series = new();
-    private readonly ChartOptions _options = new();
+    private ApexChart<SolarEnergyHistoryEntry> _apexChart = null!;
+    private ApexChart<SolarPowerHistoryEntry> _apexChart2 = null!;
+    private ApexChartOptions<SolarEnergyHistoryEntry> _options { get; set; } = new();
+    private ApexChartOptions<SolarPowerHistoryEntry> _options2 { get; set; } = new();
 
-    private readonly List<ChartSeries> _series2 = new();
-    private readonly ChartOptions _options2 = new();
+    private List<SolarPowerHistoryEntry> SolarPowerYesterday { get; set; } = new();
+    private List<SolarEnergyHistoryEntry> Data { get; set; } = [];
 
-    private readonly List<ChartSeries> _series3 = new();
-    private readonly ChartOptions _options3 = new();
-
-    private readonly List<ChartSeries> _series4 = new();
-    private readonly ChartOptions _options4 = new();
-
-    private readonly List<ChartSeries> _series5 = new();
-    private readonly ChartOptions _options5 = new();
-
-    private string[] XAxisLabels { get; set; } = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" };
 
     protected override async Task OnInitializedAsync()
     {
+        _options2.Chart = new Chart
+        {
+            Stacked = true,
+            Toolbar = new Toolbar
+            {
+                Show = false
+            },
+            Zoom = new Zoom
+            {
+                Enabled = false
+            },
+            Background = "#373740"
+        };
+        _options2.Theme = new Theme
+        {
+            Mode = Mode.Dark,
+            Palette = PaletteType.Palette1
+        };
+        _options2.Colors = new List<string> { "#B6FED6", "#5DE799", "#59C7D4" };
+        _options2.Stroke = new Stroke
+        {
+            Show = false
+        };
+        _options2.Fill = new Fill
+        {
+            Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid },
+            Opacity = new Opacity(1, 1, 1)
+        };
+
+        _options.Chart = new Chart
+        {
+            Stacked = true,
+            Toolbar = new Toolbar
+            {
+                Show = false
+            },
+            Zoom = new Zoom
+            {
+                Enabled = false
+            },
+            Background = "#373740"
+        };
+        _options.Theme = new Theme
+        {
+            Mode = Mode.Dark,
+            Palette = PaletteType.Palette1
+        };
+        _options.DataLabels = new DataLabels
+        {
+            Enabled = true
+        };
+
+        _options.Xaxis = new XAxis
+        {
+            Type = XAxisType.Category,
+            Categories = new List<string> { "Jan", "Feb", "Maa", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec" }
+        };
+        _options.Yaxis = new List<YAxis>{
+            new YAxis
+            {
+                DecimalsInFloat = 0,
+                Title = new AxisTitle
+                {
+                    Text = "kWh"
+                },
+                ForceNiceScale = true
+            }
+        };
+
+        Data = new List<SolarEnergyHistoryEntry>()
+        {
+            new SolarEnergyHistoryEntry
+            {
+                Date = new DateTime(2024, 1, 1),
+                ConsumptionFromSolar = 11
+            }
+        };
+
         await RefreshData(StorageDataRange.Today);
 
         await base.OnInitializedAsync();
@@ -41,43 +111,63 @@ public partial class Solar
 
         var data = await solarService.GetStorageData(dataRange);
 
-        _series.Clear();
-        _series.Add(new ChartSeries { Name = "Battery", Data = data.Entries.Select(x => (double)x.ChargeState).ToArray() });
-
-        _options.YAxisTicks = 10;
-        _options.YAxisLines = true;
-        _options.ShowLegend = false;
-        _options.InterpolationOption = InterpolationOption.Straight;
-
-        //_series2.Clear();
-        //_series2.Add(new ChartSeries() { Name = "Belgium", Data = new double[] { -40, -20, -25, -27, -46, -46, -48, -44, -15 } });
-        ////_series2.Add(new ChartSeries() { Name = "United States", Data = new double[] { 40, 20, 25, 27, 46, 46, 48, 44, 15 } });
-        //_series2.Add(new ChartSeries() { Name = "Germany", Data = new double[] { -19, -24, -35, -13, -28, -15, -13, -16, -40 } });
-        //_series2.Add(new ChartSeries() { Name = "Sweden", Data = new double[] { -8, -6, -11, -13, -4, -16, -10, -16, -20 } });
-
         var mediator = ScopedServices.GetRequiredService<IMediator>();
-        var response = await mediator.Send(new GetSolarEnergyHistoryQuery
+        var solarEnergyByMonth = await mediator.Send(new GetSolarEnergyHistoryQuery
         {
             From = new DateTime(2024, 1, 1),
             To = new DateTime(2024, 12, 31),
             Unit = EnergyHistoryUnit.Month
         });
+        var solarEnergyByYear = await mediator.Send(new GetSolarEnergyHistoryQuery
+        {
+            From = new DateTime(DateTime.Today.Year - 2, 1, 1),
+            To = new DateTime(DateTime.Today.Year, 12, 31),
+            Unit = EnergyHistoryUnit.Year
+        });
+        var solarPowerByFifteenMinutes = await mediator.Send(new GetSolarPowerHistoryQuery
+        {
+            From = new DateTime(2024, 8, 10),
+            To = new DateTime(2024, 8, 10),
+            Unit = PowerHistoryUnit.FifteenMinutes
+        });
 
-        _series2.Clear();
-        _series2.Add(new ChartSeries { Name = "Production to home", Data = response.Entries.Select(x => (double)x.ProductionToHome).ToArray() });
-        _series2.Add(new ChartSeries { Name = "Production to battery", Data = response.Entries.Select(x => (double)x.ProductionToBattery).ToArray() });
-        _series2.Add(new ChartSeries { Name = "Production to grid", Data = response.Entries.Select(x => (double)x.ProductionToGrid).ToArray() });
+        SolarPowerYesterday.Clear();
+        SolarPowerYesterday.AddRange(solarPowerByFifteenMinutes.Entries);
+        await _apexChart2.UpdateSeriesAsync(true);
 
-        _series3.Clear();
-        _series3.Add(new ChartSeries { Name = "Consumption from solar", Data = response.Entries.Select(x => (double)x.ConsumptionFromSolar).ToArray() });
-        _series3.Add(new ChartSeries { Name = "Consumption from battery", Data = response.Entries.Select(x => (double)x.ConsumptionFromBattery).ToArray() });
-        _series3.Add(new ChartSeries { Name = "Consumption from grid", Data = response.Entries.Select(x => (double)x.ConsumptionFromGrid).ToArray() });
+        Data.Clear();
+        Data.AddRange(solarEnergyByMonth.Entries);
+        await _apexChart.UpdateSeriesAsync(true);
 
-        _series4.Clear();
-        _series4.Add(new ChartSeries { Name = "Import", Data = response.Entries.Select(x => (double)x.Import).ToArray() });
+        //_series.Clear();
+        //_series.Add(new ChartSeries { Name = "Battery", Data = solarPowerByFifteenMinutes.Entries.Select(x => (double)x.StorageLevel).ToArray() });
 
-        _series5.Clear();
-        _series5.Add(new ChartSeries { Name = "Export", Data = response.Entries.Select(x => (double)x.Export).ToArray() });
+
+        //_options2.YAxisTicks = 50;
+        //_options2.YAxisLines = true;
+
+        //_series2.Clear();
+        //_series2.Add(new ChartSeries { Name = "Productie naar het huis", Data = solarEnergyByMonth.Entries.Select(x => (double)x.ProductionToHome).ToArray() });
+        //_series2.Add(new ChartSeries { Name = "Productie naar de batterij", Data = solarEnergyByMonth.Entries.Select(x => (double)x.ProductionToBattery).ToArray() });
+        //_series2.Add(new ChartSeries { Name = "Productie naar het net", Data = solarEnergyByMonth.Entries.Select(x => (double)x.ProductionToGrid).ToArray() });
+
+        //_options3.YAxisTicks = 50;
+        //_options3.YAxisLines = true;
+
+        //_series3.Clear();
+        //_series3.Add(new ChartSeries { Name = "Consumptie van de zon", Data = solarEnergyByMonth.Entries.Select(x => (double)x.ConsumptionFromSolar).ToArray() });
+        //_series3.Add(new ChartSeries { Name = "Consumptie van de batterij", Data = solarEnergyByMonth.Entries.Select(x => (double)x.ConsumptionFromBattery).ToArray() });
+        //_series3.Add(new ChartSeries { Name = "Consumptie van het net", Data = solarEnergyByMonth.Entries.Select(x => (double)x.ConsumptionFromGrid).ToArray() });
+
+        //_series4.Clear();
+        //_series4.Add(new ChartSeries { Name = "Import", Data = solarEnergyByMonth.Entries.Select(x => (double)x.Import).ToArray() });
+        //_series4.Add(new ChartSeries { Name = "Export", Data = solarEnergyByMonth.Entries.Select(x => (double)x.Export).ToArray() });
+
+
+        //_seriesA.Clear();
+        //_seriesA.Add(new ChartSeries { Name = "Productie naar het huis", Data = solarPowerByFifteenMinutes.Entries.Select(x => (double)x.ProductionToHome).ToArray() });
+        //_seriesA.Add(new ChartSeries { Name = "Productie naar de batterij", Data = solarPowerByFifteenMinutes.Entries.Select(x => (double)x.ProductionToBattery).ToArray() });
+        //_seriesA.Add(new ChartSeries { Name = "Productie naar het net", Data = solarPowerByFifteenMinutes.Entries.Select(x => (double)x.ProductionToGrid).ToArray() });
 
         await InvokeAsync(StateHasChanged);
     }
