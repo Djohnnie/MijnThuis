@@ -126,8 +126,8 @@ public partial class Solar
         });
         var solarPowerByFifteenMinutes = await mediator.Send(new GetSolarPowerHistoryQuery
         {
-            From = new DateTime(2024, 8, 10),
-            To = new DateTime(2024, 8, 10),
+            From = DateTime.Today,
+            To = DateTime.Today,
             Unit = PowerHistoryUnit.FifteenMinutes
         });
 

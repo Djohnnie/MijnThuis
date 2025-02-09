@@ -218,7 +218,9 @@ public class SolarService : BaseService, ISolarService
         }
 
         using var client = InitializeHttpClient();
-        var result = await client.GetFromJsonAsync<StorageOverview>($"site/{_siteId}/storageData?api_key={_authToken}&startTime={start}&endTime={end}");
+        var serializerOptions = new JsonSerializerOptions();
+        serializerOptions.Converters.Add(new JsonDateTimeConverter());
+        var result = await client.GetFromJsonAsync<StorageOverview>($"site/{_siteId}/storageData?api_key={_authToken}&startTime={start}&endTime={end}", serializerOptions);
 
         return new StorageData
         {
