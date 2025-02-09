@@ -150,7 +150,7 @@ internal class SolarHistoryWorker : BackgroundService
             startHistoryFrom = new DateTime(latestEntry.Date.Year, latestEntry.Date.Month, latestEntry.Date.Day);
         }
 
-        _logger.LogInformation($"Solar power history should update from {startHistoryFrom.Day}/{startHistoryFrom.Month}/{startHistoryFrom.Year} until {yesterday.Day}/{yesterday.Month}/{yesterday.Year}.");
+        _logger.LogInformation($"Solar power history should update from {startHistoryFrom.Day}/{startHistoryFrom.Month}/{startHistoryFrom.Year} until {today.Day}/{today.Month}/{today.Year}.");
 
         var dateToProcess = startHistoryFrom;
         var now = DateTime.Now;
