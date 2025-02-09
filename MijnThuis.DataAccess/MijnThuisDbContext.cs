@@ -10,6 +10,7 @@ public class MijnThuisDbContext : DbContext
 
     public DbSet<SolarEnergyHistoryEntry> SolarEnergyHistory { get; set; }
     public DbSet<SolarPowerHistoryEntry> SolarPowerHistory { get; set; }
+    public DbSet<BatteryEnergyHistoryEntry> BatteryEnergyHistory { get; set; }
 
     public MijnThuisDbContext(IConfiguration configuration)
     {
@@ -29,6 +30,7 @@ public class MijnThuisDbContext : DbContext
             entityBuilder.HasKey(x => x.Id).IsClustered(false);
             entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
             entityBuilder.HasIndex(x => x.SysId).IsClustered();
+            entityBuilder.HasIndex(x => x.Date);
         });
 
         modelBuilder.Entity<SolarPowerHistoryEntry>(entityBuilder =>
@@ -37,6 +39,16 @@ public class MijnThuisDbContext : DbContext
             entityBuilder.HasKey(x => x.Id).IsClustered(false);
             entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
             entityBuilder.HasIndex(x => x.SysId).IsClustered();
+            entityBuilder.HasIndex(x => x.Date);
+        });
+
+        modelBuilder.Entity<BatteryEnergyHistoryEntry>(entityBuilder =>
+        {
+            entityBuilder.ToTable("BATTERY_ENERGY_HISTORY");
+            entityBuilder.HasKey(x => x.Id).IsClustered(false);
+            entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
+            entityBuilder.HasIndex(x => x.SysId).IsClustered();
+            entityBuilder.HasIndex(x => x.Date);
         });
     }
 }

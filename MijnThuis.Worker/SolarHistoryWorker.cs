@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using MijnThuis.DataAccess;
 using MijnThuis.DataAccess.Entities;
 using MijnThuis.Integrations.Solar;
+using System.Diagnostics;
 
 namespace MijnThuis.Worker;
 
@@ -27,11 +28,15 @@ internal class SolarHistoryWorker : BackgroundService
         // While the service has not requested to stop...
         while (!stoppingToken.IsCancellationRequested)
         {
+            var startTimer = Stopwatch.GetTimestamp();
+
             try
             {
                 await FetchSolarEnergyHistory(stoppingToken);
 
                 await FetchSolarPowerHistory(stoppingToken);
+
+                await FetchBatteryEnergyHistory(stoppingToken);
             }
             catch (Exception ex)
             {
@@ -39,7 +44,14 @@ internal class SolarHistoryWorker : BackgroundService
                 _logger.LogError(ex, ex.Message);
             }
 
-            await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+            var stopTimer = Stopwatch.GetTimestamp();
+
+            var duration = TimeSpan.FromMinutes(5) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
+
+            if (duration > TimeSpan.Zero)
+            {
+                await Task.Delay(duration, stoppingToken);
+            }
         }
     }
 
@@ -52,8 +64,6 @@ internal class SolarHistoryWorker : BackgroundService
         var serviceScope = _serviceProvider.CreateScope();
         var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
         var dbContext = serviceScope.ServiceProvider.GetService<MijnThuisDbContext>();
-
-        await dbContext.Database.MigrateAsync();
 
         // Gets the latest solar history database entry
         var latestEntry = await dbContext.SolarEnergyHistory.OrderByDescending(x => x.Date).FirstOrDefaultAsync();
@@ -120,18 +130,15 @@ internal class SolarHistoryWorker : BackgroundService
     {
         var startHistoryFrom = _configuration.GetValue<DateTime>("SOLAR_HISTORY_START");
 
-        // Calculate yesterdays date.
-        var yesterday = DateTime.Today.AddDays(-1);
+        var today = DateTime.Today;
         var serviceScope = _serviceProvider.CreateScope();
         var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
         var dbContext = serviceScope.ServiceProvider.GetService<MijnThuisDbContext>();
 
-        await dbContext.Database.MigrateAsync();
-
         // Gets the latest solar history database entry
         var latestEntry = await dbContext.SolarPowerHistory.OrderByDescending(x => x.Date).FirstOrDefaultAsync();
 
-        if (latestEntry != null && latestEntry.Date.Date == yesterday.Date)
+        if (latestEntry != null && (DateTime.Now - latestEntry.Date).TotalMinutes < 5)
         {
             _logger.LogInformation("Solar power history is up to date.");
 
@@ -148,7 +155,7 @@ internal class SolarHistoryWorker : BackgroundService
         var dateToProcess = startHistoryFrom;
         var now = DateTime.Now;
 
-        while (dateToProcess <= yesterday)
+        while (dateToProcess <= today)
         {
             _logger.LogInformation($"Processing solar power history for {dateToProcess.Day}/{dateToProcess.Month}/{dateToProcess.Year}...");
 
@@ -188,5 +195,75 @@ internal class SolarHistoryWorker : BackgroundService
         }
 
         _logger.LogInformation("Solar power history has been updated for now.");
+    }
+
+    private async Task FetchBatteryEnergyHistory(CancellationToken stoppingToken)
+    {
+        var startHistoryFrom = _configuration.GetValue<DateTime>("SOLAR_HISTORY_START");
+
+        var today = DateTime.Today;
+        var serviceScope = _serviceProvider.CreateScope();
+        var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
+        var modbusService = serviceScope.ServiceProvider.GetService<IModbusService>();
+        var dbContext = serviceScope.ServiceProvider.GetService<MijnThuisDbContext>();
+
+        var currentBatteryLevel = await modbusService.GetBatteryLevel();
+
+        // Gets the latest solar history database entry
+        var latestEntry = await dbContext.BatteryEnergyHistory.OrderByDescending(x => x.Date).FirstOrDefaultAsync();
+
+        if (latestEntry != null && (DateTime.Now - latestEntry.Date).TotalMinutes < 5)
+        {
+            _logger.LogInformation("Battery energy history is up to date.");
+
+            return;
+        }
+
+        if (latestEntry != null)
+        {
+            startHistoryFrom = new DateTime(latestEntry.Date.Year, latestEntry.Date.Month, latestEntry.Date.Day);
+        }
+
+        _logger.LogInformation($"Battery energy history should update from {startHistoryFrom.Day}/{startHistoryFrom.Month}/{startHistoryFrom.Year} until {today.Day}/{today.Month}/{today.Year}.");
+
+        var dateToProcess = startHistoryFrom;
+        var now = DateTime.Now;
+
+        while (dateToProcess <= today)
+        {
+            _logger.LogInformation($"Processing battery energy history for {dateToProcess.Day}/{dateToProcess.Month}/{dateToProcess.Year}...");
+
+            var batteryEnergy = await solarService.GetBatteryOverview(dateToProcess);
+
+            var existingEntries = await dbContext.BatteryEnergyHistory
+                .Where(x => x.Date.Year == dateToProcess.Year && x.Date.Month == dateToProcess.Month && x.Date.Day == dateToProcess.Day)
+                .ToListAsync();
+
+            var batteryData = batteryEnergy.Storage.Batteries.SingleOrDefault();
+
+            foreach (var measurement in batteryData.Telemetries.OrderBy(x => x.TimeStamp))
+            {
+                if (!existingEntries.Any(x => x.Date == measurement.TimeStamp))
+                {
+                    dbContext.BatteryEnergyHistory.Add(new BatteryEnergyHistoryEntry
+                    {
+                        Id = Guid.NewGuid(),
+                        Date = measurement.TimeStamp,
+                        DataCollected = now,
+                        RatedEnergy = batteryData.Nameplate,
+                        AvailableEnergy = measurement.EnergyAvailable ?? 0M,
+                        StateOfCharge = measurement.Level ?? 0M,
+                        CalculatedStateOfHealth = (measurement.EnergyAvailable ?? 0M) / batteryData.Nameplate,
+                        StateOfHealth = (DateTime.Now - measurement.TimeStamp).TotalHours < 1 ? currentBatteryLevel.Health / 100M : 1M,
+                    });
+
+                    await dbContext.SaveChangesAsync();
+                }
+            }
+
+            dateToProcess = dateToProcess.AddDays(1);
+        }
+
+        _logger.LogInformation("Battery energy history has been updated for now.");
     }
 }

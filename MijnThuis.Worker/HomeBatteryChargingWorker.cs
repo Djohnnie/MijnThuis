@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace MijnThuis.Worker;
 
-internal class HomeBatteryChargingWorker : BackgroundService
+public class HomeBatteryChargingWorker : BackgroundService
 {
     private readonly IConfiguration _configuration;
     private readonly IServiceProvider _serviceProvider;

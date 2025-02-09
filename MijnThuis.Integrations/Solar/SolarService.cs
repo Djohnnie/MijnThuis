@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using static IdentityModel.ClaimComparer;
 
 namespace MijnThuis.Integrations.Solar;
 
@@ -17,6 +20,8 @@ public interface ISolarService
     Task<EnergyOverviewResponse> GetEnergyOverview(DateTime date);
 
     Task<PowerOverviewResponse> GetPowerOverview(DateTime date);
+
+    Task<BatteryOverviewResponse> GetBatteryOverview(DateTime date);
 
     Task<EnergyOverview> GetEnergyToday();
 
@@ -93,7 +98,7 @@ public class SolarService : BaseService, ISolarService
             return new BatteryLevel
             {
                 Level = result.Storage.Batteries.Single().Telemetries.Last().Level ?? 0M,
-                Health = result.Storage.Batteries.Single().Telemetries.Last().EnergyAvailable / result.Storage.Batteries.Single().Nameplate * 100M,
+                Health = (result.Storage.Batteries.Single().Telemetries.Last().EnergyAvailable ?? 0M) / result.Storage.Batteries.Single().Nameplate * 100M,
             };
         }
         catch (Exception ex)
@@ -142,6 +147,19 @@ public class SolarService : BaseService, ISolarService
 
         using var client = await InitializeAuthenticatedHttpClient();
         var response = await client.GetFromJsonAsync<PowerOverviewResponse>($"services/dashboard/power/sites/{_siteId}?start-date={begin}&end-date={end}&chart-time-unit=quarter-hours&measurement-types=production,consumption,production-distribution-with-storage,consumption-distribution-with-storage,import,export,storage-charge-level");
+
+        return response;
+    }
+
+    public async Task<BatteryOverviewResponse> GetBatteryOverview(DateTime date)
+    {
+        var start = $"{date:yyyy-MM-dd HH:mm:00}";
+        var end = $"{date.AddDays(1).AddSeconds(-1):yyyy-MM-dd HH:mm:00}";
+
+        using var client = InitializeHttpClient();
+        var serializerOptions = new JsonSerializerOptions();
+        serializerOptions.Converters.Add(new JsonDateTimeConverter());
+        var response = await client.GetFromJsonAsync<BatteryOverviewResponse>($"site/{_siteId}/storageData?api_key={_authToken}&startTime={start}&endTime={end}", serializerOptions);
 
         return response;
     }
@@ -396,14 +414,14 @@ public class Battery
 
 public class Telemetry
 {
-    //[JsonPropertyName("timeStamp")]
-    //public DateTime TimeStamp { get; set; }
+    [JsonPropertyName("timeStamp")]
+    public DateTime TimeStamp { get; set; }
 
     [JsonPropertyName("batteryPercentageState")]
     public decimal? Level { get; init; }
 
     [JsonPropertyName("fullPackEnergyAvailable")]
-    public decimal EnergyAvailable { get; init; }
+    public decimal? EnergyAvailable { get; init; }
 }
 
 public class EnergyProducedResponse
@@ -461,6 +479,12 @@ public class PowerOverviewResponse
 {
     [JsonPropertyName("measurements")]
     public List<PowerMeasurement> Measurements { get; set; }
+}
+
+public class BatteryOverviewResponse
+{
+    [JsonPropertyName("storageData")]
+    public Storage Storage { get; init; }
 }
 
 public class EnergySummary
@@ -548,4 +572,18 @@ public class ConsumptionDistribution
 
     [JsonPropertyName("consumptionFromGrid")]
     public decimal? FromGrid { get; set; }
+}
+
+public class JsonDateTimeConverter : JsonConverter<DateTime>
+{
+    public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        Debug.Assert(typeToConvert == typeof(DateTime));
+        return DateTime.Parse(reader.GetString() ?? string.Empty);
+    }
+
+    public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+    {
+        writer.WriteStringValue(value.ToString());
+    }
 }
