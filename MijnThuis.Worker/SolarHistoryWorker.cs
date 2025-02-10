@@ -167,7 +167,7 @@ internal class SolarHistoryWorker : BackgroundService
 
             foreach (var measurement in solarPower.Measurements.OrderBy(x => x.MeasurementTime))
             {
-                if (!existingEntries.Any(x => x.Date == measurement.MeasurementTime))
+                if (!existingEntries.Any(x => x.Date == measurement.MeasurementTime) && measurement.MeasurementTime < DateTime.Now.AddMinutes(-15))
                 {
                     dbContext.SolarPowerHistory.Add(new SolarPowerHistoryEntry
                     {
