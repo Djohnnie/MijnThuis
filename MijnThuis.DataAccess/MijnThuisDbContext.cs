@@ -11,6 +11,7 @@ public class MijnThuisDbContext : DbContext
     public DbSet<SolarEnergyHistoryEntry> SolarEnergyHistory { get; set; }
     public DbSet<SolarPowerHistoryEntry> SolarPowerHistory { get; set; }
     public DbSet<BatteryEnergyHistoryEntry> BatteryEnergyHistory { get; set; }
+    public DbSet<EnergyHistoryEntry> EnergyHistory { get; set; }
 
     public MijnThuisDbContext(IConfiguration configuration)
     {
@@ -49,6 +50,33 @@ public class MijnThuisDbContext : DbContext
             entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
             entityBuilder.HasIndex(x => x.SysId).IsClustered();
             entityBuilder.HasIndex(x => x.Date);
+        });
+
+        modelBuilder.Entity<EnergyHistoryEntry>(entityBuilder =>
+        {
+            entityBuilder.ToTable("ENERGY_HISTORY");
+            entityBuilder.HasKey(x => x.Id).IsClustered(false);
+            entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
+            entityBuilder.HasIndex(x => x.SysId).IsClustered();
+            entityBuilder.HasIndex(x => x.Date);
+            entityBuilder.Property(x => x.TotalImport).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.TotalImportDelta).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.Tarrif1Import).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.Tarrif1ImportDelta).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.Tarrif2Import).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.Tarrif2ImportDelta).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.TotalExport).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.TotalExportDelta).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.Tarrif1Export).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.Tarrif1ExportDelta).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.Tarrif2Export).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.Tarrif2ExportDelta).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.TotalGas).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.TotalGasDelta).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.GasCoefficient).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.TotalGasKwh).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.TotalGasKwhDelta).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.MonthlyPowerPeak).HasPrecision(9, 3);
         });
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MijnThuis.DataAccess;
 
@@ -11,9 +12,11 @@ using MijnThuis.DataAccess;
 namespace MijnThuis.DataAccess.Migrations
 {
     [DbContext(typeof(MijnThuisDbContext))]
-    partial class MijnThuisDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250210093136_EnergyHistory")]
+    partial class EnergyHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,13 +83,8 @@ namespace MijnThuis.DataAccess.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("GasCoefficient")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
-
                     b.Property<decimal>("MonthlyPowerPeak")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<long>("SysId")
                         .ValueGeneratedOnAdd()
@@ -95,68 +93,46 @@ namespace MijnThuis.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SysId"));
 
                     b.Property<decimal>("Tarrif1Export")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Tarrif1ExportDelta")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Tarrif1Import")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Tarrif1ImportDelta")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Tarrif2Export")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Tarrif2ExportDelta")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Tarrif2Import")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Tarrif2ImportDelta")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalExport")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalExportDelta")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalGas")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalGasDelta")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
-
-                    b.Property<decimal>("TotalGasKwh")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
-
-                    b.Property<decimal>("TotalGasKwhDelta")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalImport")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalImportDelta")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MijnThuis.DataAccess;
 
@@ -11,9 +12,11 @@ using MijnThuis.DataAccess;
 namespace MijnThuis.DataAccess.Migrations
 {
     [DbContext(typeof(MijnThuisDbContext))]
-    partial class MijnThuisDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250210094559_EnergyHistoryPrecision")]
+    partial class EnergyHistoryPrecision
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,10 +83,6 @@ namespace MijnThuis.DataAccess.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("GasCoefficient")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
-
                     b.Property<decimal>("MonthlyPowerPeak")
                         .HasPrecision(9, 3)
                         .HasColumnType("decimal(9,3)");
@@ -139,14 +138,6 @@ namespace MijnThuis.DataAccess.Migrations
                         .HasColumnType("decimal(9,3)");
 
                     b.Property<decimal>("TotalGasDelta")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
-
-                    b.Property<decimal>("TotalGasKwh")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
-
-                    b.Property<decimal>("TotalGasKwhDelta")
                         .HasPrecision(9, 3)
                         .HasColumnType("decimal(9,3)");
 

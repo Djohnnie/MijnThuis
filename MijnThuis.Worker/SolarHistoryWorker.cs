@@ -61,9 +61,9 @@ internal class SolarHistoryWorker : BackgroundService
 
         // Calculate the last day of the previous month.
         var previousMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddDays(-1);
-        var serviceScope = _serviceProvider.CreateScope();
+        using var serviceScope = _serviceProvider.CreateScope();
         var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
-        var dbContext = serviceScope.ServiceProvider.GetService<MijnThuisDbContext>();
+        using var dbContext = serviceScope.ServiceProvider.GetService<MijnThuisDbContext>();
 
         // Gets the latest solar history database entry
         var latestEntry = await dbContext.SolarEnergyHistory.OrderByDescending(x => x.Date).FirstOrDefaultAsync();
@@ -131,9 +131,9 @@ internal class SolarHistoryWorker : BackgroundService
         var startHistoryFrom = _configuration.GetValue<DateTime>("SOLAR_HISTORY_START");
 
         var today = DateTime.Today;
-        var serviceScope = _serviceProvider.CreateScope();
+        using var serviceScope = _serviceProvider.CreateScope();
         var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
-        var dbContext = serviceScope.ServiceProvider.GetService<MijnThuisDbContext>();
+        using var dbContext = serviceScope.ServiceProvider.GetService<MijnThuisDbContext>();
 
         // Gets the latest solar history database entry
         var latestEntry = await dbContext.SolarPowerHistory.OrderByDescending(x => x.Date).FirstOrDefaultAsync();
@@ -202,10 +202,10 @@ internal class SolarHistoryWorker : BackgroundService
         var startHistoryFrom = _configuration.GetValue<DateTime>("SOLAR_HISTORY_START");
 
         var today = DateTime.Today;
-        var serviceScope = _serviceProvider.CreateScope();
+        using var serviceScope = _serviceProvider.CreateScope();
         var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
         var modbusService = serviceScope.ServiceProvider.GetService<IModbusService>();
-        var dbContext = serviceScope.ServiceProvider.GetService<MijnThuisDbContext>();
+        using var dbContext = serviceScope.ServiceProvider.GetService<MijnThuisDbContext>();
 
         var currentBatteryLevel = await modbusService.GetBatteryLevel();
 
