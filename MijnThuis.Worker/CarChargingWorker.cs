@@ -1,4 +1,5 @@
 using MijnThuis.Integrations.Car;
+using MijnThuis.Integrations.Power;
 using MijnThuis.Integrations.Solar;
 using System.Diagnostics;
 using System.Text;
@@ -141,6 +142,7 @@ public class CarChargingWorker : BackgroundService
                             logBuilder.AppendLine($"Start charging at {(int)maxPossibleCurrent} A");
                             logBuilder.AppendLine("-----------------------------");
                             await carService.StartCharging((int)maxPossibleCurrent);
+                            await Task.Delay(TimeSpan.FromMinutes(1));
                         }
 
                         // If the car is already charging and the current home battery level has
@@ -152,6 +154,7 @@ public class CarChargingWorker : BackgroundService
                             logBuilder.AppendLine("Stop charging!");
                             logBuilder.AppendLine("-----------------------------");
                             await carService.StopCharging();
+                            await Task.Delay(TimeSpan.FromMinutes(1));
                         }
                     }
                 }
