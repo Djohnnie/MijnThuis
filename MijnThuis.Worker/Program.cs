@@ -11,7 +11,7 @@ builder.Services.AddIntegrations();
 builder.Services.AddScoped<IHomeBatteryChargingHelper, HomeBatteryChargingHelper>();
 
 builder.Services.AddHostedService<CarChargingWorker>();
-builder.Services.AddHostedService<HomeBatteryChargingWorker>();
+//builder.Services.AddHostedService<HomeBatteryChargingWorker>();
 builder.Services.AddHostedService<HomeBatteryNotificationWorker>();
 builder.Services.AddHostedService<SolarHistoryWorker>();
 builder.Services.AddHostedService<EnergyHistoryWorker>();
