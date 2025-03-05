@@ -45,11 +45,11 @@ public class GetBatteryEnergyHistoryQueryHandler : IRequestHandler<GetBatteryEne
             .Select(g => new BatteryEnergyHistoryEntry
             {
                 Date = g.Key,
-                RatedEnergy = g.Sum(x => x.RatedEnergy),
-                AvailableEnergy = g.Sum(x => x.AvailableEnergy),
-                StateOfCharge = g.Sum(x => x.StateOfCharge),
-                CalculatedStateOfHealth = g.Sum(x => x.CalculatedStateOfHealth),
-                StateOfHealth = g.Sum(x => x.StateOfHealth)
+                RatedEnergy = g.Average(x => x.RatedEnergy),
+                AvailableEnergy = g.Average(x => x.AvailableEnergy),
+                StateOfCharge = g.Average(x => x.StateOfCharge),
+                CalculatedStateOfHealth = g.Average(x => x.CalculatedStateOfHealth),
+                StateOfHealth = g.Average(x => x.StateOfHealth)
             })
             .ToList();
     }
@@ -61,11 +61,11 @@ public class GetBatteryEnergyHistoryQueryHandler : IRequestHandler<GetBatteryEne
             .Select(g => new BatteryEnergyHistoryEntry
             {
                 Date = new DateTime(g.Key.Year, g.Key.Month, 1),
-                RatedEnergy = g.Sum(x => x.RatedEnergy),
-                AvailableEnergy = g.Sum(x => x.AvailableEnergy),
-                StateOfCharge = g.Sum(x => x.StateOfCharge),
-                CalculatedStateOfHealth = g.Sum(x => x.CalculatedStateOfHealth),
-                StateOfHealth = g.Sum(x => x.StateOfHealth)
+                RatedEnergy = g.Average(x => x.RatedEnergy),
+                AvailableEnergy = g.Average(x => x.AvailableEnergy),
+                StateOfCharge = g.Average(x => x.StateOfCharge),
+                CalculatedStateOfHealth = g.Average(x => x.CalculatedStateOfHealth),
+                StateOfHealth = g.Average(x => x.StateOfHealth)
             })
             .ToList();
     }
@@ -77,11 +77,11 @@ public class GetBatteryEnergyHistoryQueryHandler : IRequestHandler<GetBatteryEne
             .Select(g => new BatteryEnergyHistoryEntry
             {
                 Date = new DateTime(g.Key, 1, 1),
-                RatedEnergy = g.Sum(x => x.RatedEnergy),
-                AvailableEnergy = g.Sum(x => x.AvailableEnergy),
-                StateOfCharge = g.Sum(x => x.StateOfCharge),
-                CalculatedStateOfHealth = g.Sum(x => x.CalculatedStateOfHealth),
-                StateOfHealth = g.Sum(x => x.StateOfHealth)
+                RatedEnergy = g.Average(x => x.RatedEnergy),
+                AvailableEnergy = g.Average(x => x.AvailableEnergy),
+                StateOfCharge = g.Average(x => x.StateOfCharge),
+                CalculatedStateOfHealth = g.Average(x => x.CalculatedStateOfHealth),
+                StateOfHealth = g.Average(x => x.StateOfHealth)
             })
             .ToList();
     }

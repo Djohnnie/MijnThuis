@@ -59,8 +59,7 @@ internal class SolarHistoryWorker : BackgroundService
     {
         var startHistoryFrom = _configuration.GetValue<DateTime>("SOLAR_HISTORY_START");
 
-        // Calculate the last day of the previous month.
-        var previousMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddDays(-1);
+        var previousDay = DateTime.Today.AddDays(-1);
         using var serviceScope = _serviceProvider.CreateScope();
         var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
         using var dbContext = serviceScope.ServiceProvider.GetService<MijnThuisDbContext>();
@@ -68,7 +67,7 @@ internal class SolarHistoryWorker : BackgroundService
         // Gets the latest solar history database entry
         var latestEntry = await dbContext.SolarEnergyHistory.OrderByDescending(x => x.Date).FirstOrDefaultAsync();
 
-        if (latestEntry != null && latestEntry.Date.Year == previousMonth.Year && latestEntry.Date.Month == previousMonth.Month)
+        if (latestEntry != null && latestEntry.Date == previousDay)
         {
             _logger.LogInformation("Solar energy history is up to date.");
 
@@ -77,15 +76,15 @@ internal class SolarHistoryWorker : BackgroundService
 
         if (latestEntry != null)
         {
-            startHistoryFrom = new DateTime(latestEntry.Date.Year, latestEntry.Date.Month, 1);
+            startHistoryFrom = latestEntry.Date;
         }
 
-        _logger.LogInformation($"Solar energy history should update from {startHistoryFrom.Month}/{startHistoryFrom.Year} until {previousMonth.Month}/{previousMonth.Year}.");
+        _logger.LogInformation($"Solar energy history should update from {startHistoryFrom} until {previousDay}.");
 
         var dateToProcess = startHistoryFrom;
         var now = DateTime.Now;
 
-        while (dateToProcess < previousMonth)
+        while (dateToProcess <= previousDay)
         {
             _logger.LogInformation($"Processing solar energy history for {dateToProcess.Month}/{dateToProcess.Year}...");
 
@@ -97,7 +96,7 @@ internal class SolarHistoryWorker : BackgroundService
 
             foreach (var measurement in solarEnergy.Chart.Measurements.OrderBy(x => x.MeasurementTime))
             {
-                if (!existingEntries.Any(x => x.Date.Date == measurement.MeasurementTime.Date))
+                if (measurement.MeasurementTime.Date <= previousDay && !existingEntries.Any(x => x.Date.Date == measurement.MeasurementTime.Date))
                 {
                     dbContext.SolarEnergyHistory.Add(new SolarEnergyHistoryEntry
                     {
@@ -120,7 +119,7 @@ internal class SolarHistoryWorker : BackgroundService
                 }
             }
 
-            dateToProcess = dateToProcess.AddMonths(1);
+            dateToProcess = dateToProcess.AddDays(1);
         }
 
         _logger.LogInformation("Solar energy history has been updated for now.");
