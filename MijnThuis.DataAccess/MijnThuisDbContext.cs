@@ -12,6 +12,7 @@ public class MijnThuisDbContext : DbContext
     public DbSet<SolarPowerHistoryEntry> SolarPowerHistory { get; set; }
     public DbSet<BatteryEnergyHistoryEntry> BatteryEnergyHistory { get; set; }
     public DbSet<EnergyHistoryEntry> EnergyHistory { get; set; }
+    public DbSet<CarChargingEnergyHistoryEntry> CarChargingHistory { get; set; }
 
     public MijnThuisDbContext(IConfiguration configuration)
     {
@@ -77,6 +78,17 @@ public class MijnThuisDbContext : DbContext
             entityBuilder.Property(x => x.TotalGasKwh).HasPrecision(9, 3);
             entityBuilder.Property(x => x.TotalGasKwhDelta).HasPrecision(9, 3);
             entityBuilder.Property(x => x.MonthlyPowerPeak).HasPrecision(9, 3);
+        });
+
+        modelBuilder.Entity<CarChargingEnergyHistoryEntry>(entityBuilder =>
+        {
+            entityBuilder.ToTable("CAR_CHARGING_HISTORY");
+            entityBuilder.HasKey(x => x.Id).IsClustered(false);
+            entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
+            entityBuilder.HasIndex(x => x.SysId).IsClustered();
+            entityBuilder.HasIndex(x => x.Timestamp);
+            entityBuilder.HasIndex(x => x.ChargingSessionId);
+            entityBuilder.Property(x => x.EnergyCharged).HasPrecision(9, 3);
         });
     }
 }

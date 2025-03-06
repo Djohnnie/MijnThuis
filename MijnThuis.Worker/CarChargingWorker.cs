@@ -1,5 +1,6 @@
+using MijnThuis.DataAccess;
+using MijnThuis.DataAccess.Entities;
 using MijnThuis.Integrations.Car;
-using MijnThuis.Integrations.Power;
 using MijnThuis.Integrations.Solar;
 using System.Diagnostics;
 using System.Text;
@@ -38,11 +39,6 @@ public class CarChargingWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // Initialize dependencies and variables.
-        using var serviceScope = _serviceProvider.CreateScope();
-        var carService = serviceScope.ServiceProvider.GetService<ICarService>();
-        var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
-
         const int numberOfSamplesToCollect = 6;
         var collectedSolarPower = new List<decimal>();
         var collectedConsumedPower = new List<decimal>();
@@ -52,9 +48,18 @@ public class CarChargingWorker : BackgroundService
         var maxPossibleCurrent = 0M;
         var carIsReadyToCharge = false;
 
+        DateTime? lastMeasurementTimestamp = null;
+        Guid? currentChargeSession = null;
+
         // While the service is not requested to stop...
         while (!stoppingToken.IsCancellationRequested)
         {
+            // Initialize dependencies and variables.
+            using var serviceScope = _serviceProvider.CreateScope();
+            using var dbContext = serviceScope.ServiceProvider.GetService<MijnThuisDbContext>();
+            var carService = serviceScope.ServiceProvider.GetService<ICarService>();
+            var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
+
             // Use a timestamp to calculate the duration of the whole process.
             var startTimer = Stopwatch.GetTimestamp();
 
@@ -136,24 +141,40 @@ public class CarChargingWorker : BackgroundService
                         // or the car is charging at a different charging amps level and the
                         // available charging amps level is higher or equal to 2A: Start charging
                         // the car at the maximum possible current.
-                        if (solarOverview.BatteryLevel > 95 && (!carOverview.IsCharging || carOverview.ChargingAmps != (int)maxPossibleCurrent) && (int)maxPossibleCurrent >= 1)
+                        if (solarOverview.BatteryLevel > 95 && (!carOverview.IsCharging || carOverview.ChargingAmps != (int)maxPossibleCurrent) && (int)maxPossibleCurrent >= 2)
                         {
                             logBuilder.AppendLine("-----------------------------");
                             logBuilder.AppendLine($"Start charging at {(int)maxPossibleCurrent} A");
                             logBuilder.AppendLine("-----------------------------");
+                            
+                            if (await CalculateCarChargingEnergy(dbContext, currentChargeSession, lastMeasurementTimestamp, carOverview))
+                            {
+                                lastMeasurementTimestamp = DateTime.Now;
+                            }
+
+                            if (!carOverview.IsCharging)
+                            {
+                                currentChargeSession = Guid.CreateVersion7();
+                                lastMeasurementTimestamp = DateTime.Now;
+                            }
+
                             await carService.StartCharging((int)maxPossibleCurrent);
+
                             await Task.Delay(TimeSpan.FromMinutes(1));
                         }
 
                         // If the car is already charging and the current home battery level has
                         // dropped below 95% or the maximum possible current has dropped below 2A:
                         // Stop charging the car.
-                        if (carOverview.IsCharging && (solarOverview.BatteryLevel <= 95 || (int)maxPossibleCurrent < 1))
+                        if (carOverview.IsCharging && (solarOverview.BatteryLevel <= 95 || (int)maxPossibleCurrent < 2))
                         {
                             logBuilder.AppendLine("-----------------------------");
                             logBuilder.AppendLine("Stop charging!");
                             logBuilder.AppendLine("-----------------------------");
+                            await CalculateCarChargingEnergy(dbContext, currentChargeSession, lastMeasurementTimestamp, carOverview);
                             await carService.StopCharging();
+                            lastMeasurementTimestamp = null;
+                            currentChargeSession = null;
                             await Task.Delay(TimeSpan.FromMinutes(1));
                         }
                     }
@@ -184,5 +205,37 @@ public class CarChargingWorker : BackgroundService
                 await Task.Delay(duration, stoppingToken);
             }
         }
+    }
+
+    private async Task<bool> CalculateCarChargingEnergy(MijnThuisDbContext dbContext, Guid? currentChargeSession, DateTime? lastMeasurementTimestamp, CarOverview carOverview)
+    {
+        try
+        {
+            if (currentChargeSession.HasValue && lastMeasurementTimestamp.HasValue)
+            {
+                var timespan = DateTime.Now - lastMeasurementTimestamp.Value;
+                var totalPower = carOverview.ChargingAmps * 230M; // Watts
+                var totalEnergy = totalPower * (decimal)timespan.TotalHours; // Wh
+
+                dbContext.Add(new CarChargingEnergyHistoryEntry
+                {
+                    Id = Guid.NewGuid(),
+                    Timestamp = DateTime.Now,
+                    ChargingSessionId = currentChargeSession.Value,
+                    ChargingAmps = carOverview.ChargingAmps,
+                    ChargingDuration = timespan,
+                    EnergyCharged = totalEnergy
+                });
+                await dbContext.SaveChangesAsync();
+
+                return true;
+            }
+        }
+        catch
+        {
+            // Ignore any exceptions.
+        }
+
+        return false;
     }
 }
