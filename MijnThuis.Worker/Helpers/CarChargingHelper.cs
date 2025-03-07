@@ -124,6 +124,10 @@ public class CarChargingHelper : ICarChargingHelper
 
                 state.SetCharging(carOverview);
             }
+            else
+            {
+                state.GatheringData();
+            }
         }
     }
 
@@ -219,6 +223,11 @@ public class CarChargingHelperState
     {
         Result.Type = CarChargingHelperResultType.ChargingStopped;
     }
+
+    internal void GatheringData()
+    {
+        Result.Type = CarChargingHelperResultType.GatheringSolarData;
+    }
 }
 
 public class CarChargingHelperResult
@@ -232,6 +241,7 @@ public enum CarChargingHelperResultType
 {
     NotReadyForCharging,
     NotCharging,
+    GatheringSolarData,
     ChargingStarted,
     Charging,
     ChargingChanged,
