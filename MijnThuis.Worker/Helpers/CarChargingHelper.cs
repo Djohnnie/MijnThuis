@@ -133,24 +133,20 @@ public class CarChargingHelper : ICarChargingHelper
 
     private async Task CalculateCarChargingEnergyOnStart(CarChargingHelperState state, CarOverview carOverview)
     {
-        await CalculateCarChargingEnergy(state, carOverview);
+        if (!await CalculateCarChargingEnergy(state, carOverview))
+        {
+            state.CurrentChargeSession = Guid.CreateVersion7();
+        }
 
-        state.LastMeasurementTimestamp = null;
-        state.CurrentChargeSession = null;
+        state.LastMeasurementTimestamp = DateTime.Now;
     }
 
     private async Task CalculateCarChargingEnergyOnStop(CarChargingHelperState state, CarOverview carOverview)
     {
-        if (await CalculateCarChargingEnergy(state, carOverview))
-        {
-            state.LastMeasurementTimestamp = DateTime.Now;
-        }
+        await CalculateCarChargingEnergy(state, carOverview);
 
-        if (!carOverview.IsCharging)
-        {
-            state.CurrentChargeSession = Guid.CreateVersion7();
-            state.LastMeasurementTimestamp = DateTime.Now;
-        }
+        state.CurrentChargeSession = null;
+        state.LastMeasurementTimestamp = null;
     }
 
     private async Task<bool> CalculateCarChargingEnergy(CarChargingHelperState state, CarOverview carOverview)
