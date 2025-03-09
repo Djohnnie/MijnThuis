@@ -1,4 +1,5 @@
-﻿using MijnThuis.DataAccess;
+﻿using LifxCloud.NET.Models;
+using MijnThuis.DataAccess;
 using MijnThuis.DataAccess.Entities;
 using MijnThuis.Integrations.Car;
 using MijnThuis.Integrations.Solar;
@@ -199,6 +200,8 @@ public class CarChargingHelperState
         if (!carIsReadyToCharge)
         {
             Result.Type = CarChargingHelperResultType.NotReadyForCharging;
+            CurrentChargeSession = null;
+            LastMeasurementTimestamp = null;
         }
     }
 
