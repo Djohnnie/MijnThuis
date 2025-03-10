@@ -1,7 +1,9 @@
 ﻿using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using MijnThuis.Application.DependencyInjection;
+using System.Text;
 
 namespace MijnThuis.Dashboard.Web.Copilot;
 
@@ -22,19 +24,39 @@ public class CopilotHelper : ICopilotHelper
     public async Task<string> ExecutePrompt(string prompt)
     {
         var kernel = InitializeSemanticKernel();
-        var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
+        kernel.ImportPluginFromType<MijnThuisCopilotGeneralFunctions>();
+        kernel.ImportPluginFromType<MijnThuisCopilotSolarFunctions>();
+        kernel.ImportPluginFromType<MijnThuisCopilotPowerFunctions>();
+        kernel.ImportPluginFromType<MijnThuisCopilotCarFunctions>();
+        kernel.ImportPluginFromType<MijnThuisCopilotHeatingFunctions>();
+        kernel.ImportPluginFromType<MijnThuisCopilotSaunaFunctions>();
 
-        var executionSettings = new OpenAIPromptExecutionSettings
+        var instructionBuilder = new StringBuilder();
+        instructionBuilder.Append("You are a digital assistent that can answer questions about the different home automation tools.");
+        instructionBuilder.Append("If your answer contains a decimal number, always show 1 digit after the decimal point.");
+
+        var agent = new ChatCompletionAgent
         {
-            ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions
+            Name = "MijnThuis",
+            Instructions = instructionBuilder.ToString(),
+            Kernel = kernel,
+            Arguments = new KernelArguments(new OpenAIPromptExecutionSettings
+            {
+                ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
+            })
         };
 
         ChatHistory chatHistory = [];
-        chatHistory.AddSystemMessage("If your answer contains a decimal number, always show 1 digit after the decimal point.");
         chatHistory.AddUserMessage(prompt);
-        var response = await chatCompletionService.GetChatMessageContentAsync(chatHistory, executionSettings, kernel);
 
-        return response.ToString();
+        var responseBuilder = new StringBuilder();
+
+        await foreach (var response in agent.InvokeAsync(chatHistory))
+        {
+            responseBuilder.Append(response.ToString());
+        }
+
+        return responseBuilder.ToString();
     }
 
     private Kernel InitializeSemanticKernel()
@@ -49,13 +71,6 @@ public class CopilotHelper : ICopilotHelper
         builder.Services.AddApplication();
         builder.Services.AddMemoryCache();
         builder.Services.AddSingleton(_configuration);
-
-        builder.Plugins.AddFromType<MijnThuisCopilotGeneralFunctions>();
-        builder.Plugins.AddFromType<MijnThuisCopilotSolarFunctions>();
-        builder.Plugins.AddFromType<MijnThuisCopilotPowerFunctions>();
-        builder.Plugins.AddFromType<MijnThuisCopilotCarFunctions>();
-        builder.Plugins.AddFromType<MijnThuisCopilotHeatingFunctions>();
-        builder.Plugins.AddFromType<MijnThuisCopilotSaunaFunctions>();
 
         var kernel = builder.Build();
 
