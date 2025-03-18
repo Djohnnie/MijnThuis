@@ -1,20 +1,18 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace MijnThuis.Integrations.Car;
 
-namespace MijnThuis.Integrations.Car;
-
-public record CarOverview
+public class CarOverview
 {
-    public string State { get; init; }
-    public byte BatteryLevel { get; init; }
-    public int RemainingRange { get; init; }
-    public int TemperatureInside { get; init; }
-    public int TemperatureOutside { get; init; }
-    public bool IsLocked { get; init; }
-    public bool IsCharging { get; init; }
-    public bool IsPreconditioning { get; init; }
-    public int ChargingAmps { get; init; }
-    public int MaxChargingAmps { get; init; }
-    public bool IsChargePortOpen { get; init; }
-    public decimal ChargeEnergyAdded { get; init; }
-    public decimal ChargeRangeAdded { get; init; }
+    public string State { get; set; }
+    public byte BatteryLevel { get; set; }
+    public int RemainingRange { get; set; }
+    public int TemperatureInside { get; set; }
+    public int TemperatureOutside { get; set; }
+    public bool IsLocked { get; set; }
+    public bool IsCharging { get; set; }
+    public bool IsPreconditioning { get; set; }
+    public int ChargingAmps { get; set; }
+    public int MaxChargingAmps { get; set; }
+    public bool IsChargePortOpen { get; set; }
+    public decimal ChargeEnergyAdded { get; set; }
+    public decimal ChargeRangeAdded { get; set; }
 }

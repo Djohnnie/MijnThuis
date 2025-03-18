@@ -5,7 +5,6 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using static IdentityModel.ClaimComparer;
 
 namespace MijnThuis.Integrations.Solar;
 

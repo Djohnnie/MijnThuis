@@ -14,6 +14,8 @@ public class CarChargingWorkerStepDefinitions
     private CarChargingHelper? _sot;
 
     private CarChargingHelperState? _state;
+    private CarOverview? _carOverview;
+    private SolarOverview? _solarOverview;
 
     [BeforeScenario]
     public void BeforeScenario()
@@ -24,19 +26,31 @@ public class CarChargingWorkerStepDefinitions
         _sot = new CarChargingHelper(null, _carService, _solarService);
 
         _state = new CarChargingHelperState();
+        _carOverview = new CarOverview();
+        _solarOverview = new SolarOverview();
+
+        A.CallTo(() => _carService!.GetOverview()).Returns(_carOverview);
+        A.CallTo(() => _solarService!.GetOverview()).Returns(_solarOverview);
     }
 
     [Given("The car charge port is not open")]
     public void GivenTheCarChargePortIsNotOpen()
     {
-        A.CallTo(() => _carService!.GetOverview()).Returns(new CarOverview { IsChargePortOpen = false });
+        _carOverview!.IsChargePortOpen = false;
     }
 
     [Given("The car charge port is open")]
     public void GivenTheCarChargePortIsOpen()
     {
-        A.CallTo(() => _carService!.GetOverview()).Returns(new CarOverview { IsChargePortOpen = true });
+        _carOverview!.IsChargePortOpen = true;
     }
+
+    [Given("The car has a maximum charging speed of {int}A")]
+    public void GivenTheCarHasAMaximumChargingSpeedOf(int amps)
+    {
+        _carOverview!.MaxChargingAmps = amps;
+    }
+
 
     [Given("The car is parked at {string}")]
     public void GivenTheCarIsParkedAt(string location)
@@ -47,8 +61,15 @@ public class CarChargingWorkerStepDefinitions
     [Given("The home battery is charged to {int}%")]
     public void GivenTheHomeBatteryIsChargedTo(int percentage)
     {
-        A.CallTo(() => _solarService!.GetOverview()).Returns(new SolarOverview { BatteryLevel = percentage });
+        _solarOverview!.BatteryLevel = percentage;
     }
+
+    [Given("the current solar power is {decimal}W")]
+    public void GivenTheCurrentSolarPowerIs(decimal solarPower)
+    {
+        _solarOverview!.CurrentSolarPower = solarPower;
+    }
+
 
     [When("The worker runs a check")]
     public async Task WhenTheWorkerRunsACheck()
@@ -74,12 +95,62 @@ public class CarChargingWorkerStepDefinitions
         A.CallTo(() => _solarService!.GetOverview()).MustHaveHappenedOnceExactly();
     }
 
+
     [Then("The car should not be ready to charge")]
     public void ThenTheCarShouldNotBeReadyToCharge()
     {
-        _state!.CarIsReadyToCharge.ShouldBeFalse();
-        _state!.Result.Type.ShouldBe(CarChargingHelperResultType.NotReadyForCharging);
+        _state.ShouldNotBeNull();
+        _state.CarIsReadyToCharge.ShouldBeFalse();
+        _state.Result.Type.ShouldBe(CarChargingHelperResultType.NotReadyForCharging);
     }
 
+    [Then("The car should be ready to charge")]
+    public void ThenTheCarShouldBeReadyToCharge()
+    {
+        _state.ShouldNotBeNull();
+        _state.CarIsReadyToCharge.ShouldBeTrue();
+    }
+
+    [Then("The car should not be charging")]
+    public void ThenTheCarShouldNotBeCharging()
+    {
+        _state.ShouldNotBeNull();
+        _state.Result.ShouldNotBeNull();
+        _state.Result.Type.ShouldBe(CarChargingHelperResultType.NotCharging);
+    }
+
+    [Then("The car should be charging")]
+    public void ThenTheCarShouldBeCharging()
+    {
+        _state.ShouldNotBeNull();
+        _state.Result.ShouldNotBeNull();
+        _state.Result.Type.ShouldBe(CarChargingHelperResultType.Charging);
+    }
+
+    [Then("The car should be charging at {int}A")]
+    public void ThenTheCarShouldBeChargingAt(int amps)
+    {
+        _state.ShouldNotBeNull();
+        _state.Result.ShouldNotBeNull();
+        _state.Result.Type.ShouldBe(CarChargingHelperResultType.Charging);
+        _state.Result.ChargingAmps.ShouldBe(amps);
+    }
+
+    [Then("The car should have started charging")]
+    public void ThenTheCarShouldHaveStartedCharging()
+    {
+        _state.ShouldNotBeNull();
+        _state.Result.ShouldNotBeNull();
+        _state.Result.Type.ShouldBe(CarChargingHelperResultType.ChargingStarted);
+    }
+
+    [Then("The car should have started charging at {int}A")]
+    public void ThenTheCarShouldHaveStartedChargingAt(int amps)
+    {
+        _state.ShouldNotBeNull();
+        _state.Result.ShouldNotBeNull();
+        _state.Result.Type.ShouldBe(CarChargingHelperResultType.ChargingStarted);
+        _state.Result.ChargingAmps.ShouldBe(amps);
+    }
 
 }

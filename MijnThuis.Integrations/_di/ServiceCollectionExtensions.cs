@@ -5,6 +5,7 @@ using MijnThuis.Integrations.Heating;
 using MijnThuis.Integrations.Lamps;
 using MijnThuis.Integrations.Power;
 using MijnThuis.Integrations.Sauna;
+using MijnThuis.Integrations.SmartLock;
 using MijnThuis.Integrations.Solar;
 
 namespace MijnThuis.Integrations.DependencyInjection;
@@ -24,6 +25,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IChargerService, ChargerService>();
         services.AddTransient<ISaunaService, SaunaService>();
         services.AddTransient<IForecastService, ForecastService>();
+        services.AddTransient<ISmartLockService, SmartLockService>();
 
         return services;
     }

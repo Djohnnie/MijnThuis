@@ -189,7 +189,7 @@ this.ScenarioInitialize(scenarioInfo);
  await testRunner.AndAsync("The car charge port is open", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 25
- await testRunner.AndAsync("The home battery is charged to 94%", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+ await testRunner.AndAsync("The home battery is charged to 95%", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 26
  await testRunner.WhenAsync("The worker runs a check", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
@@ -204,7 +204,65 @@ this.ScenarioInitialize(scenarioInfo);
  await testRunner.AndAsync("The worker should have checked the home battery", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 30
- await testRunner.AndAsync("The car should not be ready to charge", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+ await testRunner.AndAsync("The car should be ready to charge", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 31
+ await testRunner.AndAsync("The car should not be charging", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="The car is connected to the charger, and the home battery is charged enough")]
+        [Xunit.TraitAttribute("FeatureTitle", "Car Charging Worker")]
+        [Xunit.TraitAttribute("Description", "The car is connected to the charger, and the home battery is charged enough")]
+        public async System.Threading.Tasks.Task TheCarIsConnectedToTheChargerAndTheHomeBatteryIsChargedEnough()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("The car is connected to the charger, and the home battery is charged enough", null, tagsOfScenario, argumentsOfScenario, featureTags);
+#line 34
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 35
+ await testRunner.GivenAsync("The car is parked at \"Thuis\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 36
+ await testRunner.AndAsync("The car charge port is open", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 37
+ await testRunner.AndAsync("The car has a maximum charging speed of 16A", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 38
+ await testRunner.AndAsync("The home battery is charged to 96%", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 39
+ await testRunner.AndAsync("the current solar power is 2.3W", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 40
+ await testRunner.WhenAsync("The worker runs a check", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 41
+ await testRunner.ThenAsync("The worker should have checked the car charge port", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 42
+ await testRunner.AndAsync("The worker should have checked the car location", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 43
+ await testRunner.AndAsync("The worker should have checked the home battery", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 44
+ await testRunner.AndAsync("The car should be ready to charge", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 45
+ await testRunner.AndAsync("The car should have started charging at 10A", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
