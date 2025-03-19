@@ -151,34 +151,39 @@
         </MudGrid>
     </MudCardContent>
     <MudCardActions>
-        @if (UnlockPending)
+        @if (IsLocked)
         {
-            <MudIconButton Size="Size.Large" Disabled="true">
-                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
-            </MudIconButton>
+            @if (UnlockPending)
+            {
+                <MudIconButton Size="Size.Large" Disabled="true">
+                    <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+                </MudIconButton>
+            }
+            else
+            {
+                <MudTooltip Text="Auto openen" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Secondary" Disabled="@(!IsReady)"
+                                   OnClick="UnlockCommand" />
+                </MudTooltip>
+            }
+
         }
         else
         {
-            <MudTooltip Text="Auto openen" Arrow="true" Placement="Placement.Bottom">
-                <MudIconButton Icon="@Icons.Material.Filled.LockOpen" Size="Size.Large" Color="Color.Tertiary" Disabled="@(!IsReady || !IsLocked)"
-                               OnClick="UnlockCommand" />
-            </MudTooltip>
+            @if (LockPending)
+            {
+                <MudIconButton Size="Size.Large" Disabled="true">
+                    <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+                </MudIconButton>
+            }
+            else
+            {
+                <MudTooltip Text="Auto sluiten" Arrow="true" Placement="Placement.Bottom">
+                    <MudIconButton Icon="@Icons.Material.Filled.LockOpen" Size="Size.Large" Color="Color.Tertiary" Disabled="@(!IsReady)"
+                                   OnClick="LockCommand" />
+                </MudTooltip>
+            }
         }
-
-        @if (LockPending)
-        {
-            <MudIconButton Size="Size.Large" Disabled="true">
-                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
-            </MudIconButton>
-        }
-        else
-        {
-            <MudTooltip Text="Auto sluiten" Arrow="true" Placement="Placement.Bottom">
-                <MudIconButton Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Secondary" Disabled="@(!IsReady || IsLocked)"
-                               OnClick="LockCommand" />
-            </MudTooltip>
-        }
-
         <MudTooltip Text="Auto voorverwarmen" Arrow="true" Placement="Placement.Bottom">
             <MudIconButton Icon="@Icons.Material.Filled.HeatPump" Size="Size.Large" Color="Color.Primary"
                            OnClick="PreheatCommand" Disabled="@(!IsReady)" />
@@ -188,24 +193,5 @@
             <MudIconButton Icon="@Icons.Material.Filled.Air" Size="Size.Large" Color="Color.Primary"
                            OnClick="FartCommand" Disabled="@(!IsReady)" />
         </MudTooltip>
-
-        @* <MudTooltip Text="Starten met opladen" Arrow="true" Placement="Placement.Bottom">
-        <MudIconButton Icon="@Icons.Material.Filled.PlayCircle" Size="Size.Large" Color="Color.Primary"
-        OnClick="FartCommand" Disabled="@(!IsReady)" />
-        </MudTooltip>
-
-        <MudTooltip Text="Stoppen met opladen" Arrow="true" Placement="Placement.Bottom">
-        <MudIconButton Icon="@Icons.Material.Filled.StopCircle" Size="Size.Large" Color="Color.Primary"
-        OnClick="FartCommand" Disabled="@(!IsReady)" />
-        </MudTooltip> *@
     </MudCardActions>
 </MudCard>
-
-<MudMessageBox @ref="Message" Title="Auto openen" CancelText="Annuleren">
-    <MessageContent>
-        Ben je zeker dat je de auto wil openen?
-    </MessageContent>
-    <YesButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.LockOpen">Auto openen</MudButton>
-    </YesButton>
-</MudMessageBox>

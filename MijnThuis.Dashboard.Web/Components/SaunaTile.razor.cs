@@ -1,10 +1,14 @@
 using MijnThuis.Contracts.Sauna;
+using MijnThuis.Dashboard.Web.Components.Dialogs;
+using MudBlazor;
 
 namespace MijnThuis.Dashboard.Web.Components;
 
 public partial class SaunaTile
 {
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(15));
+    private readonly IDialogService _dialogService;
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(10));
+    private readonly string _pin;
 
     public bool IsReady { get; set; }
     public string Title { get; set; }
@@ -16,6 +20,14 @@ public partial class SaunaTile
     public bool StartSaunaPending { get; set; }
     public bool StartInfraredPending { get; set; }
     public bool StopSaunaPending { get; set; }
+
+    public SaunaTile(
+        IDialogService dialogService,
+        IConfiguration configuration)
+    {
+        _dialogService = dialogService;
+        _pin = configuration.GetValue<string>("PINCODE");
+    }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -66,26 +78,40 @@ public partial class SaunaTile
 
     public async Task StartSaunaCommand()
     {
-        StartSaunaPending = true;
-        await InvokeAsync(StateHasChanged);
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
+        var dialogResult = await _dialogService.ShowAsync<PinCodeDialog>("Bevestigen met pincode", options);
+        var result = await dialogResult.GetReturnValueAsync<string>();
 
-        await Mediator.Send(new StartSaunaCommand());
+        if (result == _pin)
+        {
+            StartSaunaPending = true;
+            await InvokeAsync(StateHasChanged);
 
-        StartSaunaPending = false;
+            await Mediator.Send(new StartSaunaCommand());
 
-        await RefreshData();
+            StartSaunaPending = false;
+
+            await RefreshData();
+        }
     }
 
     public async Task StartInfraredCommand()
     {
-        StartInfraredPending = true;
-        await InvokeAsync(StateHasChanged);
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
+        var dialogResult = await _dialogService.ShowAsync<PinCodeDialog>("Bevestigen met pincode", options);
+        var result = await dialogResult.GetReturnValueAsync<string>();
 
-        await Mediator.Send(new StartInfraredCommand());
+        if (result == _pin)
+        {
+            StartInfraredPending = true;
+            await InvokeAsync(StateHasChanged);
 
-        StartInfraredPending = false;
+            await Mediator.Send(new StartInfraredCommand());
 
-        await RefreshData();
+            StartInfraredPending = false;
+
+            await RefreshData();
+        }
     }
 
     public async Task StopSaunaCommand()

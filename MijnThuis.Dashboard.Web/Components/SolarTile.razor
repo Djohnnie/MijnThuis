@@ -164,9 +164,14 @@
                            Disabled="@(!IsReady)" OnClick="ChargeBatteryForTwoHoursCommand" />
         </MudTooltip>
 
+        <MudTooltip Text="Batterij opladen gedurende 3 uur" Arrow="true" Placement="Placement.Bottom">
+            <MudIconButton Icon="@Icons.Material.Filled.Battery3Bar" Size="Size.Large" Color="Color.Primary"
+                           Disabled="@(!IsReady)" OnClick="ChargeBatteryForFourHoursCommand" />
+        </MudTooltip>
+
         <MudTooltip Text="Batterij opladen gedurende 4 uur" Arrow="true" Placement="Placement.Bottom">
             <MudIconButton Icon="@Icons.Material.Filled.Battery4Bar" Size="Size.Large" Color="Color.Primary"
-                           Disabled="@(!IsReady)" OnClick="ChargeBatteryForFourHoursCommand" />
+                           Disabled="@(!IsReady)" OnClick="ChargeBatteryForThreeHoursCommand" />
         </MudTooltip>
 
         <MudTooltip Text="Stoppen met opladen" Arrow="true" Placement="Placement.Bottom">

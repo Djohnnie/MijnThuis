@@ -1,13 +1,14 @@
 using MijnThuis.Contracts.Car;
+using MijnThuis.Dashboard.Web.Components.Dialogs;
 using MudBlazor;
 
 namespace MijnThuis.Dashboard.Web.Components;
 
 public partial class CarTile
 {
+    private readonly IDialogService _dialogService;
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(1));
-
-    internal MudMessageBox Message { get; set; }
+    private readonly string _pin;
 
     public bool IsReady { get; set; }
     public string Title { get; set; }
@@ -28,6 +29,14 @@ public partial class CarTile
 
     public bool LockPending { get; set; }
     public bool UnlockPending { get; set; }
+
+    public CarTile(
+       IDialogService dialogService,
+       IConfiguration configuration)
+    {
+        _dialogService = dialogService;
+        _pin = configuration.GetValue<string>("PINCODE");
+    }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -114,8 +123,11 @@ public partial class CarTile
 
     public async Task UnlockCommand()
     {
-        bool? result = await Message.ShowAsync();
-        if (result == true)
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
+        var dialogResult = await _dialogService.ShowAsync<PinCodeDialog>("Bevestigen met pincode", options);
+        var result = await dialogResult.GetReturnValueAsync<string>();
+
+        if (result == _pin)
         {
             UnlockPending = true;
             await InvokeAsync(StateHasChanged);

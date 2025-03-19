@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MijnThuis.Contracts.Solar;
+using MijnThuis.Dashboard.Web.Components.Dialogs;
 using MudBlazor;
 
 namespace MijnThuis.Dashboard.Web.Components;
@@ -9,7 +10,9 @@ public partial class SolarTile
     [Inject]
     protected NavigationManager NavigationManager { get; set; }
 
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(5));
+    private readonly IDialogService _dialogService;
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(10));
+    private readonly string _pin;
 
     public bool IsReady { get; set; }
     public string Title { get; set; }
@@ -23,6 +26,14 @@ public partial class SolarTile
     public decimal LastMonthEnergy { get; set; }
     public decimal SolarForecastToday { get; set; }
     public decimal SolarForecastTomorrow { get; set; }
+
+    public SolarTile(
+        IDialogService dialogService,
+        IConfiguration configuration)
+    {
+        _dialogService = dialogService;
+        _pin = configuration.GetValue<string>("PINCODE");
+    }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -90,23 +101,36 @@ public partial class SolarTile
 
     public async Task ChargeBatteryForOneHourCommand()
     {
-        await Mediator.Send(new ChargeBatteryCommand { Duration = TimeSpan.FromHours(1), Power = 1500 });
-
-        await RefreshData();
+        await ChargeBattery(1);
     }
 
     public async Task ChargeBatteryForTwoHoursCommand()
     {
-        await Mediator.Send(new ChargeBatteryCommand { Duration = TimeSpan.FromHours(2), Power = 1500 });
+        await ChargeBattery(2);
+    }
 
-        await RefreshData();
+    public async Task ChargeBatteryForThreeHoursCommand()
+    {
+        await ChargeBattery(3);
     }
 
     public async Task ChargeBatteryForFourHoursCommand()
     {
-        await Mediator.Send(new ChargeBatteryCommand { Duration = TimeSpan.FromHours(4), Power = 1500 });
+        await ChargeBattery(4);
+    }
 
-        await RefreshData();
+    private async Task ChargeBattery(int hours)
+    {
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
+        var dialogResult = await _dialogService.ShowAsync<PinCodeDialog>("Bevestigen met pincode", options);
+        var result = await dialogResult.GetReturnValueAsync<string>();
+
+        if (result == _pin)
+        {
+            await Mediator.Send(new ChargeBatteryCommand { Duration = TimeSpan.FromHours(hours), Power = 1500 });
+
+            await RefreshData();
+        }
     }
 
     public async Task StopChargingBatteryCommand()
