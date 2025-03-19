@@ -84,6 +84,18 @@
         </MudGrid>
     </MudCardContent>
     <MudCardActions>
-        
+        @if (UnlockPending)
+        {
+            <MudIconButton Size="Size.Large" Disabled="true">
+                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+            </MudIconButton>
+        }
+        else
+        {
+            <MudTooltip Text="Sauna" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.LockOpen" Size="Size.Large" Color="Color.Primary"
+                               OnClick="UnlockCommand" />
+            </MudTooltip>
+        }
     </MudCardActions>
 </MudCard>

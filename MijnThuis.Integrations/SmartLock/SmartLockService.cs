@@ -10,6 +10,8 @@ public interface ISmartLockService
     Task<SmartLockOverview> GetOverview();
 
     Task<List<SmartLockLog>> GetActivityLog();
+
+    Task Unlock();
 }
 
 public class SmartLockService : BaseService, ISmartLockService
@@ -44,6 +46,12 @@ public class SmartLockService : BaseService, ISmartLockService
             Timestamp = x.Timestamp,
             Action = (SmartLockAction)x.Action
         }).ToList();
+    }
+
+    public async Task Unlock()
+    {
+        using var client = await InitializeHttpClient();
+        var result = await client.PostAsync($"smartlock/{_smartLockId}/action/unlock", null);
     }
 }
 

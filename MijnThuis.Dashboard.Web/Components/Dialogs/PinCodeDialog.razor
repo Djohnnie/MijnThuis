@@ -1,0 +1,44 @@
+﻿<MudDialog>
+    <TitleContent>
+        Bevestigen met pincode
+    </TitleContent>
+    <DialogContent>
+        <MudPaper Class="d-flex justify-center flex-grow-1 gap-4 mt-8 mb-8" Elevation="0">
+            @if (string.IsNullOrEmpty(PinCode))
+            {
+                <MudIcon Icon="@Icons.Material.Filled.FiberPin" />
+            }
+            else
+            {
+                foreach (var character in PinCode)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Circle" />
+                }
+            }
+        </MudPaper>
+        <MudPaper Class="d-flex justify-center flex-grow-1 gap-4 mt-4" Elevation="0">
+            <MudFab Color="Color.Primary" Label="1" Size="Size.Large" OnClick="@(_ => PinCodeNumber("1"))" />
+            <MudFab Color="Color.Primary" Label="2" Size="Size.Large" OnClick="@(_ => PinCodeNumber("2"))" />
+            <MudFab Color="Color.Primary" Label="3" Size="Size.Large" OnClick="@(_ => PinCodeNumber("3"))" />
+        </MudPaper>
+        <MudPaper Class="d-flex justify-center flex-grow-1 gap-4 mt-4" Elevation="0">
+            <MudFab Color="Color.Primary" Label="4" Size="Size.Large" OnClick="@(_ => PinCodeNumber("4"))" />
+            <MudFab Color="Color.Primary" Label="5" Size="Size.Large" OnClick="@(_ => PinCodeNumber("5"))" />
+            <MudFab Color="Color.Primary" Label="6" Size="Size.Large" OnClick="@(_ => PinCodeNumber("6"))" />
+        </MudPaper>
+        <MudPaper Class="d-flex justify-center flex-grow-1 gap-4 mt-4" Elevation="0">
+            <MudFab Color="Color.Primary" Label="7" Size="Size.Large" OnClick="@(_ => PinCodeNumber("7"))" />
+            <MudFab Color="Color.Primary" Label="8" Size="Size.Large" OnClick="@(_ => PinCodeNumber("8"))" />
+            <MudFab Color="Color.Primary" Label="9" Size="Size.Large" OnClick="@(_ => PinCodeNumber("9"))" />
+        </MudPaper>
+        <MudPaper Class="d-flex justify-center flex-grow-1 gap-4 mt-4" Elevation="0">
+            <MudFab Color="Color.Primary" Label="0" Size="Size.Large" OnClick="@(_ => PinCodeNumber("0"))" />
+        </MudPaper>
+        <MudPaper Class="d-flex justify-center flex-grow-1 gap-4 mt-4" Elevation="0">
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Error" OnClick="Cancel">Annuleren</MudButton>
+        <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="Submit">Bevestigen</MudButton>
+    </DialogActions>
+</MudDialog>
