@@ -1,4 +1,5 @@
 using FakeItEasy;
+using MijnThuis.DataAccess.Repositories;
 using MijnThuis.Integrations.Car;
 using MijnThuis.Integrations.Solar;
 using MijnThuis.Worker.Helpers;
@@ -9,6 +10,8 @@ namespace MijnThuis.Tests.StepDefinitions;
 [Binding]
 public class CarChargingWorkerStepDefinitions
 {
+    private IFlagRepository? _flagRepository;
+    private ICarChargingEnergyHistoryRepository _carChargingEnergyHistoryRepository;
     private ICarService? _carService;
     private ISolarService? _solarService;
     private CarChargingHelper? _sot;
@@ -20,10 +23,12 @@ public class CarChargingWorkerStepDefinitions
     [BeforeScenario]
     public void BeforeScenario()
     {
+        _flagRepository = A.Fake<IFlagRepository>();
+        _carChargingEnergyHistoryRepository = A.Fake<ICarChargingEnergyHistoryRepository>();
         _carService = A.Fake<ICarService>();
         _solarService = A.Fake<ISolarService>();
 
-        _sot = new CarChargingHelper(null, _carService, _solarService);
+        _sot = new CarChargingHelper(_flagRepository, _carChargingEnergyHistoryRepository, _carService, _solarService);
 
         _state = new CarChargingHelperState();
         _carOverview = new CarOverview();

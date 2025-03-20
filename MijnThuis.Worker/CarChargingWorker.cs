@@ -66,11 +66,15 @@ public class CarChargingWorker : BackgroundService
             CarChargingHelperResultType.GatheringSolarData => "Gathering solar data...",
             CarChargingHelperResultType.ChargingStarted => $"Car has started charging at {state.Result.ChargingAmps}A.",
             CarChargingHelperResultType.Charging => $"Car is charging at {state.Result.ChargingAmps}A.",
+            CarChargingHelperResultType.ChargingManually => $"Car is manually charging at {state.Result.ChargingAmps}A.",
             CarChargingHelperResultType.ChargingChanged => $"Car has changed charging from {state.Result.ChargingAmpsBefore}A to {state.Result.ChargingAmps}A.",
             CarChargingHelperResultType.ChargingStopped => "Car has stopped charging.",
-            _ => "Car charging state is unknown!"
+            _ => string.Empty
         };
 
-        _logger.LogInformation(message);
+        if (!string.IsNullOrEmpty(message))
+        {
+            _logger.LogInformation(message);
+        }
     }
 }

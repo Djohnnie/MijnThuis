@@ -14,6 +14,8 @@ public class ManualCarChargeFlag
 {
     public static string Name => "ManualCarCharge";
 
+    public static ManualCarChargeFlag Default => new ManualCarChargeFlag();
+
     public bool ShouldCharge { get; set; }
     public int ChargeAmps { get; set; }
 

@@ -1,6 +1,5 @@
-﻿using LifxCloud.NET.Models;
-using MijnThuis.DataAccess;
-using MijnThuis.DataAccess.Entities;
+﻿using MijnThuis.DataAccess.Entities;
+using MijnThuis.DataAccess.Repositories;
 using MijnThuis.Integrations.Car;
 using MijnThuis.Integrations.Solar;
 
@@ -29,16 +28,19 @@ public interface ICarChargingHelper
 
 public class CarChargingHelper : ICarChargingHelper
 {
-    private readonly MijnThuisDbContext _dbContext;
+    private readonly IFlagRepository _flagRepository;
+    private readonly ICarChargingEnergyHistoryRepository _carChargingEnergyHistoryRepository;
     private readonly ICarService _carService;
     private readonly ISolarService _solarService;
 
     public CarChargingHelper(
-        MijnThuisDbContext dbContext,
+        IFlagRepository flagRepository,
+        ICarChargingEnergyHistoryRepository carChargingEnergyHistoryRepository,
         ICarService carService,
         ISolarService solarService)
     {
-        _dbContext = dbContext;
+        _flagRepository = flagRepository;
+        _carChargingEnergyHistoryRepository = carChargingEnergyHistoryRepository;
         _carService = carService;
         _solarService = solarService;
     }
@@ -48,6 +50,9 @@ public class CarChargingHelper : ICarChargingHelper
         // Get the overview information and location from the car.
         var carOverview = await _carService.GetOverview();
         var carLocation = await _carService.GetLocation();
+
+        // Gets the manual car charge flag
+        var manualCarChargeFlag = await _flagRepository.GetManualCarChargeFlag();
 
         // Check if the car is parked within the "Thuis" area and the
         // charge port is open (probably connected to the house).
@@ -59,75 +64,92 @@ public class CarChargingHelper : ICarChargingHelper
             // Get information about current solar energy.
             var solarOverview = await _solarService.GetOverview();
 
-            // Add the current solar and consumption power
-            // to a list for calculating the average.
-            state.CollectedSolarPower.Add(solarOverview.CurrentSolarPower);
-            state.CollectedConsumedPower.Add(solarOverview.CurrentConsumptionPower);
-
-            // If a number of measurements have been collected, we can calculate an average.
-            if (state.CollectedSolarPower.Count >= state.NumberOfSamplesToCollect)
+            // If the car should charge manually and the battery level is above 0%.
+            if (manualCarChargeFlag.ShouldCharge && solarOverview.BatteryLevel > 0)
             {
-                // Calculate the average solar and consumption power in kW.
-                var currentAverageSolarPower = state.CollectedSolarPower.Average();
-                var currentAverageConsumedPower = state.CollectedConsumedPower.Average();
+                // Calculate the maximum current to charge the car.
+                var ampsToCharge = Math.Min(manualCarChargeFlag.ChargeAmps, solarOverview.BatteryLevel);
 
-                // Calculate the available solar power, by subtracting the current consumption
-                // and adding the power used by the car charging (if it is charging).
-                var carChargingPower = carOverview.IsCharging ? carOverview.ChargingAmps * 230M / 1000M : 0M;
-                var currentAvailableSolarPower = currentAverageSolarPower - currentAverageConsumedPower + carChargingPower;
-
-                // Calculate the maximum current based on the available solar power.
-                var maxPossibleCurrent = currentAvailableSolarPower * 1000M / 230M;
-
-                // Normalize the maximum possible current to the maximum charging amps
-                maxPossibleCurrent = maxPossibleCurrent > carOverview.MaxChargingAmps ? carOverview.MaxChargingAmps : maxPossibleCurrent;
-
-                // Clear the list for calculating the average to prepare it for the next calculation.
-                state.CollectedSolarPower.Clear();
-                state.CollectedConsumedPower.Clear();
-
-                // If the home battery is charged over 95% and the car is not charging
-                // or the car is charging at a different charging amps level and the
-                // available charging amps level is higher or equal to 2A: Start charging
-                // the car at the maximum possible current.
-                if (solarOverview.BatteryLevel > 95 && (!carOverview.IsCharging || carOverview.ChargingAmps != (int)maxPossibleCurrent) && (int)maxPossibleCurrent >= 2)
+                // If the car is not charging, or the car is charging at a different current.
+                if (!carOverview.IsCharging || carOverview.ChargingAmps != ampsToCharge)
                 {
-                    // Log the energy charged by the car on start.
-                    await CalculateCarChargingEnergyOnStart(state, carOverview);
-
                     // Start charging the car at the maximum possible current.
-                    await _carService.StartCharging((int)maxPossibleCurrent);
-                    state.StartedCharging((int)maxPossibleCurrent, carOverview);
-
-                    // Provide the car some time to increase the charging amps.
-                    await Task.Delay(TimeSpan.FromMinutes(1));
-
-                    return;
+                    await _carService.StartCharging(ampsToCharge);
+                    state.SetCharging(manualCarChargeFlag);
                 }
-
-                // If the car is already charging and the current home battery level has
-                // dropped below 95% or the maximum possible current has dropped below 2A:
-                // Stop charging the car.
-                if (carOverview.IsCharging && (solarOverview.BatteryLevel < 95 || (int)maxPossibleCurrent < 2))
-                {
-                    // Log the energy charged by the car on stop.
-                    await CalculateCarChargingEnergyOnStop(state, carOverview);
-
-                    // Stop charging the car.
-                    await _carService.StopCharging();
-                    state.StoppedCharging();
-
-                    // Provide the car some time to stop charging.
-                    await Task.Delay(TimeSpan.FromMinutes(1));
-
-                    return;
-                }
-
-                state.SetCharging(carOverview);
             }
             else
             {
-                state.GatheringData();
+                // Add the current solar and consumption power
+                // to a list for calculating the average.
+                state.CollectedSolarPower.Add(solarOverview.CurrentSolarPower);
+                state.CollectedConsumedPower.Add(solarOverview.CurrentConsumptionPower);
+
+                // If a number of measurements have been collected, we can calculate an average.
+                if (state.CollectedSolarPower.Count >= state.NumberOfSamplesToCollect)
+                {
+                    // Calculate the average solar and consumption power in kW.
+                    var currentAverageSolarPower = state.CollectedSolarPower.Average();
+                    var currentAverageConsumedPower = state.CollectedConsumedPower.Average();
+
+                    // Calculate the available solar power, by subtracting the current consumption
+                    // and adding the power used by the car charging (if it is charging).
+                    var carChargingPower = carOverview.IsCharging ? carOverview.ChargingAmps * 230M / 1000M : 0M;
+                    var currentAvailableSolarPower = currentAverageSolarPower - currentAverageConsumedPower + carChargingPower;
+
+                    // Calculate the maximum current based on the available solar power.
+                    var maxPossibleCurrent = currentAvailableSolarPower * 1000M / 230M;
+
+                    // Normalize the maximum possible current to the maximum charging amps
+                    maxPossibleCurrent = maxPossibleCurrent > carOverview.MaxChargingAmps ? carOverview.MaxChargingAmps : maxPossibleCurrent;
+
+                    // Clear the list for calculating the average to prepare it for the next calculation.
+                    state.CollectedSolarPower.Clear();
+                    state.CollectedConsumedPower.Clear();
+
+                    // If the home battery is charged over 95% and the car is not charging
+                    // or the car is charging at a different charging amps level and the
+                    // available charging amps level is higher or equal to 2A: Start charging
+                    // the car at the maximum possible current.
+                    if (solarOverview.BatteryLevel > 95 && (!carOverview.IsCharging || carOverview.ChargingAmps != (int)maxPossibleCurrent) && (int)maxPossibleCurrent >= 2)
+                    {
+                        // Log the energy charged by the car on start.
+                        await CalculateCarChargingEnergyOnStart(state, carOverview);
+
+                        // Start charging the car at the maximum possible current.
+                        await _carService.StartCharging((int)maxPossibleCurrent);
+                        state.StartedCharging((int)maxPossibleCurrent, carOverview);
+
+                        // Provide the car some time to increase the charging amps.
+                        await Task.Delay(TimeSpan.FromMinutes(1));
+
+                        return;
+                    }
+
+                    // If the car is already charging and the current home battery level has
+                    // dropped below 95% or the maximum possible current has dropped below 2A:
+                    // Stop charging the car.
+                    if (carOverview.IsCharging && (solarOverview.BatteryLevel < 95 || (int)maxPossibleCurrent < 2))
+                    {
+                        // Log the energy charged by the car on stop.
+                        await CalculateCarChargingEnergyOnStop(state, carOverview);
+
+                        // Stop charging the car.
+                        await _carService.StopCharging();
+                        state.StoppedCharging();
+
+                        // Provide the car some time to stop charging.
+                        await Task.Delay(TimeSpan.FromMinutes(1));
+
+                        return;
+                    }
+
+                    state.SetCharging(carOverview);
+                }
+                else
+                {
+                    state.GatheringData();
+                }
             }
         }
     }
@@ -160,7 +182,7 @@ public class CarChargingHelper : ICarChargingHelper
                 var totalPower = carOverview.ChargingAmps * 230M; // Watts
                 var totalEnergy = totalPower * (decimal)timespan.TotalHours; // Wh
 
-                _dbContext.Add(new CarChargingEnergyHistoryEntry
+                await _carChargingEnergyHistoryRepository.Add(new CarChargingEnergyHistoryEntry
                 {
                     Id = Guid.NewGuid(),
                     Timestamp = DateTime.Now,
@@ -169,7 +191,6 @@ public class CarChargingHelper : ICarChargingHelper
                     ChargingDuration = timespan,
                     EnergyCharged = totalEnergy
                 });
-                await _dbContext.SaveChangesAsync();
 
                 return true;
             }
@@ -218,6 +239,12 @@ public class CarChargingHelperState
         Result.Type = carOverview.IsCharging ? CarChargingHelperResultType.Charging : CarChargingHelperResultType.NotCharging;
     }
 
+    internal void SetCharging(ManualCarChargeFlag flag)
+    {
+        Result.ChargingAmps = Result.ChargingAmpsBefore = flag.ChargeAmps;
+        Result.Type = flag.ShouldCharge ? CarChargingHelperResultType.ChargingManually : CarChargingHelperResultType.NotCharging;
+    }
+
     internal void StoppedCharging()
     {
         Result.Type = CarChargingHelperResultType.ChargingStopped;
@@ -243,6 +270,7 @@ public enum CarChargingHelperResultType
     GatheringSolarData,
     ChargingStarted,
     Charging,
+    ChargingManually,
     ChargingChanged,
     ChargingStopped
 }

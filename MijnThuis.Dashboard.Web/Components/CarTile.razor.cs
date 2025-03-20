@@ -157,12 +157,19 @@ public partial class CarTile
 
     public async Task StartChargingCommand()
     {
-        await Mediator.Send(new SetManualCarChargeCommand
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
+        var dialogResult = await _dialogService.ShowAsync<PinCodeDialog>("Bevestigen met pincode", options);
+        var result = await dialogResult.GetReturnValueAsync<string>();
+
+        if (result == _pin)
         {
-            IsEnabled = true,
-            ChargeAmps = 16
-        });
-        await RefreshData();
+            await Mediator.Send(new SetManualCarChargeCommand
+            {
+                IsEnabled = true,
+                ChargeAmps = 16
+            });
+            await RefreshData();
+        }
     }
 
     public async Task StopChargingCommand()
