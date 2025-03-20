@@ -20,6 +20,7 @@ public partial class CarTile
     public int TemperatureInside { get; set; }
     public int TemperatureOutside { get; set; }
     public bool IsCharging { get; set; }
+    public bool IsChargingManually { get; set; }
     public string ChargingCurrent { get; set; }
     public string ChargingRange { get; set; }
     public string Charger1 { get; set; }
@@ -94,6 +95,7 @@ public partial class CarTile
             Charger2 = response.Charger2;
             Charger2Available = response.Charger2Available;
             IsCharging = response.IsCharging;
+            IsChargingManually = response.IsChargingManually;
             ChargingCurrent = response.ChargingCurrent;
             ChargingRange = response.ChargingRange;
             IsReady = true;
@@ -150,6 +152,26 @@ public partial class CarTile
     public async Task FartCommand()
     {
         await Mediator.Send(new CarFartCommand());
+        await RefreshData();
+    }
+
+    public async Task StartChargingCommand()
+    {
+        await Mediator.Send(new SetManualCarChargeCommand
+        {
+            IsEnabled = true,
+            ChargeAmps = 16
+        });
+        await RefreshData();
+    }
+
+    public async Task StopChargingCommand()
+    {
+        await Mediator.Send(new SetManualCarChargeCommand
+        {
+            IsEnabled = false,
+            ChargeAmps = 16
+        });
         await RefreshData();
     }
 

@@ -8,6 +8,7 @@ public class MijnThuisDbContext : DbContext
 {
     private readonly IConfiguration _configuration;
 
+    public DbSet<Flag> Flags { get; set; }
     public DbSet<SolarEnergyHistoryEntry> SolarEnergyHistory { get; set; }
     public DbSet<SolarPowerHistoryEntry> SolarPowerHistory { get; set; }
     public DbSet<BatteryEnergyHistoryEntry> BatteryEnergyHistory { get; set; }
@@ -26,6 +27,15 @@ public class MijnThuisDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Flag>(entityBuilder =>
+        {
+            entityBuilder.ToTable("FLAGS");
+            entityBuilder.HasKey(x => x.Id).IsClustered(false);
+            entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
+            entityBuilder.HasIndex(x => x.SysId).IsClustered();
+            entityBuilder.HasIndex(x => x.Name);
+        });
+
         modelBuilder.Entity<SolarEnergyHistoryEntry>(entityBuilder =>
         {
             entityBuilder.ToTable("SOLAR_ENERGY_HISTORY");

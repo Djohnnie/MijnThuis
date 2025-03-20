@@ -1,22 +1,28 @@
 ﻿using Mapster;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using MijnThuis.Contracts.Car;
+using MijnThuis.DataAccess;
+using MijnThuis.DataAccess.Entities;
 using MijnThuis.Integrations.Car;
 
 namespace MijnThuis.Application.Car.Queries;
 
 public class GetCarOverviewQueryHandler : IRequestHandler<GetCarOverviewQuery, GetCarOverviewResponse>
 {
+    private readonly MijnThuisDbContext _dbContext;
     private readonly ICarService _carService;
     private readonly IChargerService _chargerService;
     private readonly IConfiguration _configuration;
 
     public GetCarOverviewQueryHandler(
+        MijnThuisDbContext dbContext,
         ICarService carService,
         IChargerService chargerService,
         IConfiguration configuration)
     {
+        _dbContext = dbContext;
         _carService = carService;
         _chargerService = chargerService;
         _configuration = configuration;
@@ -45,6 +51,9 @@ public class GetCarOverviewQueryHandler : IRequestHandler<GetCarOverviewQuery, G
         result.Charger1Available = charger1Result.NumberOfChargersAvailable > 0;
         result.Charger2 = $"{charger2Result.NumberOfChargersAvailable} / {charger2Result.NumberOfChargers}";
         result.Charger2Available = charger2Result.NumberOfChargersAvailable > 0;
+
+        var flag = await _dbContext.Flags.SingleOrDefaultAsync(x => x.Name == ManualCarChargeFlag.Name, cancellationToken);
+        result.IsChargingManually = flag != null && ManualCarChargeFlag.Deserialize(flag.Value).ShouldCharge;
 
         return result;
     }
