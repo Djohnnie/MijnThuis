@@ -73,6 +73,9 @@ public class CarChargingHelper : ICarChargingHelper
                 // If the car is not charging, or the car is charging at a different current.
                 if (!carOverview.IsCharging || carOverview.ChargingAmps != ampsToCharge)
                 {
+                    // Log the energy charged by the car on start.
+                    await CalculateCarChargingEnergyOnStart(state, carOverview);
+
                     // Start charging the car at the maximum possible current.
                     await _carService.StartCharging(ampsToCharge);
                     state.SetCharging(manualCarChargeFlag);
