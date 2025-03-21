@@ -3,16 +3,28 @@ using MediatR;
 using MijnThuis.Contracts.Car;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.Dashboard.Web.Model.Charts;
+using System.Globalization;
 
 namespace MijnThuis.Dashboard.Web.Components.Charts;
 
 public partial class CarChargingHistoryChart
 {
+    private enum HistoryType
+    {
+        PerMonth,
+        PerYear
+    }
+
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(15));
     private ApexChart<ChartDataEntry<string, decimal>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal>> _options { get; set; } = new();
 
     private ChartData1<string, decimal> ChargingHistory { get; set; } = new();
+
+    private HistoryType _historyType = HistoryType.PerMonth;
+    private DateTime _historyDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+
+    private string TitleDescription { get; set; }
 
     public CarChargingHistoryChart()
     {
@@ -26,7 +38,7 @@ public partial class CarChargingHistoryChart
             {
                 Enabled = false
             },
-            Background = "#373740",
+            Background = "#373740"
         };
         _options.Xaxis = new XAxis
         {
@@ -50,7 +62,6 @@ public partial class CarChargingHistoryChart
         };
 
         ChargingHistory.Description = $"Auto opladen uit zonneënergie";
-        ChargingHistory.Series1Description = $"Opladen {DateTime.Today.Year}";
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -90,19 +101,55 @@ public partial class CarChargingHistoryChart
 
             var response = await mediator.Send(new GetCarChargingHistoryQuery
             {
-                From = new DateTime(DateTime.Today.Year, 1, 1),
-                To = new DateTime(DateTime.Today.Year, 12, 31),
-                Unit = EnergyHistoryUnit.Month
+                From = _historyDate,
+                To = _historyType switch
+                {
+                    HistoryType.PerMonth => _historyDate.AddMonths(1).AddDays(-1),
+                    HistoryType.PerYear => _historyDate.AddYears(1).AddDays(-1),
+                    _ => throw new InvalidOperationException()
+                },
+                Unit = _historyType switch
+                {
+                    HistoryType.PerMonth => EnergyHistoryUnit.Day,
+                    HistoryType.PerYear => EnergyHistoryUnit.Month,
+                    _ => throw new InvalidOperationException()
+                }
             });
 
             ChargingHistory.Clear();
-            ChargingHistory.Series1.AddRange(FillData(response.Entries
-                .Select(x => new ChartDataEntry<string, decimal>
-                {
-                    XValue = $"{x.Date:MMMM yyyy}",
-                    YValue = Math.Round(x.EnergyCharged / 1000, 2)
-                }), 12, n => $"{new DateTime(DateTime.Today.Year, n, 1):MMMM yyyy}"));
+
+            switch (_historyType)
+            {
+                case HistoryType.PerMonth:
+                    _options.Xaxis.OverwriteCategories = Enumerable.Range(1, DateTime.DaysInMonth(_historyDate.Year, _historyDate.Month)).Select(x => $"{x}").ToList();
+
+                    ChargingHistory.Series1Description = TitleDescription =
+                        string.Create(CultureInfo.GetCultureInfo("nl-be"), $"Oplaadsessies in de maand {_historyDate:MMMM yyyy}");
+
+                    ChargingHistory.Series1.AddRange(FillData(response.Entries
+                        .Select(x => new ChartDataEntry<string, decimal>
+                        {
+                            XValue = $"{x.Date:dd MMMM yyyy}",
+                            YValue = Math.Round(x.EnergyCharged / 1000, 2)
+                        }), DateTime.DaysInMonth(_historyDate.Year, _historyDate.Month), n => $"{new DateTime(_historyDate.Year, _historyDate.Month, n):dd MMMM yyyy}"));
+                    break;
+                case HistoryType.PerYear:
+                    _options.Xaxis.OverwriteCategories = ["Jan", "Feb", "Maa", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"];
+
+                    ChargingHistory.Series1Description = TitleDescription =
+                        $"Oplaadsessies in het jaar {_historyDate:yyyy}";
+
+                    ChargingHistory.Series1.AddRange(FillData(response.Entries
+                        .Select(x => new ChartDataEntry<string, decimal>
+                        {
+                            XValue = $"{x.Date:MMMM yyyy}",
+                            YValue = Math.Round(x.EnergyCharged / 1000, 2)
+                        }), 12, n => $"{new DateTime(_historyDate.Year, n, 1):MMMM yyyy}"));
+                    break;
+            }
+
             await _apexChart.UpdateSeriesAsync(true);
+            await _apexChart.UpdateOptionsAsync(true, true, true);
 
             await InvokeAsync(StateHasChanged);
         }
@@ -110,6 +157,42 @@ public partial class CarChargingHistoryChart
         {
             Logger.LogError(ex, "Failed to refresh graph data");
         }
+    }
+
+    private async Task NavigateBeforeCommand()
+    {
+        _historyDate = _historyType switch
+        {
+            HistoryType.PerMonth => _historyDate.AddMonths(-1),
+            HistoryType.PerYear => _historyDate.AddYears(-1),
+            _ => throw new InvalidOperationException()
+        };
+
+        await RefreshData();
+    }
+
+    private async Task HistoryPerMonthCommand()
+    {
+        _historyType = HistoryType.PerMonth;
+        await RefreshData();
+    }
+
+    private async Task HistoryPerYearCommand()
+    {
+        _historyType = HistoryType.PerYear;
+        await RefreshData();
+    }
+
+    private async Task NavigateNextCommand()
+    {
+        _historyDate = _historyType switch
+        {
+            HistoryType.PerMonth => _historyDate.AddMonths(1),
+            HistoryType.PerYear => _historyDate.AddYears(1),
+            _ => throw new InvalidOperationException()
+        };
+
+        await RefreshData();
     }
 
     public void Dispose()

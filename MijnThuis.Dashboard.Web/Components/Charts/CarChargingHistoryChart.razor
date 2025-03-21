@@ -12,18 +12,33 @@
             </MudAvatar>
         </CardHeaderAvatar>
         <CardHeaderContent>
-            <MudText Typo="Typo.body1">Zonnepanelen</MudText>
-            <MudText Typo="Typo.body2">De huidige zonneopbrengst</MudText>
+            <MudText Typo="Typo.body1">@ChargingHistory.Description</MudText>
+            <MudText Typo="Typo.body2">@TitleDescription</MudText>
         </CardHeaderContent>
         <CardHeaderActions>
-            <MudTooltip Text="Meer details" Arrow="true" Placement="Placement.Left">
-                <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" />
+            <MudTooltip Text="Vorige" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.NavigateBefore" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateBeforeCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Dagen van de maand" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Color="Color.Default"
+                               OnClick="HistoryPerMonthCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Maanden van het jaar" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Medium" Color="Color.Default"
+                               OnClick="HistoryPerYearCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Vorige" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.NavigateNext" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateNextCommand" />
             </MudTooltip>
         </CardHeaderActions>
     </MudCardHeader>
     <MudCardContent>
-        <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal>" @ref="_apexChart"
-                              Title="@ChargingHistory.Description" Options="_options">
+        <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal>" Options="_options" @ref="_apexChart">
 
             <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
                                         Items="@ChargingHistory.Series1"
@@ -34,5 +49,6 @@
         </ApexCharts.ApexChart>
     </MudCardContent>
     <MudCardActions>
+        
     </MudCardActions>
 </MudCard>
