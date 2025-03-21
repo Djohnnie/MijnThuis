@@ -12,18 +12,14 @@
             </MudAvatar>
         </CardHeaderAvatar>
         <CardHeaderContent>
-            <MudText Typo="Typo.body1">Zonnepanelen</MudText>
-            <MudText Typo="Typo.body2">De huidige zonneopbrengst</MudText>
+            <MudText Typo="Typo.body1">Jaarlijkse opbrengst zonneenergie</MudText>
+            <MudText Typo="Typo.body2">@SolarPower.Description</MudText>
         </CardHeaderContent>
         <CardHeaderActions>
-            <MudTooltip Text="Meer details" Arrow="true" Placement="Placement.Left">
-                <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" />
-            </MudTooltip>
         </CardHeaderActions>
     </MudCardHeader>
     <MudCardContent>
-        <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal>" @ref="_apexChart"
-                              Title="Opbrengstvergelijking" Options="_options">
+        <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal>" Options="_options" @ref="_apexChart">
 
             <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
                                         Items="@SolarPower.Series1"

@@ -12,15 +12,14 @@
             </MudAvatar>
         </CardHeaderAvatar>
         <CardHeaderContent>
-            <MudText Typo="Typo.body1">Thuisbatterij</MudText>
-            <MudText Typo="Typo.body2">De huidige gezondheid van de thuisbatterij</MudText>
+            <MudText Typo="Typo.body1">Thuisbatterij degradatie</MudText>
+            <MudText Typo="Typo.body2">De historische gezondheid van de thuisbatterij</MudText>
         </CardHeaderContent>
         <CardHeaderActions>
         </CardHeaderActions>
     </MudCardHeader>
     <MudCardContent>
-        <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal>" @ref="_apexChart"
-                              Title="@BatteryHealth.Description" Options="_options">
+        <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal>" Options="_options" @ref="_apexChart">
 
             <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
                                         Items="@BatteryHealth.Series1"

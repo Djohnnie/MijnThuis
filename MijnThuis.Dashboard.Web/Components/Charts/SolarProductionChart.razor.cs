@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace MijnThuis.Dashboard.Web.Components.Charts;
 
-public partial class SolarConsumptionChart
+public partial class SolarProductionChart
 {
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(1));
     private ApexChart<ChartDataEntry<string, decimal>> _apexChart = null!;
@@ -17,7 +17,7 @@ public partial class SolarConsumptionChart
 
     public string TitleDescription { get; set; }
 
-    public SolarConsumptionChart()
+    public SolarProductionChart()
     {
         _options.Chart = new Chart
         {
@@ -42,7 +42,7 @@ public partial class SolarConsumptionChart
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
-        _options.Colors = new List<string> { "#B0D8FD", "#93B6FB", "#FBB550" };
+        _options.Colors = new List<string> { "#B6FED6", "#5DE799", "#59C7D4" };
         _options.Stroke = new Stroke
         {
             Show = false
@@ -53,10 +53,10 @@ public partial class SolarConsumptionChart
             Opacity = new Opacity(1, 1, 1)
         };
 
-        SolarPower.Description = "Zonne-energie: Consumptie";
-        SolarPower.Series1Description = "Consumptie vanuit batterij";
-        SolarPower.Series2Description = "Consumptie vanuit PV";
-        SolarPower.Series3Description = "Consumptie vanuit het net";
+        SolarPower.Description = "Zonne-energie: Productie";
+        SolarPower.Series1Description = "Productie naar de thuisbatterij";
+        SolarPower.Series2Description = "Productie naar het huis";
+        SolarPower.Series3Description = "Productie naar het net";
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -109,17 +109,17 @@ public partial class SolarConsumptionChart
             SolarPower.Series1.AddRange(FillData(response.Entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:dd/MM/yyyy HH:mm}",
-                YValue = x.ConsumptionFromBattery
+                YValue = x.ProductionToBattery
             }), 24 * 4, n => $"{date.AddMinutes(n * 15):dd/MM/yyyy HH:mm}"));
             SolarPower.Series2.AddRange(FillData(response.Entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:dd/MM/yyyy HH:mm}",
-                YValue = x.ConsumptionFromSolar
+                YValue = x.ProductionToHome
             }), 24 * 4, n => $"{date.AddMinutes(n * 15):dd/MM/yyyy HH:mm}"));
             SolarPower.Series3.AddRange(FillData(response.Entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:dd/MM/yyyy HH:mm}",
-                YValue = x.ConsumptionFromGrid
+                YValue = x.ProductionToGrid
             }), 24 * 4, n => $"{date.AddMinutes(n * 15):dd/MM/yyyy HH:mm}"));
             await _apexChart.UpdateSeriesAsync(true);
 

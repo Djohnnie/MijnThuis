@@ -1,5 +1,4 @@
 using ApexCharts;
-using Azure;
 using MediatR;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.Dashboard.Web.Model.Charts;

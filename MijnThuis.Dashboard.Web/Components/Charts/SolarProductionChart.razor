@@ -2,7 +2,7 @@
 @using MijnThuis.Dashboard.Web.Model.Charts;
 @implements IDisposable
 @inject IServiceProvider ServiceProvider
-@inject ILogger<SolarConsumptionChart> Logger;
+@inject ILogger<SolarProductionChart> Logger;
 
 <MudCard Outlined>
     <MudCardHeader>
@@ -12,7 +12,7 @@
             </MudAvatar>
         </CardHeaderAvatar>
         <CardHeaderContent>
-            <MudText Typo="Typo.body1">Zonne-energie consumptie</MudText>
+            <MudText Typo="Typo.body1">Zonne-energie productie</MudText>
             <MudText Typo="Typo.body2">@TitleDescription</MudText>
         </CardHeaderContent>
         <CardHeaderActions>

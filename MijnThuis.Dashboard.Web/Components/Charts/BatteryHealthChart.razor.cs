@@ -56,6 +56,10 @@ public partial class BatteryHealthChart
             Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid },
             Opacity = new Opacity(1, 1, 1)
         };
+
+        BatteryHealth.Description = "Thuisbatterij: gezondheid";
+        BatteryHealth.Series1Description = "Geregistreerde gezondheid";
+        BatteryHealth.Series2Description = "Berekende gezondheid";
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -103,21 +107,31 @@ public partial class BatteryHealthChart
             });
 
             BatteryHealth.Clear();
-            BatteryHealth.Description = "Thuisbatterij: gezondheid";
-            BatteryHealth.Series1Description = "Geregistreerde gezondheid";
             BatteryHealth.Series1.AddRange(response.Entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:MMM yyyy}",
-                YValue = Math.Max(100, Math.Round(x.StateOfHealth, 2) * 100)
+                YValue = Math.Min(100, Math.Round(x.StateOfHealth, 2) * 100)
             }));
-            BatteryHealth.Series2Description = "Berekende gezondheid";
             BatteryHealth.Series2.AddRange(response.Entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:MMM yyyy}",
                 YValue = Math.Min(100, Math.Round(x.CalculatedStateOfHealth, 2) * 100)
             }));
 
+            var minimumStateOfHealth = Math.Round(response.Entries.Min(x => x.StateOfHealth), 2) * 100;
+            var minimumCalculatedStateOfHealth = Math.Round(response.Entries.Min(x => x.CalculatedStateOfHealth), 2) * 100;
+
+            _options.Yaxis = new List<YAxis>
+            {
+                new YAxis
+                {
+                    Min = Math.Min(minimumStateOfHealth - 5, minimumCalculatedStateOfHealth - 5),
+                    Max = 100,
+                }
+            };
+
             await _apexChart.UpdateSeriesAsync(true);
+            await _apexChart.UpdateOptionsAsync(true, true, false);
 
             await InvokeAsync(StateHasChanged);
         }
