@@ -100,8 +100,6 @@ public partial class SolarYearlyProductionChart
             });
 
             SolarPower.Clear();
-            SolarPower.Description = "Zonne-energie: Jaarlijkse productie";
-            SolarPower.Series1Description = "Consumptie vanuit PV";
             SolarPower.Series1.AddRange(FillData(response.Entries
                 .Where(x => x.Date.Year == DateTime.Today.Year - 2)
                 .Select(x => new ChartDataEntry<string, decimal>
@@ -109,7 +107,6 @@ public partial class SolarYearlyProductionChart
                     XValue = $"{x.Date:MMMM yyyy}",
                     YValue = x.Production
                 }), 12, n => $"{new DateTime(DateTime.Today.Year - 2, n, 1):MMMM yyyy}"));
-            SolarPower.Series2Description = "Consumptie vanuit batterij";
             SolarPower.Series2.AddRange(FillData(response.Entries
                 .Where(x => x.Date.Year == DateTime.Today.Year - 1)
                 .Select(x => new ChartDataEntry<string, decimal>
@@ -117,7 +114,6 @@ public partial class SolarYearlyProductionChart
                     XValue = $"{x.Date:MMMM yyyy}",
                     YValue = x.Production
                 }), 12, n => $"{new DateTime(DateTime.Today.Year - 1, n, 1):MMMM yyyy}"));
-            SolarPower.Series3Description = "Consumptie vanuit het net";
             SolarPower.Series3.AddRange(FillData(response.Entries
                 .Where(x => x.Date.Year == DateTime.Today.Year)
                 .Select(x => new ChartDataEntry<string, decimal>
