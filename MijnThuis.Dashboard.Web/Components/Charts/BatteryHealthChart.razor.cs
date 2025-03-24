@@ -17,7 +17,6 @@ public partial class BatteryHealthChart
     {
         _options.Chart = new Chart
         {
-            //Stacked = true,
             Toolbar = new Toolbar
             {
                 Show = false
@@ -31,14 +30,16 @@ public partial class BatteryHealthChart
         _options.Xaxis = new XAxis
         {
             Type = XAxisType.Category,
-            //OverwriteCategories = Enumerable.Range(0, 24 * 4).Select(x => new DateTime().AddMinutes(15 * x).Minute == 0 ? $"{new DateTime().AddMinutes(15 * x):HH:mm}" : "").ToList()
         };
         _options.Yaxis = new List<YAxis>
         {
             new YAxis
             {
-                Min = 70,
-                Max = 100,
+                DecimalsInFloat = 0,
+                Labels = new YAxisLabels
+                {
+                    Formatter = @"function (value) { return value + ' %'; }"
+                }
             }
         };
         _options.Theme = new Theme
@@ -121,14 +122,8 @@ public partial class BatteryHealthChart
             var minimumStateOfHealth = Math.Round(response.Entries.Min(x => x.StateOfHealth), 2) * 100;
             var minimumCalculatedStateOfHealth = Math.Round(response.Entries.Min(x => x.CalculatedStateOfHealth), 2) * 100;
 
-            _options.Yaxis = new List<YAxis>
-            {
-                new YAxis
-                {
-                    Min = Math.Min(minimumStateOfHealth - 5, minimumCalculatedStateOfHealth - 5),
-                    Max = 100,
-                }
-            };
+            _options.Yaxis[0].Min = Math.Min(minimumStateOfHealth - 5, minimumCalculatedStateOfHealth - 5);
+            _options.Yaxis[0].Max = 100;
 
             await _apexChart.UpdateSeriesAsync(true);
             await _apexChart.UpdateOptionsAsync(true, true, false);

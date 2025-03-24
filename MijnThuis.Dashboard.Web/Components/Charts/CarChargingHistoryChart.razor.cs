@@ -45,6 +45,17 @@ public partial class CarChargingHistoryChart
             Type = XAxisType.Category,
             OverwriteCategories = ["Jan", "Feb", "Maa", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"],
         };
+        _options.Yaxis = new List<YAxis>
+        {
+            new YAxis
+            {
+                DecimalsInFloat = 0,
+                Labels = new YAxisLabels
+                {
+                    Formatter = @"function (value) { return value + ' kWh'; }"
+                }
+            }
+        };
         _options.Theme = new Theme
         {
             Mode = Mode.Dark,

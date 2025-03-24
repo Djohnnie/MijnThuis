@@ -37,6 +37,17 @@ public partial class SolarConsumptionChart
             Type = XAxisType.Category,
             OverwriteCategories = Enumerable.Range(0, 24 * 4).Select(x => new DateTime().AddMinutes(15 * x).Minute == 0 ? $"{new DateTime().AddMinutes(15 * x):HH:mm}" : "").ToList()
         };
+        _options.Yaxis = new List<YAxis>
+        {
+            new YAxis
+            {
+                DecimalsInFloat = 0,
+                Labels = new YAxisLabels
+                {
+                    Formatter = @"function (value) { return value + ' W'; }"
+                }
+            }
+        };
         _options.Theme = new Theme
         {
             Mode = Mode.Dark,

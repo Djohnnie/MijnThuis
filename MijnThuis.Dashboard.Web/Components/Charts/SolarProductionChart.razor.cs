@@ -2,6 +2,7 @@ using ApexCharts;
 using MediatR;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.Dashboard.Web.Model.Charts;
+using MudBlazor;
 using System.Globalization;
 
 namespace MijnThuis.Dashboard.Web.Components.Charts;
@@ -36,6 +37,17 @@ public partial class SolarProductionChart
         {
             Type = XAxisType.Category,
             OverwriteCategories = Enumerable.Range(0, 24 * 4).Select(x => new DateTime().AddMinutes(15 * x).Minute == 0 ? $"{new DateTime().AddMinutes(15 * x):HH:mm}" : "").ToList()
+        };
+        _options.Yaxis = new List<YAxis>
+        {
+            new YAxis
+            {
+                DecimalsInFloat = 0,
+                Labels = new YAxisLabels
+                {
+                    Formatter = @"function (value) { return value + ' W'; }"
+                }
+            }
         };
         _options.Theme = new Theme
         {
