@@ -33,6 +33,27 @@ public partial class SolarProductionChart
             },
             Background = "#373740",
         };
+        _options.Responsive = new List<Responsive<ChartDataEntry<string, decimal>>>
+        {
+            new Responsive<ChartDataEntry<string, decimal>>
+            {
+                Breakpoint = 700,
+                Options = new ApexChartOptions<ChartDataEntry<string, decimal>>
+                {
+                    Legend = new Legend
+                    {
+                        Show = false
+                    },
+                    Xaxis = new XAxis
+                    {
+                        Labels = new XAxisLabels
+                        {
+                            Show = false
+                        }
+                    },
+                },
+            }
+        };
         _options.Xaxis = new XAxis
         {
             Type = XAxisType.Category,
