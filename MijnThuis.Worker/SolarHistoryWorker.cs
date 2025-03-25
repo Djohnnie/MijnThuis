@@ -32,10 +32,8 @@ internal class SolarHistoryWorker : BackgroundService
 
             try
             {
-                await FetchSolarEnergyHistory(stoppingToken);
-
                 await FetchSolarPowerHistory(stoppingToken);
-
+                await FetchSolarEnergyHistory(stoppingToken);
                 await FetchBatteryEnergyHistory(stoppingToken);
             }
             catch (Exception ex)
@@ -113,7 +111,7 @@ internal class SolarHistoryWorker : BackgroundService
                         ConsumptionFromBattery = measurement.ConsumptionDistribution.FromBattery ?? 0M,
                         ConsumptionFromSolar = measurement.ConsumptionDistribution.FromSolar ?? 0M,
                         ConsumptionFromGrid = measurement.ConsumptionDistribution.FromGrid ?? 0M,
-                        ImportToBattery = 0M
+                        ImportToBattery = measurement.Import ?? 0M - measurement.ConsumptionDistribution.FromGrid ?? 0M
                     });
 
                     await dbContext.SaveChangesAsync();
