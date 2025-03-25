@@ -81,6 +81,42 @@
                     }
                 </MudPaper>
             </MudItem>
+
+
+
+
+            <MudItem xs="6">
+                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Zelf-consumptie vandaag/deze maand/dit jaar" Arrow="true" Placement="Placement.Left">
+                            <MudIcon Icon="@Icons.Material.Filled.Percent" Size="Size.Medium" Color="Color.Primary" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@SelfConsumption</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6">
+                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Zelf-sufficiëntie vandaag/deze maand/dit jaar" Arrow="true" Placement="Placement.Left">
+                            <MudIcon Icon="@Icons.Material.Filled.Percent" Size="Size.Medium" Color="Color.Primary" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@SelfSufficiency</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
         </MudGrid>
     </MudCardContent>
     <MudCardActions>

@@ -1,4 +1,5 @@
 using MijnThuis.Contracts.Power;
+using MijnThuis.Contracts.Solar;
 
 namespace MijnThuis.Dashboard.Web.Components;
 
@@ -12,6 +13,9 @@ public partial class PowerTile
     public decimal PowerPeak { get; set; }
     public decimal EnergyToday { get; set; }
     public decimal EnergyThisMonth { get; set; }
+    public string SelfConsumption { get; set; }
+    public string SelfSufficiency { get; set; }
+
     public bool IsTvOn { get; set; }
     public bool ToggleTvPowerSwitchPending { get; set; }
     public bool IsBureauOn { get; set; }
@@ -52,10 +56,13 @@ public partial class PowerTile
         try
         {
             var response = await Mediator.Send(new GetPowerOverviewQuery());
+            var selfConsumption = await Mediator.Send(new GetSolarSelfConsumptionQuery { Date = DateTime.Today });
             CurrentPower = response.CurrentConsumption;
             PowerPeak = response.PowerPeak / 1000M;
             EnergyToday = response.EnergyToday;
             EnergyThisMonth = response.EnergyThisMonth;
+            SelfConsumption = $"{selfConsumption.SelfConsumptionToday:F0}% - {selfConsumption.SelfConsumptionThisMonth:F0}% - {selfConsumption.SelfConsumptionThisYear:F0}%";
+            SelfSufficiency = $"{selfConsumption.SelfSufficiencyToday:F0}% - {selfConsumption.SelfSufficiencyThisMonth:F0}% - {selfConsumption.SelfSufficiencyThisYear:F0}%";
             IsTvOn = response.IsTvOn;
             IsBureauOn = response.IsBureauOn;
             IsVijverOn = response.IsVijverOn;
