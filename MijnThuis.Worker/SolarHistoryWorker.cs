@@ -59,7 +59,7 @@ internal class SolarHistoryWorker : BackgroundService
     {
         var startHistoryFrom = _configuration.GetValue<DateTime>("SOLAR_HISTORY_START");
 
-        var previousDay = DateTime.Today.AddDays(-1);
+        var today = DateTime.Today;
         using var serviceScope = _serviceProvider.CreateScope();
         var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
         using var dbContext = serviceScope.ServiceProvider.GetService<MijnThuisDbContext>();
@@ -67,7 +67,7 @@ internal class SolarHistoryWorker : BackgroundService
         // Gets the latest solar history database entry
         var latestEntry = await dbContext.SolarEnergyHistory.OrderByDescending(x => x.Date).FirstOrDefaultAsync();
 
-        if (latestEntry != null && latestEntry.Date == previousDay)
+        if (latestEntry != null && (DateTime.Now - latestEntry.Date).TotalMinutes < 5)
         {
             _logger.LogInformation("Solar energy history is up to date.");
 
@@ -79,24 +79,24 @@ internal class SolarHistoryWorker : BackgroundService
             startHistoryFrom = latestEntry.Date;
         }
 
-        _logger.LogInformation($"Solar energy history should update from {startHistoryFrom} until {previousDay}.");
+        _logger.LogInformation($"Solar energy history should update from {startHistoryFrom} until {today}.");
 
         var dateToProcess = startHistoryFrom;
         var now = DateTime.Now;
 
-        while (dateToProcess <= previousDay)
+        while (dateToProcess <= today)
         {
             _logger.LogInformation($"Processing solar energy history for {dateToProcess.Month}/{dateToProcess.Year}...");
 
             var solarEnergy = await solarService.GetEnergyOverview(dateToProcess);
 
             var existingEntries = await dbContext.SolarEnergyHistory
-                .Where(x => x.Date.Year == dateToProcess.Year && x.Date.Month == dateToProcess.Month)
+                .Where(x => x.Date.Date == dateToProcess)
                 .ToListAsync();
 
             foreach (var measurement in solarEnergy.Chart.Measurements.OrderBy(x => x.MeasurementTime))
             {
-                if (measurement.MeasurementTime.Date <= previousDay && !existingEntries.Any(x => x.Date.Date == measurement.MeasurementTime.Date))
+                if (measurement.MeasurementTime.Date <= today && !existingEntries.Any(x => x.Date == measurement.MeasurementTime))
                 {
                     dbContext.SolarEnergyHistory.Add(new SolarEnergyHistoryEntry
                     {

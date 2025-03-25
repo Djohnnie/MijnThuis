@@ -130,11 +130,10 @@ public class SolarService : BaseService, ISolarService
 
     public async Task<EnergyOverviewResponse> GetEnergyOverview(DateTime date)
     {
-        var begin = $"{new DateTime(date.Year, date.Month, 1):yyyy-MM-dd}";
-        var end = $"{new DateTime(date.Year, date.Month, 1).AddMonths(1).AddDays(-1):yyyy-MM-dd}";
+        var time = $"{date:yyyy-MM-dd}";
 
         using var client = await InitializeAuthenticatedHttpClient();
-        var response = await client.GetFromJsonAsync<EnergyOverviewResponse>($"services/dashboard/energy/sites/{_siteId}?start-date={begin}&end-date={end}&chart-time-unit=days&measurement-types=production,consumption,production-distribution-with-storage,consumption-distribution-with-storage,import,export");
+        var response = await client.GetFromJsonAsync<EnergyOverviewResponse>($"services/dashboard/energy/sites/{_siteId}?start-date={time}&end-date={time}&chart-time-unit=quarter-hours&measurement-types=production,consumption,production-distribution-with-storage,consumption-distribution-with-storage,import,export");
 
         return response;
     }
@@ -491,7 +490,7 @@ public class BatteryOverviewResponse
 public class EnergySummary
 {
     [JsonPropertyName("production")]
-    public decimal Production { get; set; }
+    public decimal? Production { get; set; }
 }
 
 public class EnergyChart
