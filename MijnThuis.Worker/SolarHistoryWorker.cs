@@ -101,7 +101,7 @@ internal class SolarHistoryWorker : BackgroundService
                     dbContext.SolarEnergyHistory.Add(new SolarEnergyHistoryEntry
                     {
                         Id = Guid.NewGuid(),
-                        Date = measurement.MeasurementTime.Date,
+                        Date = measurement.MeasurementTime,
                         DataCollected = now,
                         Import = measurement.Import ?? 0M,
                         Export = measurement.Export ?? 0M,
