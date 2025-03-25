@@ -43,6 +43,17 @@ public class MijnThuisDbContext : DbContext
             entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
             entityBuilder.HasIndex(x => x.SysId).IsClustered();
             entityBuilder.HasIndex(x => x.Date);
+            entityBuilder.Property(x => x.Import).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.Export).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.Production).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.ProductionToHome).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.ProductionToBattery).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.ProductionToGrid).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.Consumption).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.ConsumptionFromBattery).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.ConsumptionFromSolar).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.ConsumptionFromGrid).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.ImportToBattery).HasPrecision(9, 3);
         });
 
         modelBuilder.Entity<SolarPowerHistoryEntry>(entityBuilder =>
