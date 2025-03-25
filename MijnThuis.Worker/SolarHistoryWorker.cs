@@ -184,7 +184,8 @@ internal class SolarHistoryWorker : BackgroundService
                         ConsumptionFromBattery = measurement.ConsumptionDistribution.FromBattery ?? 0M,
                         ConsumptionFromSolar = measurement.ConsumptionDistribution.FromSolar ?? 0M,
                         ConsumptionFromGrid = measurement.ConsumptionDistribution.FromGrid ?? 0M,
-                        StorageLevel = measurement.StorageLevel ?? 0M
+                        StorageLevel = measurement.StorageLevel ?? 0M,
+                        ImportToBattery = CalculateImportToBattery(measurement)
                     });
 
                     await dbContext.SaveChangesAsync();
@@ -195,6 +196,18 @@ internal class SolarHistoryWorker : BackgroundService
         }
 
         _logger.LogInformation("Solar power history has been updated for now.");
+    }
+
+    private decimal CalculateImportToBattery(PowerMeasurement measurement)
+    {
+        if (measurement.Import == null || measurement.ConsumptionDistribution.FromGrid == null)
+        {
+            return 0M;
+        }
+
+        var importToBattery = measurement.Import.Value - measurement.ConsumptionDistribution.FromGrid.Value;
+
+        return Math.Round(importToBattery / 100M) * 100M;
     }
 
     private async Task FetchBatteryEnergyHistory(CancellationToken stoppingToken)

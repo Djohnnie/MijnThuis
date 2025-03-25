@@ -22,5 +22,6 @@ public class SolarPowerHistoryEntry
     public decimal ConsumptionFromSolar { get; set; }
     public decimal ConsumptionFromGrid { get; set; }
     public decimal StorageLevel { get; set; }
+    public decimal ImportToBattery { get; set; }
     public DateTime DataCollected { get; set; }
 }

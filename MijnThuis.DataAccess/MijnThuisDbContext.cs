@@ -63,6 +63,7 @@ public class MijnThuisDbContext : DbContext
             entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
             entityBuilder.HasIndex(x => x.SysId).IsClustered();
             entityBuilder.HasIndex(x => x.Date);
+            entityBuilder.Property(x => x.ImportToBattery).HasPrecision(9, 3);
         });
 
         modelBuilder.Entity<BatteryEnergyHistoryEntry>(entityBuilder =>
