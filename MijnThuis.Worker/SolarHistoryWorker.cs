@@ -76,7 +76,7 @@ internal class SolarHistoryWorker : BackgroundService
 
         if (latestEntry != null)
         {
-            startHistoryFrom = latestEntry.Date;
+            startHistoryFrom = latestEntry.Date.Date;
         }
 
         _logger.LogInformation($"Solar energy history should update from {startHistoryFrom} until {today}.");
@@ -96,7 +96,7 @@ internal class SolarHistoryWorker : BackgroundService
 
             foreach (var measurement in solarEnergy.Chart.Measurements.OrderBy(x => x.MeasurementTime))
             {
-                if (measurement.MeasurementTime.Date <= today && !existingEntries.Any(x => x.Date == measurement.MeasurementTime))
+                if (!existingEntries.Any(x => x.Date == measurement.MeasurementTime))
                 {
                     dbContext.SolarEnergyHistory.Add(new SolarEnergyHistoryEntry
                     {
@@ -112,7 +112,8 @@ internal class SolarHistoryWorker : BackgroundService
                         Consumption = measurement.Consumption ?? 0M,
                         ConsumptionFromBattery = measurement.ConsumptionDistribution.FromBattery ?? 0M,
                         ConsumptionFromSolar = measurement.ConsumptionDistribution.FromSolar ?? 0M,
-                        ConsumptionFromGrid = measurement.ConsumptionDistribution.FromGrid ?? 0M
+                        ConsumptionFromGrid = measurement.ConsumptionDistribution.FromGrid ?? 0M,
+                        ImportToBattery = 0M
                     });
 
                     await dbContext.SaveChangesAsync();
