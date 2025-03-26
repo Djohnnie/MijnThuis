@@ -1,4 +1,4 @@
-using MijnThuis.Contracts.Heating;
+ï»¿using MijnThuis.Contracts.Heating;
 
 namespace MijnThuis.Dashboard.Web.Components;
 
@@ -61,8 +61,8 @@ public partial class HeatingTile
             Status = response.Mode;
             NextSetpoint = $"{response.NextSetpoint:F1}";
             NextSwitchTime = $"{response.NextSwitchTime:HH:mm}";
-            GasUsageToday = $"{response.GasUsageToday:F1} m³ ({response.GasUsageTodayKwh:F0} kWh)";
-            GasUsageThisMonth = $"{response.GasUsageThisMonth:F1} m³ ({response.GasUsageThisMonthKwh:F0} kWh)";
+            GasUsageToday = $"{response.GasUsageToday:F1} mÂ³ ({response.GasUsageTodayKwh:F0} kWh)";
+            GasUsageThisMonth = $"{response.GasUsageThisMonth:F1} mÂ³ ({response.GasUsageThisMonthKwh:F0} kWh)";
             IsReady = true;
 
             await InvokeAsync(StateHasChanged);
