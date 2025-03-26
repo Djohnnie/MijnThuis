@@ -46,12 +46,12 @@ internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSel
 
         var response = new GetSolarSelfConsumptionResponse
         {
-            SelfConsumptionToday = selfConsumptionToday,
-            SelfConsumptionThisMonth = selfConsumptionThisMonth,
-            SelfConsumptionThisYear = selfConsumptionThisYear,
-            SelfSufficiencyToday = selfSufficiencyToday,
-            SelfSufficiencyThisMonth = selfSufficiencyThisMonth,
-            SelfSufficiencyThisYear = selfSufficiencyThisYear
+            SelfConsumptionToday = Math.Min(100M, selfConsumptionToday),
+            SelfConsumptionThisMonth = Math.Min(100M, selfConsumptionThisMonth),
+            SelfConsumptionThisYear = Math.Min(100M, selfConsumptionThisYear),
+            SelfSufficiencyToday = Math.Min(100M, selfSufficiencyToday),
+            SelfSufficiencyThisMonth = Math.Min(100M, selfSufficiencyThisMonth),
+            SelfSufficiencyThisYear = Math.Min(100M, selfSufficiencyThisYear)
         };
 
         return response;
