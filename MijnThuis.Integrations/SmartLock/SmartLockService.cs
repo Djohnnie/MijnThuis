@@ -43,7 +43,7 @@ public class SmartLockService : BaseService, ISmartLockService
 
         return result.Select(x => new SmartLockLog
         {
-            Timestamp = x.Timestamp,
+            Timestamp = x.Timestamp.LocalDateTime,
             Action = (SmartLockAction)x.Action
         }).ToList();
     }
@@ -100,7 +100,7 @@ internal class SmartLockStateResponse
 internal class SmartLockLogResponse
 {
     [JsonPropertyName("date")]
-    public DateTime Timestamp { get; set; }
+    public DateTimeOffset Timestamp { get; set; }
 
     [JsonPropertyName("action")]
     public int Action { get; set; }
