@@ -19,6 +19,8 @@ public partial class HeatingTile
     public bool Manual16HeatingPending { get; set; }
     public bool AntiFrostHeatingPending { get; set; }
     public bool TemporaryOverrideHeatingPending { get; set; }
+    public string GasUsageToday { get; set; }
+    public string GasUsageThisMonth { get; set; }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -59,6 +61,8 @@ public partial class HeatingTile
             Status = response.Mode;
             NextSetpoint = $"{response.NextSetpoint:F1}";
             NextSwitchTime = $"{response.NextSwitchTime:HH:mm}";
+            GasUsageToday = $"{response.GasUsageToday:F1} m³ ({response.GasUsageTodayKwh:F0} kWh)";
+            GasUsageThisMonth = $"{response.GasUsageThisMonth:F1} m³ ({response.GasUsageThisMonthKwh:F0} kWh)";
             IsReady = true;
 
             await InvokeAsync(StateHasChanged);
