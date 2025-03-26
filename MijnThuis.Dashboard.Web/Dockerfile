@@ -8,6 +8,11 @@ COPY bin/Release/publish /app
 
 EXPOSE 8080
 
+RUN apt-get update
+RUN apt-get install -y locales locales-all
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
 ENV TZ=Europe/Brussels
 ENV CONNECTIONSTRING=
 ENV CLIENT_ID=
