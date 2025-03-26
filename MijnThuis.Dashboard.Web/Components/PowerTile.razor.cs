@@ -61,8 +61,8 @@ public partial class PowerTile
             PowerPeak = response.PowerPeak / 1000M;
             EnergyToday = response.EnergyToday;
             EnergyThisMonth = response.EnergyThisMonth;
-            SelfConsumption = $"{selfConsumption.SelfConsumptionToday:F0}% - {selfConsumption.SelfConsumptionThisMonth:F0}% - {selfConsumption.SelfConsumptionThisYear:F0}%";
-            SelfSufficiency = $"{selfConsumption.SelfSufficiencyToday:F0}% - {selfConsumption.SelfSufficiencyThisMonth:F0}% - {selfConsumption.SelfSufficiencyThisYear:F0}%";
+            SelfConsumption = $"{Math.Round(selfConsumption.SelfConsumptionToday):F0}% - {Math.Round(selfConsumption.SelfConsumptionThisMonth):F0}% - {Math.Round(selfConsumption.SelfConsumptionThisYear):F0}%";
+            SelfSufficiency = $"{Math.Round(selfConsumption.SelfSufficiencyToday):F0}% - {Math.Round(selfConsumption.SelfSufficiencyThisMonth):F0}% - {Math.Round(selfConsumption.SelfSufficiencyThisYear):F0}%";
             IsTvOn = response.IsTvOn;
             IsBureauOn = response.IsBureauOn;
             IsVijverOn = response.IsVijverOn;

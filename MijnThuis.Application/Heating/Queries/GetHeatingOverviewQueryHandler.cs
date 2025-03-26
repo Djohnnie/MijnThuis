@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using MijnThuis.Contracts.Heating;
 using MijnThuis.DataAccess;
 using MijnThuis.Integrations.Heating;
@@ -10,27 +11,30 @@ namespace MijnThuis.Application.Heating.Queries;
 
 public class GetHeatingOverviewQueryHandler : IRequestHandler<GetHeatingOverviewQuery, GetHeatingOverviewResponse>
 {
-    private readonly MijnThuisDbContext _dbContext;
+    private readonly IServiceProvider _serviceProvider;
     private readonly IHeatingService _heatingService;
     private readonly IMemoryCache _memoryCache;
 
     public GetHeatingOverviewQueryHandler(
-        MijnThuisDbContext dbContext,
+        IServiceProvider serviceProvider,
         IHeatingService heatingService,
         IMemoryCache memoryCache)
     {
-        _dbContext = dbContext;
+        _serviceProvider = serviceProvider;
         _heatingService = heatingService;
         _memoryCache = memoryCache;
     }
 
     public async Task<GetHeatingOverviewResponse> Handle(GetHeatingOverviewQuery request, CancellationToken cancellationToken)
     {
+        using var serviceScope = _serviceProvider.CreateScope();
+        using var dbContext = serviceScope.ServiceProvider.GetRequiredService<MijnThuisDbContext>();
+
         var today = DateTime.Today;
         var thisMonth = new DateTime(today.Year, today.Month, 1);
 
         var heatingResult = await GetOverview();
-        var energyHistory = await _dbContext.EnergyHistory
+        var energyHistory = await dbContext.EnergyHistory
             .Where(x => x.Date.Date >= thisMonth && x.Date.Date <= today)
             .ToListAsync();
 

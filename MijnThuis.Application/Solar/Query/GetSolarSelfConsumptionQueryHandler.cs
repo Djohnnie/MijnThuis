@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.DataAccess;
 
@@ -7,26 +8,30 @@ namespace MijnThuis.Application.Solar.Query;
 
 internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSelfConsumptionQuery, GetSolarSelfConsumptionResponse>
 {
-    private readonly MijnThuisDbContext _dbContext;
+    private readonly IServiceProvider _serviceProvider;
 
-    public GetSolarSelfConsumptionQueryHandler(MijnThuisDbContext dbContext)
+    public GetSolarSelfConsumptionQueryHandler(IServiceProvider serviceProvider)
     {
-        _dbContext = dbContext;
+        _serviceProvider = serviceProvider;
     }
 
     public async Task<GetSolarSelfConsumptionResponse> Handle(GetSolarSelfConsumptionQuery request, CancellationToken cancellationToken)
     {
+        using var serviceScope = _serviceProvider.CreateScope();
+        using var dbContext = serviceScope.ServiceProvider.GetRequiredService<MijnThuisDbContext>();
+
         var today = request.Date.Date;
         var thisMonth = new DateTime(today.Year, today.Month, 1);
         var thisYear = new DateTime(today.Year, 1, 1);
 
-        var solarEnergyHistoryByDate = await _dbContext.SolarEnergyHistory
+        var solarEnergyHistoryByDate = await dbContext.SolarEnergyHistory
             .Where(x => x.Date >= thisYear && x.Date.Date <= today)
             .GroupBy(x => x.Date.Date)
             .Select(x => new
             {
                 Date = x.Key,
                 Import = x.Sum(x => x.Import),
+                Export = x.Sum(x => x.ProductionToGrid),
                 Production = x.Sum(x => x.Production),
                 Consumption = x.Sum(x => x.ConsumptionFromBattery) - x.Sum(x => x.ImportToBattery) + x.Sum(x => x.ConsumptionFromSolar)
             })
@@ -36,9 +41,9 @@ internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSel
         var solarEnergyHistoryThisMonth = solarEnergyHistoryByDate.Where(x => x.Date.Month == thisMonth.Month && x.Date.Year == thisMonth.Year);
         var solarEnergyHistoryThisYear = solarEnergyHistoryByDate.Where(x => x.Date.Year == thisMonth.Year);
 
-        var selfConsumptionToday = solarEnergyHistoryToday != null ? solarEnergyHistoryToday.Production == 0 ? 0M : solarEnergyHistoryToday.Consumption / solarEnergyHistoryToday.Production * 100M : 0M;
-        var selfConsumptionThisMonth = solarEnergyHistoryThisMonth.Any() ? solarEnergyHistoryThisMonth.Sum(x => x.Consumption) / solarEnergyHistoryThisMonth.Sum(x => x.Production) * 100M : 0M;
-        var selfConsumptionThisYear = solarEnergyHistoryThisYear.Any() ? solarEnergyHistoryThisYear.Sum(x => x.Consumption) / solarEnergyHistoryThisYear.Sum(x => x.Production) * 100M : 0M;
+        var selfConsumptionToday = solarEnergyHistoryToday != null ? solarEnergyHistoryToday.Production == 0 ? 0M : (solarEnergyHistoryToday.Production - solarEnergyHistoryToday.Export) / solarEnergyHistoryToday.Production * 100M : 0M;
+        var selfConsumptionThisMonth = solarEnergyHistoryThisMonth.Any() ? (solarEnergyHistoryThisMonth.Sum(x => x.Production) - solarEnergyHistoryThisMonth.Sum(x => x.Export)) / solarEnergyHistoryThisMonth.Sum(x => x.Production) * 100M : 0M;
+        var selfConsumptionThisYear = solarEnergyHistoryThisYear.Any() ? (solarEnergyHistoryThisYear.Sum(x => x.Production) - solarEnergyHistoryThisMonth.Sum(x => x.Export)) / solarEnergyHistoryThisYear.Sum(x => x.Production) * 100M : 0M;
 
         var selfSufficiencyToday = solarEnergyHistoryToday != null ? solarEnergyHistoryToday.Consumption == 0 ? 0M : (solarEnergyHistoryToday.Consumption - solarEnergyHistoryToday.Import) / solarEnergyHistoryToday.Consumption * 100M : 0M;
         var selfSufficiencyThisMonth = solarEnergyHistoryThisMonth.Any() ? (solarEnergyHistoryThisMonth.Sum(x => x.Consumption) - solarEnergyHistoryThisMonth.Sum(x => x.Import)) / solarEnergyHistoryThisMonth.Sum(x => x.Consumption) * 100M : 0M;
