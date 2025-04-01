@@ -1,4 +1,4 @@
-using ApexCharts;
+﻿using ApexCharts;
 using MediatR;
 using MijnThuis.Contracts.Car;
 using MijnThuis.Contracts.Solar;
@@ -133,7 +133,12 @@ public partial class CarChargingHistoryChart
 
             var response = await mediator.Send(new GetCarChargingHistoryQuery
             {
-                From = _historyDate,
+                From = _historyType switch
+                {
+                    HistoryType.PerMonth => _historyDate,
+                    HistoryType.PerYear => new DateTime(_historyDate.Year, 1, 1),
+                    _ => throw new InvalidOperationException()
+                },
                 To = _historyType switch
                 {
                     HistoryType.PerMonth => _historyDate.AddMonths(1).AddDays(-1),
