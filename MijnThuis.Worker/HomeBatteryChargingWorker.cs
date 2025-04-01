@@ -1,7 +1,4 @@
-﻿using MijnThuis.Integrations.Forecast;
-using MijnThuis.Integrations.Power;
-using MijnThuis.Integrations.Solar;
-using MijnThuis.Worker.Helpers;
+﻿using MijnThuis.Worker.Helpers;
 using System.Diagnostics;
 
 namespace MijnThuis.Worker;

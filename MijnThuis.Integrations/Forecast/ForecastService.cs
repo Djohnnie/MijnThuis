@@ -30,6 +30,7 @@ public class ForecastService : BaseForecastService, IForecastService
             {
                 EstimatedWattHoursToday = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today)],
                 EstimatedWattHoursTomorrow = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today.AddDays(1))],
+                EstimatedWattHoursDayAfterTomorrow = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today.AddDays(2))],
                 Sunrise = wattHoursPeriodTimes.First().TimeOfDay,
                 Sunset = wattHoursPeriodTimes.Last().TimeOfDay
             };
@@ -40,6 +41,7 @@ public class ForecastService : BaseForecastService, IForecastService
             {
                 EstimatedWattHoursToday = 0,
                 EstimatedWattHoursTomorrow = 0,
+                EstimatedWattHoursDayAfterTomorrow = 0,
                 Sunrise = TimeSpan.Zero,
                 Sunset = TimeSpan.Zero
             };

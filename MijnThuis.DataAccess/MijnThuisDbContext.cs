@@ -128,8 +128,7 @@ public class MijnThuisDbContext : DbContext
             entityBuilder.Property(x => x.ForecastedEnergyToday).HasPrecision(9, 3);
             entityBuilder.Property(x => x.ActualEnergyToday).HasPrecision(9, 3);
             entityBuilder.Property(x => x.ForecastedEnergyTomorrow).HasPrecision(9, 3);
-            entityBuilder.Property(x => x.ForecastedEnergyTomorrowPlusOne).HasPrecision(9, 3);
-            entityBuilder.Property(x => x.ForecastedEnergyTomorrowPlusTwo).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.ForecastedEnergyDayAfterTomorrow).HasPrecision(9, 3);
         });
     }
 }

@@ -12,6 +12,5 @@ public class SolarForecastHistoryEntry
     public decimal ForecastedEnergyToday { get; set; }
     public decimal ActualEnergyToday { get; set; }
     public decimal ForecastedEnergyTomorrow { get; set; }
-    public decimal ForecastedEnergyTomorrowPlusOne { get; set; }
-    public decimal ForecastedEnergyTomorrowPlusTwo { get; set; }
+    public decimal ForecastedEnergyDayAfterTomorrow { get; set; }
 }

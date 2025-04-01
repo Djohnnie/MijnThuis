@@ -1,4 +1,4 @@
-using MijnThuis.DataAccess.DependencyInjection;
+﻿using MijnThuis.DataAccess.DependencyInjection;
 using MijnThuis.Integrations.DependencyInjection;
 using MijnThuis.Worker;
 using MijnThuis.Worker.Helpers;
@@ -15,6 +15,7 @@ builder.Services.AddHostedService<CarChargingWorker>();
 builder.Services.AddHostedService<HomeBatteryNotificationWorker>();
 builder.Services.AddHostedService<SolarHistoryWorker>();
 builder.Services.AddHostedService<EnergyHistoryWorker>();
+builder.Services.AddHostedService<SolarForecastHistoryWorker>();
 
 var host = builder.Build();
 
