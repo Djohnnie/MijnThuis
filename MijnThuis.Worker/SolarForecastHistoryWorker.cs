@@ -27,6 +27,8 @@ internal class SolarForecastHistoryWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        DateTime? lastRun = null;
+
         // While the service has not requested to stop...
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -35,7 +37,7 @@ internal class SolarForecastHistoryWorker : BackgroundService
             try
             {
                 // Gather data just before midnight.
-                if (DateTime.Now.Hour >= 23 && DateTime.Now.Minute >= 45)
+                if ((lastRun == null || lastRun < DateTime.Today) && DateTime.Now.Hour >= 23 && DateTime.Now.Minute >= 45)
                 {
                     const decimal LATITUDE = 51.06M;
                     const decimal LONGITUDE = 4.36M;
@@ -88,6 +90,8 @@ internal class SolarForecastHistoryWorker : BackgroundService
                     });
 
                     await dbContext.SaveChangesAsync();
+
+                    lastRun = DateTime.Now;
                 }
             }
             catch (Exception ex)
