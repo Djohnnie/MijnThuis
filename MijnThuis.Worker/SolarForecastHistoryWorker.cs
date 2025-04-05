@@ -59,7 +59,7 @@ internal class SolarForecastHistoryWorker : BackgroundService
                         ActualEnergyToday = actual.LastDayEnergy,
                         ForecastedEnergyTomorrow = zw6.EstimatedWattHoursTomorrow,
                         ForecastedEnergyDayAfterTomorrow = zw6.EstimatedWattHoursDayAfterTomorrow,
-                        Damping = true,
+                        Damping = DAMPING == 1,
                         Declination = 39M,
                         Azimuth = 43M,
                         Power = 2.4M
@@ -72,7 +72,7 @@ internal class SolarForecastHistoryWorker : BackgroundService
                         ActualEnergyToday = actual.LastDayEnergy,
                         ForecastedEnergyTomorrow = no3.EstimatedWattHoursTomorrow,
                         ForecastedEnergyDayAfterTomorrow = no3.EstimatedWattHoursDayAfterTomorrow,
-                        Damping = true,
+                        Damping = DAMPING == 1,
                         Declination = 39M,
                         Azimuth = -137M,
                         Power = 1.2M
@@ -84,7 +84,7 @@ internal class SolarForecastHistoryWorker : BackgroundService
                         ActualEnergyToday = actual.LastDayEnergy,
                         ForecastedEnergyTomorrow = zo4.EstimatedWattHoursTomorrow,
                         ForecastedEnergyDayAfterTomorrow = zo4.EstimatedWattHoursDayAfterTomorrow,
-                        Damping = true,
+                        Damping = DAMPING == 1,
                         Declination = 10M,
                         Azimuth = -47M,
                         Power = 1.6M
