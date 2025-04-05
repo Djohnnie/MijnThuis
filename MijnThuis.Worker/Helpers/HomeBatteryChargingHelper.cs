@@ -262,12 +262,13 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
     {
         const decimal LATITUDE = 51.06M;
         const decimal LONGITUDE = 4.36M;
+        const byte DAMPING = 0;
 
         // Gets the solar forecast estimates for today and for each solar orientation plane.
         // 6 panels facing ZW, 3 panels facing NO, and 4 panels facing ZO.
-        var zw6 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, 43M, 2.4M);
-        var no3 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, -137M, 1.2M);
-        var zo4 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 10M, -47M, 1.6M);
+        var zw6 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, 43M, 2.4M, DAMPING);
+        var no3 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, -137M, 1.2M, DAMPING);
+        var zo4 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 10M, -47M, 1.6M, DAMPING);
 
         return new ForecastOverview
         {

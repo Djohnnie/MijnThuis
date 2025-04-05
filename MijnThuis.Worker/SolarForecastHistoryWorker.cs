@@ -41,10 +41,11 @@ internal class SolarForecastHistoryWorker : BackgroundService
                 {
                     const decimal LATITUDE = 51.06M;
                     const decimal LONGITUDE = 4.36M;
+                    const byte DAMPING = 0;
 
-                    var zw6 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, 43M, 2.4M);
-                    var no3 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, -137M, 1.2M);
-                    var zo4 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 10M, -47M, 1.6M);
+                    var zw6 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, 43M, 2.4M, DAMPING);
+                    var no3 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, -137M, 1.2M, DAMPING);
+                    var zo4 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 10M, -47M, 1.6M, DAMPING);
                     var actual = await _solarService.GetEnergy();
 
                     using var scope = _serviceProvider.CreateScope();

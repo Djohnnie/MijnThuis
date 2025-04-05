@@ -30,13 +30,14 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
     {
         const decimal LATITUDE = 51.06M;
         const decimal LONGITUDE = 4.36M;
+        const byte DAMPING = 0;
 
         var solarResult = await GetOverview();
         var batteryResult = await GetBatteryLevel();
         var energyResult = await GetEnergy();
-        var zw6 = await GetForecast(LATITUDE, LONGITUDE, 39M, 43M, 2.4M);
-        var no3 = await GetForecast(LATITUDE, LONGITUDE, 39M, -137M, 1.2M);
-        var zo4 = await GetForecast(LATITUDE, LONGITUDE, 10M, -47M, 1.6M);
+        var zw6 = await GetForecast(LATITUDE, LONGITUDE, 39M, 43M, 2.4M, DAMPING);
+        var no3 = await GetForecast(LATITUDE, LONGITUDE, 39M, -137M, 1.2M, DAMPING);
+        var zo4 = await GetForecast(LATITUDE, LONGITUDE, 10M, -47M, 1.6M, DAMPING);
 
         var result = solarResult.Adapt<GetSolarOverviewResponse>();
         result.BatteryLevel = (int)Math.Round(batteryResult.Level);
@@ -65,9 +66,9 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
         return GetCachedValue("SOLAR_ENERGY", _solarService.GetEnergy, 15);
     }
 
-    private Task<ForecastOverview> GetForecast(decimal latitude, decimal longitude, decimal declination, decimal azimuth, decimal power)
+    private Task<ForecastOverview> GetForecast(decimal latitude, decimal longitude, decimal declination, decimal azimuth, decimal power, byte damping)
     {
-        return GetCachedValue($"SOLAR_FORECAST[{latitude}|{longitude}|{declination}|{azimuth}|{power}]", () => _forecastService.GetSolarForecastEstimate(latitude, longitude, declination, azimuth, power), 60);
+        return GetCachedValue($"SOLAR_FORECAST[{latitude}|{longitude}|{declination}|{azimuth}|{power}]", () => _forecastService.GetSolarForecastEstimate(latitude, longitude, declination, azimuth, power, damping), 60);
     }
 
     private async Task<T> GetCachedValue<T>(string key, Func<Task<T>> valueFactory, int absoluteExpiration)

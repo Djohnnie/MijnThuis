@@ -7,7 +7,7 @@ namespace MijnThuis.Integrations.Forecast;
 
 public interface IForecastService
 {
-    Task<ForecastOverview> GetSolarForecastEstimate(decimal latitude, decimal longitude, decimal declination, decimal azimuth, decimal power);
+    Task<ForecastOverview> GetSolarForecastEstimate(decimal latitude, decimal longitude, decimal declination, decimal azimuth, decimal power, byte damping);
 }
 
 public class ForecastService : BaseForecastService, IForecastService
@@ -17,13 +17,13 @@ public class ForecastService : BaseForecastService, IForecastService
 
     }
 
-    public async Task<ForecastOverview> GetSolarForecastEstimate(decimal latitude, decimal longitude, decimal declination, decimal azimuth, decimal power)
+    public async Task<ForecastOverview> GetSolarForecastEstimate(decimal latitude, decimal longitude, decimal declination, decimal azimuth, decimal power, byte damping)
     {
         try
         {
             using var client = InitializeHttpClient();
 
-            var response = await client.GetFromJsonAsync<GetForecastEstimateResponse>($"{_apiKey}/estimate/{latitude}/{longitude}/{declination}/{azimuth}/{power}?damping=1");
+            var response = await client.GetFromJsonAsync<GetForecastEstimateResponse>($"{_apiKey}/estimate/{latitude}/{longitude}/{declination}/{azimuth}/{power}?damping={damping}");
             var wattHoursPeriodTimes = response.Result.WattHoursPeriod.Keys.Select(x => DateTime.ParseExact(x, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)).Where(x => x.Day == DateTime.Today.Day);
 
             return new ForecastOverview
