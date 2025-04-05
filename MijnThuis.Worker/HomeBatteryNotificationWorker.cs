@@ -12,7 +12,8 @@ internal class HomeBatteryNotificationWorker : BackgroundService
     private readonly ILogger<HomeBatteryNotificationWorker> _logger;
 
     public HomeBatteryNotificationWorker(
-        IConfiguration configuration, IServiceProvider serviceProvider,
+        IConfiguration configuration,
+        IServiceProvider serviceProvider,
         ILogger<HomeBatteryNotificationWorker> logger)
     {
         _configuration = configuration;
@@ -24,7 +25,7 @@ internal class HomeBatteryNotificationWorker : BackgroundService
     {
         var sendGridApiKey = _configuration.GetValue<string>("SENDGRID_API_KEY");
         var sendGridSender = _configuration.GetValue<string>("SENDGRID_SENDER");
-        var sendGridReceiver = _configuration.GetValue<string>("SENDGRID_RECEIVER");
+        var sendGridReceivers = _configuration.GetValue<string>("SENDGRID_RECEIVER");
 
         DateOnly? notifiedFullBatteryToday = null;
         DateOnly? notifiedLowBatteryToday = null;
@@ -64,21 +65,21 @@ internal class HomeBatteryNotificationWorker : BackgroundService
                 {
                     notifiedFullBatteryToday = DateOnly.FromDateTime(DateTime.Today);
                     await SendEmail("De thuisbatterij is volledig opgeladen (100%)!",
-                        sendGridSender, sendGridReceiver, sendGridApiKey);
+                        sendGridSender, sendGridReceivers, sendGridApiKey);
                 }
 
                 if (solarOverview.BatteryLevel < 20 && notifiedLowBatteryToday == null)
                 {
                     notifiedLowBatteryToday = DateOnly.FromDateTime(DateTime.Today);
                     await SendEmail("De thuisbatterij is bijna leeg (< 20%)!",
-                        sendGridSender, sendGridReceiver, sendGridApiKey);
+                        sendGridSender, sendGridReceivers, sendGridApiKey);
                 }
 
                 if (solarOverview.BatteryLevel == 0 && notifiedEmptyBatteryToday == null)
                 {
                     notifiedEmptyBatteryToday = DateOnly.FromDateTime(DateTime.Today);
                     await SendEmail("De thuisbatterij is helemaal leeg (0%)!",
-                        sendGridSender, sendGridReceiver, sendGridApiKey);
+                        sendGridSender, sendGridReceivers, sendGridApiKey);
                 }
 
                 // Calculate the duration for this whole process.
@@ -102,13 +103,16 @@ internal class HomeBatteryNotificationWorker : BackgroundService
         }
     }
 
-    private async Task SendEmail(string message, string sendGridSender, string sendGridReceiver, string apiKey)
+    private async Task SendEmail(string message, string sendGridSender, string sendGridReceivers, string apiKey)
     {
         var client = new SendGridClient(apiKey);
 
-        var email = MailHelper.CreateSingleEmail(
+        var receivers = sendGridReceivers.Split(';', StringSplitOptions.RemoveEmptyEntries)
+            .Select(receiver => new EmailAddress(receiver.Trim())).ToList();
+
+        var email = MailHelper.CreateSingleEmailToMultipleRecipients(
             new EmailAddress(sendGridSender),
-            new EmailAddress(sendGridReceiver),
+            receivers,
             "MijnThuis - Thuisbatterij notificatie",
             message, message);
 
