@@ -49,11 +49,6 @@ public partial class SolarForecastChart
                 },
             }
         };
-        _options.Xaxis = new XAxis
-        {
-            //Type = XAxisType.Category,
-            //OverwriteCategories = ["Jan", "Feb", "Maa", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"],
-        };
         _options.Yaxis = new List<YAxis>
         {
             new YAxis
@@ -70,7 +65,7 @@ public partial class SolarForecastChart
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
-        _options.Colors = new List<string> { "#95B6F8", "#6FE59D" };
+        _options.Colors = new List<string> { "#FBB550", "#6FE59D" };
         _options.Stroke = new Stroke
         {
             Show = false
