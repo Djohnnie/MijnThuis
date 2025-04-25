@@ -29,38 +29,59 @@ public class ShellyService : IShellyService
 
     public async Task<PowerSwitchOverview> GetTvPowerSwitchOverview()
     {
-        using var client = InitializeHttpClient();
-        var result = await client.GetFromJsonAsync<StatusResponse>($"{_tvPowerSwitchAddress}/status");
-
-        return new PowerSwitchOverview
+        try
         {
-            IsOn = result.Relays.Single().IsOn,
-            Power = result.Meters.Single().Power
-        };
+            using var client = InitializeHttpClient();
+            var result = await client.GetFromJsonAsync<StatusResponse>($"{_tvPowerSwitchAddress}/status");
+
+            return new PowerSwitchOverview
+            {
+                IsOn = result.Relays.Single().IsOn,
+                Power = result.Meters.Single().Power
+            };
+        }
+        catch
+        {
+            return new PowerSwitchOverview { IsOn = false, Power = 0M };
+        }
     }
 
     public async Task<PowerSwitchOverview> GetBureauPowerSwitchOverview()
     {
-        using var client = InitializeHttpClient();
-        var result = await client.GetFromJsonAsync<StatusResponse>($"{_bureauPowerSwitchAddress}/status");
-
-        return new PowerSwitchOverview
+        try
         {
-            IsOn = result.Relays.Single().IsOn,
-            Power = result.Meters.Single().Power
-        };
+            using var client = InitializeHttpClient();
+            var result = await client.GetFromJsonAsync<StatusResponse>($"{_bureauPowerSwitchAddress}/status");
+
+            return new PowerSwitchOverview
+            {
+                IsOn = result.Relays.Single().IsOn,
+                Power = result.Meters.Single().Power
+            };
+        }
+        catch
+        {
+            return new PowerSwitchOverview { IsOn = false, Power = 0M };
+        }
     }
 
     public async Task<PowerSwitchOverview> GetVijverPowerSwitchOverview()
     {
-        using var client = InitializeHttpClient();
-        var result = await client.GetFromJsonAsync<StatusResponse>($"{_vijverPowerSwitchAddress}/status");
-
-        return new PowerSwitchOverview
+        try
         {
-            IsOn = result.Relays.Single().IsOn,
-            Power = result.Meters.Single().Power
-        };
+            using var client = InitializeHttpClient();
+            var result = await client.GetFromJsonAsync<StatusResponse>($"{_vijverPowerSwitchAddress}/status");
+
+            return new PowerSwitchOverview
+            {
+                IsOn = result.Relays.Single().IsOn,
+                Power = result.Meters.Single().Power
+            };
+        }
+        catch
+        {
+            return new PowerSwitchOverview { IsOn = false, Power = 0M };
+        }
     }
 
     public async Task<bool> SetTvPowerSwitch(bool isOn)
