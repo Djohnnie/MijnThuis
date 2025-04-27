@@ -155,6 +155,23 @@ public class CarChargingHelper : ICarChargingHelper
                 }
             }
         }
+        else
+        {
+            // If the car is not ready to charge, but still has a charging session logged...
+            if (state.CurrentChargeSession.HasValue)
+            {
+                // Log the energy charged by the car on stop.
+                await CalculateCarChargingEnergyOnStop(state, carOverview);
+                state.StoppedCharging();
+            }
+
+            // If the manual car charging flag is still set...
+            if (manualCarChargeFlag.ShouldCharge)
+            {
+                // Turn off manual car charging.
+                await _flagRepository.SetCarChargingFlag(false);
+            }
+        }
     }
 
     private async Task CalculateCarChargingEnergyOnStart(CarChargingHelperState state, CarOverview carOverview)
