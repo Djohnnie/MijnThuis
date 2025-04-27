@@ -88,8 +88,8 @@ internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSel
                     .Select(g => new SolarSelfConsumptionEntry
                     {
                         Date = g.Key,
-                        SelfConsumption = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Production) - g.Sum(x => x.Export)) / g.Sum(x => x.Production) * 100M) : 0M),
-                        SelfSufficiency = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Consumption) - g.Sum(x => x.Import)) / g.Sum(x => x.Consumption) * 100M) : 0M)
+                        SelfConsumption = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Production) == 0 ? 0M : g.Sum(x => x.Production) - g.Sum(x => x.Export)) / g.Sum(x => x.Production) * 100M) : 0M),
+                        SelfSufficiency = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Consumption) == 0 ? 0M : g.Sum(x => x.Consumption) - g.Sum(x => x.Import)) / g.Sum(x => x.Consumption) * 100M) : 0M)
                     })
                     .ToList();
                 break;
@@ -99,8 +99,8 @@ internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSel
                     .Select(g => new SolarSelfConsumptionEntry
                     {
                         Date = new DateTime(g.Key.Year, g.Key.Month, 1),
-                        SelfConsumption = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Production) - g.Sum(x => x.Export)) / g.Sum(x => x.Production) * 100M) : 0M),
-                        SelfSufficiency = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Consumption) - g.Sum(x => x.Import)) / g.Sum(x => x.Consumption) * 100M) : 0M)
+                        SelfConsumption = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Production) == 0 ? 0M : g.Sum(x => x.Production) - g.Sum(x => x.Export)) / g.Sum(x => x.Production) * 100M) : 0M),
+                        SelfSufficiency = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Consumption) == 0 ? 0M : g.Sum(x => x.Consumption) - g.Sum(x => x.Import)) / g.Sum(x => x.Consumption) * 100M) : 0M)
                     })
                     .ToList();
                 break;
