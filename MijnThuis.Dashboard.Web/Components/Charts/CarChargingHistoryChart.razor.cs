@@ -15,7 +15,7 @@ public partial class CarChargingHistoryChart
         PerYear
     }
 
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(15));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(30));
     private ApexChart<ChartDataEntry<string, decimal>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal>> _options { get; set; } = new();
 
@@ -108,6 +108,7 @@ public partial class CarChargingHistoryChart
 
     private async Task RunTimer()
     {
+        await Task.Delay(Random.Shared.Next(1000, 5000));
         await RefreshData();
 
         while (await _periodicTimer.WaitForNextTickAsync())

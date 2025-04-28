@@ -4,7 +4,7 @@ using MijnThuis.Contracts.Power;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.DataAccess;
 
-namespace MijnThuis.Application.Power.Query;
+namespace MijnThuis.Application.Power.Queries;
 
 public class GetEnergyHistoryQueryHandler : IRequestHandler<GetEnergyHistoryQuery, GetEnergyHistoryResponse>
 {
@@ -17,31 +17,30 @@ public class GetEnergyHistoryQueryHandler : IRequestHandler<GetEnergyHistoryQuer
 
     public async Task<GetEnergyHistoryResponse> Handle(GetEnergyHistoryQuery request, CancellationToken cancellationToken)
     {
-        var entries = await _dbContext.EnergyHistory
-            .Where(x => x.Date.Date >= request.From && x.Date.Date <= request.To)
-            .ToListAsync();
+        var entries = _dbContext.EnergyHistory
+            .Where(x => x.Date.Date >= request.From && x.Date.Date <= request.To);
 
         var response = new GetEnergyHistoryResponse();
 
         switch (request.Unit)
         {
             case EnergyHistoryUnit.Day:
-                response.Entries = GroupEntriesByDay(entries);
+                response.Entries = await GroupEntriesByDay(entries);
                 break;
             case EnergyHistoryUnit.Month:
-                response.Entries = GroupEntriesByMonth(entries);
+                response.Entries = await GroupEntriesByMonth(entries);
                 break;
             case EnergyHistoryUnit.Year:
-                response.Entries = GroupEntriesByYear(entries);
+                response.Entries = await GroupEntriesByYear(entries);
                 break;
         }
 
         return response;
     }
 
-    private List<EnergyHistoryEntry> GroupEntriesByDay(List<DataAccess.Entities.EnergyHistoryEntry> entries)
+    private async Task<List<EnergyHistoryEntry>> GroupEntriesByDay(IQueryable<DataAccess.Entities.EnergyHistoryEntry> entries)
     {
-        return entries
+        return await entries
             .GroupBy(x => x.Date.Date)
             .Select(g => new EnergyHistoryEntry
             {
@@ -56,12 +55,12 @@ public class GetEnergyHistoryQueryHandler : IRequestHandler<GetEnergyHistoryQuer
                 TotalGasKwh = g.Sum(x => x.TotalGasKwhDelta),
                 MonthlyPowerPeak = g.Max(x => x.MonthlyPowerPeak)
             })
-            .ToList();
+            .ToListAsync();
     }
 
-    private List<EnergyHistoryEntry> GroupEntriesByMonth(List<DataAccess.Entities.EnergyHistoryEntry> entries)
+    private async Task<List<EnergyHistoryEntry>> GroupEntriesByMonth(IQueryable<DataAccess.Entities.EnergyHistoryEntry> entries)
     {
-        return entries
+        return await entries
             .GroupBy(x => new { x.Date.Year, x.Date.Month })
             .Select(g => new EnergyHistoryEntry
             {
@@ -76,12 +75,12 @@ public class GetEnergyHistoryQueryHandler : IRequestHandler<GetEnergyHistoryQuer
                 TotalGasKwh = g.Sum(x => x.TotalGasKwhDelta),
                 MonthlyPowerPeak = g.Max(x => x.MonthlyPowerPeak)
             })
-            .ToList();
+            .ToListAsync();
     }
 
-    private List<EnergyHistoryEntry> GroupEntriesByYear(List<DataAccess.Entities.EnergyHistoryEntry> entries)
+    private async Task<List<EnergyHistoryEntry>> GroupEntriesByYear(IQueryable<DataAccess.Entities.EnergyHistoryEntry> entries)
     {
-        return entries
+        return await entries
             .GroupBy(x => x.Date.Year)
             .Select(g => new EnergyHistoryEntry
             {
@@ -96,6 +95,6 @@ public class GetEnergyHistoryQueryHandler : IRequestHandler<GetEnergyHistoryQuer
                 TotalGasKwh = g.Sum(x => x.TotalGasKwhDelta),
                 MonthlyPowerPeak = g.Max(x => x.MonthlyPowerPeak)
             })
-            .ToList();
+            .ToListAsync();
     }
 }

@@ -1,4 +1,4 @@
-using ApexCharts;
+﻿using ApexCharts;
 using MediatR;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.Dashboard.Web.Model.Charts;
@@ -7,7 +7,7 @@ namespace MijnThuis.Dashboard.Web.Components.Charts;
 
 public partial class BatteryHealthChart
 {
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(30));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromHours(1));
     private ApexChart<ChartDataEntry<string, decimal>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal>> _options { get; set; } = new();
 
@@ -96,6 +96,7 @@ public partial class BatteryHealthChart
 
     private async Task RunTimer()
     {
+        await Task.Delay(Random.Shared.Next(1000, 5000));
         await RefreshData();
 
         while (await _periodicTimer.WaitForNextTickAsync())
@@ -128,13 +129,15 @@ public partial class BatteryHealthChart
                 Unit = EnergyHistoryUnit.Month
             });
 
+            var entries = response.Entries.OrderBy(x => x.Date);
+
             BatteryHealth.Clear();
-            BatteryHealth.Series1.AddRange(response.Entries.Select(x => new ChartDataEntry<string, decimal>
+            BatteryHealth.Series1.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
-                XValue = $"{x.Date:MMM yyyy}",
+                XValue = $"{x.Date:MMMM yyyy}",
                 YValue = Math.Min(100, Math.Round(x.StateOfHealth, 2) * 100)
             }));
-            BatteryHealth.Series2.AddRange(response.Entries.Select(x => new ChartDataEntry<string, decimal>
+            BatteryHealth.Series2.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:MMM yyyy}",
                 YValue = Math.Min(100, Math.Round(x.CalculatedStateOfHealth, 2) * 100)
@@ -160,19 +163,5 @@ public partial class BatteryHealthChart
     public void Dispose()
     {
         _periodicTimer.Dispose();
-    }
-
-    private IEnumerable<ChartDataEntry<TX, TY>> FillData<TX, TY>(IEnumerable<ChartDataEntry<TX, TY>> source, int total, Func<int, TX> generator)
-    {
-        var result = new List<ChartDataEntry<TX, TY>>();
-
-        result.AddRange(source);
-        result.AddRange(Enumerable.Range(source.Count(), total - source.Count()).Select(n => new ChartDataEntry<TX, TY>
-        {
-            XValue = generator(n),
-            YValue = default!
-        }));
-
-        return result;
     }
 }

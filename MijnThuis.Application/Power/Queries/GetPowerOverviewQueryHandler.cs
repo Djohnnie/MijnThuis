@@ -5,7 +5,7 @@ using MijnThuis.Contracts.Power;
 using MijnThuis.Integrations.Power;
 using MijnThuis.Integrations.Solar;
 
-namespace MijnThuis.Application.Power.Query;
+namespace MijnThuis.Application.Power.Queries;
 
 public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuery, GetPowerOverviewResponse>
 {

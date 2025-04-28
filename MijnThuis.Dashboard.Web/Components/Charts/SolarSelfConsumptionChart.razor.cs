@@ -9,9 +9,9 @@ public partial class SolarSelfConsumptionChart
 {
     private enum HistoryType
     {
-        PerDay,
-        PerMonth,
-        PerYear
+        PerDayInMonth,
+        PerMonthInYear,
+        PerYearInLifetime
     }
 
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromHours(1));
@@ -20,7 +20,7 @@ public partial class SolarSelfConsumptionChart
 
     private ChartData2<string, decimal> SolarPower { get; set; } = new();
 
-    private HistoryType _historyType = HistoryType.PerMonth;
+    private HistoryType _historyType = HistoryType.PerMonthInYear;
     private DateTime _historyDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
 
     public SolarSelfConsumptionChart()
@@ -104,6 +104,7 @@ public partial class SolarSelfConsumptionChart
 
     private async Task RunTimer()
     {
+        await Task.Delay(Random.Shared.Next(1000, 5000));
         await RefreshData();
 
         while (await _periodicTimer.WaitForNextTickAsync())
@@ -131,16 +132,16 @@ public partial class SolarSelfConsumptionChart
             {
                 Date = _historyType switch
                 {
-                    HistoryType.PerDay => _historyDate,
-                    HistoryType.PerMonth => new DateTime(_historyDate.Year, 1, 1),
-                    HistoryType.PerYear => new DateTime(_historyDate.Year, 1, 1),
+                    HistoryType.PerDayInMonth => _historyDate,
+                    HistoryType.PerMonthInYear => new DateTime(_historyDate.Year, 1, 1),
+                    HistoryType.PerYearInLifetime => new DateTime(_historyDate.Year, 1, 1),
                     _ => throw new InvalidOperationException()
                 },
                 Range = _historyType switch
                 {
-                    HistoryType.PerDay => SolarSelfConsumptionRange.Day,
-                    HistoryType.PerMonth => SolarSelfConsumptionRange.Month,
-                    HistoryType.PerYear => SolarSelfConsumptionRange.Year,
+                    HistoryType.PerDayInMonth => SolarSelfConsumptionRange.Day,
+                    HistoryType.PerMonthInYear => SolarSelfConsumptionRange.Month,
+                    HistoryType.PerYearInLifetime => SolarSelfConsumptionRange.Year,
                     _ => throw new InvalidOperationException()
                 }
             });
@@ -148,7 +149,7 @@ public partial class SolarSelfConsumptionChart
             SolarPower.Clear();
             switch (_historyType)
             {
-                case HistoryType.PerDay:
+                case HistoryType.PerDayInMonth:
                     SolarPower.Series1.AddRange(response.Entries
                         .Select(x => new ChartDataEntry<string, decimal>
                         {
@@ -162,7 +163,7 @@ public partial class SolarSelfConsumptionChart
                             YValue = x.SelfSufficiency
                         }));
                     break;
-                case HistoryType.PerMonth:
+                case HistoryType.PerMonthInYear:
                     SolarPower.Series1.AddRange(response.Entries
                         .Select(x => new ChartDataEntry<string, decimal>
                         {
@@ -176,7 +177,7 @@ public partial class SolarSelfConsumptionChart
                             YValue = x.SelfSufficiency
                         }));
                     break;
-                case HistoryType.PerYear:
+                case HistoryType.PerYearInLifetime:
                     SolarPower.Series1.AddRange(response.Entries
                         .Select(x => new ChartDataEntry<string, decimal>
                         {
@@ -206,9 +207,9 @@ public partial class SolarSelfConsumptionChart
     {
         _historyDate = _historyType switch
         {
-            HistoryType.PerDay => _historyDate.AddMonths(-1),
-            HistoryType.PerMonth => _historyDate.AddYears(-1),
-            HistoryType.PerYear => _historyDate,
+            HistoryType.PerDayInMonth => _historyDate.AddMonths(-1),
+            HistoryType.PerMonthInYear => _historyDate.AddYears(-1),
+            HistoryType.PerYearInLifetime => _historyDate,
             _ => throw new InvalidOperationException()
         };
 
@@ -217,19 +218,19 @@ public partial class SolarSelfConsumptionChart
 
     private async Task HistoryPerDayInMonthCommand()
     {
-        _historyType = HistoryType.PerDay;
+        _historyType = HistoryType.PerDayInMonth;
         await RefreshData();
     }
 
     private async Task HistoryPerMonthInYearCommand()
     {
-        _historyType = HistoryType.PerMonth;
+        _historyType = HistoryType.PerMonthInYear;
         await RefreshData();
     }
 
     private async Task HistoryPerYearInLifetimeCommand()
     {
-        _historyType = HistoryType.PerYear;
+        _historyType = HistoryType.PerYearInLifetime;
         await RefreshData();
     }
 
@@ -237,9 +238,9 @@ public partial class SolarSelfConsumptionChart
     {
         _historyDate = _historyType switch
         {
-            HistoryType.PerDay => _historyDate.AddMonths(1),
-            HistoryType.PerMonth => _historyDate.AddYears(1),
-            HistoryType.PerYear => _historyDate,
+            HistoryType.PerDayInMonth => _historyDate.AddMonths(1),
+            HistoryType.PerMonthInYear => _historyDate.AddYears(1),
+            HistoryType.PerYearInLifetime => _historyDate,
             _ => throw new InvalidOperationException()
         };
 

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.DataAccess;
 
-namespace MijnThuis.Application.Solar.Query;
+namespace MijnThuis.Application.Solar.Queries;
 
 public class GetBatteryEnergyHistoryQueryHandler : IRequestHandler<GetBatteryEnergyHistoryQuery, GetBatteryEnergyHistoryResponse>
 {
@@ -16,31 +16,30 @@ public class GetBatteryEnergyHistoryQueryHandler : IRequestHandler<GetBatteryEne
 
     public async Task<GetBatteryEnergyHistoryResponse> Handle(GetBatteryEnergyHistoryQuery request, CancellationToken cancellationToken)
     {
-        var entries = await _dbContext.BatteryEnergyHistory
-            .Where(x => x.Date.Date >= request.From && x.Date.Date <= request.To)
-            .ToListAsync();
+        var entries = _dbContext.BatteryEnergyHistory
+            .Where(x => x.Date.Date >= request.From && x.Date.Date <= request.To);
 
         var response = new GetBatteryEnergyHistoryResponse();
 
         switch (request.Unit)
         {
             case EnergyHistoryUnit.Day:
-                response.Entries = GroupEntriesByDay(entries);
+                response.Entries = await GroupEntriesByDay(entries);
                 break;
             case EnergyHistoryUnit.Month:
-                response.Entries = GroupEntriesByMonth(entries);
+                response.Entries = await GroupEntriesByMonth(entries);
                 break;
             case EnergyHistoryUnit.Year:
-                response.Entries = GroupEntriesByYear(entries);
+                response.Entries = await GroupEntriesByYear(entries);
                 break;
         }
 
         return response;
     }
 
-    private List<BatteryEnergyHistoryEntry> GroupEntriesByDay(List<DataAccess.Entities.BatteryEnergyHistoryEntry> entries)
+    private async Task<List<BatteryEnergyHistoryEntry>> GroupEntriesByDay(IQueryable<DataAccess.Entities.BatteryEnergyHistoryEntry> entries)
     {
-        return entries
+        return await entries
             .GroupBy(x => x.Date.Date)
             .Select(g => new BatteryEnergyHistoryEntry
             {
@@ -51,12 +50,12 @@ public class GetBatteryEnergyHistoryQueryHandler : IRequestHandler<GetBatteryEne
                 CalculatedStateOfHealth = g.Average(x => x.CalculatedStateOfHealth),
                 StateOfHealth = g.Average(x => x.StateOfHealth)
             })
-            .ToList();
+            .ToListAsync();
     }
 
-    private List<BatteryEnergyHistoryEntry> GroupEntriesByMonth(List<DataAccess.Entities.BatteryEnergyHistoryEntry> entries)
+    private async Task<List<BatteryEnergyHistoryEntry>> GroupEntriesByMonth(IQueryable<DataAccess.Entities.BatteryEnergyHistoryEntry> entries)
     {
-        return entries
+        return await entries
             .GroupBy(x => new { x.Date.Year, x.Date.Month })
             .Select(g => new BatteryEnergyHistoryEntry
             {
@@ -67,12 +66,12 @@ public class GetBatteryEnergyHistoryQueryHandler : IRequestHandler<GetBatteryEne
                 CalculatedStateOfHealth = g.Average(x => x.CalculatedStateOfHealth),
                 StateOfHealth = g.Average(x => x.StateOfHealth)
             })
-            .ToList();
+            .ToListAsync();
     }
 
-    private List<BatteryEnergyHistoryEntry> GroupEntriesByYear(List<DataAccess.Entities.BatteryEnergyHistoryEntry> entries)
+    private async Task<List<BatteryEnergyHistoryEntry>> GroupEntriesByYear(IQueryable<DataAccess.Entities.BatteryEnergyHistoryEntry> entries)
     {
-        return entries
+        return await entries
             .GroupBy(x => x.Date.Year)
             .Select(g => new BatteryEnergyHistoryEntry
             {
@@ -83,6 +82,6 @@ public class GetBatteryEnergyHistoryQueryHandler : IRequestHandler<GetBatteryEne
                 CalculatedStateOfHealth = g.Average(x => x.CalculatedStateOfHealth),
                 StateOfHealth = g.Average(x => x.StateOfHealth)
             })
-            .ToList();
+            .ToListAsync();
     }
 }

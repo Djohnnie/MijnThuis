@@ -5,7 +5,7 @@ using MijnThuis.Contracts.Solar;
 using MijnThuis.Integrations.Forecast;
 using MijnThuis.Integrations.Solar;
 
-namespace MijnThuis.Application.Solar.Query;
+namespace MijnThuis.Application.Solar.Queries;
 
 public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuery, GetSolarOverviewResponse>
 {

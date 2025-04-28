@@ -2,7 +2,7 @@
 @using MijnThuis.Dashboard.Web.Model.Charts;
 @implements IDisposable
 @inject IServiceProvider ServiceProvider
-@inject ILogger<SolarConsumptionChart> Logger;
+@inject ILogger<SolarConsumptionHistoryChart> Logger;
 
 <MudCard Outlined>
     <MudCardHeader>
@@ -21,6 +21,21 @@
                                OnClick="NavigateBeforeCommand" />
             </MudTooltip>
 
+            <MudTooltip Text="Dagen van de maand" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.DensitySmall" Size="Size.Medium" Color="Color.Default"
+                               OnClick="HistoryPerDayInMonthCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Maanden van het jaar" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.DensityMedium" Size="Size.Medium" Color="Color.Default"
+                               OnClick="HistoryPerMonthInYearCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Jaren tijdens levensduur" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.DensityLarge" Size="Size.Medium" Color="Color.Default"
+                               OnClick="HistoryPerYearInLifetimeCommand" />
+            </MudTooltip>
+
             <MudTooltip Text="Volgende" Arrow="true" Placement="Placement.Bottom">
                 <MudIconButton Icon="@Icons.Material.Filled.NavigateNext" Size="Size.Medium" Color="Color.Default"
                                OnClick="NavigateNextCommand" />
@@ -35,21 +50,21 @@
                                         Name="@SolarPower.Series1Description"
                                         XValue="@(e => e.XValue)"
                                         YValue="@(e => e.YValue)"
-                                        SeriesType="ApexCharts.SeriesType.Area" />
+                                        SeriesType="ApexCharts.SeriesType.Bar" />
 
             <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
                                         Items="@SolarPower.Series2"
                                         Name="@SolarPower.Series2Description"
                                         XValue="@(e => e.XValue)"
                                         YValue="@(e => e.YValue)"
-                                        SeriesType="ApexCharts.SeriesType.Area" />
+                                        SeriesType="ApexCharts.SeriesType.Bar" />
 
             <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
                                         Items="@SolarPower.Series3"
                                         Name="@SolarPower.Series3Description"
                                         XValue="e => e.XValue"
                                         YValue="e => e.YValue"
-                                        SeriesType="ApexCharts.SeriesType.Area" />
+                                        SeriesType="ApexCharts.SeriesType.Bar" />
         </ApexCharts.ApexChart>
     </MudCardContent>
     <MudCardActions>

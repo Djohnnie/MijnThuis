@@ -3,7 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using MijnThuis.Contracts.Sauna;
 using MijnThuis.Integrations.Sauna;
 
-namespace MijnThuis.Application.Sauna.Query;
+namespace MijnThuis.Application.Sauna.Queries;
 
 public class GetSaunaOverviewQueryHandler : IRequestHandler<GetSaunaOverviewQuery, GetSaunaOverviewResponse>
 {

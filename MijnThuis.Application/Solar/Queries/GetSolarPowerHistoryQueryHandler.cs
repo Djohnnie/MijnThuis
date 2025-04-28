@@ -3,46 +3,69 @@ using Microsoft.EntityFrameworkCore;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.DataAccess;
 
-namespace MijnThuis.Application.Solar.Query;
+namespace MijnThuis.Application.Solar.Queries;
 
-public class GetSolarEnergyHistoryQueryHandler : IRequestHandler<GetSolarEnergyHistoryQuery, GetSolarEnergyHistoryResponse>
+public class GetSolarPowerHistoryQueryHandler : IRequestHandler<GetSolarPowerHistoryQuery, GetSolarPowerHistoryResponse>
 {
     private readonly MijnThuisDbContext _dbContext;
 
-    public GetSolarEnergyHistoryQueryHandler(MijnThuisDbContext dbContext)
+    public GetSolarPowerHistoryQueryHandler(MijnThuisDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
-    public async Task<GetSolarEnergyHistoryResponse> Handle(GetSolarEnergyHistoryQuery request, CancellationToken cancellationToken)
+    public async Task<GetSolarPowerHistoryResponse> Handle(GetSolarPowerHistoryQuery request, CancellationToken cancellationToken)
     {
-        var entries = await _dbContext.SolarEnergyHistory
-            .Where(x => x.Date.Date >= request.From && x.Date.Date <= request.To)
-            .ToListAsync();
+        var entries = _dbContext.SolarPowerHistory
+            .Where(x => x.Date.Date >= request.From && x.Date.Date <= request.To);
 
-        var response = new GetSolarEnergyHistoryResponse();
+        var response = new GetSolarPowerHistoryResponse();
 
-        switch(request.Unit)
+        switch (request.Unit)
         {
-            case EnergyHistoryUnit.Day:
-                response.Entries = GroupEntriesByDay(entries);
+            case PowerHistoryUnit.FifteenMinutes:
+                response.Entries = await MapEntries(entries);
                 break;
-            case EnergyHistoryUnit.Month:
-                response.Entries = GroupEntriesByMonth(entries);
+            case PowerHistoryUnit.Day:
+                response.Entries = await GroupEntriesByDay(entries);
                 break;
-            case EnergyHistoryUnit.Year:
-                response.Entries = GroupEntriesByYear(entries);
+            case PowerHistoryUnit.Month:
+                response.Entries = await GroupEntriesByMonth(entries);
+                break;
+            case PowerHistoryUnit.Year:
+                response.Entries = await GroupEntriesByYear(entries);
                 break;
         }
 
         return response;
     }
 
-    private List<SolarEnergyHistoryEntry> GroupEntriesByDay(List<DataAccess.Entities.SolarEnergyHistoryEntry> entries)
+    private async Task<List<SolarPowerHistoryEntry>> MapEntries(IQueryable<DataAccess.Entities.SolarPowerHistoryEntry> entries)
     {
-        return entries
+        return await entries
+            .Select(x => new SolarPowerHistoryEntry
+            {
+                Date = x.Date,
+                Import = x.Import,
+                Export = x.Export,
+                Production = x.Production,
+                ProductionToHome = x.ProductionToHome,
+                ProductionToBattery = x.ProductionToBattery,
+                ProductionToGrid = x.ProductionToGrid,
+                Consumption = x.Consumption,
+                ConsumptionFromBattery = x.ConsumptionFromBattery,
+                ConsumptionFromSolar = x.ConsumptionFromSolar,
+                ConsumptionFromGrid = x.ConsumptionFromGrid,
+                StorageLevel = x.StorageLevel * 100M
+            })
+            .ToListAsync();
+    }
+
+    private async Task<List<SolarPowerHistoryEntry>> GroupEntriesByDay(IQueryable<DataAccess.Entities.SolarPowerHistoryEntry> entries)
+    {
+        return await entries
             .GroupBy(x => x.Date.Date)
-            .Select(g => new SolarEnergyHistoryEntry
+            .Select(g => new SolarPowerHistoryEntry
             {
                 Date = g.Key,
                 Import = g.Sum(x => x.Import) / 1000M,
@@ -56,14 +79,14 @@ public class GetSolarEnergyHistoryQueryHandler : IRequestHandler<GetSolarEnergyH
                 ConsumptionFromSolar = g.Sum(x => x.ConsumptionFromSolar) / 1000M,
                 ConsumptionFromGrid = g.Sum(x => x.ConsumptionFromGrid) / 1000M
             })
-            .ToList();
+            .ToListAsync();
     }
 
-    private List<SolarEnergyHistoryEntry> GroupEntriesByMonth(List<DataAccess.Entities.SolarEnergyHistoryEntry> entries)
+    private async Task<List<SolarPowerHistoryEntry>> GroupEntriesByMonth(IQueryable<DataAccess.Entities.SolarPowerHistoryEntry> entries)
     {
-        return entries
+        return await entries
             .GroupBy(x => new { x.Date.Year, x.Date.Month })
-            .Select(g => new SolarEnergyHistoryEntry
+            .Select(g => new SolarPowerHistoryEntry
             {
                 Date = new DateTime(g.Key.Year, g.Key.Month, 1),
                 Import = g.Sum(x => x.Import) / 1000M,
@@ -77,14 +100,14 @@ public class GetSolarEnergyHistoryQueryHandler : IRequestHandler<GetSolarEnergyH
                 ConsumptionFromSolar = g.Sum(x => x.ConsumptionFromSolar) / 1000M,
                 ConsumptionFromGrid = g.Sum(x => x.ConsumptionFromGrid) / 1000M
             })
-            .ToList();
+            .ToListAsync();
     }
 
-    private List<SolarEnergyHistoryEntry> GroupEntriesByYear(List<DataAccess.Entities.SolarEnergyHistoryEntry> entries)
+    private async Task<List<SolarPowerHistoryEntry>> GroupEntriesByYear(IQueryable<DataAccess.Entities.SolarPowerHistoryEntry> entries)
     {
-        return entries
+        return await entries
             .GroupBy(x => x.Date.Year)
-            .Select(g => new SolarEnergyHistoryEntry
+            .Select(g => new SolarPowerHistoryEntry
             {
                 Date = new DateTime(g.Key, 1, 1),
                 Import = g.Sum(x => x.Import) / 1000M,
@@ -98,6 +121,6 @@ public class GetSolarEnergyHistoryQueryHandler : IRequestHandler<GetSolarEnergyH
                 ConsumptionFromSolar = g.Sum(x => x.ConsumptionFromSolar) / 1000M,
                 ConsumptionFromGrid = g.Sum(x => x.ConsumptionFromGrid) / 1000M
             })
-            .ToList();
+            .ToListAsync();
     }
 }

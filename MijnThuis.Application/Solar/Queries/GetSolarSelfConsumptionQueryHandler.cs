@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.DataAccess;
 
-namespace MijnThuis.Application.Solar.Query;
+namespace MijnThuis.Application.Solar.Queries;
 
 internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSelfConsumptionQuery, GetSolarSelfConsumptionResponse>
 {
@@ -45,7 +45,7 @@ internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSel
         var selfConsumptionThisMonth = solarEnergyHistoryThisMonth.Any() ? (solarEnergyHistoryThisMonth.Sum(x => x.Production) - solarEnergyHistoryThisMonth.Sum(x => x.Export)) / solarEnergyHistoryThisMonth.Sum(x => x.Production) * 100M : 0M;
         var selfConsumptionThisYear = solarEnergyHistoryThisYear.Any() ? (solarEnergyHistoryThisYear.Sum(x => x.Production) - solarEnergyHistoryThisYear.Sum(x => x.Export)) / solarEnergyHistoryThisYear.Sum(x => x.Production) * 100M : 0M;
 
-        var selfSufficiencyToday = solarEnergyHistoryToday != null ? solarEnergyHistoryToday.Consumption == 0 ? 0M : (solarEnergyHistoryToday.Consumption - solarEnergyHistoryToday.Import) / (solarEnergyHistoryToday.Consumption) * 100M : 0M;
+        var selfSufficiencyToday = solarEnergyHistoryToday != null ? solarEnergyHistoryToday.Consumption == 0 ? 0M : (solarEnergyHistoryToday.Consumption - solarEnergyHistoryToday.Import) / solarEnergyHistoryToday.Consumption * 100M : 0M;
         var selfSufficiencyThisMonth = solarEnergyHistoryThisMonth.Any() ? (solarEnergyHistoryThisMonth.Sum(x => x.Consumption) - solarEnergyHistoryThisMonth.Sum(x => x.Import)) / solarEnergyHistoryThisMonth.Sum(x => x.Consumption) * 100M : 0M;
         var selfSufficiencyThisYear = solarEnergyHistoryThisYear.Any() ? (solarEnergyHistoryThisYear.Sum(x => x.Consumption) - solarEnergyHistoryThisYear.Sum(x => x.Import)) / solarEnergyHistoryThisYear.Sum(x => x.Consumption) * 100M : 0M;
 
@@ -110,8 +110,8 @@ internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSel
                     .Select(g => new SolarSelfConsumptionEntry
                     {
                         Date = new DateTime(g.Key.Year, 1, 1),
-                        SelfConsumption = Math.Max(0M, Math.Round((g.Sum(x => x.Production) == 0 ? 0M : (g.Sum(x => x.Production) - g.Sum(x => x.Export)) / g.Sum(x => x.Production) * 100M))),
-                        SelfSufficiency = Math.Max(0M, Math.Round((g.Sum(x => x.Consumption) == 0 ? 0M : (g.Sum(x => x.Consumption) - g.Sum(x => x.Import)) / g.Sum(x => x.Consumption) * 100M)))
+                        SelfConsumption = Math.Max(0M, Math.Round(g.Sum(x => x.Production) == 0 ? 0M : (g.Sum(x => x.Production) - g.Sum(x => x.Export)) / g.Sum(x => x.Production) * 100M)),
+                        SelfSufficiency = Math.Max(0M, Math.Round(g.Sum(x => x.Consumption) == 0 ? 0M : (g.Sum(x => x.Consumption) - g.Sum(x => x.Import)) / g.Sum(x => x.Consumption) * 100M))
                     })
                     .ToList();
                 break;

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.DataAccess;
 
-namespace MijnThuis.Application.Solar.Query;
+namespace MijnThuis.Application.Solar.Queries;
 
 public class GetSolarForecastHistoryQueryHandler : IRequestHandler<GetSolarForecastHistoryQuery, GetSolarForecastHistoryResponse>
 {

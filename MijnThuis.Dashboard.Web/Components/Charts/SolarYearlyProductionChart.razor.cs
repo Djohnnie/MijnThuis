@@ -1,4 +1,4 @@
-using ApexCharts;
+﻿using ApexCharts;
 using MediatR;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.Dashboard.Web.Model.Charts;
@@ -7,7 +7,7 @@ namespace MijnThuis.Dashboard.Web.Components.Charts;
 
 public partial class SolarYearlyProductionChart
 {
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(15));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromHours(1));
     private ApexChart<ChartDataEntry<string, decimal>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal>> _options { get; set; } = new();
 
@@ -98,6 +98,7 @@ public partial class SolarYearlyProductionChart
 
     private async Task RunTimer()
     {
+        await Task.Delay(Random.Shared.Next(1000, 5000));
         await RefreshData();
 
         while (await _periodicTimer.WaitForNextTickAsync())

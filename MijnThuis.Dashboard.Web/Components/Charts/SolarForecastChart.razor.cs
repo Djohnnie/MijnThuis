@@ -1,6 +1,5 @@
 ﻿using ApexCharts;
 using MediatR;
-using MijnThuis.Application.Solar.Query;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.Dashboard.Web.Model.Charts;
 
@@ -93,6 +92,7 @@ public partial class SolarForecastChart
 
     private async Task RunTimer()
     {
+        await Task.Delay(Random.Shared.Next(1000, 5000));
         await RefreshData();
 
         while (await _periodicTimer.WaitForNextTickAsync())
