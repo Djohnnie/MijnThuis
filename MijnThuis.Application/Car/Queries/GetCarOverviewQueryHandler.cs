@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using MijnThuis.Contracts.Car;
 using MijnThuis.DataAccess;
 using MijnThuis.DataAccess.Entities;
@@ -11,18 +12,18 @@ namespace MijnThuis.Application.Car.Queries;
 
 public class GetCarOverviewQueryHandler : IRequestHandler<GetCarOverviewQuery, GetCarOverviewResponse>
 {
-    private readonly MijnThuisDbContext _dbContext;
+    private readonly IServiceScopeFactory _serviceProvider;
     private readonly ICarService _carService;
     private readonly IChargerService _chargerService;
     private readonly IConfiguration _configuration;
 
     public GetCarOverviewQueryHandler(
-        MijnThuisDbContext dbContext,
+        IServiceScopeFactory serviceProvider,
         ICarService carService,
         IChargerService chargerService,
         IConfiguration configuration)
     {
-        _dbContext = dbContext;
+        _serviceProvider = serviceProvider;
         _carService = carService;
         _chargerService = chargerService;
         _configuration = configuration;
@@ -30,6 +31,9 @@ public class GetCarOverviewQueryHandler : IRequestHandler<GetCarOverviewQuery, G
 
     public async Task<GetCarOverviewResponse> Handle(GetCarOverviewQuery request, CancellationToken cancellationToken)
     {
+        using var scope = _serviceProvider.CreateScope();
+        using var dbContext = scope.ServiceProvider.GetRequiredService<MijnThuisDbContext>();
+
         var charger1Id = _configuration.GetValue<string>("CHARGER_1_ID");
         var charger2Id = _configuration.GetValue<string>("CHARGER_2_ID");
 
@@ -52,7 +56,7 @@ public class GetCarOverviewQueryHandler : IRequestHandler<GetCarOverviewQuery, G
         result.Charger2 = $"{charger2Result.NumberOfChargersAvailable} / {charger2Result.NumberOfChargers}";
         result.Charger2Available = charger2Result.NumberOfChargersAvailable > 0;
 
-        var flag = await _dbContext.Flags.SingleOrDefaultAsync(x => x.Name == ManualCarChargeFlag.Name, cancellationToken);
+        var flag = await dbContext.Flags.SingleOrDefaultAsync(x => x.Name == ManualCarChargeFlag.Name, cancellationToken);
         result.IsChargingManually = flag != null && ManualCarChargeFlag.Deserialize(flag.Value).ShouldCharge;
 
         return result;
