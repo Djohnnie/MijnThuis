@@ -241,8 +241,6 @@ public class CarChargingHelperState
         if (!carIsReadyToCharge)
         {
             Result.Type = CarChargingHelperResultType.NotReadyForCharging;
-            CurrentChargeSession = null;
-            LastMeasurementTimestamp = null;
         }
     }
 
