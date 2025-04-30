@@ -45,6 +45,7 @@ public class CarService : BaseService, ICarService
             IsPreconditioning = result.ClimateState.IsPreconditioning,
             ChargingAmps = result.ChargeState.ChargingAmps,
             MaxChargingAmps = result.ChargeState.MaxChargingAmps,
+            ChargeLimit = result.ChargeState.ChargeLimit,
             IsChargePortOpen = result.ChargeState.IsChargePortOpen,
             ChargeEnergyAdded = result.ChargeState.ChargeEnergyAdded,
             ChargeRangeAdded = result.ChargeState.ChargeMilesAdded * 1.60934M,
@@ -196,6 +197,9 @@ public class ChargeState
 
     [JsonPropertyName("charge_current_request_max")]
     public int MaxChargingAmps { get; set; }
+
+    [JsonPropertyName("charge_limit_soc")]
+    public int ChargeLimit { get; set; }
 
     [JsonPropertyName("charge_port_door_open")]
     public bool IsChargePortOpen { get; set; }

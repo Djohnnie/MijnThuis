@@ -12,6 +12,7 @@ public class CarOverview
     public bool IsPreconditioning { get; set; }
     public int ChargingAmps { get; set; }
     public int MaxChargingAmps { get; set; }
+    public int ChargeLimit { get; set; }
     public bool IsChargePortOpen { get; set; }
     public decimal ChargeEnergyAdded { get; set; }
     public decimal ChargeRangeAdded { get; set; }

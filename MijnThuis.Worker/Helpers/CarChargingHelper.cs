@@ -56,7 +56,7 @@ public class CarChargingHelper : ICarChargingHelper
 
         // Check if the car is parked within the "Thuis" area and the
         // charge port is open (probably connected to the house).
-        state.SetCarIsReadyToCharge(carLocation.Location == "Thuis" && carOverview.IsChargePortOpen);
+        state.SetCarIsReadyToCharge(carLocation.Location == "Thuis" && carOverview.IsChargePortOpen && carOverview.BatteryLevel < carOverview.ChargeLimit);
 
         // If this makes the car ready to charge?
         if (state.CarIsReadyToCharge)
