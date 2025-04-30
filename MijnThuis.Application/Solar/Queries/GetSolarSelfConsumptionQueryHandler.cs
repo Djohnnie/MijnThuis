@@ -17,7 +17,7 @@ internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSel
 
     public async Task<GetSolarSelfConsumptionResponse> Handle(GetSolarSelfConsumptionQuery request, CancellationToken cancellationToken)
     {
-        using var serviceScope = _serviceProvider.CreateScope();
+        var serviceScope = _serviceProvider.CreateScope();
         var dbContext = serviceScope.ServiceProvider.GetRequiredService<MijnThuisDbContext>();
 
         var date = request.Date.Date;
