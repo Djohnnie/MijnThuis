@@ -218,9 +218,10 @@ public partial class SolarProductionHistoryChart
                     }).OrderBy(x => x.XValue));
                     break;
             }
-            await _apexChart.UpdateSeriesAsync(true);
 
             await InvokeAsync(StateHasChanged);
+            await Task.Delay(100);
+            await _apexChart.UpdateSeriesAsync(true);
         }
         catch (Exception ex)
         {

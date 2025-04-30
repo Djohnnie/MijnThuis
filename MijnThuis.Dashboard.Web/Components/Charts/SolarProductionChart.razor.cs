@@ -155,9 +155,10 @@ public partial class SolarProductionChart
                 XValue = $"{x.Date:dd/MM/yyyy HH:mm}",
                 YValue = x.ProductionToGrid
             }), 24 * 4, n => $"{date.AddMinutes(n * 15):dd/MM/yyyy HH:mm}"));
-            await _apexChart.UpdateSeriesAsync(true);
 
             await InvokeAsync(StateHasChanged);
+            await Task.Delay(100);
+            await _apexChart.UpdateSeriesAsync(true);
         }
         catch (Exception ex)
         {

@@ -154,9 +154,10 @@ public partial class SolarYearlyProductionChart
                     XValue = $"{x.Date:MMMM yyyy}",
                     YValue = x.Production
                 }), 12, n => $"{new DateTime(DateTime.Today.Year, n, 1):MMMM yyyy}"));
-            await _apexChart.UpdateSeriesAsync(true);
 
             await InvokeAsync(StateHasChanged);
+            await Task.Delay(100);
+            await _apexChart.UpdateSeriesAsync(true);
         }
         catch (Exception ex)
         {

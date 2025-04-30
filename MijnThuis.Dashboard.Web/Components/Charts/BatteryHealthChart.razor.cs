@@ -149,10 +149,10 @@ public partial class BatteryHealthChart
             _options.Yaxis[0].Min = Math.Min(minimumStateOfHealth - 5, minimumCalculatedStateOfHealth - 5);
             _options.Yaxis[0].Max = 100;
 
+            await InvokeAsync(StateHasChanged);
+            await Task.Delay(100);
             await _apexChart.UpdateSeriesAsync(true);
             await _apexChart.UpdateOptionsAsync(true, true, false);
-
-            await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {

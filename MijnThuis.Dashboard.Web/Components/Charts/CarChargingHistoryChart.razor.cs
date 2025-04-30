@@ -186,10 +186,10 @@ public partial class CarChargingHistoryChart
                     break;
             }
 
-            await _apexChart.UpdateSeriesAsync(true);
-            await _apexChart.UpdateOptionsAsync(true, true, true);
-
             await InvokeAsync(StateHasChanged);
+            await Task.Delay(100);
+            await _apexChart.UpdateSeriesAsync(true);
+            await _apexChart.UpdateOptionsAsync(true, true, false);
         }
         catch (Exception ex)
         {
