@@ -22,7 +22,7 @@ steps:
   displayName: 'Use .NET SDK (9.0)'
   inputs:
     packageType: sdk
-    version: 9.0.100
+    version: 9.0.203
     includePreviewVersions: true
     installationPath: $(Agent.ToolsDirectory)/dotnet
 
