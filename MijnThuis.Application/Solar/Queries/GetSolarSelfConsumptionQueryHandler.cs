@@ -8,9 +8,9 @@ namespace MijnThuis.Application.Solar.Queries;
 
 internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSelfConsumptionQuery, GetSolarSelfConsumptionResponse>
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _serviceProvider;
 
-    public GetSolarSelfConsumptionQueryHandler(IServiceProvider serviceProvider)
+    public GetSolarSelfConsumptionQueryHandler(IServiceScopeFactory serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }

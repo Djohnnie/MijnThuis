@@ -11,12 +11,12 @@ namespace MijnThuis.Application.Heating.Queries;
 
 public class GetHeatingOverviewQueryHandler : IRequestHandler<GetHeatingOverviewQuery, GetHeatingOverviewResponse>
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _serviceProvider;
     private readonly IHeatingService _heatingService;
     private readonly IMemoryCache _memoryCache;
 
     public GetHeatingOverviewQueryHandler(
-        IServiceProvider serviceProvider,
+        IServiceScopeFactory serviceProvider,
         IHeatingService heatingService,
         IMemoryCache memoryCache)
     {

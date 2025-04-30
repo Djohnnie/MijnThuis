@@ -6,11 +6,12 @@ namespace MijnThuis.Worker;
 public class HomeBatteryChargingWorker : BackgroundService
 {
     private readonly IConfiguration _configuration;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _serviceProvider;
     private readonly ILogger<HomeBatteryChargingWorker> _logger;
 
     public HomeBatteryChargingWorker(
-        IConfiguration configuration, IServiceProvider serviceProvider,
+        IConfiguration configuration, 
+        IServiceScopeFactory serviceProvider,
         ILogger<HomeBatteryChargingWorker> logger)
     {
         _configuration = configuration;

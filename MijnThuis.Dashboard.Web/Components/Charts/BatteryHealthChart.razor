@@ -1,7 +1,7 @@
 ﻿@using MijnThuis.Contracts.Solar
 @using MijnThuis.Dashboard.Web.Model.Charts;
 @implements IDisposable
-@inject IServiceProvider ServiceProvider
+@inject IServiceScopeFactory ServiceProvider
 @inject ILogger<BatteryHealthChart> Logger
 
 <MudCard Outlined>

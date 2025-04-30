@@ -8,13 +8,13 @@ namespace MijnThuis.Worker;
 
 internal class SolarForecastHistoryWorker : BackgroundService
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _serviceProvider;
     private readonly ISolarService _solarService;
     private readonly IForecastService _forecastService;
     private readonly ILogger<SolarHistoryWorker> _logger;
 
     public SolarForecastHistoryWorker(
-        IServiceProvider serviceProvider,
+        IServiceScopeFactory serviceProvider,
         ISolarService solarService,
         IForecastService forecastService,
         ILogger<SolarHistoryWorker> logger)

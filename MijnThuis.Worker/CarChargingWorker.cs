@@ -1,15 +1,15 @@
-using MijnThuis.Worker.Helpers;
+﻿using MijnThuis.Worker.Helpers;
 using System.Diagnostics;
 
 namespace MijnThuis.Worker;
 
 public class CarChargingWorker : BackgroundService
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _serviceProvider;
     private readonly ILogger<CarChargingWorker> _logger;
 
     public CarChargingWorker(
-        IServiceProvider serviceProvider,
+        IServiceScopeFactory serviceProvider,
         ILogger<CarChargingWorker> logger)
     {
         _serviceProvider = serviceProvider;

@@ -8,12 +8,12 @@ namespace MijnThuis.Worker;
 internal class HomeBatteryNotificationWorker : BackgroundService
 {
     private readonly IConfiguration _configuration;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _serviceProvider;
     private readonly ILogger<HomeBatteryNotificationWorker> _logger;
 
     public HomeBatteryNotificationWorker(
         IConfiguration configuration,
-        IServiceProvider serviceProvider,
+        IServiceScopeFactory serviceProvider,
         ILogger<HomeBatteryNotificationWorker> logger)
     {
         _configuration = configuration;

@@ -9,12 +9,12 @@ namespace MijnThuis.Worker;
 public class EnergyHistoryWorker : BackgroundService
 {
     private readonly IConfiguration _configuration;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _serviceProvider;
     private readonly ILogger<EnergyHistoryWorker> _logger;
 
     public EnergyHistoryWorker(
         IConfiguration configuration,
-        IServiceProvider serviceProvider,
+        IServiceScopeFactory serviceProvider,
         ILogger<EnergyHistoryWorker> logger)
     {
         _configuration = configuration;

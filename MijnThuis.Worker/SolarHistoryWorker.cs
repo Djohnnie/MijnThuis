@@ -10,12 +10,12 @@ namespace MijnThuis.Worker;
 internal class SolarHistoryWorker : BackgroundService
 {
     private readonly IConfiguration _configuration;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _serviceProvider;
     private readonly ILogger<SolarHistoryWorker> _logger;
 
     public SolarHistoryWorker(
         IConfiguration configuration,
-        IServiceProvider serviceProvider,
+        IServiceScopeFactory serviceProvider,
         ILogger<SolarHistoryWorker> logger)
     {
         _configuration = configuration;
