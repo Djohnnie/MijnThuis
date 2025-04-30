@@ -28,7 +28,7 @@ public class GetHeatingOverviewQueryHandler : IRequestHandler<GetHeatingOverview
     public async Task<GetHeatingOverviewResponse> Handle(GetHeatingOverviewQuery request, CancellationToken cancellationToken)
     {
         using var serviceScope = _serviceProvider.CreateScope();
-        using var dbContext = serviceScope.ServiceProvider.GetRequiredService<MijnThuisDbContext>();
+        var dbContext = serviceScope.ServiceProvider.GetRequiredService<MijnThuisDbContext>();
 
         var today = DateTime.Today;
         var thisMonth = new DateTime(today.Year, today.Month, 1);
