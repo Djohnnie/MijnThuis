@@ -19,7 +19,7 @@ public partial class SolarConsumptionHistoryChart
     private ApexChart<ChartDataEntry<string, decimal>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal>> _options { get; set; } = new();
 
-    private ChartData3<string, decimal> SolarPower { get; set; } = new();
+    private ChartData4<string, decimal> SolarPower { get; set; } = new();
 
     private HistoryType _historyType = HistoryType.PerMonthInYear;
     private DateTime _historyDate = new DateTime(DateTime.Today.Year, 1, 1);
@@ -69,7 +69,7 @@ public partial class SolarConsumptionHistoryChart
                 DecimalsInFloat = 0,
                 Labels = new YAxisLabels
                 {
-                    Formatter = @"function (value) { return value + ' W'; }"
+                    Formatter = @"function (value) { return value + ' kWh'; }"
                 }
             }
         };
@@ -78,7 +78,7 @@ public partial class SolarConsumptionHistoryChart
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
-        _options.Colors = new List<string> { "#B0D8FD", "#93B6FB", "#FBB550" };
+        _options.Colors = new List<string> { "#B0D8FD", "#93B6FB", "#FBB550", "#C021C7" };
         _options.Stroke = new Stroke
         {
             Show = false
@@ -93,6 +93,7 @@ public partial class SolarConsumptionHistoryChart
         SolarPower.Series1Description = "Consumptie vanuit batterij";
         SolarPower.Series2Description = "Consumptie vanuit PV";
         SolarPower.Series3Description = "Consumptie vanuit het net";
+        SolarPower.Series4Description = "Batterij opladen vanuit het net";
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -179,6 +180,11 @@ public partial class SolarConsumptionHistoryChart
                         XValue = $"{x.Date:dd/MM/yyyy}",
                         YValue = Math.Round(x.ConsumptionFromGrid)
                     }), daysInMonth, n => $"{_historyDate.AddDays(n):dd/MM/yyyy}"));
+                    SolarPower.Series4.AddRange(FillData(entries.Select(x => new ChartDataEntry<string, decimal>
+                    {
+                        XValue = $"{x.Date:dd/MM/yyyy}",
+                        YValue = -Math.Round(x.ImportToBattery)
+                    }), daysInMonth, n => $"{_historyDate.AddDays(n):dd/MM/yyyy}"));
                     break;
                 case HistoryType.PerMonthInYear:
                     TitleDescription = string.Create(CultureInfo.GetCultureInfo("nl-be"), $"De consumptie in {_historyDate:yyyy}");
@@ -197,6 +203,11 @@ public partial class SolarConsumptionHistoryChart
                         XValue = $"{x.Date:MM/yyyy}",
                         YValue = Math.Round(x.ConsumptionFromGrid)
                     }), 12, n => $"{_historyDate.AddMonths(n):MM/yyyy}"));
+                    SolarPower.Series4.AddRange(FillData(entries.Select(x => new ChartDataEntry<string, decimal>
+                    {
+                        XValue = $"{x.Date:MM/yyyy}",
+                        YValue = -Math.Round(x.ImportToBattery)
+                    }), 12, n => $"{_historyDate.AddMonths(n):MM/yyyy}"));
                     break;
                 case HistoryType.PerYearInLifetime:
                     TitleDescription = string.Create(CultureInfo.GetCultureInfo("nl-be"), $"De consumptie gedurende de totale levensduur");
@@ -214,6 +225,11 @@ public partial class SolarConsumptionHistoryChart
                     {
                         XValue = $"{x.Date:yyyy}",
                         YValue = Math.Round(x.ConsumptionFromGrid)
+                    }).OrderBy(x => x.XValue));
+                    SolarPower.Series4.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
+                    {
+                        XValue = $"{x.Date:yyyy}",
+                        YValue = -Math.Round(x.ImportToBattery)
                     }).OrderBy(x => x.XValue));
                     break;
             }

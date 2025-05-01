@@ -39,3 +39,16 @@ public class ChartData3<TX, TY> : ChartData2<TX, TY>
         Series3.Clear();
     }
 }
+
+public class ChartData4<TX, TY> : ChartData3<TX, TY>
+{
+    public string Series4Description { get; set; }
+    public List<ChartDataEntry<TX, TY>> Series4 { get; set; } = new();
+
+    public override void Clear()
+    {
+        base.Clear();
+
+        Series4.Clear();
+    }
+}

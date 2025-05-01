@@ -10,6 +10,7 @@ public class SolarEnergyHistoryEntry
     public DateTime Date { get; set; }
     public decimal Import { get; set; }
     public decimal Export { get; set; }
+    public decimal ImportToBattery { get; set; }
     public decimal Production { get; set; }
     public decimal ProductionToHome { get; set; }
     public decimal ProductionToBattery { get; set; }
