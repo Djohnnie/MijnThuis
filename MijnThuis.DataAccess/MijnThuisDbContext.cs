@@ -15,6 +15,7 @@ public class MijnThuisDbContext : DbContext
     public DbSet<EnergyHistoryEntry> EnergyHistory { get; set; }
     public DbSet<CarChargingEnergyHistoryEntry> CarChargingHistory { get; set; }
     public DbSet<SolarForecastHistoryEntry> SolarForecastHistory { get; set; }
+    public DbSet<DayAheadEnergyPricesEntry> DayAheadEnergyPrices { get; set; }
 
     public MijnThuisDbContext(IConfiguration configuration)
     {
@@ -129,6 +130,17 @@ public class MijnThuisDbContext : DbContext
             entityBuilder.Property(x => x.ActualEnergyToday).HasPrecision(9, 3);
             entityBuilder.Property(x => x.ForecastedEnergyTomorrow).HasPrecision(9, 3);
             entityBuilder.Property(x => x.ForecastedEnergyDayAfterTomorrow).HasPrecision(9, 3);
+        });
+
+        modelBuilder.Entity<DayAheadEnergyPricesEntry>(entityBuilder =>
+        {
+            entityBuilder.ToTable("DAY_AHEAD_ENERGY_PRICES");
+            entityBuilder.HasKey(x => x.Id).IsClustered(false);
+            entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
+            entityBuilder.HasIndex(x => x.SysId).IsClustered();
+            entityBuilder.HasIndex(x => x.From);
+            entityBuilder.HasIndex(x => x.To);
+            entityBuilder.Property(x => x.EuroPerMWh).HasPrecision(9, 3);
         });
     }
 }
