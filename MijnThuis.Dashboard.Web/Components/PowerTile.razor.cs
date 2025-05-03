@@ -1,3 +1,4 @@
+﻿using Microsoft.AspNetCore.Components;
 using MijnThuis.Contracts.Power;
 using MijnThuis.Contracts.Solar;
 
@@ -7,6 +8,8 @@ public partial class PowerTile
 {
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(5));
 
+    [Inject]
+    protected NavigationManager NavigationManager { get; set; }
     public bool IsReady { get; set; }
     public string Title { get; set; }
     public decimal CurrentPower { get; set; }
@@ -115,6 +118,11 @@ public partial class PowerTile
     public async Task WakeOnLan()
     {
         await Mediator.Send(new WakeOnLanCommand());
+    }
+
+    public void MoreCommand()
+    {
+        NavigationManager.NavigateTo($"power{new Uri(NavigationManager.Uri).Query}");
     }
 
     public void Dispose()

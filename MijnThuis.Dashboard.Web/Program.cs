@@ -36,6 +36,7 @@ builder.Services.AddApexCharts(e =>
 {
     e.GlobalOptions = new ApexChartBaseOptions
     {
+        Debug = true,
         Theme = new Theme { Palette = PaletteType.Palette6 }
     };
 });

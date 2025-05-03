@@ -14,6 +14,11 @@
             <MudText Typo="Typo.body1">Elektriciteit</MudText>
             <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(Title) ? "Het huidige stroomverbruik" : Title)</MudText>
         </CardHeaderContent>
+        <CardHeaderActions>
+            <MudTooltip Text="Meer details" Arrow="true" Placement="Placement.Left">
+                <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" OnClick="MoreCommand" />
+            </MudTooltip>
+        </CardHeaderActions>
     </MudCardHeader>
     <MudCardContent>
         <MudGrid>

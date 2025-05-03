@@ -1,0 +1,44 @@
+﻿@using MijnThuis.Contracts.Solar
+@using MijnThuis.Dashboard.Web.Model.Charts;
+@implements IDisposable
+@inject IServiceScopeFactory ServiceProvider
+@inject ILogger<PeakPowerUsageChart> Logger
+
+<MudCard Outlined>
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <MudAvatar Color="Color.Primary">
+                <MudIcon Icon="@Icons.Material.Filled.BatteryAlert" />
+            </MudAvatar>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.body1">Elektriciteit</MudText>
+            <MudText Typo="Typo.body2">@TitleDescription</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudTooltip Text="Vorige" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.NavigateBefore" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateBeforeCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Volgende" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.NavigateNext" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateNextCommand" />
+            </MudTooltip>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal>" Options="_options" @ref="_apexChart">
+
+            <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
+                                        Items="@PeakPowerUsage.Series1"
+                                        Name="@PeakPowerUsage.Series1Description"
+                                        XValue="@(e => e.XValue)"
+                                        YValue="@(e => e.YValue)"
+                                        PointColor="e => GetColor(e)"
+                                        SeriesType="ApexCharts.SeriesType.Bar" />
+        </ApexCharts.ApexChart>
+    </MudCardContent>
+    <MudCardActions>
+    </MudCardActions>
+</MudCard>
