@@ -1,6 +1,7 @@
 ﻿using ApexCharts;
 using MediatR;
 using MijnThuis.Application.Power.Queries;
+using MijnThuis.Contracts.Power;
 using MijnThuis.Dashboard.Web.Model.Charts;
 
 namespace MijnThuis.Dashboard.Web.Components.Charts;
