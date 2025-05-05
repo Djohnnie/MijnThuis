@@ -2,6 +2,11 @@
 
 namespace MijnThuis.DataAccess.Entities;
 
+public interface IFlag
+{
+    string Serialize();
+}
+
 public class Flag
 {
     public Guid Id { get; set; }
@@ -10,7 +15,7 @@ public class Flag
     public string Value { get; set; }
 }
 
-public class ManualCarChargeFlag
+public class ManualCarChargeFlag : IFlag
 {
     public static string Name => "ManualCarCharge";
 
@@ -27,5 +32,41 @@ public class ManualCarChargeFlag
     public static ManualCarChargeFlag Deserialize(string json)
     {
         return JsonSerializer.Deserialize<ManualCarChargeFlag>(json);
+    }
+}
+
+public class ConsumptionTariffExpressionFlag : IFlag
+{
+    public static string Name => "ConsumptionTariffExpression";
+    public static ConsumptionTariffExpressionFlag Default => new ConsumptionTariffExpressionFlag();
+    public string Expression { get; set; }
+    public string Source { get; set; }
+
+    public string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
+
+    public static ConsumptionTariffExpressionFlag Deserialize(string json)
+    {
+        return JsonSerializer.Deserialize<ConsumptionTariffExpressionFlag>(json);
+    }
+}
+
+public class InjectionTariffExpressionFlag : IFlag
+{
+    public static string Name => "InjectionTariffExpression";
+    public static InjectionTariffExpressionFlag Default => new InjectionTariffExpressionFlag();
+    public string Expression { get; set; }
+    public string Source { get; set; }
+
+    public string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
+
+    public static InjectionTariffExpressionFlag Deserialize(string json)
+    {
+        return JsonSerializer.Deserialize<InjectionTariffExpressionFlag>(json);
     }
 }

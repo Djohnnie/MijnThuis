@@ -169,7 +169,7 @@ public class CarChargingHelper : ICarChargingHelper
             if (manualCarChargeFlag.ShouldCharge)
             {
                 // Turn off manual car charging.
-                await _flagRepository.SetCarChargingFlag(false);
+                await _flagRepository.SetCarChargingFlag(false, 16);
             }
         }
     }
