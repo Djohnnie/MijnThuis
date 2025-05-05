@@ -1,24 +1,9 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using MijnThuis.Contracts.Power;
 using MijnThuis.DataAccess;
 
 namespace MijnThuis.Application.Power.Queries;
-
-public class GetPeakPowerUsageHistoryQuery : IRequest<GetPeakPowerUsageHistoryResponse>
-{
-    public int Year { get; set; }
-}
-
-public class GetPeakPowerUsageHistoryResponse
-{
-    public List<MonthlyPowerPeak> Entries { get; set; } = new();
-}
-
-public class MonthlyPowerPeak
-{
-    public DateTime Date { get; set; }
-    public decimal PowerPeak { get; set; }
-}
 
 public class GetPeakPowerUsageHistoryQueryHandler : IRequestHandler<GetPeakPowerUsageHistoryQuery, GetPeakPowerUsageHistoryResponse>
 {

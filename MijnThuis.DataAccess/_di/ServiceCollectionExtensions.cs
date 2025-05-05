@@ -10,6 +10,7 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<MijnThuisDbContext>();
         services.AddScoped<IFlagRepository, FlagRepository>();
         services.AddScoped<ICarChargingEnergyHistoryRepository, CarChargingEnergyHistoryRepository>();
+        services.AddScoped<IDayAheadEnergyPricesRepository, DayAheadEnergyPricesRepository>();
 
         return services;
     }

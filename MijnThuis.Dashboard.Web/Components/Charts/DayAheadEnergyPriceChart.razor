@@ -2,13 +2,13 @@
 @using MijnThuis.Dashboard.Web.Model.Charts;
 @implements IDisposable
 @inject IServiceScopeFactory ServiceProvider
-@inject ILogger<PeakPowerUsageChart> Logger
+@inject ILogger<DayAheadEnergyPriceChart> Logger
 
 <MudCard Outlined>
     <MudCardHeader>
         <CardHeaderAvatar>
             <MudAvatar Color="Color.Primary">
-                <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" />
+                <MudIcon Icon="@Icons.Material.Filled.EuroSymbol" />
             </MudAvatar>
         </CardHeaderAvatar>
         <CardHeaderContent>
@@ -31,12 +31,12 @@
         <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal>" Options="_options" @ref="_apexChart">
 
             <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
-                                        Items="@PeakPowerUsage.Series1"
-                                        Name="@PeakPowerUsage.Series1Description"
+                                        Items="@DayAheadEnergyPrices.Series1"
+                                        Name="@DayAheadEnergyPrices.Series1Description"
                                         XValue="@(e => e.XValue)"
                                         YValue="@(e => e.YValue)"
                                         PointColor="e => GetColor(e)"
-                                        SeriesType="ApexCharts.SeriesType.Bar" />
+                                        SeriesType="ApexCharts.SeriesType.Line" />
         </ApexCharts.ApexChart>
     </MudCardContent>
     <MudCardActions>

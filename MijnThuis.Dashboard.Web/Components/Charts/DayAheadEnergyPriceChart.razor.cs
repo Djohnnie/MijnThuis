@@ -2,21 +2,22 @@
 using MediatR;
 using MijnThuis.Application.Power.Queries;
 using MijnThuis.Dashboard.Web.Model.Charts;
+using System.Globalization;
 
 namespace MijnThuis.Dashboard.Web.Components.Charts;
 
-public partial class PeakPowerUsageChart
+public partial class DayAheadEnergyPriceChart
 {
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromHours(1));
     private ApexChart<ChartDataEntry<string, decimal>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal>> _options { get; set; } = new();
 
-    private ChartData1<string, decimal> PeakPowerUsage { get; set; } = new();
-    private int _selectedYear = DateTime.Today.Year;
+    private ChartData1<string, decimal> DayAheadEnergyPrices { get; set; } = new();
+    private DateTime _selectedDate = DateTime.Today;
 
     public string TitleDescription { get; set; }
 
-    public PeakPowerUsageChart()
+    public DayAheadEnergyPriceChart()
     {
         _options.Chart = new Chart
         {
@@ -62,7 +63,7 @@ public partial class PeakPowerUsageChart
                 DecimalsInFloat = 0,
                 Labels = new YAxisLabels
                 {
-                    Formatter = @"function (value) { return value + ' kW'; }"
+                    Formatter = @"function (value) { return value + ' €c/kWh'; }"
                 }
             }
         };
@@ -71,14 +72,18 @@ public partial class PeakPowerUsageChart
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
+        _options.Stroke = new Stroke
+        {
+            Curve = Curve.Smooth
+        };
         _options.Fill = new Fill
         {
             Type = new List<FillType> { FillType.Solid },
             Opacity = new Opacity(1, 1, 1)
         };
 
-        PeakPowerUsage.Description = "Elektriciteit: Piekverbruik";
-        PeakPowerUsage.Series1Description = "Maandelijks piekverbruik";
+        DayAheadEnergyPrices.Description = "Elektriciteit: Dynamische tarieven";
+        DayAheadEnergyPrices.Series1Description = "Dynamische tarieven";
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -119,21 +124,21 @@ public partial class PeakPowerUsageChart
             var from = new DateTime(2000, 1, 1);
             var to = DateTime.Today;
 
-            var response = await mediator.Send(new GetPeakPowerUsageHistoryQuery
+            var response = await mediator.Send(new GetDayAheadEnergyPricesQuery
             {
-                Year = _selectedYear
+                Date = _selectedDate
             });
 
             var entries = response.Entries;
 
-            PeakPowerUsage.Clear();
-            PeakPowerUsage.Series1.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
+            DayAheadEnergyPrices.Clear();
+            DayAheadEnergyPrices.Series1.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
-                XValue = $"{x.Date:MMMM yyyy}",
-                YValue = Math.Round(x.PowerPeak, 2)
+                XValue = $"{x.Date:t}",
+                YValue = Math.Round(x.Price, 2)
             }));
 
-            TitleDescription = $"Maandelijks piekvermogen in {_selectedYear}";
+            TitleDescription = string.Create(CultureInfo.GetCultureInfo("nl-be"), $"Dynamische tarieven voor {_selectedDate:D}");
 
             await InvokeAsync(StateHasChanged);
             await Task.Delay(100);
@@ -147,7 +152,7 @@ public partial class PeakPowerUsageChart
 
     private string GetColor(ChartDataEntry<string, decimal> entry)
     {
-        if (entry.YValue > 2.5M)
+        if (entry.YValue < 0M)
         {
             return "#FBB550";
         }
@@ -157,14 +162,14 @@ public partial class PeakPowerUsageChart
 
     private async Task NavigateBeforeCommand()
     {
-        _selectedYear--;
+        _selectedDate = _selectedDate.AddDays(-1);
 
         await RefreshData();
     }
 
     private async Task NavigateNextCommand()
     {
-        _selectedYear++;
+        _selectedDate = _selectedDate.AddDays(1);
 
         await RefreshData();
     }
