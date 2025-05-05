@@ -141,6 +141,10 @@ public class MijnThuisDbContext : DbContext
             entityBuilder.HasIndex(x => x.From);
             entityBuilder.HasIndex(x => x.To);
             entityBuilder.Property(x => x.EuroPerMWh).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.ConsumptionTariffFormulaExpression).IsRequired();
+            entityBuilder.Property(x => x.ConsumptionCentsPerKWh).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.InjectionTariffFormulaExpression).IsRequired();
+            entityBuilder.Property(x => x.InjectionCentsPerKWh).HasPrecision(9, 3);
         });
     }
 }

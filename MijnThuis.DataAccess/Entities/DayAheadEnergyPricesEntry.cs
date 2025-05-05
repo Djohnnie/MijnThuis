@@ -7,4 +7,8 @@ public class DayAheadEnergyPricesEntry
     public DateTime From { get; set; }
     public DateTime To { get; set; }
     public decimal EuroPerMWh { get; set; }
+    public string ConsumptionTariffFormulaExpression { get; set; }
+    public decimal ConsumptionCentsPerKWh { get; set; }
+    public string InjectionTariffFormulaExpression { get; set; }
+    public decimal InjectionCentsPerKWh { get; set; }
 }
