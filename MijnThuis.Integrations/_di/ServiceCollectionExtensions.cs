@@ -26,6 +26,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<ISaunaService, SaunaService>();
         services.AddTransient<IForecastService, ForecastService>();
         services.AddTransient<ISmartLockService, SmartLockService>();
+        services.AddTransient<IEnergyPricesService, EnergyPricesService>();
 
         return services;
     }

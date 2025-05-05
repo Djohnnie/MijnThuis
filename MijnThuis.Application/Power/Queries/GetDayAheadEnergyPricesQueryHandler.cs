@@ -17,15 +17,17 @@ public class GetDayAheadEnergyPricesQueryHandler : IRequestHandler<GetDayAheadEn
     public async Task<GetDayAheadEnergyPricesResponse> Handle(GetDayAheadEnergyPricesQuery request, CancellationToken cancellationToken)
     {
         var from = request.Date.Date;
-        var to = request.Date.Date.AddHours(23);
+        var to = request.Date.Date.AddDays(1).AddSeconds(-1);
 
         var entries = await _dbContext.DayAheadEnergyPrices
-            .Where(x => x.From >= from && x.From <= to)
+            .Where(x => x.From >= from && x.To <= to)
             .OrderBy(x => x.From)
             .Select(x => new DayAheadEnergyPrice
             {
                 Date = x.From,
-                Price = x.EuroPerMWh / 1000M * 100M // Convert to cents per kWh.
+                Price = x.EuroPerMWh / 1000M * 100M, // Convert to cents per kWh.
+                ConsumptionPrice = x.ConsumptionCentsPerKWh,
+                InjectionPrice = x.InjectionCentsPerKWh
             })
             .ToListAsync();
 

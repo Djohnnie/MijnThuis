@@ -1,10 +1,12 @@
-﻿using MijnThuis.DataAccess.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using MijnThuis.DataAccess.Entities;
 
 namespace MijnThuis.DataAccess.Repositories;
 
 public interface IDayAheadEnergyPricesRepository
 {
-    Task AddForDay(DateTime day, decimal[] prices);
+    Task<List<DayAheadEnergyPricesEntry>> GetLatestEnergyPrices();
+    Task AddEnergyPrice(DayAheadEnergyPricesEntry energyPrice);
 }
 
 public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
@@ -16,19 +18,28 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
         _dbContext = dbContext;
     }
 
-    public async Task AddForDay(DateTime day, decimal[] prices)
+    public async Task<List<DayAheadEnergyPricesEntry>> GetLatestEnergyPrices()
     {
-        foreach (var (index, price) in prices.Index())
-        {
-            _dbContext.Add(new DayAheadEnergyPricesEntry
-            {
-                Id = Guid.NewGuid(),
-                From = day.AddHours(index),
-                To = day.AddHours(index + 1).AddSeconds(-1),
-                EuroPerMWh = price
-            });
+        var latestEntry = await _dbContext.DayAheadEnergyPrices
+            .OrderByDescending(x => x.From)
+            .FirstOrDefaultAsync();
 
-            await _dbContext.SaveChangesAsync();
+        if (latestEntry is null)
+        {
+            return new();
         }
+
+        var latestPrices = await _dbContext.DayAheadEnergyPrices
+            .Where(x => x.From.Date == latestEntry.From.Date)
+            .OrderBy(x => x.From)
+            .ToListAsync();
+
+        return latestPrices;
+    }
+
+    public async Task AddEnergyPrice(DayAheadEnergyPricesEntry energyPrice)
+    {
+        _dbContext.Add(energyPrice);
+        await _dbContext.SaveChangesAsync();
     }
 }

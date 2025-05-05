@@ -13,7 +13,7 @@ public partial class DayAheadEnergyPriceChart
     private ApexChart<ChartDataEntry<string, decimal>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal>> _options { get; set; } = new();
 
-    private ChartData1<string, decimal> DayAheadEnergyPrices { get; set; } = new();
+    private ChartData3<string, decimal> DayAheadEnergyPrices { get; set; } = new();
     private DateTime _selectedDate = DateTime.Today;
 
     public string TitleDescription { get; set; }
@@ -73,18 +73,21 @@ public partial class DayAheadEnergyPriceChart
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
+        _options.Colors = new List<string> { "#B0D8FD", "#5DE799", "#FBB550" };
         _options.Stroke = new Stroke
         {
             Curve = Curve.Smooth
         };
         _options.Fill = new Fill
         {
-            Type = new List<FillType> { FillType.Solid },
+            Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid },
             Opacity = new Opacity(1, 1, 1)
         };
 
         DayAheadEnergyPrices.Description = "Elektriciteit: Dynamische tarieven";
         DayAheadEnergyPrices.Series1Description = "Dynamische tarieven";
+        DayAheadEnergyPrices.Series2Description = "Mega tarieven voor consumptie";
+        DayAheadEnergyPrices.Series3Description = "Mega tarieven voor injectie";
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -122,8 +125,6 @@ public partial class DayAheadEnergyPriceChart
         {
             using var scope = ServiceProvider.CreateScope();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-            var from = new DateTime(2000, 1, 1);
-            var to = DateTime.Today;
 
             var response = await mediator.Send(new GetDayAheadEnergyPricesQuery
             {
@@ -138,6 +139,16 @@ public partial class DayAheadEnergyPriceChart
                 XValue = $"{x.Date:t}",
                 YValue = Math.Round(x.Price, 2)
             }));
+            DayAheadEnergyPrices.Series2.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
+            {
+                XValue = $"{x.Date:t}",
+                YValue = Math.Round(x.ConsumptionPrice, 2)
+            }));
+            DayAheadEnergyPrices.Series3.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
+            {
+                XValue = $"{x.Date:t}",
+                YValue = Math.Round(x.InjectionPrice, 2)
+            }));
 
             TitleDescription = string.Create(CultureInfo.GetCultureInfo("nl-be"), $"Dynamische tarieven voor {_selectedDate:D}");
 
@@ -149,16 +160,6 @@ public partial class DayAheadEnergyPriceChart
         {
             Logger.LogError(ex, "Failed to refresh graph data");
         }
-    }
-
-    private string GetColor(ChartDataEntry<string, decimal> entry)
-    {
-        if (entry.YValue < 0M)
-        {
-            return "#FBB550";
-        }
-
-        return "#B0D8FD";
     }
 
     private async Task NavigateBeforeCommand()
