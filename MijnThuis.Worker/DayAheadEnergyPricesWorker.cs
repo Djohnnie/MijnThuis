@@ -11,12 +11,12 @@ internal class DayAheadEnergyPricesWorker : BackgroundService
 {
     private readonly IConfiguration _configuration;
     private readonly IServiceScopeFactory _serviceProvider;
-    private readonly ILogger<HomeBatteryChargingWorker> _logger;
+    private readonly ILogger<DayAheadEnergyPricesWorker> _logger;
 
     public DayAheadEnergyPricesWorker(
         IConfiguration configuration,
         IServiceScopeFactory serviceProvider,
-        ILogger<HomeBatteryChargingWorker> logger)
+        ILogger<DayAheadEnergyPricesWorker> logger)
     {
         _configuration = configuration;
         _serviceProvider = serviceProvider;
