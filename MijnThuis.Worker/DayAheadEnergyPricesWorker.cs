@@ -35,83 +35,76 @@ internal class DayAheadEnergyPricesWorker : BackgroundService
 
             try
             {
-                _logger.LogInformation($"{TimeZoneInfo.Local.Id}");
-                var rules = TimeZoneInfo.Local.GetAdjustmentRules();
-                foreach (var rule in rules)
+                using var serviceScope = _serviceProvider.CreateScope();
+                var energyPricesService = serviceScope.ServiceProvider.GetRequiredService<IEnergyPricesService>();
+                var flagRepository = serviceScope.ServiceProvider.GetRequiredService<IFlagRepository>();
+                var energyPricesRepository = serviceScope.ServiceProvider.GetRequiredService<IDayAheadEnergyPricesRepository>();
+
+                var consumptionTariffExpressionFlag = await flagRepository.GetConsumptionTariffExpressionFlag();
+                var consumptionTariffScript = CSharpScript.Create<decimal>(consumptionTariffExpressionFlag.Expression, globalsType: typeof(PriceGlobals));
+
+                var injectionTariffExpressionFlag = await flagRepository.GetInjectionTariffExpressionFlag();
+                var injectionTariffScript = CSharpScript.Create<decimal>(injectionTariffExpressionFlag.Expression, globalsType: typeof(PriceGlobals));
+
+                var tomorrow = DateTime.Today.AddDays(1);
+                var previousEntry = await energyPricesRepository.GetLatestEnergyPrices();
+
+                if (previousEntry.Count > 0 && previousEntry.Last().From.Date == DateTime.Today.AddDays(+1))
                 {
-                    _logger.LogInformation($"Adjustment rule: {rule.DateStart} - {rule.DateEnd} - {rule.DaylightTransitionStart.Month} - {rule.DaylightTransitionStart.Week} - {rule.DaylightTransitionStart.TimeOfDay}");
+                    _logger.LogInformation("'Day Ahead' energy prices are up to date.");
                 }
+                else
+                {
 
-                //using var serviceScope = _serviceProvider.CreateScope();
-                //var energyPricesService = serviceScope.ServiceProvider.GetRequiredService<IEnergyPricesService>();
-                //var flagRepository = serviceScope.ServiceProvider.GetRequiredService<IFlagRepository>();
-                //var energyPricesRepository = serviceScope.ServiceProvider.GetRequiredService<IDayAheadEnergyPricesRepository>();
+                    if (previousEntry.Count > 0)
+                    {
+                        startHistoryFrom = previousEntry.Last().From.Date.AddDays(1);
+                    }
 
-                    //var consumptionTariffExpressionFlag = await flagRepository.GetConsumptionTariffExpressionFlag();
-                    //var consumptionTariffScript = CSharpScript.Create<decimal>(consumptionTariffExpressionFlag.Expression, globalsType: typeof(PriceGlobals));
+                    _logger.LogInformation($"'Day Ahead' energy prices are up to date. should update from {startHistoryFrom} until {tomorrow}.");
 
-                    //var injectionTariffExpressionFlag = await flagRepository.GetInjectionTariffExpressionFlag();
-                    //var injectionTariffScript = CSharpScript.Create<decimal>(injectionTariffExpressionFlag.Expression, globalsType: typeof(PriceGlobals));
+                    var dateToProcess = startHistoryFrom;
 
-                    //var tomorrow = DateTime.Today.AddDays(1);
-                    //var previousEntry = await energyPricesRepository.GetLatestEnergyPrices();
+                    while (dateToProcess <= tomorrow)
+                    {
+                        _logger.LogInformation($"Processing 'Day Ahead' energy prices for {dateToProcess}...");
 
-                    //if (previousEntry.Count > 0 && previousEntry.Last().From.Date == DateTime.Today.AddDays(+1))
-                    //{
-                    //    _logger.LogInformation("'Day Ahead' energy prices are up to date.");
-                    //}
-                    //else
-                    //{
+                        try
+                        {
+                            var energyPrices = await energyPricesService.GetEnergyPricesForDate(dateToProcess);
 
-                    //    if (previousEntry.Count > 0)
-                    //    {
-                    //        startHistoryFrom = previousEntry.Last().From.Date.AddDays(1);
-                    //    }
+                            foreach (var price in energyPrices.Prices)
+                            {
+                                await energyPricesRepository.AddEnergyPrice(new DayAheadEnergyPricesEntry
+                                {
+                                    Id = Guid.NewGuid(),
+                                    From = price.TimeStamp,
+                                    To = price.TimeStamp.AddHours(1).AddSeconds(-1),
+                                    EuroPerMWh = price.Price,
+                                    ConsumptionTariffFormulaExpression = dateToProcess < new DateTime(2025, 5, 1) ? "" : consumptionTariffExpressionFlag.Expression,
+                                    ConsumptionCentsPerKWh = dateToProcess < new DateTime(2025, 5, 1) ? price.Price / 10M : await RunExpression(consumptionTariffScript, price.Price / 10M),
+                                    InjectionTariffFormulaExpression = dateToProcess < new DateTime(2025, 5, 1) ? "" : injectionTariffExpressionFlag.Expression,
+                                    InjectionCentsPerKWh = dateToProcess < new DateTime(2025, 5, 1) ? price.Price / 10M : await RunExpression(injectionTariffScript, price.Price / 10M)
+                                });
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            if (dateToProcess == tomorrow)
+                            {
+                                _logger.LogInformation(ex, $"No data found for 'Day Ahead' energy prices tomorrow {dateToProcess}");
+                            }
+                            else
+                            {
+                                _logger.LogError($"Error fetching 'Day Ahead' energy prices for {dateToProcess}: {ex.Message}");
+                            }
 
-                    //    _logger.LogInformation($"'Day Ahead' energy prices are up to date. should update from {startHistoryFrom} until {tomorrow}.");
+                            break;
+                        }
 
-                    //    var dateToProcess = startHistoryFrom;
-
-                    //    while (dateToProcess <= tomorrow)
-                    //    {
-                    //        _logger.LogInformation($"Processing 'Day Ahead' energy prices for {dateToProcess}...");
-
-                    //        try
-                    //        {
-                    //            var energyPrices = await energyPricesService.GetEnergyPricesForDate(dateToProcess);
-
-                    //            foreach (var price in energyPrices.Prices)
-                    //            {
-                    //                await energyPricesRepository.AddEnergyPrice(new DayAheadEnergyPricesEntry
-                    //                {
-                    //                    Id = Guid.NewGuid(),
-                    //                    From = price.TimeStamp,
-                    //                    To = price.TimeStamp.AddHours(1).AddSeconds(-1),
-                    //                    EuroPerMWh = price.Price,
-                    //                    ConsumptionTariffFormulaExpression = dateToProcess < new DateTime(2025, 5, 1) ? "" : consumptionTariffExpressionFlag.Expression,
-                    //                    ConsumptionCentsPerKWh = dateToProcess < new DateTime(2025, 5, 1) ? price.Price / 10M : await RunExpression(consumptionTariffScript, price.Price / 10M),
-                    //                    InjectionTariffFormulaExpression = dateToProcess < new DateTime(2025, 5, 1) ? "" : injectionTariffExpressionFlag.Expression,
-                    //                    InjectionCentsPerKWh = dateToProcess < new DateTime(2025, 5, 1) ? price.Price / 10M : await RunExpression(injectionTariffScript, price.Price / 10M)
-                    //                });
-                    //            }
-                    //        }
-                    //        catch (Exception ex)
-                    //        {
-                    //            if (dateToProcess == tomorrow)
-                    //            {
-                    //                _logger.LogInformation(ex, $"No data found for 'Day Ahead' energy prices tomorrow {dateToProcess}");
-                    //            }
-                    //            else
-                    //            {
-                    //                _logger.LogError($"Error fetching 'Day Ahead' energy prices for {dateToProcess}: {ex.Message}");
-                    //            }
-
-                    //            break;
-                    //        }
-
-                    //        dateToProcess = dateToProcess.AddDays(1);
-                    //    }
-                    //}
+                        dateToProcess = dateToProcess.AddDays(1);
+                    }
+                }
             }
             catch (Exception ex)
             {

@@ -110,12 +110,14 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
 
     private int GetHoursInDay(DateTime date)
     {
-        var timezone = TimeZoneInfo.FindSystemTimeZoneById("Romance Standard Time");
-        var adjustmentRules = timezone.GetAdjustmentRules();
+        var adjustmentRules = TimeZoneInfo.Local.GetAdjustmentRules();
 
-        // There should only be one adjustment rule for the current timezone.
-        if (adjustmentRules.Length > 1)
+        // There should only be one adjustment rule for the current date.
+        var currentAdjustmentRule = adjustmentRules.SingleOrDefault(x => x.DateStart <= date && x.DateEnd >= date);
+
+        if (currentAdjustmentRule == null)
         {
+            // No adjustment rule found, return 0 hours to indicate error.
             return 0;
         }
 
