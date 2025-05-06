@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Xml.Serialization;
 using static System.TimeZoneInfo;
@@ -25,10 +26,14 @@ public interface IEnergyPricesService
 public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
 {
     private readonly string _apiKey;
+    private readonly ILogger<EnergyPricesService> _logger;
 
-    public EnergyPricesService(IConfiguration configuration) : base(configuration)
+    public EnergyPricesService(
+        IConfiguration configuration,
+        ILogger<EnergyPricesService> logger) : base(configuration)
     {
         _apiKey = configuration.GetValue<string>("ENERGY_PRICES_API_KEY");
+        _logger = logger;
     }
 
     public async Task<EnergyPricesForDate> GetEnergyPricesForDate(DateTime date)
@@ -113,7 +118,14 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
         var adjustmentRules = TimeZoneInfo.Local.GetAdjustmentRules();
 
         // There should only be one adjustment rule for the current date.
-        var currentAdjustmentRule = adjustmentRules.SingleOrDefault(x => x.DateStart <= date && x.DateEnd >= date);
+        var applicableAdjustmentRules = adjustmentRules.Where(x => x.DateStart <= date && x.DateEnd >= date);
+
+        foreach (var rule in applicableAdjustmentRules)
+        {
+            _logger.LogInformation($"Adjustment rule for {date}: {rule.DateStart} - {rule.DateEnd}");
+        }
+
+        var currentAdjustmentRule = applicableAdjustmentRules.SingleOrDefault();
 
         if (currentAdjustmentRule == null)
         {
