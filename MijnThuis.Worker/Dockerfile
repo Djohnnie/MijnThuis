@@ -1,4 +1,4 @@
-﻿FROM mcr.microsoft.com/dotnet/runtime:9.0
+﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0
 
 # Set the working directory
 WORKDIR /app
@@ -9,13 +9,11 @@ COPY bin/Release/publish /app
 EXPOSE 8080
 
 ENV TZ=Europe/Brussels
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT false
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 ENV CONNECTIONSTRING=
 ENV CLIENT_ID=
 ENV CERTIFICATE_FILENAME=
 ENV CERTIFICATE_PASSWORD=
-
-RUN apk add --no-cache icu-libs tzdata
 
 # Start the app
 ENTRYPOINT ["dotnet", "MijnThuis.Worker.dll"]
