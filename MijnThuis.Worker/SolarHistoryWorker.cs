@@ -44,7 +44,7 @@ internal class SolarHistoryWorker : BackgroundService
 
             var stopTimer = Stopwatch.GetTimestamp();
 
-            var duration = TimeSpan.FromMinutes(5) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
+            var duration = TimeSpan.FromMinutes(15) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
 
             if (duration > TimeSpan.Zero)
             {
