@@ -90,6 +90,38 @@
                 <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
                     @if (IsReady)
                     {
+                        <MudTooltip Text="Dynamische tarief voor consumptie (in ¢/kWh)" Arrow="true" Placement="Placement.Left">
+                            <MudIcon Icon="@Icons.Material.Filled.EuroSymbol" Size="Size.Medium" Color="@(CurrentConsumptionPrice < 0M ? Color.Tertiary : Color.Secondary)" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@Math.Round(CurrentConsumptionPrice, 2)¢ @CurrentPricePeriod</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6">
+                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
+                    @if (IsReady)
+                    {
+                        <MudTooltip Text="Dynamische tarief voor injectie (in ¢/kWh)" Arrow="true" Placement="Placement.Left">
+                            <MudIcon Icon="@Icons.Material.Filled.EuroSymbol" Size="Size.Medium" Color="@(CurrentInjectionPrice > 0M ? Color.Tertiary : Color.Secondary)" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@Math.Round(CurrentInjectionPrice, 2)¢ @CurrentPricePeriod</MudText>
+                    }
+                    else
+                    {
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6">
+                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
+                    @if (IsReady)
+                    {
                         <MudTooltip Text="Zelf-consumptie vandaag/deze maand/dit jaar" Arrow="true" Placement="Placement.Left">
                             <MudIcon Icon="@Icons.Material.Filled.Percent" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>

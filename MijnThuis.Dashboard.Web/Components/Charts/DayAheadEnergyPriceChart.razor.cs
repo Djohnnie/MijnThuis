@@ -137,17 +137,17 @@ public partial class DayAheadEnergyPriceChart
             DayAheadEnergyPrices.Series1.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:t}",
-                YValue = Math.Round(x.Price, 2)
+                YValue = x.Price
             }));
             DayAheadEnergyPrices.Series2.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:t}",
-                YValue = Math.Round(x.ConsumptionPrice, 2)
+                YValue = x.ConsumptionPrice
             }));
             DayAheadEnergyPrices.Series3.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:t}",
-                YValue = Math.Round(x.InjectionPrice, 2)
+                YValue = x.InjectionPrice
             }));
 
             TitleDescription = string.Create(CultureInfo.GetCultureInfo("nl-be"), $"Dynamische tarieven voor {_selectedDate:D}");

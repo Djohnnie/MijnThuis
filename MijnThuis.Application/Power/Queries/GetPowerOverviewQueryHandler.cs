@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using MijnThuis.Contracts.Power;
+using MijnThuis.DataAccess.Repositories;
 using MijnThuis.Integrations.Power;
 using MijnThuis.Integrations.Solar;
 
@@ -12,17 +13,20 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
     private readonly IPowerService _powerService;
     private readonly IShellyService _shellyService;
     private readonly ISolarService _solarService;
+    private readonly IDayAheadEnergyPricesRepository _energyPricesRepository;
     private readonly IMemoryCache _memoryCache;
 
     public GetPowerOverviewQueryHandler(
         IPowerService powerService,
         IShellyService shellyService,
         ISolarService solarService,
+        IDayAheadEnergyPricesRepository energyPricesRepository,
         IMemoryCache memoryCache)
     {
         _powerService = powerService;
         _shellyService = shellyService;
         _solarService = solarService;
+        _energyPricesRepository = energyPricesRepository;
         _memoryCache = memoryCache;
     }
 
@@ -32,6 +36,7 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         var consumptionResult = await _solarService.GetOverview();
         var energyTodayResult = await GetEnergyToday();
         var energyThisMonthResult = await GetEnergyThisMonth();
+        var energyPricing = await _energyPricesRepository.GetEnergyPriceForTimestamp(DateTime.Now);
         var tvPowerSwitchOverview = await _shellyService.GetTvPowerSwitchOverview();
         var bureauPowerSwitchOverview = await _shellyService.GetBureauPowerSwitchOverview();
         var vijverPowerSwitchOverview = await _shellyService.GetVijverPowerSwitchOverview();
@@ -40,6 +45,9 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         result.CurrentConsumption = consumptionResult.CurrentConsumptionPower;
         result.EnergyToday = energyTodayResult.Purchased / 1000M;
         result.EnergyThisMonth = energyThisMonthResult.Purchased / 1000M;
+        result.CurrentPricePeriod = $"({energyPricing.From:HHu} - {energyPricing.To.AddSeconds(1):HHu})";
+        result.CurrentConsumptionPrice = energyPricing.ConsumptionCentsPerKWh;
+        result.CurrentInjectionPrice = energyPricing.InjectionCentsPerKWh;
         result.IsTvOn = tvPowerSwitchOverview.IsOn;
         result.IsBureauOn = bureauPowerSwitchOverview.IsOn;
         result.IsVijverOn = vijverPowerSwitchOverview.IsOn;
@@ -47,14 +55,28 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         return result;
     }
 
-    private Task<EnergyOverview> GetEnergyToday()
+    private async Task<EnergyOverview> GetEnergyToday()
     {
-        return GetCachedValue("ENERGY_TODAY", _solarService.GetEnergyToday, 15);
+        try
+        {
+            return await GetCachedValue("ENERGY_TODAY", _solarService.GetEnergyToday, 15);
+        }
+        catch
+        {
+            return new EnergyOverview();
+        }
     }
 
-    private Task<EnergyOverview> GetEnergyThisMonth()
+    private async Task<EnergyOverview> GetEnergyThisMonth()
     {
-        return GetCachedValue("ENERGY_THIS_MONTH", _solarService.GetEnergyThisMonth, 15);
+        try
+        {
+            return await GetCachedValue("ENERGY_THIS_MONTH", _solarService.GetEnergyThisMonth, 15);
+        }
+        catch
+        {
+            return new EnergyOverview();
+        }
     }
 
     private async Task<T> GetCachedValue<T>(string key, Func<Task<T>> valueFactory, int absoluteExpiration)

@@ -5,6 +5,7 @@ namespace MijnThuis.DataAccess.Repositories;
 
 public interface IDayAheadEnergyPricesRepository
 {
+    Task<DayAheadEnergyPricesEntry> GetEnergyPriceForTimestamp(DateTime timestamp);
     Task<List<DayAheadEnergyPricesEntry>> GetLatestEnergyPrices();
     Task AddEnergyPrice(DayAheadEnergyPricesEntry energyPrice);
 }
@@ -16,6 +17,14 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
     public DayAheadEnergyPricesRepository(MijnThuisDbContext dbContext)
     {
         _dbContext = dbContext;
+    }
+
+    public async Task<DayAheadEnergyPricesEntry> GetEnergyPriceForTimestamp(DateTime timestamp)
+    {
+        return await _dbContext.DayAheadEnergyPrices
+            .OrderByDescending(x => x.From)
+            .Where(x => x.From <= timestamp && x.To >= timestamp)
+            .FirstOrDefaultAsync() ?? new DayAheadEnergyPricesEntry();
     }
 
     public async Task<List<DayAheadEnergyPricesEntry>> GetLatestEnergyPrices()

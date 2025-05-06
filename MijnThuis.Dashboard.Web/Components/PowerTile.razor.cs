@@ -16,6 +16,9 @@ public partial class PowerTile
     public decimal PowerPeak { get; set; }
     public decimal EnergyToday { get; set; }
     public decimal EnergyThisMonth { get; set; }
+    public string CurrentPricePeriod { get; set; }
+    public decimal CurrentConsumptionPrice { get; set; }
+    public decimal CurrentInjectionPrice { get; set; }
     public string SelfConsumption { get; set; }
     public string SelfSufficiency { get; set; }
 
@@ -64,6 +67,9 @@ public partial class PowerTile
             PowerPeak = response.PowerPeak / 1000M;
             EnergyToday = response.EnergyToday;
             EnergyThisMonth = response.EnergyThisMonth;
+            CurrentPricePeriod = response.CurrentPricePeriod;
+            CurrentConsumptionPrice = response.CurrentConsumptionPrice;
+            CurrentInjectionPrice = response.CurrentInjectionPrice;
             SelfConsumption = $"{Math.Round(selfConsumption.SelfConsumptionToday):F0}% - {Math.Round(selfConsumption.SelfConsumptionThisMonth):F0}% - {Math.Round(selfConsumption.SelfConsumptionThisYear):F0}%";
             SelfSufficiency = $"{Math.Round(selfConsumption.SelfSufficiencyToday):F0}% - {Math.Round(selfConsumption.SelfSufficiencyThisMonth):F0}% - {Math.Round(selfConsumption.SelfSufficiencyThisYear):F0}%";
             IsTvOn = response.IsTvOn;
