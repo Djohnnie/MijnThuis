@@ -69,14 +69,25 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
             {
                 for (var hour = 0; hour < hoursInDay; hour++)
                 {
-                    var point = sortedPoints[hour];
-                    if (point.Position > hour)
+                    if (hour >= sortedPoints.Count)
                     {
-                        sortedPoints.Insert(hour, new Point
+                        sortedPoints.Add(new Point
                         {
                             Position = hour,
                             Price = sortedPoints[hour - 1].Price
                         });
+                    }
+                    else
+                    {
+                        var point = sortedPoints[hour];
+                        if (point.Position > hour)
+                        {
+                            sortedPoints.Insert(hour, new Point
+                            {
+                                Position = hour,
+                                Price = sortedPoints[hour - 1].Price
+                            });
+                        }
                     }
                 }
             }
