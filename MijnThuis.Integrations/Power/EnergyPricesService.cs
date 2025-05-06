@@ -140,8 +140,8 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
 
         if (currentAdjustmentRule == null)
         {
-            // No adjustment rule found, return 0 hours to indicate error.
-            return 0;
+            // No adjustment rule found, return the default 24 hours.
+            return 24;
         }
 
         var start = GetTransitionDate(currentAdjustmentRule.DaylightTransitionStart, date.Year);
