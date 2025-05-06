@@ -133,16 +133,14 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
             return 0;
         }
 
-        var adjustmentRule = adjustmentRules.Single();
-
-        var start = GetTransitionDate(adjustmentRule.DaylightTransitionStart, date.Year);
+        var start = GetTransitionDate(currentAdjustmentRule.DaylightTransitionStart, date.Year);
         if (date == start)
         {
             // This day has 23 hours, and should skip an hour.
             return 23;
         }
 
-        var end = GetTransitionDate(adjustmentRule.DaylightTransitionEnd, date.Year);
+        var end = GetTransitionDate(currentAdjustmentRule.DaylightTransitionEnd, date.Year);
         if (date == end)
         {
             // This day has 25 hours, and should add an extra hour.
