@@ -26,7 +26,7 @@ public class GetDayAheadEnergyPricesQueryHandler : IRequestHandler<GetDayAheadEn
             {
                 Date = x.From,
                 Price = x.EuroPerMWh / 1000M * 100M, // Convert to cents per kWh.
-                ConsumptionPrice = Math.Round(x.ConsumptionCentsPerKWh * 1.06M, 2), // Add 6% VAT.
+                ConsumptionPrice = Math.Round(x.ConsumptionCentsPerKWh * 1.06M, 3), // Add 6% VAT.
                 InjectionPrice = x.InjectionCentsPerKWh // No VAT on injection.
             })
             .ToListAsync();
