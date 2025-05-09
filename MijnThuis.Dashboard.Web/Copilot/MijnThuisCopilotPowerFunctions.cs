@@ -45,4 +45,20 @@ public class MijnThuisCopilotPowerFunctions
         var response = await _mediator.Send(new GetPowerOverviewQuery());
         return response.EnergyThisMonth;
     }
+
+    [KernelFunction]
+    [Description("Gets the price in eurocents per kWh for consuming 1kWh of energy right now. A positive number would cost me money, a negative number would make me money.")]
+    public async Task<decimal> GetCurrentConsumptionPrice()
+    {
+        var response = await _mediator.Send(new GetPowerOverviewQuery());
+        return response.CurrentConsumptionPrice;
+    }
+
+    [KernelFunction]
+    [Description("Gets the price in eurocents per kWh for injecting 1kWh of energy right now. A positive number would make me money, a negative number would cost me money.")]
+    public async Task<decimal> CurrentInjectionPrice()
+    {
+        var response = await _mediator.Send(new GetPowerOverviewQuery());
+        return response.CurrentInjectionPrice;
+    }
 }
