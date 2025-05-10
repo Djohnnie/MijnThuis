@@ -44,11 +44,16 @@ public class EnergyHistoryWorker : BackgroundService
                 if (previousEntry == null || (DateTime.Now - previousEntry.Date).TotalHours >= 1)
                 {
                     var powerOverview = await powerService.GetOverview();
+                    var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, 0, 0);
 
-                    dbContext.EnergyHistory.Add(new EnergyHistoryEntry
+                    var costEntry = await dbContext.DayAheadEnergyPrices
+                        .Where(x => x.From == date)
+                        .FirstOrDefaultAsync();
+
+                    var energyHistoryEntry = new EnergyHistoryEntry
                     {
                         Id = Guid.NewGuid(),
-                        Date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, 0, 0),
+                        Date = date,
                         ActiveTarrif = powerOverview.ActiveTarrif,
                         TotalImport = powerOverview.TotalImport,
                         TotalImportDelta = previousEntry == null ? powerOverview.TotalImport : powerOverview.TotalImport - previousEntry.TotalImport,
@@ -68,7 +73,13 @@ public class EnergyHistoryWorker : BackgroundService
                         TotalGasKwh = powerOverview.TotalGas * gasCoefficient,
                         TotalGasKwhDelta = previousEntry == null ? powerOverview.TotalGas * gasCoefficient : (powerOverview.TotalGas - previousEntry.TotalGas) * gasCoefficient,
                         MonthlyPowerPeak = powerOverview.PowerPeak / 1000M
-                    });
+                    };
+
+                    // Calculate the costs based on the 'Day Ahead' energy prices, including VAT in the import cost and recalculated to EUR and not cents.
+                    energyHistoryEntry.CalculatedImportCost = energyHistoryEntry.TotalImportDelta * (costEntry != null ? costEntry.ConsumptionCentsPerKWh : 0M) * 1.06M / 100M;
+                    energyHistoryEntry.CalculatedExportCost = energyHistoryEntry.TotalExportDelta * (costEntry != null ? costEntry.InjectionCentsPerKWh : 0M) / 100M;
+
+                    dbContext.EnergyHistory.Add(energyHistoryEntry);
 
                     await dbContext.SaveChangesAsync();
                 }

@@ -24,4 +24,6 @@ public class EnergyHistoryEntry
     public decimal TotalGasKwh { get; set; }
     public decimal TotalGasKwhDelta { get; set; }
     public decimal MonthlyPowerPeak { get; set; }
+    public decimal CalculatedImportCost { get; set; }
+    public decimal CalculatedExportCost { get; set; }
 }
