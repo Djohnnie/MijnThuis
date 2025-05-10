@@ -121,9 +121,9 @@ internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSel
         switch (request.Range)
         {
             case SolarSelfConsumptionRange.Day:
-                for (var i = 0; i < DateTime.DaysInMonth(date.Year, date.Month); i++)
+                for (var i = 1; i <= DateTime.DaysInMonth(date.Year, date.Month); i++)
                 {
-                    var day = new DateTime(date.Year, date.Month, i + 1);
+                    var day = new DateTime(date.Year, date.Month, i);
                     if (!entries.Any(x => x.Date == day))
                     {
                         entries.Add(new SolarSelfConsumptionEntry
