@@ -87,7 +87,7 @@ public partial class EnergyCostHistoryChart
             Opacity = new Opacity(1, 1)
         };
 
-        SolarPower.Description = $"Elektriciteitskost: Consumptie en injectie";
+        SolarPower.Description = $"Consumptie en injectie";
         SolarPower.Series1Description = "Kost voor consumptie";
         SolarPower.Series2Description = "Kost voor injectie";
     }
