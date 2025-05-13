@@ -21,6 +21,8 @@ public interface IModbusService
 
     Task StopChargingBattery();
 
+    Task<bool> HasExportLimitation();
+
     Task SetExportLimitation(float powerLimit);
 
     Task ResetExportLimitation();
@@ -74,7 +76,7 @@ internal class ModbusService : BaseService, IModbusService
             catch
             {
                 error = true;
-                await Task.Delay(500);
+                await Task.Delay(Random.Shared.Next(50, 100));
             }
         } while (error);
 
@@ -110,7 +112,7 @@ internal class ModbusService : BaseService, IModbusService
             catch
             {
                 error = true;
-                await Task.Delay(500);
+                await Task.Delay(Random.Shared.Next(50, 100));
             }
         } while (error);
 
@@ -166,25 +168,78 @@ internal class ModbusService : BaseService, IModbusService
         modbusClient.Disconnect();
     }
 
+    public async Task<bool> HasExportLimitation()
+    {
+        var error = false;
+
+        do
+        {
+            try
+            {
+                using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+                await modbusClient.Connect();
+
+                var exportControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.ExportControlMode);
+
+                modbusClient.Disconnect();
+
+                return exportControlMode.Value == 1;
+            }
+            catch
+            {
+                error = true;
+                await Task.Delay(Random.Shared.Next(50, 100));
+            }
+        } while (error);
+
+        return false;
+    }
+
     public async Task SetExportLimitation(float powerLimit)
     {
-        using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-        await modbusClient.Connect();
+        var error = false;
 
-        await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)0);
-        await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, powerLimit);
+        do
+        {
+            try
+            {
+                using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+                await modbusClient.Connect();
 
-        modbusClient.Disconnect();
+                await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)1);
+                await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, powerLimit);
+
+                modbusClient.Disconnect();
+            }
+            catch
+            {
+                error = true;
+                await Task.Delay(Random.Shared.Next(50, 100));
+            }
+        } while (error);
     }
 
     public async Task ResetExportLimitation()
     {
-        using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-        await modbusClient.Connect();
+        var error = false;
 
-        await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)0);
-        await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, 0f);
+        do
+        {
+            try
+            {
+                using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+                await modbusClient.Connect();
 
-        modbusClient.Disconnect();
+                await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)0);
+                await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, 0f);
+
+                modbusClient.Disconnect();
+            }
+            catch
+            {
+                error = true;
+                await Task.Delay(Random.Shared.Next(50, 100));
+            }
+        } while (error);
     }
 }

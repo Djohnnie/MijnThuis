@@ -83,75 +83,15 @@ public class CarChargingHelper : ICarChargingHelper
             }
             else
             {
-                // Add the current solar and consumption power
-                // to a list for calculating the average.
-                state.CollectedSolarPower.Add(solarOverview.CurrentSolarPower / 1000M);
-                state.CollectedConsumedPower.Add(solarOverview.CurrentConsumptionPower / 1000M);
-
-                // If a number of measurements have been collected, we can calculate an average.
-                if (state.CollectedSolarPower.Count >= state.NumberOfSamplesToCollect)
+                // If the car is already charging, stop charging the car.
+                if (carOverview.IsCharging)
                 {
-                    // Calculate the average solar and consumption power in kW.
-                    var currentAverageSolarPower = state.CollectedSolarPower.Average();
-                    var currentAverageConsumedPower = state.CollectedConsumedPower.Average();
+                    // Log the energy charged by the car on stop.
+                    await CalculateCarChargingEnergyOnStop(state, carOverview);
 
-                    // Calculate the available solar power, by subtracting the current consumption
-                    // and adding the power used by the car charging (if it is charging).
-                    var carChargingPower = carOverview.IsCharging ? carOverview.ChargingAmps * 230M / 1000M : 0M;
-                    var currentAvailableSolarPower = currentAverageSolarPower - currentAverageConsumedPower + carChargingPower;
-
-                    // Calculate the maximum current based on the available solar power.
-                    var maxPossibleCurrent = currentAvailableSolarPower * 1000M / 230M;
-
-                    // Normalize the maximum possible current to the maximum charging amps
-                    maxPossibleCurrent = maxPossibleCurrent > carOverview.MaxChargingAmps ? carOverview.MaxChargingAmps : maxPossibleCurrent;
-
-                    // Clear the list for calculating the average to prepare it for the next calculation.
-                    state.CollectedSolarPower.Clear();
-                    state.CollectedConsumedPower.Clear();
-
-                    // If the home battery is charged over 95% and the car is not charging
-                    // or the car is charging at a different charging amps level and the
-                    // available charging amps level is higher or equal to 2A: Start charging
-                    // the car at the maximum possible current.
-                    if (solarOverview.BatteryLevel > 95 && (!carOverview.IsCharging || carOverview.ChargingAmps != (int)maxPossibleCurrent) && (int)maxPossibleCurrent >= 2)
-                    {
-                        // Log the energy charged by the car on start.
-                        await CalculateCarChargingEnergyOnStart(state, carOverview);
-
-                        // Start charging the car at the maximum possible current.
-                        await _carService.StartCharging((int)maxPossibleCurrent);
-                        state.StartedCharging((int)maxPossibleCurrent, carOverview);
-
-                        // Provide the car some time to increase the charging amps.
-                        await Task.Delay(TimeSpan.FromMinutes(1));
-
-                        return;
-                    }
-
-                    // If the car is already charging and the current home battery level has
-                    // dropped below 95% or the maximum possible current has dropped below 2A:
                     // Stop charging the car.
-                    if (carOverview.IsCharging && (solarOverview.BatteryLevel < 95 || (int)maxPossibleCurrent < 2))
-                    {
-                        // Log the energy charged by the car on stop.
-                        await CalculateCarChargingEnergyOnStop(state, carOverview);
-
-                        // Stop charging the car.
-                        await _carService.StopCharging();
-                        state.StoppedCharging();
-
-                        // Provide the car some time to stop charging.
-                        await Task.Delay(TimeSpan.FromMinutes(1));
-
-                        return;
-                    }
-
-                    state.SetCharging(carOverview);
-                }
-                else
-                {
-                    state.GatheringData();
+                    await _carService.StopCharging();
+                    state.StoppedCharging();
                 }
             }
         }
