@@ -78,21 +78,18 @@ public class CarChargingHelper : ICarChargingHelper
 
                     // Start charging the car at the maximum possible current.
                     await _carService.StartCharging(ampsToCharge);
-                    state.SetCharging(manualCarChargeFlag);
                 }
-            }
-            else
-            {
-                // If the car is already charging, stop charging the car.
-                if (carOverview.IsCharging)
-                {
-                    // Log the energy charged by the car on stop.
-                    await CalculateCarChargingEnergyOnStop(state, carOverview);
 
-                    // Stop charging the car.
-                    await _carService.StopCharging();
-                    state.StoppedCharging();
-                }
+                state.SetCharging(manualCarChargeFlag);
+            }
+            else if (carOverview.IsCharging)
+            {
+                // Log the energy charged by the car on stop.
+                await CalculateCarChargingEnergyOnStop(state, carOverview);
+
+                // Stop charging the car.
+                await _carService.StopCharging();
+                state.StoppedCharging();
             }
         }
         else
@@ -178,10 +175,7 @@ public class CarChargingHelperState
     {
         CarIsReadyToCharge = carIsReadyToCharge;
 
-        if (!carIsReadyToCharge)
-        {
-            Result.Type = CarChargingHelperResultType.NotReadyForCharging;
-        }
+        Result.Type = carIsReadyToCharge ? CarChargingHelperResultType.NotCharging : CarChargingHelperResultType.NotReadyForCharging;
     }
 
     internal void StartedCharging(int maxPossibleCurrent, CarOverview carOverview)
