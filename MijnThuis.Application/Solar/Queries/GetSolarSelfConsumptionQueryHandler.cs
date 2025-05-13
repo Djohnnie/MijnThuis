@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.DataAccess;
@@ -9,13 +10,22 @@ namespace MijnThuis.Application.Solar.Queries;
 internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSelfConsumptionQuery, GetSolarSelfConsumptionResponse>
 {
     private readonly IServiceScopeFactory _serviceProvider;
+    private readonly IMemoryCache _memoryCache;
 
-    public GetSolarSelfConsumptionQueryHandler(IServiceScopeFactory serviceProvider)
+    public GetSolarSelfConsumptionQueryHandler(
+        IServiceScopeFactory serviceProvider,
+        IMemoryCache memoryCache)
     {
         _serviceProvider = serviceProvider;
+        _memoryCache = memoryCache;
     }
 
     public async Task<GetSolarSelfConsumptionResponse> Handle(GetSolarSelfConsumptionQuery request, CancellationToken cancellationToken)
+    {
+        return await GetSolarSelfConsumption(request);
+    }
+
+    private async Task<GetSolarSelfConsumptionResponse> ValueFactory(GetSolarSelfConsumptionQuery request)
     {
         using var serviceScope = _serviceProvider.CreateScope();
         using var dbContext = serviceScope.ServiceProvider.GetRequiredService<MijnThuisDbContext>();
@@ -164,5 +174,23 @@ internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSel
         };
 
         return response;
+    }
+
+    private Task<GetSolarSelfConsumptionResponse> GetSolarSelfConsumption(GetSolarSelfConsumptionQuery request)
+    {
+        return GetCachedValue("SOLAR_SELF_CONSUMPTION", ValueFactory, request, 15);
+    }
+
+    private async Task<T> GetCachedValue<T>(string key, Func<GetSolarSelfConsumptionQuery, Task<T>> valueFactory, GetSolarSelfConsumptionQuery request, int absoluteExpiration)
+    {
+        if (_memoryCache.TryGetValue(key, out T value))
+        {
+            return value;
+        }
+
+        value = await valueFactory(request);
+        _memoryCache.Set(key, value, TimeSpan.FromMinutes(absoluteExpiration));
+
+        return value;
     }
 }

@@ -85,8 +85,8 @@ public class CarChargingHelper : ICarChargingHelper
             {
                 // Add the current solar and consumption power
                 // to a list for calculating the average.
-                state.CollectedSolarPower.Add(solarOverview.CurrentSolarPower);
-                state.CollectedConsumedPower.Add(solarOverview.CurrentConsumptionPower);
+                state.CollectedSolarPower.Add(solarOverview.CurrentSolarPower / 1000M);
+                state.CollectedConsumedPower.Add(solarOverview.CurrentConsumptionPower / 1000M);
 
                 // If a number of measurements have been collected, we can calculate an average.
                 if (state.CollectedSolarPower.Count >= state.NumberOfSamplesToCollect)
