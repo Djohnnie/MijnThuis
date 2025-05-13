@@ -13,6 +13,7 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
     private readonly IPowerService _powerService;
     private readonly IShellyService _shellyService;
     private readonly ISolarService _solarService;
+    private readonly IModbusService _modbusService;
     private readonly IDayAheadEnergyPricesRepository _energyPricesRepository;
     private readonly IMemoryCache _memoryCache;
 
@@ -20,12 +21,14 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         IPowerService powerService,
         IShellyService shellyService,
         ISolarService solarService,
+        IModbusService modbusService,
         IDayAheadEnergyPricesRepository energyPricesRepository,
         IMemoryCache memoryCache)
     {
         _powerService = powerService;
         _shellyService = shellyService;
         _solarService = solarService;
+        _modbusService = modbusService;
         _energyPricesRepository = energyPricesRepository;
         _memoryCache = memoryCache;
     }
@@ -33,7 +36,7 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
     public async Task<GetPowerOverviewResponse> Handle(GetPowerOverviewQuery request, CancellationToken cancellationToken)
     {
         var powerResult = await _powerService.GetOverview();
-        var consumptionResult = await _solarService.GetOverview();
+        var consumptionResult = await _modbusService.GetOverview();
         var energyTodayResult = await GetEnergyToday();
         var energyThisMonthResult = await GetEnergyThisMonth();
         var energyPricing = await _energyPricesRepository.GetEnergyPriceForTimestamp(DateTime.Now);
@@ -42,7 +45,7 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         var vijverPowerSwitchOverview = await _shellyService.GetVijverPowerSwitchOverview();
 
         var result = powerResult.Adapt<GetPowerOverviewResponse>();
-        result.CurrentConsumption = consumptionResult.CurrentConsumptionPower;
+        result.CurrentConsumption = consumptionResult.CurrentConsumptionPower / 1000M;
         result.EnergyToday = energyTodayResult.Purchased / 1000M;
         result.EnergyThisMonth = energyThisMonthResult.Purchased / 1000M;
         result.CurrentPricePeriod = $"({energyPricing.From:HHu} - {energyPricing.To.AddSeconds(1):HHu})";

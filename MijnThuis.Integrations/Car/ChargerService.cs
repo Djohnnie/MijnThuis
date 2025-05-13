@@ -15,28 +15,41 @@ public class ChargerService : BaseChargerService, IChargerService
 
     public async Task<ChargerOverview> GetChargerOverview(string chargerId)
     {
-        using var client = InitializeHttpClient();
+        try
+        {
+            using var client = InitializeHttpClient();
 
-        var response = await client.GetFromJsonAsync<GetChargersResponse>($"api/chargepoint?id={chargerId}");
+            var response = await client.GetFromJsonAsync<GetChargersResponse>($"api/chargepoint?id={chargerId}");
 
-        if (response.Chargepoint != null)
+            if (response.Chargepoint != null)
+            {
+                return new ChargerOverview
+                {
+                    ChargerId = $"{response.Chargepoint.Id}",
+                    Description = response.Chargepoint.Name,
+                    NumberOfChargers = response.Chargepoint.Connectors.Count,
+                    NumberOfChargersAvailable = response.Chargepoint.Connectors.Count(x => x.Status == "Available")
+                };
+            }
+
+            return new ChargerOverview
+            {
+                ChargerId = chargerId,
+                Description = "Unknown",
+                NumberOfChargers = 0,
+                NumberOfChargersAvailable = 0
+            };
+        }
+        catch
         {
             return new ChargerOverview
             {
-                ChargerId = $"{response.Chargepoint.Id}",
-                Description = response.Chargepoint.Name,
-                NumberOfChargers = response.Chargepoint.Connectors.Count,
-                NumberOfChargersAvailable = response.Chargepoint.Connectors.Count(x => x.Status == "Available")
+                ChargerId = chargerId,
+                Description = "Unknown",
+                NumberOfChargers = 0,
+                NumberOfChargersAvailable = 0
             };
         }
-
-        return new ChargerOverview
-        {
-            ChargerId = chargerId,
-            Description = "Unknown",
-            NumberOfChargers = 0,
-            NumberOfChargersAvailable = 0
-        };
     }
 }
 

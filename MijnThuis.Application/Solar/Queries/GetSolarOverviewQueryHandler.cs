@@ -39,7 +39,10 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
         var no3 = await GetForecast(LATITUDE, LONGITUDE, 39M, -137M, 1.2M, DAMPING);
         var zo4 = await GetForecast(LATITUDE, LONGITUDE, 10M, -47M, 1.6M, DAMPING);
 
-        var result = solarResult.Adapt<GetSolarOverviewResponse>();
+        var result = new GetSolarOverviewResponse();
+        result.CurrentSolarPower = solarResult.CurrentSolarPower / 1000M;
+        result.CurrentBatteryPower = solarResult.CurrentBatteryPower / 1000M;
+        result.CurrentGridPower = -solarResult.CurrentGridPower / 1000M;
         result.BatteryLevel = (int)Math.Round(batteryResult.Level);
         result.BatteryHealth = (int)Math.Round(batteryResult.Health);
         result.BatteryMaxEnergy = (int)Math.Round(batteryResult.MaxEnergy);
@@ -53,7 +56,7 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
 
     private Task<SolarOverview> GetOverview()
     {
-        return _solarService.GetOverview();
+        return _modbusService.GetOverview();
     }
 
     private Task<BatteryLevel> GetBatteryLevel()

@@ -2,6 +2,7 @@
 using Djohnnie.SolarEdge.ModBus.TCP.Constants;
 using Djohnnie.SolarEdge.ModBus.TCP.Types;
 using Microsoft.Extensions.Configuration;
+using Int16 = Djohnnie.SolarEdge.ModBus.TCP.Types.Int16;
 using UInt16 = Djohnnie.SolarEdge.ModBus.TCP.Types.UInt16;
 
 namespace MijnThuis.Integrations.Solar;
@@ -12,14 +13,6 @@ public interface IModbusService
 
     Task<BatteryLevel> GetBatteryLevel();
 
-    Task<EnergyProduced> GetEnergy();
-
-    Task<EnergyOverview> GetEnergyToday();
-
-    Task<EnergyOverview> GetEnergyThisMonth();
-
-    Task<StorageData> GetStorageData(StorageDataRange range);
-
     Task<bool> IsNotMaxSelfConsumption();
 
     Task<bool> IsNotChargingInRemoteControlMode();
@@ -27,6 +20,10 @@ public interface IModbusService
     Task StartChargingBattery(TimeSpan duration, int power);
 
     Task StopChargingBattery();
+
+    Task SetExportLimitation(float powerLimit);
+
+    Task ResetExportLimitation();
 }
 internal class ModbusService : BaseService, IModbusService
 {
@@ -39,9 +36,49 @@ internal class ModbusService : BaseService, IModbusService
         _modbusPort = configuration.GetValue<int>("MODBUS_PORT");
     }
 
-    public Task<SolarOverview> GetOverview()
+    public async Task<SolarOverview> GetOverview()
     {
-        throw new NotImplementedException();
+        var error = false;
+
+        do
+        {
+            try
+            {
+                using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+                await modbusClient.Connect();
+
+                var power = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power);
+                var powerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power_SF);
+                var exportPower = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power);
+                var exportPowerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power_SF);
+                var batteryPower = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_Instantaneous_Power);
+                var soe = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Energy);
+
+                modbusClient.Disconnect();
+
+                error = false;
+
+                var currentConsumptionPower = Convert.ToDecimal(power.Value * Math.Pow(10, powerSF.Value));
+                var currentBatteryPower = Convert.ToDecimal(batteryPower.Value);
+                var currentGridPower = Convert.ToDecimal(exportPower.Value * Math.Pow(10, exportPowerSF.Value));
+
+                return new SolarOverview
+                {
+                    CurrentConsumptionPower = currentConsumptionPower,
+                    CurrentBatteryPower = currentBatteryPower,
+                    CurrentGridPower = currentGridPower,
+                    CurrentSolarPower = currentConsumptionPower + currentBatteryPower + currentGridPower,
+                    BatteryLevel = Convert.ToInt32(soe.Value),
+                };
+            }
+            catch
+            {
+                error = true;
+                await Task.Delay(500);
+            }
+        } while (error);
+
+        return new SolarOverview();
     }
 
     public async Task<BatteryLevel> GetBatteryLevel()
@@ -78,26 +115,6 @@ internal class ModbusService : BaseService, IModbusService
         } while (error);
 
         return new BatteryLevel();
-    }
-
-    public Task<EnergyProduced> GetEnergy()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<EnergyOverview> GetEnergyToday()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<EnergyOverview> GetEnergyThisMonth()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<StorageData> GetStorageData(StorageDataRange range)
-    {
-        throw new NotImplementedException();
     }
 
     public async Task<bool> IsNotMaxSelfConsumption()
@@ -145,6 +162,28 @@ internal class ModbusService : BaseService, IModbusService
         await modbusClient.Connect();
 
         await modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)1);
+
+        modbusClient.Disconnect();
+    }
+
+    public async Task SetExportLimitation(float powerLimit)
+    {
+        using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+        await modbusClient.Connect();
+
+        await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)0);
+        await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, powerLimit);
+
+        modbusClient.Disconnect();
+    }
+
+    public async Task ResetExportLimitation()
+    {
+        using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+        await modbusClient.Connect();
+
+        await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)0);
+        await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, 0f);
 
         modbusClient.Disconnect();
     }

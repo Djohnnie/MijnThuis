@@ -31,18 +31,18 @@ public class CarChargingHelper : ICarChargingHelper
     private readonly IFlagRepository _flagRepository;
     private readonly ICarChargingEnergyHistoryRepository _carChargingEnergyHistoryRepository;
     private readonly ICarService _carService;
-    private readonly ISolarService _solarService;
+    private readonly IModbusService _modbusService;
 
     public CarChargingHelper(
         IFlagRepository flagRepository,
         ICarChargingEnergyHistoryRepository carChargingEnergyHistoryRepository,
         ICarService carService,
-        ISolarService solarService)
+        IModbusService modbusService)
     {
         _flagRepository = flagRepository;
         _carChargingEnergyHistoryRepository = carChargingEnergyHistoryRepository;
         _carService = carService;
-        _solarService = solarService;
+        _modbusService = modbusService;
     }
 
     public async Task Do(CarChargingHelperState state, CancellationToken cancellationToken)
@@ -62,7 +62,7 @@ public class CarChargingHelper : ICarChargingHelper
         if (state.CarIsReadyToCharge)
         {
             // Get information about current solar energy.
-            var solarOverview = await _solarService.GetOverview();
+            var solarOverview = await _modbusService.GetOverview();
 
             // If the car should charge manually and the battery level is above 0%.
             if (manualCarChargeFlag.ShouldCharge && solarOverview.BatteryLevel > 0)
