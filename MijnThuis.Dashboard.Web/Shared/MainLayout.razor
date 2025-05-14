@@ -1,8 +1,9 @@
-﻿@using MijnThuis.Dashboard.Web.Notifications
+﻿@using MijnThuis.Dashboard.Web.Model
+@using MijnThuis.Dashboard.Web.Notifications
 
 @inherits LayoutComponentBase
 
-<MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
+<MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@DarkMode.IsDarkMode" Theme="_theme" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 <MudPopoverProvider />
@@ -26,16 +27,18 @@
 {
     [Inject] private SpeechToTextNotificationService _sttService { get; set; }
 
+    [CascadingParameter]
+    public NotifyingDarkMode DarkMode { get; set; }
+
     MudTheme _theme = new();
     MudThemeProvider _mudThemeProvider = new MudThemeProvider();
-    string modeIcon => _isDarkMode ? @Icons.Material.Outlined.DarkMode : @Icons.Material.Outlined.LightMode;
-    bool _isDarkMode;
+    string modeIcon => DarkMode.IsDarkMode ? @Icons.Material.Outlined.DarkMode : @Icons.Material.Outlined.LightMode;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
+            DarkMode.IsDarkMode = await _mudThemeProvider.GetSystemPreference();
 
             await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
 
@@ -45,7 +48,7 @@
 
     private Task OnSystemPreferenceChanged(bool newValue)
     {
-        _isDarkMode = newValue;
+        DarkMode.IsDarkMode = newValue;
 
         StateHasChanged();
 
@@ -54,7 +57,7 @@
 
     void ToggleDarkMode()
     {
-        _isDarkMode = !_isDarkMode;
+        DarkMode.ToggleDarkMode();
     }
 
     void SpeechToText()

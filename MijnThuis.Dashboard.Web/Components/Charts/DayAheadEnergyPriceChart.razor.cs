@@ -1,7 +1,8 @@
 ﻿using ApexCharts;
 using MediatR;
-using MijnThuis.Application.Power.Queries;
+using Microsoft.AspNetCore.Components;
 using MijnThuis.Contracts.Power;
+using MijnThuis.Dashboard.Web.Model;
 using MijnThuis.Dashboard.Web.Model.Charts;
 using System.Globalization;
 
@@ -9,6 +10,9 @@ namespace MijnThuis.Dashboard.Web.Components.Charts;
 
 public partial class DayAheadEnergyPriceChart
 {
+    [CascadingParameter]
+    public NotifyingDarkMode DarkMode { get; set; }
+
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromHours(1));
     private ApexChart<ChartDataEntry<string, decimal>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal>> _options { get; set; } = new();
@@ -90,14 +94,31 @@ public partial class DayAheadEnergyPriceChart
         DayAheadEnergyPrices.Series3Description = "Mega tarieven voor injectie";
     }
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            if (DarkMode != null)
+            {
+                _options.Chart.Background = DarkMode.IsDarkMode ? "#373740" : "#FFFFFF";
+                _options.Theme.Mode = DarkMode.IsDarkMode ? Mode.Dark : Mode.Light;
+                await _apexChart.UpdateOptionsAsync(true, false, false);
+
+                DarkMode.PropertyChanged += (sender, args) =>
+                {
+                    if (args.PropertyName == nameof(DarkMode.IsDarkMode))
+                    {
+                        _options.Chart.Background = DarkMode.IsDarkMode ? "#373740" : "#FFFFFF";
+                        _options.Theme.Mode = DarkMode.IsDarkMode ? Mode.Dark : Mode.Light;
+                        _ = _apexChart.UpdateOptionsAsync(true, false, false);
+                    }
+                };
+            }
+
             _ = RunTimer();
         }
 
-        return base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task RunTimer()

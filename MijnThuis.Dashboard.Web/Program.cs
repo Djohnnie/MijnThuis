@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using MijnThuis.Application.DependencyInjection;
 using MijnThuis.Dashboard.Web.Copilot;
+using MijnThuis.Dashboard.Web.DependencyInjection;
 using MijnThuis.Dashboard.Web.Middleware;
+using MijnThuis.Dashboard.Web.Model;
 using MijnThuis.Dashboard.Web.Notifications;
 using MudBlazor.Services;
 using System.Net;
@@ -44,6 +46,7 @@ builder.Services.AddApplication();
 builder.Services.AddMemoryCache();
 builder.Services.AddTransient<ICopilotHelper, CopilotHelper>();
 builder.Services.AddScoped<SpeechToTextNotificationService>();
+builder.Services.AddNotifyingCascadingValue(new NotifyingDarkMode { IsDarkMode = false });
 
 var app = builder.Build();
 
