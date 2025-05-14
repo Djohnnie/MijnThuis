@@ -137,6 +137,7 @@ public partial class SolarSelfConsumptionChart
                     HistoryType.PerYearInLifetime => new DateTime(_historyDate.Year, 1, 1),
                     _ => throw new InvalidOperationException()
                 },
+                ShouldIncludeEntries = true,
                 Range = _historyType switch
                 {
                     HistoryType.PerDayInMonth => SolarSelfConsumptionRange.Day,

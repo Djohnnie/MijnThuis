@@ -19,8 +19,6 @@ internal class InjectionWithCostWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        DateTime? lastRun = null;
-
         // While the service has not requested to stop...
         while (!stoppingToken.IsCancellationRequested)
         {

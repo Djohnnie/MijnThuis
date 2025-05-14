@@ -1,5 +1,4 @@
-﻿using Mapster;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.Integrations.Forecast;

@@ -6,6 +6,8 @@ public class GetSolarSelfConsumptionQuery : IRequest<GetSolarSelfConsumptionResp
 {
     public DateTime Date { get; set; }
 
+    public bool ShouldIncludeEntries { get; set; }
+
     public SolarSelfConsumptionRange Range { get; set; } = SolarSelfConsumptionRange.Day;
 }
 

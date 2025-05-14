@@ -59,107 +59,110 @@ internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSel
         var selfSufficiencyThisMonth = solarEnergyHistoryThisMonth.Any() ? (solarEnergyHistoryThisMonth.Sum(x => x.Consumption) - solarEnergyHistoryThisMonth.Sum(x => x.Import)) / solarEnergyHistoryThisMonth.Sum(x => x.Consumption) * 100M : 0M;
         var selfSufficiencyThisYear = solarEnergyHistoryThisYear.Any() ? (solarEnergyHistoryThisYear.Sum(x => x.Consumption) - solarEnergyHistoryThisYear.Sum(x => x.Import)) / solarEnergyHistoryThisYear.Sum(x => x.Consumption) * 100M : 0M;
 
-        var from = request.Range switch
-        {
-            SolarSelfConsumptionRange.Day => new DateTime(date.Year, date.Month, 1),
-            SolarSelfConsumptionRange.Month => new DateTime(date.Year, 1, 1),
-            SolarSelfConsumptionRange.Year => new DateTime(2000, 1, 1),
-            _ => date
-        };
-        var to = request.Range switch
-        {
-            SolarSelfConsumptionRange.Day => new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month)),
-            SolarSelfConsumptionRange.Month => new DateTime(date.Year, 12, 31),
-            SolarSelfConsumptionRange.Year => new DateTime(DateTime.Today.Year, 12, 31),
-            _ => date
-        };
-
-        var solarEnergyHistoryByRange = await dbContext.SolarEnergyHistory
-            .Where(x => x.Date >= from && x.Date.Date <= to)
-            .GroupBy(x => x.Date.Date)
-            .Select(x => new
-            {
-                Date = x.Key,
-                Import = x.Sum(x => x.Import),
-                Export = x.Sum(x => x.ProductionToGrid),
-                Production = x.Sum(x => x.Production),
-                Consumption = x.Sum(x => x.Consumption)
-            })
-            .OrderBy(x => x.Date)
-            .ToListAsync();
-
         var entries = new List<SolarSelfConsumptionEntry>();
 
-        switch (request.Range)
+        if (request.ShouldIncludeEntries)
         {
-            case SolarSelfConsumptionRange.Day:
-                entries = solarEnergyHistoryByRange
-                    .GroupBy(x => x.Date)
-                    .Select(g => new SolarSelfConsumptionEntry
-                    {
-                        Date = g.Key,
-                        SelfConsumption = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Production) == 0 ? 0M : g.Sum(x => x.Production) - g.Sum(x => x.Export)) / g.Sum(x => x.Production) * 100M) : 0M),
-                        SelfSufficiency = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Consumption) == 0 ? 0M : g.Sum(x => x.Consumption) - g.Sum(x => x.Import)) / g.Sum(x => x.Consumption) * 100M) : 0M)
-                    })
-                    .ToList();
-                break;
-            case SolarSelfConsumptionRange.Month:
-                entries = solarEnergyHistoryByRange
-                    .GroupBy(x => new { x.Date.Year, x.Date.Month })
-                    .Select(g => new SolarSelfConsumptionEntry
-                    {
-                        Date = new DateTime(g.Key.Year, g.Key.Month, 1),
-                        SelfConsumption = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Production) == 0 ? 0M : g.Sum(x => x.Production) - g.Sum(x => x.Export)) / g.Sum(x => x.Production) * 100M) : 0M),
-                        SelfSufficiency = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Consumption) == 0 ? 0M : g.Sum(x => x.Consumption) - g.Sum(x => x.Import)) / g.Sum(x => x.Consumption) * 100M) : 0M)
-                    })
-                    .ToList();
-                break;
-            case SolarSelfConsumptionRange.Year:
-                entries = solarEnergyHistoryByRange
-                    .GroupBy(x => new { x.Date.Year })
-                    .Select(g => new SolarSelfConsumptionEntry
-                    {
-                        Date = new DateTime(g.Key.Year, 1, 1),
-                        SelfConsumption = Math.Max(0M, Math.Round(g.Sum(x => x.Production) == 0 ? 0M : (g.Sum(x => x.Production) - g.Sum(x => x.Export)) / g.Sum(x => x.Production) * 100M)),
-                        SelfSufficiency = Math.Max(0M, Math.Round(g.Sum(x => x.Consumption) == 0 ? 0M : (g.Sum(x => x.Consumption) - g.Sum(x => x.Import)) / g.Sum(x => x.Consumption) * 100M))
-                    })
-                    .ToList();
-                break;
-        }
+            var from = request.Range switch
+            {
+                SolarSelfConsumptionRange.Day => new DateTime(date.Year, date.Month, 1),
+                SolarSelfConsumptionRange.Month => new DateTime(date.Year, 1, 1),
+                SolarSelfConsumptionRange.Year => new DateTime(2000, 1, 1),
+                _ => date
+            };
+            var to = request.Range switch
+            {
+                SolarSelfConsumptionRange.Day => new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month)),
+                SolarSelfConsumptionRange.Month => new DateTime(date.Year, 12, 31),
+                SolarSelfConsumptionRange.Year => new DateTime(DateTime.Today.Year, 12, 31),
+                _ => date
+            };
 
-        // Fill in the missing dates with 0 values
-        switch (request.Range)
-        {
-            case SolarSelfConsumptionRange.Day:
-                for (var i = 1; i <= DateTime.DaysInMonth(date.Year, date.Month); i++)
+            var solarEnergyHistoryByRange = await dbContext.SolarEnergyHistory
+                .Where(x => x.Date >= from && x.Date.Date <= to)
+                .GroupBy(x => x.Date.Date)
+                .Select(x => new
                 {
-                    var day = new DateTime(date.Year, date.Month, i);
-                    if (!entries.Any(x => x.Date == day))
-                    {
-                        entries.Add(new SolarSelfConsumptionEntry
+                    Date = x.Key,
+                    Import = x.Sum(x => x.Import),
+                    Export = x.Sum(x => x.ProductionToGrid),
+                    Production = x.Sum(x => x.Production),
+                    Consumption = x.Sum(x => x.Consumption)
+                })
+                .OrderBy(x => x.Date)
+                .ToListAsync();
+
+            switch (request.Range)
+            {
+                case SolarSelfConsumptionRange.Day:
+                    entries = solarEnergyHistoryByRange
+                        .GroupBy(x => x.Date)
+                        .Select(g => new SolarSelfConsumptionEntry
                         {
-                            Date = day,
-                            SelfConsumption = 0M,
-                            SelfSufficiency = 0M
-                        });
-                    }
-                }
-                break;
-            case SolarSelfConsumptionRange.Month:
-                for (var i = 1; i <= 12; i++)
-                {
-                    var month = new DateTime(date.Year, i, 1);
-                    if (!entries.Any(x => x.Date == month))
-                    {
-                        entries.Add(new SolarSelfConsumptionEntry
+                            Date = g.Key,
+                            SelfConsumption = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Production) == 0 ? 0M : g.Sum(x => x.Production) - g.Sum(x => x.Export)) / g.Sum(x => x.Production) * 100M) : 0M),
+                            SelfSufficiency = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Consumption) == 0 ? 0M : g.Sum(x => x.Consumption) - g.Sum(x => x.Import)) / g.Sum(x => x.Consumption) * 100M) : 0M)
+                        })
+                        .ToList();
+                    break;
+                case SolarSelfConsumptionRange.Month:
+                    entries = solarEnergyHistoryByRange
+                        .GroupBy(x => new { x.Date.Year, x.Date.Month })
+                        .Select(g => new SolarSelfConsumptionEntry
                         {
-                            Date = month,
-                            SelfConsumption = 0M,
-                            SelfSufficiency = 0M
-                        });
+                            Date = new DateTime(g.Key.Year, g.Key.Month, 1),
+                            SelfConsumption = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Production) == 0 ? 0M : g.Sum(x => x.Production) - g.Sum(x => x.Export)) / g.Sum(x => x.Production) * 100M) : 0M),
+                            SelfSufficiency = Math.Max(0M, g.Any() ? Math.Round((g.Sum(x => x.Consumption) == 0 ? 0M : g.Sum(x => x.Consumption) - g.Sum(x => x.Import)) / g.Sum(x => x.Consumption) * 100M) : 0M)
+                        })
+                        .ToList();
+                    break;
+                case SolarSelfConsumptionRange.Year:
+                    entries = solarEnergyHistoryByRange
+                        .GroupBy(x => new { x.Date.Year })
+                        .Select(g => new SolarSelfConsumptionEntry
+                        {
+                            Date = new DateTime(g.Key.Year, 1, 1),
+                            SelfConsumption = Math.Max(0M, Math.Round(g.Sum(x => x.Production) == 0 ? 0M : (g.Sum(x => x.Production) - g.Sum(x => x.Export)) / g.Sum(x => x.Production) * 100M)),
+                            SelfSufficiency = Math.Max(0M, Math.Round(g.Sum(x => x.Consumption) == 0 ? 0M : (g.Sum(x => x.Consumption) - g.Sum(x => x.Import)) / g.Sum(x => x.Consumption) * 100M))
+                        })
+                        .ToList();
+                    break;
+            }
+
+            // Fill in the missing dates with 0 values
+            switch (request.Range)
+            {
+                case SolarSelfConsumptionRange.Day:
+                    for (var i = 1; i <= DateTime.DaysInMonth(date.Year, date.Month); i++)
+                    {
+                        var day = new DateTime(date.Year, date.Month, i);
+                        if (!entries.Any(x => x.Date == day))
+                        {
+                            entries.Add(new SolarSelfConsumptionEntry
+                            {
+                                Date = day,
+                                SelfConsumption = 0M,
+                                SelfSufficiency = 0M
+                            });
+                        }
                     }
-                }
-                break;
+                    break;
+                case SolarSelfConsumptionRange.Month:
+                    for (var i = 1; i <= 12; i++)
+                    {
+                        var month = new DateTime(date.Year, i, 1);
+                        if (!entries.Any(x => x.Date == month))
+                        {
+                            entries.Add(new SolarSelfConsumptionEntry
+                            {
+                                Date = month,
+                                SelfConsumption = 0M,
+                                SelfSufficiency = 0M
+                            });
+                        }
+                    }
+                    break;
+            }
         }
 
         var response = new GetSolarSelfConsumptionResponse
@@ -178,7 +181,7 @@ internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSel
 
     private Task<GetSolarSelfConsumptionResponse> GetSolarSelfConsumption(GetSolarSelfConsumptionQuery request)
     {
-        return GetCachedValue("SOLAR_SELF_CONSUMPTION", ValueFactory, request, 15);
+        return GetCachedValue($"SOLAR_SELF_CONSUMPTION[{request.Date}|{request.Range}|{request.ShouldIncludeEntries}]", ValueFactory, request, 15);
     }
 
     private async Task<T> GetCachedValue<T>(string key, Func<GetSolarSelfConsumptionQuery, Task<T>> valueFactory, GetSolarSelfConsumptionQuery request, int absoluteExpiration)
