@@ -49,10 +49,12 @@ internal class ModbusService : BaseService, IModbusService
                 using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
                 await modbusClient.Connect();
 
-                var power = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power);
-                var powerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power_SF);
-                var exportPower = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power);
-                var exportPowerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power_SF);
+                var acPower = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power);
+                var acPowerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power_SF);
+                var dcPower = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_DC_Power);
+                var dcPowerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_DC_Power_SF);
+                var gridPower = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power);
+                var gridPowerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power_SF);
                 var batteryPower = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_Instantaneous_Power);
                 var soe = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Energy);
 
@@ -60,16 +62,17 @@ internal class ModbusService : BaseService, IModbusService
 
                 error = false;
 
-                var currentConsumptionPower = Convert.ToDecimal(power.Value * Math.Pow(10, powerSF.Value));
                 var currentBatteryPower = Convert.ToDecimal(batteryPower.Value);
-                var currentGridPower = Convert.ToDecimal(exportPower.Value * Math.Pow(10, exportPowerSF.Value));
+                var currentSolarPower = Convert.ToDecimal(dcPower.Value * Math.Pow(10, dcPowerSF.Value)) + currentBatteryPower;
+                var currentGridPower = Convert.ToDecimal(gridPower.Value * Math.Pow(10, gridPowerSF.Value));
+                var currentConsumptionPower = Convert.ToDecimal(acPower.Value * Math.Pow(10, acPowerSF.Value)) - currentGridPower;
 
                 return new SolarOverview
                 {
                     CurrentConsumptionPower = currentConsumptionPower,
                     CurrentBatteryPower = currentBatteryPower,
                     CurrentGridPower = currentGridPower,
-                    CurrentSolarPower = currentConsumptionPower + currentBatteryPower + currentGridPower,
+                    CurrentSolarPower = currentSolarPower,
                     BatteryLevel = Convert.ToInt32(soe.Value),
                 };
             }
