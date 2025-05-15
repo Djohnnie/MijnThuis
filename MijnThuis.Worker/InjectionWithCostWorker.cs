@@ -31,16 +31,17 @@ internal class InjectionWithCostWorker : BackgroundService
                 var modbusService = serviceScope.ServiceProvider.GetRequiredService<IModbusService>();
 
                 var energyPrice = await repository.GetEnergyPriceForTimestamp(DateTime.Now);
+                var solarOverview = await modbusService.GetOverview();
                 var hasExportLimitation = await modbusService.HasExportLimitation();
 
-                if (energyPrice.InjectionCentsPerKWh < 0 && !hasExportLimitation)
+                if (energyPrice.InjectionCentsPerKWh < 0 && solarOverview.BatteryLevel > 95 && !hasExportLimitation)
                 {
-                    _logger.LogInformation($"Stop exporting energy: Injection price is negative: {energyPrice.InjectionCentsPerKWh}");
+                    _logger.LogInformation($"Stop exporting energy: Injection price is negative and battery is almost full: {energyPrice.InjectionCentsPerKWh}");
                     await modbusService.SetExportLimitation(0);
                 }
-                else if (energyPrice.InjectionCentsPerKWh >= 0 && hasExportLimitation)
+                else if (energyPrice.InjectionCentsPerKWh >= 0 || solarOverview.BatteryLevel <= 95 && hasExportLimitation)
                 {
-                    _logger.LogInformation($"Start exporting energy: Injection price is positive: {energyPrice.InjectionCentsPerKWh}");
+                    _logger.LogInformation($"Start exporting energy: Injection price is positive or battery is not yet full: {energyPrice.InjectionCentsPerKWh}");
                     await modbusService.ResetExportLimitation();
                 }
             }
