@@ -1,4 +1,5 @@
-﻿using MijnThuis.ModbusProxy.Api.Helpers;
+﻿using Microsoft.AspNetCore.Mvc;
+using MijnThuis.ModbusProxy.Api.Helpers;
 using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,6 +42,24 @@ app.MapGet("/battery", async (IModbusHelper modbusHelper) =>
 {
     var result = await modbusHelper.GetBatteryLevel();
     return Results.Ok(result);
+});
+
+app.MapGet("/hasExportLimitation", async (IModbusHelper modbusHelper) =>
+{
+    var result = await modbusHelper.HasExportLimitation();
+    return Results.Ok(result);
+});
+
+app.MapPost("/setExportLimitation", async (IModbusHelper modbusHelper, [FromQuery] float powerLimit) =>
+{
+    await modbusHelper.SetExportLimitation(powerLimit);
+    return Results.Ok();
+});
+
+app.MapPost("/resetExportLimitation", async (IModbusHelper modbusHelper) =>
+{
+    await modbusHelper.ResetExportLimitation();
+    return Results.Ok();
 });
 
 app.Run();
