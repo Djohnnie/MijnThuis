@@ -338,12 +338,17 @@ public class ModbusHelper : IModbusHelper
 
             return await RetryOnFailure(async () =>
             {
+                var startTimeStamp = Stopwatch.GetTimestamp();
+
                 using var modbusClient = new ModbusClient(address, port);
                 await modbusClient.Connect();
 
                 var exportControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.ExportControlMode);
 
                 modbusClient.Disconnect();
+                var stopTimeStamp = Stopwatch.GetTimestamp();
+
+                _logger.LogInformation("Modbus export limitation retrieved in {ElapsedTime}ms", (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
 
                 return exportControlMode.Value == 1;
             }, false);
@@ -365,6 +370,8 @@ public class ModbusHelper : IModbusHelper
 
             await RetryOnFailure(async () =>
             {
+                var startTimeStamp = Stopwatch.GetTimestamp();
+
                 using var modbusClient = new ModbusClient(address, port);
                 await modbusClient.Connect();
 
@@ -372,6 +379,9 @@ public class ModbusHelper : IModbusHelper
                 await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, powerLimit);
 
                 modbusClient.Disconnect();
+                var stopTimeStamp = Stopwatch.GetTimestamp();
+
+                _logger.LogInformation("Modbus export limitation set in {ElapsedTime}ms", (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
             });
         }
         finally
@@ -391,6 +401,8 @@ public class ModbusHelper : IModbusHelper
 
             await RetryOnFailure(async () =>
             {
+                var startTimeStamp = Stopwatch.GetTimestamp();
+
                 using var modbusClient = new ModbusClient(address, port);
                 await modbusClient.Connect();
 
@@ -398,6 +410,9 @@ public class ModbusHelper : IModbusHelper
                 await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, 0f);
 
                 modbusClient.Disconnect();
+                var stopTimeStamp = Stopwatch.GetTimestamp();
+
+                _logger.LogInformation("Modbus export limitation reset in {ElapsedTime}ms", (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
             });
         }
         finally
