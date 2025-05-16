@@ -10,13 +10,13 @@ builder.Services.AddIntegrations();
 builder.Services.AddScoped<ICarChargingHelper, CarChargingHelper>();
 builder.Services.AddScoped<IHomeBatteryChargingHelper, HomeBatteryChargingHelper>();
 
-builder.Services.AddHostedService<CarChargingWorker>();
-//builder.Services.AddHostedService<HomeBatteryChargingWorker>();
-builder.Services.AddHostedService<HomeBatteryNotificationWorker>();
-builder.Services.AddHostedService<SolarHistoryWorker>();
-builder.Services.AddHostedService<EnergyHistoryWorker>();
-builder.Services.AddHostedService<SolarForecastHistoryWorker>();
-builder.Services.AddHostedService<DayAheadEnergyPricesWorker>();
+//builder.Services.AddHostedService<CarChargingWorker>();
+////builder.Services.AddHostedService<HomeBatteryChargingWorker>();
+//builder.Services.AddHostedService<HomeBatteryNotificationWorker>();
+//builder.Services.AddHostedService<SolarHistoryWorker>();
+//builder.Services.AddHostedService<EnergyHistoryWorker>();
+//builder.Services.AddHostedService<SolarForecastHistoryWorker>();
+//builder.Services.AddHostedService<DayAheadEnergyPricesWorker>();
 builder.Services.AddHostedService<InjectionWithCostWorker>();
 
 var host = builder.Build();

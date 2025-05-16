@@ -39,7 +39,7 @@ internal class InjectionWithCostWorker : BackgroundService
                     _logger.LogInformation($"Stop exporting energy: Injection price is negative and battery is almost full: {energyPrice.InjectionCentsPerKWh}");
                     await modbusService.SetExportLimitation(0);
                 }
-                else if (energyPrice.InjectionCentsPerKWh >= 0 || solarOverview.BatteryLevel <= 95 && hasExportLimitation)
+                else if ((energyPrice.InjectionCentsPerKWh >= 0 || solarOverview.BatteryLevel <= 95) && hasExportLimitation)
                 {
                     _logger.LogInformation($"Start exporting energy: Injection price is positive or battery is not yet full: {energyPrice.InjectionCentsPerKWh}");
                     await modbusService.ResetExportLimitation();
