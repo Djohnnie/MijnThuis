@@ -62,13 +62,13 @@ public class CarChargingHelper : ICarChargingHelper
         if (state.CarIsReadyToCharge)
         {
             // Get information about current solar energy.
-            var solarOverview = await _modbusService.GetOverview();
+            var batteryLevel = await _modbusService.GetBatteryLevel();
 
             // If the car should charge manually and the battery level is above 0%.
-            if (manualCarChargeFlag.ShouldCharge && solarOverview.BatteryLevel > 0)
+            if (manualCarChargeFlag.ShouldCharge && batteryLevel.Level > 0)
             {
                 // Calculate the maximum current to charge the car.
-                var ampsToCharge = Math.Min(manualCarChargeFlag.ChargeAmps, solarOverview.BatteryLevel);
+                var ampsToCharge = Math.Min(manualCarChargeFlag.ChargeAmps, (int)batteryLevel.Level);
 
                 // If the car is not charging, or the car is charging at a different current.
                 if (!carOverview.IsCharging || carOverview.ChargingAmps != ampsToCharge)

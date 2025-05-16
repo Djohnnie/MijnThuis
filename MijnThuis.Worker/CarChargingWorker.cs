@@ -48,7 +48,7 @@ public class CarChargingWorker : BackgroundService
             // If the car is ready to charge, wait for a total of 10 seconds before the next
             // iteration. If the car is not ready to charge (because it is not parked near the
             // house or it is not connected), wait for 5 minutes before the next iteration.
-            var duration = (state.CarIsReadyToCharge ? TimeSpan.FromSeconds(10) : TimeSpan.FromMinutes(5)) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
+            var duration = (state.CarIsReadyToCharge ? TimeSpan.FromMinutes(1) : TimeSpan.FromMinutes(5)) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
 
             if (duration > TimeSpan.Zero)
             {
