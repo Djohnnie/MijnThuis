@@ -135,45 +135,26 @@ internal class ModbusService : BaseService, IModbusService
 
     public async Task<bool> HasExportLimitation()
     {
-        return await RetryOnFailure(async () =>
-        {
-            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-            await modbusClient.Connect();
+        var client = new HttpClient();
+        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
 
-            var exportControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.ExportControlMode);
-
-            modbusClient.Disconnect();
-
-            return exportControlMode.Value == 1;
-        }, false);
+        return await client.GetFromJsonAsync<bool>("hasExportLimitation");
     }
 
     public async Task SetExportLimitation(float powerLimit)
     {
-        await RetryOnFailure(async () =>
-        {
-            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-            await modbusClient.Connect();
+        var client = new HttpClient();
+        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
 
-            await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)1);
-            await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, powerLimit);
-
-            modbusClient.Disconnect();
-        });
+        await client.PostAsync($"setExportLimitation?powerLimit={powerLimit}", null);
     }
 
     public async Task ResetExportLimitation()
     {
-        await RetryOnFailure(async () =>
-        {
-            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-            await modbusClient.Connect();
+        var client = new HttpClient();
+        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
 
-            await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)0);
-            await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, 0f);
-
-            modbusClient.Disconnect();
-        });
+        await client.PostAsync($"resetExportLimitation", null);
     }
 
     private static async Task<TResult> RetryOnFailure<TResult>(Func<Task<TResult>> action, TResult defaultValue = default, int maxRetries = 5, int delayMilliseconds = 200)
