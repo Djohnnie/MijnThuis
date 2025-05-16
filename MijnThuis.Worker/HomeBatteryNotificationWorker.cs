@@ -56,10 +56,10 @@ internal class HomeBatteryNotificationWorker : BackgroundService
 
                 // Initialize dependencies and variables.
                 using var serviceScope = _serviceProvider.CreateScope();
-                var solarService = serviceScope.ServiceProvider.GetService<ISolarService>();
+                var modbusService = serviceScope.ServiceProvider.GetService<IModbusService>();
 
                 // Get information about solar energy.
-                var solarOverview = await solarService.GetOverview();
+                var solarOverview = await modbusService.GetOverview();
 
                 if (solarOverview.BatteryLevel == 100 && notifiedFullBatteryToday == null)
                 {

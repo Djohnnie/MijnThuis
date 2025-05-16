@@ -92,11 +92,11 @@ internal class DayAheadEnergyPricesWorker : BackgroundService
                         {
                             if (dateToProcess == tomorrow)
                             {
-                                _logger.LogInformation(ex, $"No data found for 'Day Ahead' energy prices tomorrow {dateToProcess}");
+                                _logger.LogInformation($"No data found yet for 'Day Ahead' energy prices tomorrow {dateToProcess}");
                             }
                             else
                             {
-                                _logger.LogError($"Error fetching 'Day Ahead' energy prices for {dateToProcess}: {ex.Message}");
+                                _logger.LogError(ex, $"Error fetching 'Day Ahead' energy prices for {dateToProcess}: {ex.Message}");
                             }
 
                             break;

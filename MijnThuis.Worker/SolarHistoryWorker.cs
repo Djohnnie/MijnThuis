@@ -44,7 +44,7 @@ internal class SolarHistoryWorker : BackgroundService
 
             var stopTimer = Stopwatch.GetTimestamp();
 
-            var duration = TimeSpan.FromMinutes(15) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
+            var duration = TimeSpan.FromHours(1) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
 
             if (duration > TimeSpan.Zero)
             {
@@ -265,7 +265,7 @@ internal class SolarHistoryWorker : BackgroundService
                         AvailableEnergy = measurement.EnergyAvailable ?? 0M,
                         StateOfCharge = measurement.Level ?? 0M,
                         CalculatedStateOfHealth = (measurement.EnergyAvailable ?? 0M) / batteryData.Nameplate,
-                        StateOfHealth = (DateTime.Now - measurement.TimeStamp).TotalHours < 1 ? currentBatteryLevel.Health / 100M : 1M,
+                        StateOfHealth = currentBatteryLevel.Health / 100M,
                     });
 
                     await dbContext.SaveChangesAsync();

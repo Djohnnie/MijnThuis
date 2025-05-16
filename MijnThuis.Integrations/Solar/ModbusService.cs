@@ -40,209 +40,203 @@ internal class ModbusService : BaseService, IModbusService
 
     public async Task<SolarOverview> GetOverview()
     {
-        var error = false;
-
-        do
+        return await RetryOnFailure(async () =>
         {
-            try
+            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+            await modbusClient.Connect();
+
+            var acPower = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power);
+            var acPowerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power_SF);
+            var dcPower = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_DC_Power);
+            var dcPowerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_DC_Power_SF);
+            var gridPower = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power);
+            var gridPowerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power_SF);
+            var batteryPower = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_Instantaneous_Power);
+            var soe = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Energy);
+
+            modbusClient.Disconnect();
+
+            var currentBatteryPower = Convert.ToDecimal(batteryPower.Value);
+            var currentSolarPower = Convert.ToDecimal(dcPower.Value * Math.Pow(10, dcPowerSF.Value)) + currentBatteryPower;
+            var currentGridPower = Convert.ToDecimal(gridPower.Value * Math.Pow(10, gridPowerSF.Value));
+            var currentConsumptionPower = Convert.ToDecimal(acPower.Value * Math.Pow(10, acPowerSF.Value)) - currentGridPower;
+
+            return new SolarOverview
             {
-                using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-                await modbusClient.Connect();
-
-                var acPower = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power);
-                var acPowerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power_SF);
-                var dcPower = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_DC_Power);
-                var dcPowerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_DC_Power_SF);
-                var gridPower = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power);
-                var gridPowerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power_SF);
-                var batteryPower = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_Instantaneous_Power);
-                var soe = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Energy);
-
-                modbusClient.Disconnect();
-
-                error = false;
-
-                var currentBatteryPower = Convert.ToDecimal(batteryPower.Value);
-                var currentSolarPower = Convert.ToDecimal(dcPower.Value * Math.Pow(10, dcPowerSF.Value)) + currentBatteryPower;
-                var currentGridPower = Convert.ToDecimal(gridPower.Value * Math.Pow(10, gridPowerSF.Value));
-                var currentConsumptionPower = Convert.ToDecimal(acPower.Value * Math.Pow(10, acPowerSF.Value)) - currentGridPower;
-
-                return new SolarOverview
-                {
-                    CurrentConsumptionPower = currentConsumptionPower,
-                    CurrentBatteryPower = currentBatteryPower,
-                    CurrentGridPower = currentGridPower,
-                    CurrentSolarPower = currentSolarPower,
-                    BatteryLevel = Convert.ToInt32(soe.Value),
-                };
-            }
-            catch
-            {
-                error = true;
-                await Task.Delay(Random.Shared.Next(50, 100));
-            }
-        } while (error);
-
-        return new SolarOverview();
+                CurrentConsumptionPower = currentConsumptionPower,
+                CurrentBatteryPower = currentBatteryPower,
+                CurrentGridPower = currentGridPower,
+                CurrentSolarPower = currentSolarPower,
+                BatteryLevel = Convert.ToInt32(soe.Value),
+            };
+        }, new SolarOverview());
     }
 
     public async Task<BatteryLevel> GetBatteryLevel()
     {
-        var error = false;
-
-        do
+        return await RetryOnFailure(async () =>
         {
-            try
+            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+            await modbusClient.Connect();
+
+            var soe = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Energy);
+            var soh = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Health);
+            var max = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_Max_Energy);
+
+            modbusClient.Disconnect();
+
+            return new BatteryLevel
             {
-                using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-                await modbusClient.Connect();
-
-                var soe = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Energy);
-                var soh = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Health);
-                var max = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_Max_Energy);
-
-                modbusClient.Disconnect();
-
-                error = false;
-
-                return new BatteryLevel
-                {
-                    Level = Convert.ToDecimal(soe.Value),
-                    Health = Convert.ToDecimal(soh.Value),
-                    MaxEnergy = Convert.ToDecimal(max.Value)
-                };
-            }
-            catch
-            {
-                error = true;
-                await Task.Delay(Random.Shared.Next(50, 100));
-            }
-        } while (error);
-
-        return new BatteryLevel();
+                Level = Convert.ToDecimal(soe.Value),
+                Health = Convert.ToDecimal(soh.Value),
+                MaxEnergy = Convert.ToDecimal(max.Value)
+            };
+        }, new BatteryLevel());
     }
 
     public async Task<bool> IsNotMaxSelfConsumption()
     {
-        using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-        await modbusClient.Connect();
+        return await RetryOnFailure(async () =>
+        {
+            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+            await modbusClient.Connect();
 
-        var storageControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
-        var remoteControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
+            var storageControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
+            var remoteControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
 
-        modbusClient.Disconnect();
+            modbusClient.Disconnect();
 
-        return storageControlMode.Value != 1 && remoteControlMode.Value != 3;
+            return storageControlMode.Value != 1 && remoteControlMode.Value != 3;
+        }, false);
     }
 
     public async Task<bool> IsNotChargingInRemoteControlMode()
     {
-        using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-        await modbusClient.Connect();
+        return await RetryOnFailure(async () =>
+        {
+            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+            await modbusClient.Connect();
 
-        var storageControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
-        var remoteControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
+            var storageControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
+            var remoteControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
 
-        modbusClient.Disconnect();
+            modbusClient.Disconnect();
 
-        return storageControlMode.Value == 4 && remoteControlMode.Value != 3;
+            return storageControlMode.Value == 4 && remoteControlMode.Value != 3;
+        }, false);
     }
 
     public async Task StartChargingBattery(TimeSpan duration, int power)
     {
-        using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-        await modbusClient.Connect();
+        await RetryOnFailure(async () =>
+        {
+            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+            await modbusClient.Connect();
 
-        await modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)4);
-        await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Timeout, (uint)duration.TotalSeconds);
-        await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Mode, (ushort)3);
-        await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Charge_Limit, (float)power);
+            await modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)4);
+            await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Timeout, (uint)duration.TotalSeconds);
+            await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Mode, (ushort)3);
+            await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Charge_Limit, (float)power);
 
-        modbusClient.Disconnect();
+            modbusClient.Disconnect();
+        });
     }
 
     public async Task StopChargingBattery()
     {
-        using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-        await modbusClient.Connect();
+        await RetryOnFailure(async () =>
+        {
+            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+            await modbusClient.Connect();
 
-        await modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)1);
+            await modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)1);
 
-        modbusClient.Disconnect();
+            modbusClient.Disconnect();
+        });
     }
 
     public async Task<bool> HasExportLimitation()
     {
-        var error = false;
-
-        do
+        return await RetryOnFailure(async () =>
         {
-            try
-            {
-                using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-                await modbusClient.Connect();
+            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+            await modbusClient.Connect();
 
-                var exportControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.ExportControlMode);
+            var exportControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.ExportControlMode);
 
-                modbusClient.Disconnect();
+            modbusClient.Disconnect();
 
-                return exportControlMode.Value == 1;
-            }
-            catch
-            {
-                error = true;
-                await Task.Delay(Random.Shared.Next(50, 100));
-            }
-        } while (error);
-
-        return false;
+            return exportControlMode.Value == 1;
+        }, false);
     }
 
     public async Task SetExportLimitation(float powerLimit)
     {
-        var error = false;
-
-        do
+        await RetryOnFailure(async () =>
         {
-            try
-            {
-                using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-                await modbusClient.Connect();
+            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+            await modbusClient.Connect();
 
-                await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)1);
-                await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, powerLimit);
+            await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)1);
+            await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, powerLimit);
 
-                modbusClient.Disconnect();
-            }
-            catch
-            {
-                error = true;
-                await Task.Delay(Random.Shared.Next(50, 100));
-            }
-        } while (error);
+            modbusClient.Disconnect();
+        });
     }
 
     public async Task ResetExportLimitation()
     {
-        var error = false;
+        await RetryOnFailure(async () =>
+        {
+            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+            await modbusClient.Connect();
 
-        do
+            await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)0);
+            await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, 0f);
+
+            modbusClient.Disconnect();
+        });
+    }
+
+    private static async Task<TResult> RetryOnFailure<TResult>(Func<Task<TResult>> action, TResult defaultValue = default, int maxRetries = 5, int delayMilliseconds = 200)
+    {
+        var error = false;
+        var retries = 0;
+
+        while (error && retries <= maxRetries)
         {
             try
             {
-                using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-                await modbusClient.Connect();
-
-                await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)0);
-                await modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, 0f);
-
-                modbusClient.Disconnect();
+                return await action();
             }
-            catch
+            catch (Exception ex)
             {
                 error = true;
-                await Task.Delay(Random.Shared.Next(50, 100));
+                retries++;
+                await Task.Delay(Random.Shared.Next(50, delayMilliseconds));
             }
-        } while (error);
+        }
+
+        return defaultValue;
+    }
+
+    private static async Task RetryOnFailure(Func<Task> action, int maxRetries = 5, int delayMilliseconds = 200)
+    {
+        var error = false;
+        var retries = 0;
+
+        while (error && retries <= maxRetries)
+        {
+            try
+            {
+                await action();
+            }
+            catch (Exception ex)
+            {
+                error = true;
+                retries++;
+                await Task.Delay(Random.Shared.Next(50, delayMilliseconds));
+            }
+        }
     }
 }
