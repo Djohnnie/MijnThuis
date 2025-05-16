@@ -1,7 +1,7 @@
 ﻿using Djohnnie.SolarEdge.ModBus.TCP;
 using Djohnnie.SolarEdge.ModBus.TCP.Constants;
-using Djohnnie.SolarEdge.ModBus.TCP.Types;
 using Microsoft.Extensions.Configuration;
+using System.Net.Http.Json;
 using Int16 = Djohnnie.SolarEdge.ModBus.TCP.Types.Int16;
 using UInt16 = Djohnnie.SolarEdge.ModBus.TCP.Types.UInt16;
 
@@ -29,69 +29,47 @@ public interface IModbusService
 }
 internal class ModbusService : BaseService, IModbusService
 {
+    private readonly string _modbusProxyBaseAddress;
     private readonly string _modbusAddress;
     private readonly int _modbusPort;
 
     public ModbusService(IConfiguration configuration) : base(configuration)
     {
+        _modbusProxyBaseAddress = configuration.GetValue<string>("MODBUS_PROXY_BASE_ADDRESS");
         _modbusAddress = configuration.GetValue<string>("MODBUS_ADDRESS");
         _modbusPort = configuration.GetValue<int>("MODBUS_PORT");
     }
 
     public async Task<SolarOverview> GetOverview()
     {
-        return await RetryOnFailure(async () =>
+        var client = new HttpClient();
+        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
+
+        var data = await client.GetFromJsonAsync<ModbusDataSet>("overview");
+
+        return new SolarOverview
         {
-            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-            await modbusClient.Connect();
-
-            var acPower = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power);
-            var acPowerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power_SF);
-            var dcPower = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_DC_Power);
-            var dcPowerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_DC_Power_SF);
-            var gridPower = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power);
-            var gridPowerSF = await modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power_SF);
-            var batteryPower = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_Instantaneous_Power);
-            var soe = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Energy);
-
-            modbusClient.Disconnect();
-
-            var currentBatteryPower = Convert.ToDecimal(batteryPower.Value);
-            var currentSolarPower = Convert.ToDecimal(dcPower.Value * Math.Pow(10, dcPowerSF.Value)) + currentBatteryPower;
-            var currentGridPower = Convert.ToDecimal(gridPower.Value * Math.Pow(10, gridPowerSF.Value));
-            var currentConsumptionPower = Convert.ToDecimal(acPower.Value * Math.Pow(10, acPowerSF.Value)) - currentGridPower;
-
-            return new SolarOverview
-            {
-                CurrentConsumptionPower = currentConsumptionPower,
-                CurrentBatteryPower = currentBatteryPower,
-                CurrentGridPower = currentGridPower,
-                CurrentSolarPower = currentSolarPower,
-                BatteryLevel = Convert.ToInt32(soe.Value),
-            };
-        }, new SolarOverview());
+            CurrentConsumptionPower = data.CurrentConsumptionPower,
+            CurrentBatteryPower = data.CurrentBatteryPower,
+            CurrentGridPower = data.CurrentGridPower,
+            CurrentSolarPower = data.CurrentSolarPower,
+            BatteryLevel = data.BatteryLevel,
+        };
     }
 
     public async Task<BatteryLevel> GetBatteryLevel()
     {
-        return await RetryOnFailure(async () =>
+        var client = new HttpClient();
+        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
+
+        var data = await client.GetFromJsonAsync<ModbusDataSet>("battery");
+
+        return new BatteryLevel
         {
-            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-            await modbusClient.Connect();
-
-            var soe = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Energy);
-            var soh = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Health);
-            var max = await modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_Max_Energy);
-
-            modbusClient.Disconnect();
-
-            return new BatteryLevel
-            {
-                Level = Convert.ToDecimal(soe.Value),
-                Health = Convert.ToDecimal(soh.Value),
-                MaxEnergy = Convert.ToDecimal(max.Value)
-            };
-        }, new BatteryLevel());
+            Level = data.BatteryLevel,
+            Health = data.BatteryHealth,
+            MaxEnergy = data.BatteryMaxEnergy
+        };
     }
 
     public async Task<bool> IsNotMaxSelfConsumption()
@@ -238,5 +216,23 @@ internal class ModbusService : BaseService, IModbusService
                 await Task.Delay(Random.Shared.Next(100, delayMilliseconds));
             }
         } while (error && retries <= maxRetries);
+    }
+
+    public record ModbusDataSet
+    {
+        public decimal CurrentSolarPower { get; init; }
+        public decimal CurrentBatteryPower { get; init; }
+        public decimal CurrentGridPower { get; init; }
+        public decimal CurrentConsumptionPower { get; init; }
+        public int BatteryLevel { get; init; }
+        public int BatteryHealth { get; init; }
+        public int BatteryMaxEnergy { get; init; }
+        public int StorageControlMode { get; init; }
+        public int RemoteControlMode { get; init; }
+        public int RemoteControlCommandTimeout { get; init; }
+        public decimal RemoteControlChargeLimit { get; init; }
+        public bool IsMaxSelfConsumption { get; init; }
+        public bool HasExportLimitation { get; init; }
+        public decimal ExportPowerLimitation { get; init; }
     }
 }

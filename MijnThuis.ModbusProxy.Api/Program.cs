@@ -19,14 +19,27 @@ builder.WebHost.ConfigureKestrel((context, options) =>
 });
 
 builder.Services.AddSingleton<IModbusHelper, ModbusHelper>();
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-app.MapGet("/status", async (IModbusHelper modbusHelper) =>
+app.MapGet("/bulk", async (IModbusHelper modbusHelper) =>
 {
     var result = await modbusHelper.GetBulkDataSet();
+    return Results.Ok(result);
+});
+
+app.MapGet("/overview", async (IModbusHelper modbusHelper) =>
+{
+    var result = await modbusHelper.GetOverview();
+    return Results.Ok(result);
+});
+
+app.MapGet("/battery", async (IModbusHelper modbusHelper) =>
+{
+    var result = await modbusHelper.GetBatteryLevel();
     return Results.Ok(result);
 });
 
