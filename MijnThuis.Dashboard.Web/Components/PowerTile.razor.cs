@@ -6,7 +6,7 @@ namespace MijnThuis.Dashboard.Web.Components;
 
 public partial class PowerTile
 {
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(2));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(10));
 
     [Inject]
     protected NavigationManager NavigationManager { get; set; }

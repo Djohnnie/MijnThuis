@@ -11,7 +11,7 @@ public partial class SolarTile
     protected NavigationManager NavigationManager { get; set; }
 
     private readonly IDialogService _dialogService;
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(2));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(10));
     private readonly string _pin;
 
     public bool IsReady { get; set; }

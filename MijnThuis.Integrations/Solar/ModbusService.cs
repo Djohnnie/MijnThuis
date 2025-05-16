@@ -220,7 +220,7 @@ internal class ModbusService : BaseService, IModbusService
         return defaultValue;
     }
 
-    private static async Task RetryOnFailure(Func<Task> action, int maxRetries = 5, int delayMilliseconds = 200)
+    private static async Task RetryOnFailure(Func<Task> action, int maxRetries = 3, int delayMilliseconds = 500)
     {
         var error = false;
         var retries = 0;
@@ -235,7 +235,7 @@ internal class ModbusService : BaseService, IModbusService
             {
                 error = true;
                 retries++;
-                await Task.Delay(Random.Shared.Next(50, delayMilliseconds));
+                await Task.Delay(Random.Shared.Next(100, delayMilliseconds));
             }
         } while (error && retries <= maxRetries);
     }
