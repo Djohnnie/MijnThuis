@@ -203,7 +203,7 @@ internal class ModbusService : BaseService, IModbusService
         var error = false;
         var retries = 0;
 
-        while (error && retries <= maxRetries)
+        do
         {
             try
             {
@@ -215,7 +215,7 @@ internal class ModbusService : BaseService, IModbusService
                 retries++;
                 await Task.Delay(Random.Shared.Next(50, delayMilliseconds));
             }
-        }
+        } while (error && retries <= maxRetries);
 
         return defaultValue;
     }
@@ -225,7 +225,7 @@ internal class ModbusService : BaseService, IModbusService
         var error = false;
         var retries = 0;
 
-        while (error && retries <= maxRetries)
+        do
         {
             try
             {
@@ -237,6 +237,6 @@ internal class ModbusService : BaseService, IModbusService
                 retries++;
                 await Task.Delay(Random.Shared.Next(50, delayMilliseconds));
             }
-        }
+        } while (error && retries <= maxRetries);
     }
 }
