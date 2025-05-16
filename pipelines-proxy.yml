@@ -1,0 +1,49 @@
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - MijnThuis.ModbusProxy.Api/*
+    - pipeline-proxy.yml
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  solution: '*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+
+- task: UseDotNet@2
+  displayName: 'Use .NET SDK (9.0)'
+  inputs:
+    packageType: sdk
+    version: 9.0.203
+    includePreviewVersions: true
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+- task: DotNetCoreCLI@2
+  displayName: Restore NuGet packages
+  inputs:
+    command: 'restore'
+    projects: | 
+      **/MijnThuis.Dashboard.Web.csproj
+
+- task: DotNetCoreCLI@2
+  displayName: Build Solution
+  inputs:
+    command: 'build'
+    projects: | 
+      **/MijnThuis.ModbusProxy.Api.csproj
+
+- script: |
+    dotnet publish ./MijnThuis.ModbusProxy.Api --configuration "Release" --output ./MijnThuis.ModbusProxy.Api/bin/Release/publish
+
+- script: |
+    cd ./MijnThuis.ModbusProxy.Api
+    docker build -t djohnnie/mijnthuis-proxy .
+    docker login -u '$(dockerId)' -p '$(dockerPwd)'
+    docker push djohnnie/mijnthuis-proxy
