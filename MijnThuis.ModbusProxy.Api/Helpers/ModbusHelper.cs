@@ -421,7 +421,7 @@ public class ModbusHelper : IModbusHelper
         }
     }
 
-    private static async Task<TResult> RetryOnFailure<TResult>(Func<Task<TResult>> action, TResult defaultValue = default, int maxRetries = 5, int delayMilliseconds = 200)
+    private async Task<TResult> RetryOnFailure<TResult>(Func<Task<TResult>> action, TResult defaultValue = default, int maxRetries = 5, int delayMilliseconds = 200)
     {
         var error = false;
         var retries = 0;
@@ -436,14 +436,15 @@ public class ModbusHelper : IModbusHelper
             {
                 error = true;
                 retries++;
-                await Task.Delay(Random.Shared.Next(50, delayMilliseconds));
+                _logger.LogError($"MODBUS FAILURE: {ex.Message}");
+                await Task.Delay(Random.Shared.Next(200, delayMilliseconds));
             }
         } while (error && retries <= maxRetries);
 
         return defaultValue;
     }
 
-    private static async Task RetryOnFailure(Func<Task> action, int maxRetries = 3, int delayMilliseconds = 500)
+    private async Task RetryOnFailure(Func<Task> action, int maxRetries = 3, int delayMilliseconds = 500)
     {
         var error = false;
         var retries = 0;
@@ -458,7 +459,8 @@ public class ModbusHelper : IModbusHelper
             {
                 error = true;
                 retries++;
-                await Task.Delay(Random.Shared.Next(100, delayMilliseconds));
+                _logger.LogError($"MODBUS FAILURE: {ex.Message}");
+                await Task.Delay(Random.Shared.Next(200, delayMilliseconds));
             }
         } while (error && retries <= maxRetries);
     }
