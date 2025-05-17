@@ -1,9 +1,5 @@
-﻿using Djohnnie.SolarEdge.ModBus.TCP;
-using Djohnnie.SolarEdge.ModBus.TCP.Constants;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
-using Int16 = Djohnnie.SolarEdge.ModBus.TCP.Types.Int16;
-using UInt16 = Djohnnie.SolarEdge.ModBus.TCP.Types.UInt16;
 
 namespace MijnThuis.Integrations.Solar;
 
@@ -30,14 +26,10 @@ public interface IModbusService
 internal class ModbusService : BaseService, IModbusService
 {
     private readonly string _modbusProxyBaseAddress;
-    private readonly string _modbusAddress;
-    private readonly int _modbusPort;
 
     public ModbusService(IConfiguration configuration) : base(configuration)
     {
         _modbusProxyBaseAddress = configuration.GetValue<string>("MODBUS_PROXY_BASE_ADDRESS");
-        _modbusAddress = configuration.GetValue<string>("MODBUS_ADDRESS");
-        _modbusPort = configuration.GetValue<int>("MODBUS_PORT");
     }
 
     public async Task<SolarOverview> GetOverview()
@@ -74,63 +66,65 @@ internal class ModbusService : BaseService, IModbusService
 
     public async Task<bool> IsNotMaxSelfConsumption()
     {
-        return await RetryOnFailure(async () =>
-        {
-            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-            await modbusClient.Connect();
+        //return await RetryOnFailure(async () =>
+        //{
+        //    using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+        //    await modbusClient.Connect();
 
-            var storageControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
-            var remoteControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
+        //    var storageControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
+        //    var remoteControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
 
-            modbusClient.Disconnect();
+        //    modbusClient.Disconnect();
 
-            return storageControlMode.Value != 1 && remoteControlMode.Value != 3;
-        }, false);
+        //    return storageControlMode.Value != 1 && remoteControlMode.Value != 3;
+        //}, false);
+        return false;
     }
 
     public async Task<bool> IsNotChargingInRemoteControlMode()
     {
-        return await RetryOnFailure(async () =>
-        {
-            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-            await modbusClient.Connect();
+        //return await RetryOnFailure(async () =>
+        //{
+        //    using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+        //    await modbusClient.Connect();
 
-            var storageControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
-            var remoteControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
+        //    var storageControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
+        //    var remoteControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
 
-            modbusClient.Disconnect();
+        //    modbusClient.Disconnect();
 
-            return storageControlMode.Value == 4 && remoteControlMode.Value != 3;
-        }, false);
+        //    return storageControlMode.Value == 4 && remoteControlMode.Value != 3;
+        //}, false);
+        return false;
     }
 
     public async Task StartChargingBattery(TimeSpan duration, int power)
     {
-        await RetryOnFailure(async () =>
-        {
-            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-            await modbusClient.Connect();
+        //await RetryOnFailure(async () =>
+        //{
+        //    using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+        //    await modbusClient.Connect();
 
-            await modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)4);
-            await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Timeout, (uint)duration.TotalSeconds);
-            await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Mode, (ushort)3);
-            await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Charge_Limit, (float)power);
+        //    await modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)4);
+        //    await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Timeout, (uint)duration.TotalSeconds);
+        //    await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Mode, (ushort)3);
+        //    await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Charge_Limit, (float)power);
 
-            modbusClient.Disconnect();
-        });
+        //    modbusClient.Disconnect();
+        //});
     }
 
     public async Task StopChargingBattery()
     {
-        await RetryOnFailure(async () =>
-        {
-            using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-            await modbusClient.Connect();
+        //await RetryOnFailure(async () =>
+        //{
+        //    using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
+        //    await modbusClient.Connect();
 
-            await modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)1);
+        //    await modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)1);
 
-            modbusClient.Disconnect();
-        });
+        //    modbusClient.Disconnect();
+        //});
     }
 
     public async Task<bool> HasExportLimitation()
@@ -155,48 +149,6 @@ internal class ModbusService : BaseService, IModbusService
         client.BaseAddress = new Uri(_modbusProxyBaseAddress);
 
         await client.PostAsync($"resetExportLimitation", null);
-    }
-
-    private static async Task<TResult> RetryOnFailure<TResult>(Func<Task<TResult>> action, TResult defaultValue = default, int maxRetries = 5, int delayMilliseconds = 200)
-    {
-        var error = false;
-        var retries = 0;
-
-        do
-        {
-            try
-            {
-                return await action();
-            }
-            catch (Exception ex)
-            {
-                error = true;
-                retries++;
-                await Task.Delay(Random.Shared.Next(50, delayMilliseconds));
-            }
-        } while (error && retries <= maxRetries);
-
-        return defaultValue;
-    }
-
-    private static async Task RetryOnFailure(Func<Task> action, int maxRetries = 3, int delayMilliseconds = 500)
-    {
-        var error = false;
-        var retries = 0;
-
-        do
-        {
-            try
-            {
-                await action();
-            }
-            catch (Exception ex)
-            {
-                error = true;
-                retries++;
-                await Task.Delay(Random.Shared.Next(100, delayMilliseconds));
-            }
-        } while (error && retries <= maxRetries);
     }
 
     public record ModbusDataSet
