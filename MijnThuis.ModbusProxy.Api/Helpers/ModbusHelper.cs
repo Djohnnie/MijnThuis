@@ -4,6 +4,7 @@ using Djohnnie.SolarEdge.ModBus.TCP.Types;
 using Microsoft.Extensions.Caching.Memory;
 using MijnThuis.ModbusProxy.Api.Models;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Int16 = Djohnnie.SolarEdge.ModBus.TCP.Types.Int16;
 using UInt16 = Djohnnie.SolarEdge.ModBus.TCP.Types.UInt16;
 
@@ -421,7 +422,7 @@ public class ModbusHelper : IModbusHelper
         }
     }
 
-    private async Task<TResult> RetryOnFailure<TResult>(Func<Task<TResult>> action, TResult defaultValue = default, int maxRetries = 5, int delayMilliseconds = 200)
+    private async Task<TResult> RetryOnFailure<TResult>(Func<Task<TResult>> action, TResult defaultValue = default, int maxRetries = 5, int delayMilliseconds = 500, [CallerMemberName] string caller = "")
     {
         var error = false;
         var retries = 0;
@@ -436,7 +437,7 @@ public class ModbusHelper : IModbusHelper
             {
                 error = true;
                 retries++;
-                _logger.LogError($"MODBUS FAILURE: {ex.Message}");
+                _logger.LogError($"MODBUS FAILURE @ {caller}: {ex.Message}");
                 await Task.Delay(Random.Shared.Next(200, delayMilliseconds));
             }
         } while (error && retries <= maxRetries);
@@ -444,7 +445,7 @@ public class ModbusHelper : IModbusHelper
         return defaultValue;
     }
 
-    private async Task RetryOnFailure(Func<Task> action, int maxRetries = 3, int delayMilliseconds = 500)
+    private async Task RetryOnFailure(Func<Task> action, int maxRetries = 3, int delayMilliseconds = 500, [CallerMemberName] string caller = "")
     {
         var error = false;
         var retries = 0;
@@ -459,7 +460,7 @@ public class ModbusHelper : IModbusHelper
             {
                 error = true;
                 retries++;
-                _logger.LogError($"MODBUS FAILURE: {ex.Message}");
+                _logger.LogError($"MODBUS FAILURE @ {caller}: {ex.Message}");
                 await Task.Delay(Random.Shared.Next(200, delayMilliseconds));
             }
         } while (error && retries <= maxRetries);
