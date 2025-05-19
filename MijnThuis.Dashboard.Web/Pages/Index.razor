@@ -1,4 +1,5 @@
 ﻿@using MijnThuis.Dashboard.Web.Components
+@using MijnThuis.Dashboard.Web.Components.Widgets
 @using MijnThuis.Dashboard.Web.Middleware
 
 @inject ExtraPageArguments ExtraPageArguments
@@ -12,9 +13,9 @@
         <CopilotTile />
     </MudItem>
 
-    @* <MudItem xs="12">
-        <WidgetTile />
-    </MudItem> *@
+    <MudItem xs="12">
+        <SolarWidgetTile />
+    </MudItem>
 
     @if (ExtraPageArguments.IsTesla)
     {

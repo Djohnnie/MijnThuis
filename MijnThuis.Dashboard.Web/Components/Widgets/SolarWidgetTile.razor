@@ -1,0 +1,67 @@
+﻿@using MediatR;
+@implements IDisposable
+@inject IMediator Mediator;
+@inject ILogger<SolarWidgetTile> Logger;
+
+<MudPaper Elevation="0">
+    <MudGrid Justify="Justify.Center">
+        @if (IsCarCharging)
+        {
+            <MudPaper Class="d-flex justify-center" Elevation="0">
+                <MudPaper Class="align-self-center" Elevation="0">
+                    <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.ElectricCar" Size="Size.Large" Title="Auto" />
+                    <MudChip T="string" Color="Color.Secondary" Variant="Variant.Text">@CurrentCarPower.ToString("F2") kW</MudChip>
+                </MudPaper>
+            </MudPaper>
+            <MudPaper Class="d-flex justify-center" Elevation="0">
+                <MudPaper Class="align-self-center mx-4" Elevation="0">
+                    <MudIcon Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft" Color="Color.Secondary" Size="Size.Large" Title="Thuis" />
+                </MudPaper>
+            </MudPaper>
+        }
+        <MudPaper Class="d-flex justify-center" Elevation="0">
+            <MudPaper Class="align-self-center" Elevation="0">
+                <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.Home" Size="Size.Large" Title="Thuis" />
+                <MudChip T="string" Color="Color.Secondary" Variant="Variant.Text">@CurrentHomePower.ToString("F2") kW</MudChip>
+            </MudPaper>
+        </MudPaper>
+        <MudPaper Class="d-flex justify-center" Elevation="0">
+            <MudPaper Class="align-self-center mx-4" Elevation="0">
+                <MudIcon Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft" Color="Color.Secondary" Size="Size.Large" Title="Thuis" />
+            </MudPaper>
+        </MudPaper>
+        <MudPaper Class="d-flex justify-center" Elevation="0">
+            <MudStack>
+                <MudPaper Class="align-self-center" Elevation="0">
+                    <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.SolarPower" Size="Size.Large" Title="Zonnepanelen" />
+                    <MudChip T="string" Color="@(CurrentSolarPower > 0M ? Color.Success : Color.Default)" Variant="Variant.Text">@CurrentSolarPower.ToString("F2") kW</MudChip>
+                </MudPaper>
+                <MudPaper Class="align-self-center" Elevation="0">
+                    <MudIcon Icon="@Icons.Material.Filled.KeyboardDoubleArrowDown" Color="@(CurrentSolarPower > 0M ? Color.Success : Color.Default)" Size="Size.Large" />
+                </MudPaper>
+                <MudPaper Class="align-self-center" Elevation="0">
+                    <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.DeviceHub" Size="Size.Large" Title="Omvormer" />
+                </MudPaper>
+                <MudPaper Class="align-self-center" Elevation="0">
+                    <MudIcon Icon="@(CurrentBatteryPower < 0M ? Icons.Material.Filled.KeyboardDoubleArrowUp : Icons.Material.Filled.KeyboardDoubleArrowDown)" Color="@(CurrentBatteryPower < 0M ? Color.Secondary : Color.Success)" Size="Size.Large" />
+                </MudPaper>
+                <MudPaper Class="align-self-center" Elevation="0">
+                    <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.BatteryChargingFull" Size="Size.Large" Title="Thuisbatterij" />
+                    <MudChip T="string" Color="@(CurrentBatteryPower > 0M ? Color.Success : Color.Secondary)" Variant="Variant.Text">@Math.Abs(CurrentBatteryPower).ToString("F2") kW</MudChip>
+                    <MudChip T="string" Color="Color.Default" Variant="Variant.Text">@BatteryLevel %</MudChip>
+                </MudPaper>
+            </MudStack>
+        </MudPaper>
+        <MudPaper Class="d-flex justify-center" Elevation="0">
+            <MudPaper Class="align-self-center mx-4" Elevation="0">
+                <MudIcon Icon="@(CurrentGridPower > 0M ? Icons.Material.Filled.KeyboardDoubleArrowRight : Icons.Material.Filled.KeyboardDoubleArrowLeft)" Color="@(CurrentGridPower > 0M ? Color.Success : Color.Secondary)" Size="Size.Large" Title="Thuis" />
+            </MudPaper>
+        </MudPaper>
+        <MudPaper Class="d-flex justify-center" Elevation="0">
+            <MudPaper Class="align-self-center" Elevation="0">
+                <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.ElectricMeter" Size="Size.Large" Title="Elektriciteitsnet" />
+                <MudChip T="string" Color="@(CurrentGridPower > 0M ? Color.Success : Color.Secondary)" Variant="Variant.Text">@Math.Abs(CurrentGridPower).ToString("F2") kW</MudChip>
+            </MudPaper>
+        </MudPaper>
+    </MudGrid>
+</MudPaper>

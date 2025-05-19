@@ -122,7 +122,7 @@ public class ModbusHelper : IModbusHelper
                         ExportPowerLimitation = Convert.ToDecimal(exportLimitation.Value),
                     };
 
-                }, defaultValue: new ModbusDataSet(), maxRetries: 3, delayMilliseconds: 500);
+                }, maxRetries: 3, delayMilliseconds: 500);
             }
             finally
             {
@@ -174,13 +174,13 @@ public class ModbusHelper : IModbusHelper
                         BatteryLevel = Convert.ToInt32(soe.Value)
                     };
 
-                }, defaultValue: new ModbusDataSet(), maxRetries: 3, delayMilliseconds: 500);
+                }, maxRetries: 3, delayMilliseconds: 500);
             }
             finally
             {
                 _semaphoreSlim.Release();
             }
-        }, absoluteExpirationInSeconds: 15);
+        }, absoluteExpirationInSeconds: 5);
     }
 
     public async Task<ModbusDataSet> GetBatteryLevel()
@@ -214,7 +214,7 @@ public class ModbusHelper : IModbusHelper
                         BatteryMaxEnergy = Convert.ToInt32(max.Value)
                     };
 
-                }, defaultValue: new ModbusDataSet(), maxRetries: 3, delayMilliseconds: 500);
+                }, maxRetries: 3, delayMilliseconds: 500);
             }
             finally
             {
@@ -240,7 +240,7 @@ public class ModbusHelper : IModbusHelper
                 var remoteControlMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
 
                 return storageControlMode.Value != 1 && remoteControlMode.Value != 3;
-            }, false);
+            });
         }
         finally
         {
@@ -265,7 +265,7 @@ public class ModbusHelper : IModbusHelper
                 var remoteControlMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
 
                 return storageControlMode.Value == 4 && remoteControlMode.Value != 3;
-            }, false);
+            });
         }
         finally
         {
@@ -342,7 +342,7 @@ public class ModbusHelper : IModbusHelper
                 _logger.LogInformation("Modbus export limitation retrieved in {ElapsedTime}ms", (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
 
                 return exportControlMode.Value == 1;
-            }, false);
+            });
         }
         finally
         {
@@ -408,7 +408,7 @@ public class ModbusHelper : IModbusHelper
         }
     }
 
-    private async Task<TResult> RetryOnFailure<TResult>(Func<Task<TResult>> action, TResult defaultValue = default, int maxRetries = 5, int delayMilliseconds = 500, [CallerMemberName] string caller = "")
+    private async Task<TResult> RetryOnFailure<TResult>(Func<Task<TResult>> action, int maxRetries = 5, int delayMilliseconds = 500, [CallerMemberName] string caller = "")
     {
         var error = false;
         var retries = 0;
@@ -424,11 +424,18 @@ public class ModbusHelper : IModbusHelper
                 error = true;
                 retries++;
                 _logger.LogError($"MODBUS FAILURE @ {caller}: {ex.Message}");
+                _logger.LogError(ex, ex.Message);
+
+                if (retries >= maxRetries)
+                {
+                    throw;
+                }
+
                 await Task.Delay(Random.Shared.Next(200, delayMilliseconds));
             }
-        } while (error && retries <= maxRetries);
+        } while (error);
 
-        return defaultValue;
+        return default;
     }
 
     private async Task RetryOnFailure(Func<Task> action, int maxRetries = 3, int delayMilliseconds = 500, [CallerMemberName] string caller = "")
@@ -447,6 +454,13 @@ public class ModbusHelper : IModbusHelper
                 error = true;
                 retries++;
                 _logger.LogError($"MODBUS FAILURE @ {caller}: {ex.Message}");
+                _logger.LogError(ex, ex.Message);
+
+                if (retries >= maxRetries)
+                {
+                    throw;
+                }
+
                 await Task.Delay(Random.Shared.Next(200, delayMilliseconds));
             }
         } while (error && retries <= maxRetries);

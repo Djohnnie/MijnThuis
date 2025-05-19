@@ -95,7 +95,7 @@ internal class HomeBatteryNotificationWorker : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"Something went wrong: {ex.Message}");
+                _logger.LogError($"Something went wrong: {ex.Message}");
                 _logger.LogError(ex, ex.Message);
 
                 await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);

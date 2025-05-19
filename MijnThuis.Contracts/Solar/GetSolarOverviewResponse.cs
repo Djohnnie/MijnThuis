@@ -5,6 +5,7 @@ public record GetSolarOverviewResponse
     public decimal CurrentSolarPower { get; set; }
     public decimal CurrentBatteryPower { get; set; }
     public decimal CurrentGridPower { get; set; }
+    public decimal CurrentConsumptionPower { get; set; }
     public decimal LastDayEnergy { get; set; }
     public decimal LastMonthEnergy { get; set; }
     public decimal SolarForecastToday { get; set; }

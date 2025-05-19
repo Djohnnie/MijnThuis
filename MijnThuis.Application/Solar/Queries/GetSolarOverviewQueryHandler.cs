@@ -42,6 +42,7 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
         result.CurrentSolarPower = solarResult.CurrentSolarPower / 1000M;
         result.CurrentBatteryPower = solarResult.CurrentBatteryPower / 1000M;
         result.CurrentGridPower = -solarResult.CurrentGridPower / 1000M;
+        result.CurrentConsumptionPower = solarResult.CurrentConsumptionPower / 1000M;
         result.BatteryLevel = (int)Math.Round(batteryResult.Level);
         result.BatteryHealth = (int)Math.Round(batteryResult.Health);
         result.BatteryMaxEnergy = (int)Math.Round(batteryResult.MaxEnergy);
