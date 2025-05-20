@@ -54,13 +54,13 @@
         </MudPaper>
         <MudPaper Class="d-flex justify-center" Elevation="0">
             <MudPaper Class="align-self-center mx-4" Elevation="0">
-                <MudIcon Icon="@(CurrentGridPower > 0M ? Icons.Material.Filled.KeyboardDoubleArrowRight : Icons.Material.Filled.KeyboardDoubleArrowLeft)" Color="@(CurrentGridPower > 0M ? Color.Success : Color.Secondary)" Size="Size.Large" Title="Thuis" />
+                <MudIcon Icon="@(CurrentGridPower < 0M ? Icons.Material.Filled.KeyboardDoubleArrowRight : Icons.Material.Filled.KeyboardDoubleArrowLeft)" Color="@(CurrentGridPower < 0M ? Color.Success : Color.Secondary)" Size="Size.Large" Title="Thuis" />
             </MudPaper>
         </MudPaper>
         <MudPaper Class="d-flex justify-center" Elevation="0">
             <MudPaper Class="align-self-center" Elevation="0">
                 <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.ElectricMeter" Size="Size.Large" Title="Elektriciteitsnet" />
-                <MudChip T="string" Color="@(CurrentGridPower > 0M ? Color.Success : Color.Secondary)" Variant="Variant.Text">@Math.Abs(CurrentGridPower).ToString("F2") kW</MudChip>
+                <MudChip T="string" Color="@(CurrentGridPower < 0M ? Color.Success : Color.Secondary)" Variant="Variant.Text">@Math.Abs(CurrentGridPower).ToString("F2") kW</MudChip>
             </MudPaper>
         </MudPaper>
     </MudGrid>
