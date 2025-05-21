@@ -56,13 +56,13 @@
         </MudPaper>
         <MudPaper Class="d-flex justify-center" Elevation="0">
             <MudPaper Class="align-self-center" Elevation="0">
-                <MudIcon Icon="@(CurrentGridPower > 0M ? Icons.Material.Filled.KeyboardDoubleArrowRight : Icons.Material.Filled.KeyboardDoubleArrowLeft)" Color="@(Math.Round(CurrentGridPower, 2) == 0M ? Color.Default : Math.Round(CurrentGridPower, 2) > 0M ? Color.Success : Color.Secondary)" Size="Size.Small" Title="Thuis" />
+                <MudIcon Icon="@(CurrentGridPower < 0M ? Icons.Material.Filled.KeyboardDoubleArrowRight : Icons.Material.Filled.KeyboardDoubleArrowLeft)" Color="@(Math.Round(CurrentGridPower, 2) == 0M ? Color.Default : Math.Round(CurrentGridPower, 2) < 0M ? Color.Success : Color.Secondary)" Size="Size.Small" Title="Thuis" />
             </MudPaper>
         </MudPaper>
         <MudPaper Class="d-flex justify-center" Elevation="0">
             <MudPaper Class="align-self-center" Elevation="0">
                 <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.ElectricMeter" Size="Size.Large" Title="Elektriciteitsnet" />
-                <MudChip T="string" Color="@(Math.Round(CurrentGridPower, 2) == 0M ? Color.Default : Math.Round(CurrentGridPower, 2) > 0M ? Color.Success : Color.Secondary)" Variant="Variant.Text">@Math.Abs(CurrentGridPower).ToString("F2") kW</MudChip>
+                <MudChip T="string" Color="@(Math.Round(CurrentGridPower, 2) == 0M ? Color.Default : Math.Round(CurrentGridPower, 2) < 0M ? Color.Success : Color.Secondary)" Variant="Variant.Text">@Math.Abs(CurrentGridPower).ToString("F2") kW</MudChip>
             </MudPaper>
         </MudPaper>
     </MudGrid>
