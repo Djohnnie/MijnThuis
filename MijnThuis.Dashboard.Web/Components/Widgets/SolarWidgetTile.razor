@@ -43,7 +43,7 @@
                     <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.DeviceHub" Size="Size.Large" Title="Omvormer" />
                 </MudPaper>
                 <MudPaper Class="align-self-center" Elevation="0">
-                    <MudIcon Icon="@(CurrentBatteryPower < 0M ? Icons.Material.Filled.KeyboardDoubleArrowUp : Icons.Material.Filled.KeyboardDoubleArrowDown)" Color="@(CurrentBatteryPower < 0M ? Color.Secondary : Color.Success)" Size="Size.Small" />
+                    <MudIcon Icon="@(Math.Round(CurrentBatteryPower, 2) == 0M ? Icons.Material.Filled.MoreVert : Math.Round(CurrentBatteryPower, 2) < 0M ? Icons.Material.Filled.KeyboardDoubleArrowUp : Icons.Material.Filled.KeyboardDoubleArrowDown)" Color="@(Math.Round(CurrentBatteryPower, 2) == 0M ? Color.Default : Math.Round(CurrentBatteryPower, 2) < 0M ? Color.Secondary : Color.Success)" Size="Size.Small" />
                 </MudPaper>
                 <MudPaper Class="align-self-center" Elevation="0">
                     <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.BatteryChargingFull" Size="Size.Large" Title="Thuisbatterij" />
@@ -56,7 +56,7 @@
         </MudPaper>
         <MudPaper Class="d-flex justify-center" Elevation="0">
             <MudPaper Class="align-self-center" Elevation="0">
-                <MudIcon Icon="@(CurrentGridPower < 0M ? Icons.Material.Filled.KeyboardDoubleArrowRight : Icons.Material.Filled.KeyboardDoubleArrowLeft)" Color="@(Math.Round(CurrentGridPower, 2) == 0M ? Color.Default : Math.Round(CurrentGridPower, 2) < 0M ? Color.Success : Color.Secondary)" Size="Size.Small" Title="Thuis" />
+                <MudIcon Icon="@(Math.Round(CurrentGridPower, 2) == 0M ? Icons.Material.Filled.MoreHoriz : Math.Round(CurrentGridPower, 2) < 0M ? Icons.Material.Filled.KeyboardDoubleArrowRight : Icons.Material.Filled.KeyboardDoubleArrowLeft)" Color="@(Math.Round(CurrentGridPower, 2) == 0M ? Color.Default : Math.Round(CurrentGridPower, 2) < 0M ? Color.Success : Color.Secondary)" Size="Size.Small" Title="Thuis" />
             </MudPaper>
         </MudPaper>
         <MudPaper Class="d-flex justify-center" Elevation="0">
