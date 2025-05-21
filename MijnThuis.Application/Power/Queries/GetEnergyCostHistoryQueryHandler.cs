@@ -81,8 +81,8 @@ public class GetEnergyCostHistoryQueryHandler : IRequestHandler<GetEnergyCostHis
             {
                 Date = g.Key,
                 ImportCost = g.Sum(x => x.CalculatedImportCost),
-                ExportCost = -g.Sum(x => x.CalculatedExportCost),
-                TotalCost = g.Sum(x => x.CalculatedImportCost) - g.Sum(x => x.CalculatedExportCost)
+                ExportCost = g.Sum(x => x.CalculatedExportCost),
+                TotalCost = g.Sum(x => x.CalculatedImportCost) + g.Sum(x => x.CalculatedExportCost)
             })
             .ToListAsync();
     }
@@ -95,8 +95,8 @@ public class GetEnergyCostHistoryQueryHandler : IRequestHandler<GetEnergyCostHis
             {
                 Date = new DateTime(g.Key.Year, g.Key.Month, 1),
                 ImportCost = g.Sum(x => x.CalculatedImportCost),
-                ExportCost = -g.Sum(x => x.CalculatedExportCost),
-                TotalCost = g.Sum(x => x.CalculatedImportCost) - g.Sum(x => x.CalculatedExportCost)
+                ExportCost = g.Sum(x => x.CalculatedExportCost),
+                TotalCost = g.Sum(x => x.CalculatedImportCost) + g.Sum(x => x.CalculatedExportCost)
             })
             .ToListAsync();
     }
@@ -109,8 +109,8 @@ public class GetEnergyCostHistoryQueryHandler : IRequestHandler<GetEnergyCostHis
             {
                 Date = new DateTime(g.Key, 1, 1),
                 ImportCost = g.Sum(x => x.CalculatedImportCost),
-                ExportCost = -g.Sum(x => x.CalculatedExportCost),
-                TotalCost = g.Sum(x => x.CalculatedImportCost) - g.Sum(x => x.CalculatedExportCost)
+                ExportCost = g.Sum(x => x.CalculatedExportCost),
+                TotalCost = g.Sum(x => x.CalculatedImportCost) + g.Sum(x => x.CalculatedExportCost)
             })
             .ToListAsync();
     }

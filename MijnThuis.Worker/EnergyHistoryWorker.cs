@@ -77,7 +77,7 @@ public class EnergyHistoryWorker : BackgroundService
 
                     // Calculate the costs based on the 'Day Ahead' energy prices, including VAT in the import cost and recalculated to EUR and not cents.
                     energyHistoryEntry.CalculatedImportCost = energyHistoryEntry.TotalImportDelta * (costEntry != null ? costEntry.ConsumptionCentsPerKWh : 0M) * 1.06M / 100M;
-                    energyHistoryEntry.CalculatedExportCost = energyHistoryEntry.TotalExportDelta * (costEntry != null ? costEntry.InjectionCentsPerKWh : 0M) / 100M;
+                    energyHistoryEntry.CalculatedExportCost = energyHistoryEntry.TotalExportDelta * -(costEntry != null ? costEntry.InjectionCentsPerKWh : 0M) / 100M;
 
                     dbContext.EnergyHistory.Add(energyHistoryEntry);
 

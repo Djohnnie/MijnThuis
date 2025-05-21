@@ -24,7 +24,7 @@ public partial class EnergyCostHistoryChart
     private ApexChart<ChartDataEntry<string, decimal>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal>> _options { get; set; } = new();
 
-    private ChartData2<string, decimal> SolarPower { get; set; } = new();
+    private ChartData3<string, decimal> SolarPower { get; set; } = new();
 
     private HistoryType _historyType = HistoryType.PerMonthInYear;
     private DateTime _historyDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
@@ -80,7 +80,7 @@ public partial class EnergyCostHistoryChart
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
-        _options.Colors = new List<string> { "#95B6F8", "#6FE59D" };
+        _options.Colors = new List<string> { "#95B6F8", "#6FE59D", "#FBB550" };
         _options.Stroke = new Stroke
         {
             Show = false
@@ -93,7 +93,8 @@ public partial class EnergyCostHistoryChart
 
         SolarPower.Description = $"Consumptie en injectie";
         SolarPower.Series1Description = "Kost voor consumptie";
-        SolarPower.Series2Description = "Kost voor injectie";
+        SolarPower.Series2Description = "Opbrengst voor injectie";
+        SolarPower.Series3Description = "Totale energiekost";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -190,7 +191,13 @@ public partial class EnergyCostHistoryChart
                         .Select(x => new ChartDataEntry<string, decimal>
                         {
                             XValue = $"{x.Date:dd MMM}",
-                            YValue = Math.Round(x.ExportCost, 2)
+                            YValue = -Math.Round(x.ExportCost, 2)
+                        }));
+                    SolarPower.Series3.AddRange(entries
+                        .Select(x => new ChartDataEntry<string, decimal>
+                        {
+                            XValue = $"{x.Date:dd MMM}",
+                            YValue = Math.Round(x.TotalCost, 2)
                         }));
                     break;
                 case HistoryType.PerMonthInYear:
@@ -204,7 +211,13 @@ public partial class EnergyCostHistoryChart
                         .Select(x => new ChartDataEntry<string, decimal>
                         {
                             XValue = $"{x.Date:MMM yyyy}",
-                            YValue = Math.Round(x.ExportCost, 2)
+                            YValue = -Math.Round(x.ExportCost, 2)
+                        }));
+                    SolarPower.Series3.AddRange(entries
+                        .Select(x => new ChartDataEntry<string, decimal>
+                        {
+                            XValue = $"{x.Date:MMM yyyy}",
+                            YValue = Math.Round(x.TotalCost, 2)
                         }));
                     break;
                 case HistoryType.PerYearInLifetime:
@@ -218,7 +231,13 @@ public partial class EnergyCostHistoryChart
                         .Select(x => new ChartDataEntry<string, decimal>
                         {
                             XValue = $"{x.Date:yyyy}",
-                            YValue = Math.Round(x.ExportCost, 2)
+                            YValue = -Math.Round(x.ExportCost, 2)
+                        }));
+                    SolarPower.Series3.AddRange(entries
+                        .Select(x => new ChartDataEntry<string, decimal>
+                        {
+                            XValue = $"{x.Date:yyyy}",
+                            YValue = Math.Round(x.TotalCost, 2)
                         }));
                     break;
             }

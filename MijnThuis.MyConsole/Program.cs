@@ -34,7 +34,7 @@ foreach (var entry in historicEnergyEntries)
     if (entry.TotalImportDelta < 1000M)
     {
         entry.CalculatedImportCost = entry.TotalImportDelta * costEntry.ConsumptionCentsPerKWh * 1.06M / 100M;
-        entry.CalculatedExportCost = entry.TotalExportDelta * costEntry.InjectionCentsPerKWh / 100M;
+        entry.CalculatedExportCost = entry.TotalExportDelta * -costEntry.InjectionCentsPerKWh / 100M;
     }
 }
 
