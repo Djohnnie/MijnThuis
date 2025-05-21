@@ -46,8 +46,9 @@ public class EnergyHistoryWorker : BackgroundService
                     var powerOverview = await powerService.GetOverview();
                     var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, 0, 0);
 
+                    // Get the energy cost entry for the past hour.
                     var costEntry = await dbContext.DayAheadEnergyPrices
-                        .Where(x => x.From == date)
+                        .Where(x => x.From == date.AddHours(-1))
                         .FirstOrDefaultAsync();
 
                     var energyHistoryEntry = new EnergyHistoryEntry

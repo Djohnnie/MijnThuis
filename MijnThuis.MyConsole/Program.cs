@@ -28,10 +28,10 @@ var historicEnergyEntries = await dbContext.EnergyHistory.ToListAsync();
 foreach (var entry in historicEnergyEntries)
 {
     var costEntry = await dbContext.DayAheadEnergyPrices
-        .Where(x => x.From == entry.Date)
+        .Where(x => x.From == entry.Date.AddHours(-1))
         .FirstOrDefaultAsync();
 
-    if (entry.TotalImportDelta < 1000M)
+    if (costEntry is not null && entry.TotalImportDelta < 1000M)
     {
         entry.CalculatedImportCost = entry.TotalImportDelta * costEntry.ConsumptionCentsPerKWh * 1.06M / 100M;
         entry.CalculatedExportCost = entry.TotalExportDelta * -costEntry.InjectionCentsPerKWh / 100M;
