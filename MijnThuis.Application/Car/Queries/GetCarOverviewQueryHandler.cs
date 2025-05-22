@@ -48,6 +48,7 @@ public class GetCarOverviewQueryHandler : IRequestHandler<GetCarOverviewQuery, G
         result.Address = string.Join(", ", locationResult.Address.Split(", ").Take(2));
         if (overviewResult.IsCharging)
         {
+            result.ChargingAmps = overviewResult.ChargingAmps;
             result.ChargingCurrent = $"{overviewResult.ChargingAmps}/{overviewResult.MaxChargingAmps} A";
             result.ChargingRange = $"{overviewResult.ChargeEnergyAdded:F1} kWh ({overviewResult.ChargeRangeAdded:F0} km)";
         }

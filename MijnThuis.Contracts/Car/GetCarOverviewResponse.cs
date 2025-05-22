@@ -13,6 +13,7 @@ public record GetCarOverviewResponse
     public int TemperatureOutside { get; init; }
     public int BatteryHealth { get; set; }
     public string ChargingCurrent { get; set; }
+    public int ChargingAmps { get; set; }
     public string ChargingRange { get; set; }
     public string Address { get; set; }
     public string Charger1 { get; set; }

@@ -5,22 +5,17 @@
 
 <MudPaper Elevation="0">
     <MudGrid Justify="Justify.Center">
-        @if (IsCarCharging)
-        {
-            <MudPaper Class="d-flex justify-center" Elevation="0">
-                <MudPaper Class="align-self-center" Elevation="0">
-                    <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.ElectricCar" Size="Size.Large" Title="Tesla Model Y 2023" />
-                    <MudChip T="string" Color="Color.Tertiary" Variant="Variant.Text">@CurrentCarPower.ToString("F2") kW</MudChip>
-                </MudPaper>
-            </MudPaper>
-            <MudPaper Class="d-flex justify-center" Elevation="0">
-                <MudPaper Class="align-self-center" Elevation="0">
-                    <MudIcon Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft" Color="Color.Tertiary" Size="Size.Small" Title="Vermogen naar auto" />
-                </MudPaper>
-            </MudPaper>
-        }
-        <MudPaper Class="d-flex justify-center" Elevation="0">
+        <MudPaper Class="d-flex justify-center mr-3" Elevation="0">
             <MudPaper Class="align-self-center" Elevation="0">
+                @if (IsCarCharging)
+                {
+                    <MudIcon Class="svg-center mt-n10" Icon="@Icons.Material.Filled.ElectricCar" Size="Size.Large" Title="Tesla Model Y 2023" />
+                    <MudStack Class="my-0">
+                        <MudChip Class="mx-4" T="string" Color="Color.Default" Variant="Variant.Text">@CurrentCarAmps A</MudChip>
+                        <MudChip Class="mt-n3" T="string" Color="Color.Tertiary" Variant="Variant.Text">@CurrentCarPower.ToString("F2") kW</MudChip>
+                    </MudStack>
+                    <MudDivider Class="my-2" />
+                }
                 <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.Home" Size="Size.Large" Title="Mijn huishouden" />
                 <MudChip T="string" Color="Color.Tertiary" Variant="Variant.Text">@CurrentHomePower.ToString("F2") kW</MudChip>
             </MudPaper>
@@ -59,7 +54,7 @@
                 <MudIcon Icon="@(Math.Round(CurrentGridPower, 2) == 0M ? Icons.Material.Filled.MoreHoriz : Math.Round(CurrentGridPower, 2) < 0M ? Icons.Material.Filled.KeyboardDoubleArrowRight : Icons.Material.Filled.KeyboardDoubleArrowLeft)" Color="@(Math.Round(CurrentGridPower, 2) == 0M ? Color.Default : Math.Round(CurrentGridPower, 2) < 0M ? Color.Success : Color.Secondary)" Size="Size.Small" Title="Vermogen elektriciteitsnet" />
             </MudPaper>
         </MudPaper>
-        <MudPaper Class="d-flex justify-center" Elevation="0">
+        <MudPaper Class="d-flex justify-center ml-3" Elevation="0">
             <MudPaper Class="align-self-center" Elevation="0">
                 <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.ElectricMeter" Size="Size.Large" Title="Elektriciteitsnet" />
                 <MudChip T="string" Color="@(Math.Round(CurrentGridPower, 2) == 0M ? Color.Default : Math.Round(CurrentGridPower, 2) < 0M ? Color.Success : Color.Secondary)" Variant="Variant.Text">@Math.Abs(CurrentGridPower).ToString("F2") kW</MudChip>
