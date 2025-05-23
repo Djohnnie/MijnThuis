@@ -13,9 +13,21 @@
         <CopilotTile />
     </MudItem>
 
-    <MudItem xs="12">
+    <MudHidden Breakpoint="Breakpoint.Lg" Invert="true">
+        <MudItem xs="12" lg="4">
+            <EnergyWidgetTile />
+        </MudItem>
+    </MudHidden>
+
+    <MudItem xs="12" lg="4">
         <SolarWidgetTile />
     </MudItem>
+
+    <MudHidden Breakpoint="Breakpoint.Lg" Invert="true">
+        <MudItem xs="12" lg="4">
+            <BatteryWidgetTile />
+        </MudItem>
+    </MudHidden>
 
     @if (ExtraPageArguments.IsTesla)
     {
