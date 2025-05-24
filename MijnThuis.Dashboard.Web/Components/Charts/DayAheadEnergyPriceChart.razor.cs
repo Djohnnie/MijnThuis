@@ -80,18 +80,19 @@ public partial class DayAheadEnergyPriceChart
         _options.Colors = new List<string> { "#B0D8FD", "#5DE799", "#FBB550" };
         _options.Stroke = new Stroke
         {
-            Curve = Curve.Smooth
+            Curve = Curve.Smooth,
+            DashSpace = 3
         };
         _options.Fill = new Fill
         {
             Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid },
-            Opacity = new Opacity(1, 1, 1)
+            Opacity = new Opacity(1, 1, 0.25)
         };
 
         DayAheadEnergyPrices.Description = "Elektriciteit: Dynamische tarieven";
-        DayAheadEnergyPrices.Series1Description = "Dynamische tarieven";
-        DayAheadEnergyPrices.Series2Description = "Mega tarieven voor consumptie";
-        DayAheadEnergyPrices.Series3Description = "Mega tarieven voor injectie";
+        DayAheadEnergyPrices.Series1Description = "Mega tarieven voor consumptie";
+        DayAheadEnergyPrices.Series2Description = "Mega tarieven voor injectie";
+        DayAheadEnergyPrices.Series3Description = "Dynamische tarieven";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -158,17 +159,17 @@ public partial class DayAheadEnergyPriceChart
             DayAheadEnergyPrices.Series1.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:t}",
-                YValue = x.Price
+                YValue = x.ConsumptionPrice
             }));
             DayAheadEnergyPrices.Series2.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:t}",
-                YValue = x.ConsumptionPrice
+                YValue = x.InjectionPrice
             }));
             DayAheadEnergyPrices.Series3.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:t}",
-                YValue = x.InjectionPrice
+                YValue = x.Price
             }));
 
             TitleDescription = string.Create(CultureInfo.GetCultureInfo("nl-be"), $"Dynamische tarieven voor {_selectedDate:D}");
