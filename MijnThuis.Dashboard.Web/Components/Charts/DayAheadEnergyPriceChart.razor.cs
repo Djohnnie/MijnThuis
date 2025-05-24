@@ -77,16 +77,17 @@ public partial class DayAheadEnergyPriceChart
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
-        _options.Colors = new List<string> { "#B0D8FD", "#5DE799", "#FBB550" };
+        _options.Colors = new List<string> { "#5DE799", "#FBB550", "#B0D8FD" };
         _options.Stroke = new Stroke
         {
             Curve = Curve.Smooth,
-            DashSpace = 3
+            Width = new Size(3, 3, 2),
+            DashArray = [0, 0, 3]
         };
         _options.Fill = new Fill
         {
             Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid },
-            Opacity = new Opacity(1, 1, 0.25)
+            Opacity = new Opacity(1, 1, 0.5)
         };
 
         DayAheadEnergyPrices.Description = "Elektriciteit: Dynamische tarieven";
