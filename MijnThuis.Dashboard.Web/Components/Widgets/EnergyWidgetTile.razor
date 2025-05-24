@@ -7,7 +7,7 @@
 
 <MudPaper Elevation="0">
     <MudStack>
-        <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal>" Options="_productionOptions" @ref="_productionChart">
+        <ApexCharts.ApexChart Title="@Production.Description" TItem="ChartDataEntry<string, decimal>" Options="_productionOptions" @ref="_productionChart">
 
             <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
                                         Items="@Production.Series1"
@@ -33,7 +33,7 @@
                                         SeriesType="ApexCharts.SeriesType.Bar"
                                         ShowDataLabels />
         </ApexCharts.ApexChart>
-        <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal>" Options="_consumptionOptions" @ref="_consumptionChart">
+        <ApexCharts.ApexChart Title="@Consumption.Description" TItem="ChartDataEntry<string, decimal>" Options="_consumptionOptions" @ref="_consumptionChart">
 
             <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
                                         Items="@Consumption.Series1"

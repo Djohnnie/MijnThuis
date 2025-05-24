@@ -204,19 +204,19 @@ public partial class EnergyCostHistoryChart
                     SolarPower.Series1.AddRange(entries
                         .Select(x => new ChartDataEntry<string, decimal>
                         {
-                            XValue = $"{x.Date:MMM yyyy}",
+                            XValue = $"{x.Date:MMMM yyyy}",
                             YValue = Math.Round(x.ImportCost, 2)
                         }));
                     SolarPower.Series2.AddRange(entries
                         .Select(x => new ChartDataEntry<string, decimal>
                         {
-                            XValue = $"{x.Date:MMM yyyy}",
+                            XValue = $"{x.Date:MMMM yyyy}",
                             YValue = -Math.Round(x.ExportCost, 2)
                         }));
                     SolarPower.Series3.AddRange(entries
                         .Select(x => new ChartDataEntry<string, decimal>
                         {
-                            XValue = $"{x.Date:MMM yyyy}",
+                            XValue = $"{x.Date:MMMM yyyy}",
                             YValue = Math.Round(x.TotalCost, 2)
                         }));
                     break;

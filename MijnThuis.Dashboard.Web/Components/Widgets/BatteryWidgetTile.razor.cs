@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Components;
 using MijnThuis.Application.Solar.Queries;
-using MijnThuis.Contracts.Solar;
 using MijnThuis.Dashboard.Web.Model;
 using MijnThuis.Dashboard.Web.Model.Charts;
 
@@ -13,7 +12,7 @@ public partial class BatteryWidgetTile
     [CascadingParameter]
     public NotifyingDarkMode DarkMode { get; set; }
 
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromHours(1));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(15));
     private ApexChart<ChartDataEntry<string, decimal?>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal?>> _options { get; set; } = new();
 
@@ -67,7 +66,6 @@ public partial class BatteryWidgetTile
         {
             new YAxis
             {
-                DecimalsInFloat = 0,
                 Min = 0,
                 Max = 100,
                 Labels = new YAxisLabels
@@ -84,8 +82,8 @@ public partial class BatteryWidgetTile
         _options.Colors = new List<string> { "#564CDD" };
         _options.Stroke = new Stroke
         {
-            Curve = Curve.Smooth,
-            Width = 3
+            Curve = Curve.Straight,
+            Width = 5
         };
         _options.Fill = new Fill
         {

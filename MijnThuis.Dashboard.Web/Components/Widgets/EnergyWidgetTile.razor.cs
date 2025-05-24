@@ -12,7 +12,7 @@ public partial class EnergyWidgetTile
     [CascadingParameter]
     public NotifyingDarkMode DarkMode { get; set; }
 
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromHours(1));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(15));
     private ApexChart<ChartDataEntry<string, decimal>> _productionChart = null!;
     private ApexChart<ChartDataEntry<string, decimal>> _consumptionChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal>> _productionOptions { get; set; } = new();
@@ -25,7 +25,7 @@ public partial class EnergyWidgetTile
     {
         _productionOptions.Chart = new Chart
         {
-            Height = "45%",
+            Height = "125px",
             Stacked = true,
             StackType = StackType.Percent100,
             Toolbar = new Toolbar
@@ -56,9 +56,14 @@ public partial class EnergyWidgetTile
             Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid },
             Opacity = new Opacity(1, 1, 1)
         };
+        _productionOptions.Title = new Title
+        {
+            Floating = true
+        };
         _productionOptions.Grid = new Grid
         {
-            Show = false
+            Show = false,
+            Padding = new Padding { Top = 0, Bottom = 0 }
         };
         _productionOptions.Yaxis = [new YAxis {
             Show = false,
@@ -76,7 +81,7 @@ public partial class EnergyWidgetTile
 
         _consumptionOptions.Chart = new Chart
         {
-            Height = "45%",
+            Height = "125px",
             Stacked = true,
             StackType = StackType.Percent100,
             Toolbar = new Toolbar
@@ -107,7 +112,10 @@ public partial class EnergyWidgetTile
             Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid },
             Opacity = new Opacity(1, 1, 1)
         };
-
+        _consumptionOptions.Title = new Title
+        {
+            Floating = true
+        };
         _consumptionOptions.Grid = new Grid
         {
             Show = false
@@ -196,15 +204,25 @@ public partial class EnergyWidgetTile
             Production.Series1.AddRange(new ChartDataEntry<string, decimal> { XValue = "", YValue = Math.Round(response.ProductionToHome, 2) });
             Production.Series2.AddRange(new ChartDataEntry<string, decimal> { XValue = "", YValue = Math.Round(response.ProductionToBattery, 2) });
             Production.Series3.AddRange(new ChartDataEntry<string, decimal> { XValue = "", YValue = Math.Round(response.ProductionToGrid, 2) });
+            Production.Description = $"Productie ({Math.Round(response.Production, 2):F2} kWh)";
+            Production.Series1Description = $"Naar huis ({Math.Round(response.ProductionToHome, 2):F2} kWh)";
+            Production.Series2Description = $"Naar batterij ({Math.Round(response.ProductionToBattery, 2):F2} kWh)";
+            Production.Series3Description = $"Naar net ({Math.Round(response.ProductionToGrid, 2):F2} kWh)";
             Consumption.Clear();
             Consumption.Series1.AddRange(new ChartDataEntry<string, decimal> { XValue = "", YValue = Math.Round(response.ConsumptionFromSolar, 2) });
             Consumption.Series2.AddRange(new ChartDataEntry<string, decimal> { XValue = "", YValue = Math.Round(response.ConsumptionFromBattery, 2) });
             Consumption.Series3.AddRange(new ChartDataEntry<string, decimal> { XValue = "", YValue = Math.Round(response.ConsumptionFromGrid, 2) });
+            Consumption.Description = $"Consumptie ({Math.Round(response.Consumption, 2):F2} kWh)";
+            Consumption.Series1Description = $"Vanuit PV ({Math.Round(response.ConsumptionFromSolar, 2):F2} kWh)";
+            Consumption.Series2Description = $"Vanuit batterij ({Math.Round(response.ConsumptionFromBattery, 2):F2} kWh)";
+            Consumption.Series3Description = $"Van net ({Math.Round(response.ConsumptionFromGrid, 2):F2} kWh)";
 
             await InvokeAsync(StateHasChanged);
             await Task.Delay(100);
-            await _productionChart.UpdateSeriesAsync(true);
-            await _consumptionChart.UpdateSeriesAsync(true);
+            await _productionChart.UpdateSeriesAsync(false);
+            await _productionChart.UpdateOptionsAsync(true, false, false);
+            await _consumptionChart.UpdateSeriesAsync(false);
+            await _consumptionChart.UpdateOptionsAsync(true, false, false);
         }
         catch (Exception ex)
         {

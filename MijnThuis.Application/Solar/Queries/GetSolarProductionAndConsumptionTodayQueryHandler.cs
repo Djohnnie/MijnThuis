@@ -10,9 +10,11 @@ public class GetSolarProductionAndConsumptionTodayQuery : IRequest<GetSolarProdu
 
 public class GetSolarProductionAndConsumptionTodayResponse
 {
+    public decimal Production { get; set; }
     public decimal ProductionToHome { get; set; }
     public decimal ProductionToBattery { get; set; }
     public decimal ProductionToGrid { get; set; }
+    public decimal Consumption { get; set; }
     public decimal ConsumptionFromSolar { get; set; }
     public decimal ConsumptionFromBattery { get; set; }
     public decimal ConsumptionFromGrid { get; set; }
@@ -38,9 +40,11 @@ public class GetSolarProductionAndConsumptionTodayQueryHandler : IRequestHandler
 
         return new GetSolarProductionAndConsumptionTodayResponse
         {
+            Production = entries.Sum(x => x.Production) / 1000M,
             ProductionToHome = entries.Sum(x => x.ProductionToHome) / 1000M,
             ProductionToBattery = entries.Sum(x => x.ProductionToBattery) / 1000M,
             ProductionToGrid = entries.Sum(x => x.ProductionToGrid) / 1000M,
+            Consumption = entries.Sum(x => x.Consumption) / 1000M,
             ConsumptionFromSolar = entries.Sum(x => x.ConsumptionFromSolar) / 1000M,
             ConsumptionFromBattery = entries.Sum(x => x.ConsumptionFromBattery) / 1000M,
             ConsumptionFromGrid = entries.Sum(x => x.ConsumptionFromGrid) / 1000M
