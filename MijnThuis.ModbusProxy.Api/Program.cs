@@ -44,6 +44,30 @@ app.MapGet("/battery", async (IModbusHelper modbusHelper) =>
     return Results.Ok(result);
 });
 
+app.MapGet("/battery/isNotMaxSelfConsumption", async (IModbusHelper modbusHelper) =>
+{
+    var result = await modbusHelper.IsNotMaxSelfConsumption();
+    return Results.Ok(result);
+});
+
+app.MapGet("/battery/isNotChargingInRemoteControlMode", async (IModbusHelper modbusHelper) =>
+{
+    var result = await modbusHelper.IsNotChargingInRemoteControlMode();
+    return Results.Ok(result);
+});
+
+app.MapPost("/battery/startCharging", async (IModbusHelper modbusHelper, [FromQuery] int durationInMinutes, [FromQuery] int power) =>
+{
+    await modbusHelper.StartChargingBattery(TimeSpan.FromMinutes(durationInMinutes), power);
+    return Results.Ok();
+});
+
+app.MapPost("/battery/stopCharging", async (IModbusHelper modbusHelper) =>
+{
+    await modbusHelper.StopChargingBattery();
+    return Results.Ok();
+});
+
 app.MapGet("/hasExportLimitation", async (IModbusHelper modbusHelper) =>
 {
     var result = await modbusHelper.HasExportLimitation();

@@ -66,65 +66,34 @@ internal class ModbusService : BaseService, IModbusService
 
     public async Task<bool> IsNotMaxSelfConsumption()
     {
-        //return await RetryOnFailure(async () =>
-        //{
-        //    using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-        //    await modbusClient.Connect();
+        var client = new HttpClient();
+        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
 
-        //    var storageControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
-        //    var remoteControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
-
-        //    modbusClient.Disconnect();
-
-        //    return storageControlMode.Value != 1 && remoteControlMode.Value != 3;
-        //}, false);
-        return false;
+        return await client.GetFromJsonAsync<bool>("battery/isNotMaxSelfConsumption");
     }
 
     public async Task<bool> IsNotChargingInRemoteControlMode()
     {
-        //return await RetryOnFailure(async () =>
-        //{
-        //    using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-        //    await modbusClient.Connect();
+        var client = new HttpClient();
+        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
 
-        //    var storageControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
-        //    var remoteControlMode = await modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
-
-        //    modbusClient.Disconnect();
-
-        //    return storageControlMode.Value == 4 && remoteControlMode.Value != 3;
-        //}, false);
-        return false;
+        return await client.GetFromJsonAsync<bool>("battery/isNotChargingInRemoteControlMode");
     }
 
     public async Task StartChargingBattery(TimeSpan duration, int power)
     {
-        //await RetryOnFailure(async () =>
-        //{
-        //    using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-        //    await modbusClient.Connect();
+        var client = new HttpClient();
+        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
 
-        //    await modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)4);
-        //    await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Timeout, (uint)duration.TotalSeconds);
-        //    await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Mode, (ushort)3);
-        //    await modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Charge_Limit, (float)power);
-
-        //    modbusClient.Disconnect();
-        //});
+        await client.PostAsync($"battery/startCharging?durationInMinutes={(int)duration.TotalMinutes}&power={power}", null);
     }
 
     public async Task StopChargingBattery()
     {
-        //await RetryOnFailure(async () =>
-        //{
-        //    using var modbusClient = new ModbusClient(_modbusAddress, _modbusPort);
-        //    await modbusClient.Connect();
+        var client = new HttpClient();
+        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
 
-        //    await modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)1);
-
-        //    modbusClient.Disconnect();
-        //});
+        await client.PostAsync($"battery/stopCharging", null);
     }
 
     public async Task<bool> HasExportLimitation()
