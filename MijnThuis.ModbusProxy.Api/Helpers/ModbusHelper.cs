@@ -312,6 +312,7 @@ public class ModbusHelper : IModbusHelper
                 await Connect();
 
                 await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)1);
+                await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Charge_Limit, (float)5000);
             });
         }
         finally

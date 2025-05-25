@@ -176,6 +176,7 @@ public partial class DayAheadEnergyPriceChart
             }));
 
             TitleDescription = string.Create(CultureInfo.GetCultureInfo("nl-be"), $"Dynamische tarieven voor {_selectedDate:D}");
+
             _options.Annotations = new Annotations
             {
                 Xaxis = new List<AnnotationsXAxis>
