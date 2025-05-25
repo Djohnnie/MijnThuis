@@ -149,6 +149,8 @@ public partial class DayAheadEnergyPriceChart
             using var scope = ServiceProvider.CreateScope();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
+            var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, 0, 0);
+
             var response = await mediator.Send(new GetDayAheadEnergyPricesQuery
             {
                 Date = _selectedDate
@@ -174,10 +176,60 @@ public partial class DayAheadEnergyPriceChart
             }));
 
             TitleDescription = string.Create(CultureInfo.GetCultureInfo("nl-be"), $"Dynamische tarieven voor {_selectedDate:D}");
+            _options.Annotations = new Annotations
+            {
+                Xaxis = new List<AnnotationsXAxis>
+                {
+                    new AnnotationsXAxis
+                    {
+                        X = $"{now:HH:mm}",
+                        BorderColor = "#FF0000",
+                        StrokeDashArray = 2
+                    }
+                },
+                Points = new List<AnnotationsPoint>
+                {
+                    new AnnotationsPoint
+                    {
+                        X = $"{now:HH:mm}",
+                        Y = (double)(entries.SingleOrDefault(x=>x.Date == now)?.ConsumptionPrice ?? 0),
+                        SeriesIndex = 0,
+                        Marker = new AnnotationMarker
+                        {
+                            FillColor = "#5DE799",
+                            StrokeColor = "#FFFFFF"
+                        },
+                        Label = new Label
+                        {
+                            TextAnchor = TextAnchor.End,
+                            OffsetX = -10,
+                            Text = $"{(double)(entries.SingleOrDefault(x=>x.Date == now)?.ConsumptionPrice ?? 0)} €c/kWh"
+                        }
+                    },
+                    new AnnotationsPoint
+                    {
+                        X = $"{now:HH:mm}",
+                        Y = (double)(entries.SingleOrDefault(x=>x.Date == now)?.InjectionPrice ?? 0),
+                        SeriesIndex = 1,
+                        Marker = new AnnotationMarker
+                        {
+                            FillColor = "#FBB550",
+                            StrokeColor = "#FFFFFF"
+                        },
+                        Label = new Label
+                        {
+                            TextAnchor = TextAnchor.End,
+                            OffsetX = -10,
+                            Text = $"{(double)(entries.SingleOrDefault(x=>x.Date == now)?.InjectionPrice ?? 0)} €c/kWh"
+                        }
+                    }
+                }
+            };
 
             await InvokeAsync(StateHasChanged);
             await Task.Delay(100);
             await _apexChart.UpdateSeriesAsync(true);
+            await _apexChart.UpdateOptionsAsync(true, false, false);
         }
         catch (Exception ex)
         {
