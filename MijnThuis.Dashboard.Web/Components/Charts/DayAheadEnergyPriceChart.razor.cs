@@ -177,7 +177,11 @@ public partial class DayAheadEnergyPriceChart
 
             TitleDescription = string.Create(CultureInfo.GetCultureInfo("nl-be"), $"Dynamische tarieven voor {_selectedDate:D}");
 
-            _options.Annotations = new Annotations
+            _options.Annotations = _selectedDate.Date != DateTime.Today ? new Annotations
+            {
+                Xaxis = new List<AnnotationsXAxis>(),
+                Points = new List<AnnotationsPoint>()
+            } : new Annotations
             {
                 Xaxis = new List<AnnotationsXAxis>
                 {
@@ -230,7 +234,7 @@ public partial class DayAheadEnergyPriceChart
             await InvokeAsync(StateHasChanged);
             await Task.Delay(100);
             await _apexChart.UpdateSeriesAsync(true);
-            await _apexChart.UpdateOptionsAsync(true, false, false);
+            await _apexChart.UpdateOptionsAsync(true, true, true);
         }
         catch (Exception ex)
         {
