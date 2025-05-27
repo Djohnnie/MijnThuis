@@ -32,7 +32,7 @@
                     <MudChip T="string" Color="@(CurrentSolarPower > 0M ? Color.Success : Color.Default)" Variant="Variant.Text">@CurrentSolarPower.ToString("F2") kW</MudChip>
                 </MudPaper>
                 <MudPaper Class="align-self-center" Elevation="0">
-                    <MudIcon Icon="@Icons.Material.Filled.KeyboardDoubleArrowDown" Color="@(CurrentSolarPower > 0M ? Color.Success : Color.Default)" Size="Size.Small" Title="Vermogen van zonnepanelen" />
+                    <MudIcon Icon="@(Math.Round(CurrentSolarPower) > 0M ? Icons.Material.Filled.KeyboardDoubleArrowDown : Icons.Material.Filled.MoreVert)" Color="@(Math.Round(CurrentSolarPower) > 0M ? Color.Success : Color.Default)" Size="Size.Small" Title="Vermogen van zonnepanelen" />
                 </MudPaper>
                 <MudPaper Class="align-self-center" Elevation="0">
                     <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.DeviceHub" Size="Size.Large" Title="SolarEdge SE5000H Omvormer" />
