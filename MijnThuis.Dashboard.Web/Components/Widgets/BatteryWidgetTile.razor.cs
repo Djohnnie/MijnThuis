@@ -56,7 +56,7 @@ public partial class BatteryWidgetTile
         _options.Xaxis = new XAxis
         {
             Type = XAxisType.Category,
-            OverwriteCategories = Enumerable.Range(0, 24 * 12 + 1).Select(x => new DateTime().AddMinutes(5 * x).Minute == 0 && new DateTime().AddMinutes(5 * x).Hour % 2 == 0 ? $"{new DateTime().AddMinutes(5 * x):HH:mm}" : "").ToList(),
+            OverwriteCategories = Enumerable.Range(0, 24 * 4 + 1).Select(x => new DateTime().AddMinutes(15 * x).Minute == 0 && new DateTime().AddMinutes(15 * x).Hour % 2 == 0 ? $"{new DateTime().AddMinutes(15 * x):HH:mm}" : "").ToList(),
             AxisTicks = new AxisTicks
             {
                 Show = false
@@ -82,8 +82,8 @@ public partial class BatteryWidgetTile
         _options.Colors = new List<string> { "#564CDD" };
         _options.Stroke = new Stroke
         {
-            Curve = Curve.Straight,
-            Width = 5
+            Curve = Curve.Smooth,
+            Width = 3
         };
         _options.Fill = new Fill
         {

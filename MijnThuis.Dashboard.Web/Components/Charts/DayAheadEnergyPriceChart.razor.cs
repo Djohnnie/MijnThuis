@@ -161,17 +161,17 @@ public partial class DayAheadEnergyPriceChart
             DayAheadEnergyPrices.Clear();
             DayAheadEnergyPrices.Series1.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
-                XValue = $"{x.Date:t}",
+                XValue = $"{x.Date:HH:mm}",
                 YValue = x.ConsumptionPrice
             }));
             DayAheadEnergyPrices.Series2.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
-                XValue = $"{x.Date:t}",
+                XValue = $"{x.Date:HH:mm}",
                 YValue = x.InjectionPrice
             }));
             DayAheadEnergyPrices.Series3.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
-                XValue = $"{x.Date:t}",
+                XValue = $"{x.Date:HH:mm}",
                 YValue = x.Price
             }));
 
@@ -188,7 +188,7 @@ public partial class DayAheadEnergyPriceChart
                     new AnnotationsXAxis
                     {
                         X = $"{now:HH:mm}",
-                        BorderColor = "#FF0000",
+                        BorderColor = DarkMode.IsDarkMode ? "#FF8888" :"#FF0000",
                         StrokeDashArray = 2
                     }
                 },
@@ -202,13 +202,18 @@ public partial class DayAheadEnergyPriceChart
                         Marker = new AnnotationMarker
                         {
                             FillColor = "#5DE799",
-                            StrokeColor = "#FFFFFF"
+                            StrokeColor = DarkMode.IsDarkMode ? "#000000" : "#FFFFFF"
                         },
                         Label = new Label
                         {
                             TextAnchor = TextAnchor.End,
                             OffsetX = -10,
-                            Text = $"{(double)(entries.SingleOrDefault(x=>x.Date == now)?.ConsumptionPrice ?? 0)} €c/kWh"
+                            Text = $"{(double)(entries.SingleOrDefault(x=>x.Date == now)?.ConsumptionPrice ?? 0)} €c/kWh",
+                            Style = new Style
+                            {
+                                Background = DarkMode.IsDarkMode ? "#000000" : "#FFFFFF",
+                                Color = DarkMode.IsDarkMode ? "#FFFFFF" : "#000000"
+                            }
                         }
                     },
                     new AnnotationsPoint
@@ -219,13 +224,18 @@ public partial class DayAheadEnergyPriceChart
                         Marker = new AnnotationMarker
                         {
                             FillColor = "#FBB550",
-                            StrokeColor = "#FFFFFF"
+                            StrokeColor = DarkMode.IsDarkMode ? "#000000" : "#FFFFFF"
                         },
                         Label = new Label
                         {
                             TextAnchor = TextAnchor.End,
                             OffsetX = -10,
-                            Text = $"{(double)(entries.SingleOrDefault(x=>x.Date == now)?.InjectionPrice ?? 0)} €c/kWh"
+                            Text = $"{(double)(entries.SingleOrDefault(x=>x.Date == now)?.InjectionPrice ?? 0)} €c/kWh",
+                            Style = new Style
+                            {
+                                Background = DarkMode.IsDarkMode ? "#000000" : "#FFFFFF",
+                                Color = DarkMode.IsDarkMode ? "#FFFFFF" : "#000000"
+                            }
                         }
                     }
                 }
