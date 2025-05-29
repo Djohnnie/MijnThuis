@@ -2,6 +2,8 @@
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using System.Diagnostics;
+using System.Net.Http.Headers;
+using System.Text;
 
 namespace MijnThuis.Worker;
 
@@ -23,9 +25,11 @@ internal class HomeBatteryNotificationWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var sendGridApiKey = _configuration.GetValue<string>("SENDGRID_API_KEY");
-        var sendGridSender = _configuration.GetValue<string>("SENDGRID_SENDER");
-        var sendGridReceivers = _configuration.GetValue<string>("SENDGRID_RECEIVER");
+        var mailgunBaseAddress = _configuration.GetValue<string>("MAILGUN_BASE_ADDRESS");
+        var mailgunDomain = _configuration.GetValue<string>("MAILGUN_DOMAIN");
+        var mailgunApiKey = _configuration.GetValue<string>("MAILGUN_APIKEY");
+        var mailgunSender = _configuration.GetValue<string>("MAILGUN_SENDER");
+        var mailgunReceivers = _configuration.GetValue<string>("MAILGUN_RECEIVERS");
 
         DateOnly? notifiedFullBatteryToday = null;
         DateOnly? notifiedLowBatteryToday = null;
@@ -65,21 +69,21 @@ internal class HomeBatteryNotificationWorker : BackgroundService
                 {
                     notifiedFullBatteryToday = DateOnly.FromDateTime(DateTime.Today);
                     await SendEmail("De thuisbatterij is volledig opgeladen (100%)!",
-                        sendGridSender, sendGridReceivers, sendGridApiKey);
+                        mailgunBaseAddress, mailgunDomain, mailgunSender, mailgunReceivers, mailgunApiKey);
                 }
 
                 if (solarOverview.BatteryLevel < 20 && notifiedLowBatteryToday == null)
                 {
                     notifiedLowBatteryToday = DateOnly.FromDateTime(DateTime.Today);
                     await SendEmail("De thuisbatterij is bijna leeg (< 20%)!",
-                        sendGridSender, sendGridReceivers, sendGridApiKey);
+                        mailgunBaseAddress, mailgunDomain, mailgunSender, mailgunReceivers, mailgunApiKey);
                 }
 
                 if (solarOverview.BatteryLevel == 0 && notifiedEmptyBatteryToday == null)
                 {
                     notifiedEmptyBatteryToday = DateOnly.FromDateTime(DateTime.Today);
                     await SendEmail("De thuisbatterij is helemaal leeg (0%)!",
-                        sendGridSender, sendGridReceivers, sendGridApiKey);
+                        mailgunBaseAddress, mailgunDomain, mailgunSender, mailgunReceivers, mailgunApiKey);
                 }
 
                 // Calculate the duration for this whole process.
@@ -103,19 +107,22 @@ internal class HomeBatteryNotificationWorker : BackgroundService
         }
     }
 
-    private async Task SendEmail(string message, string sendGridSender, string sendGridReceivers, string apiKey)
+    private async Task SendEmail(string message, string baseAddress, string domain, string sender, string receivers, string apiKey)
     {
-        var client = new SendGridClient(apiKey);
+        var subject = "MijnThuis - Thuisbatterij notificatie";
 
-        var receivers = sendGridReceivers.Split(';', StringSplitOptions.RemoveEmptyEntries)
-            .Select(receiver => new EmailAddress(receiver.Trim())).ToList();
+        var client = new HttpClient();
+        client.BaseAddress = new Uri(baseAddress);
+        var auth = Convert.ToBase64String(Encoding.UTF8.GetBytes($"api:{apiKey}"));
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", auth);
+        var content = new MultipartFormDataContent
+        {
+            { new StringContent(sender), "from" },
+            { new StringContent(receivers), "to" },
+            { new StringContent(subject), "subject" },
+            { new StringContent(message), "text" },
+        };
 
-        var email = MailHelper.CreateSingleEmailToMultipleRecipients(
-            new EmailAddress(sendGridSender),
-            receivers,
-            "MijnThuis - Thuisbatterij notificatie",
-            message, message);
-
-        await client.SendEmailAsync(email);
+        await client.PostAsync($"/v3/{domain}/messages", content);
     }
 }
