@@ -36,15 +36,20 @@ public class GetBatteryLevelTodayQueryHandler : IRequestHandler<GetBatteryLevelT
 
             if (entry.Count() > 0)
             {
-                result.Entries.Add(new BatteryLevelEntry { Date = timeStamp, LevelOfCharge = (int)Math.Round(entry.Average(x => x.StateOfCharge)) });
+                result.Entries.Add(new BatteryLevelEntry
+                {
+                    Date = timeStamp,
+                    LevelOfCharge = (int)Math.Round(entry.Average(x => x.StateOfCharge)),
+                    StateOfHealth = (int)Math.Round(entry.Average(x => x.CalculatedStateOfHealth * 100))
+                });
             }
             else
             {
-                result.Entries.Add(new BatteryLevelEntry { Date = timeStamp, LevelOfCharge = null });
+                result.Entries.Add(new BatteryLevelEntry { Date = timeStamp, LevelOfCharge = null, StateOfHealth = null });
             }
         }
 
-        result.Entries.Add(new BatteryLevelEntry { Date = today.AddDays(1), LevelOfCharge = null });
+        result.Entries.Add(new BatteryLevelEntry { Date = today.AddDays(1), LevelOfCharge = null, StateOfHealth = null });
 
         return result;
     }

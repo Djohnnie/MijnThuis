@@ -9,4 +9,5 @@ public class BatteryLevelEntry
 {
     public DateTime Date { get; set; }
     public int? LevelOfCharge { get; set; }
+    public int? StateOfHealth { get; set; }
 }

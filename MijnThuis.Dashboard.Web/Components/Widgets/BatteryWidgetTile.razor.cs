@@ -16,7 +16,7 @@ public partial class BatteryWidgetTile
     private ApexChart<ChartDataEntry<string, decimal?>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal?>> _options { get; set; } = new();
 
-    private ChartData1<string, decimal?> BatteryLevel { get; set; } = new();
+    private ChartData2<string, decimal?> BatteryLevel { get; set; } = new();
 
     public BatteryWidgetTile()
     {
@@ -79,11 +79,11 @@ public partial class BatteryWidgetTile
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
-        _options.Colors = new List<string> { "#564CDD" };
+        _options.Colors = new List<string> { "#564CDD", "#5DE799" };
         _options.Stroke = new Stroke
         {
             Curve = Curve.Smooth,
-            Width = 3
+            Width = new List<int> { 3, 1 }
         };
         _options.Fill = new Fill
         {
@@ -93,6 +93,7 @@ public partial class BatteryWidgetTile
 
         BatteryLevel.Description = "Thuisbatterij";
         BatteryLevel.Series1Description = "Laadtoestand vandaag";
+        BatteryLevel.Series2Description = "Berekende gezondheid vandaag";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -154,6 +155,11 @@ public partial class BatteryWidgetTile
             {
                 XValue = $"{x.Date:HH:mm}",
                 YValue = x.LevelOfCharge
+            }));
+            BatteryLevel.Series2.AddRange(response.Entries.Select(x => new ChartDataEntry<string, decimal?>
+            {
+                XValue = $"{x.Date:HH:mm}",
+                YValue = x.StateOfHealth
             }));
 
             await InvokeAsync(StateHasChanged);
