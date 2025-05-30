@@ -1,0 +1,61 @@
+﻿@using MijnThuis.Contracts.Power
+@using MijnThuis.Dashboard.Web.Model.Charts;
+@implements IDisposable
+@inject IServiceScopeFactory ServiceProvider
+@inject ILogger<InvoicedEnergyCostChart> Logger
+
+<MudCard Outlined>
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <MudAvatar Color="Color.Primary">
+                <MudIcon Icon="@Icons.Material.Filled.Receipt" />
+            </MudAvatar>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.body1">Gefactureerde energiekost elektriciteit</MudText>
+            <MudText Typo="Typo.body2">@Chart.Description</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudTooltip Text="Vorige" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.NavigateBefore" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateBeforeCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Maanden in jaar" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.DensitySmall" Size="Size.Medium" Color="Color.Default"
+                               OnClick="InYearCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Jaren tijdens levensduur" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.DensityLarge" Size="Size.Medium" Color="Color.Default"
+                               OnClick="InLifetimeCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Volgende" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.NavigateNext" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateNextCommand" />
+            </MudTooltip>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal>" Options="_options" @ref="_apexChart">
+
+            <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
+                                        Items="@Chart.Series1"
+                                        Name="@Chart.Series1Description"
+                                        XValue="@(e => e.XValue)"
+                                        YValue="@(e => e.YValue)"
+                                        SeriesType="ApexCharts.SeriesType.Bar" />
+
+            <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
+                                        Items="@Chart.Series2"
+                                        Name="@Chart.Series2Description"
+                                        XValue="@(e => e.XValue)"
+                                        YValue="@(e => e.YValue)"
+                                        SeriesType="ApexCharts.SeriesType.Bar" />
+
+        </ApexCharts.ApexChart>
+    </MudCardContent>
+    <MudCardActions>
+    </MudCardActions>
+</MudCard>

@@ -1,24 +1,9 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using MijnThuis.Contracts.Solar;
 using MijnThuis.DataAccess;
 
 namespace MijnThuis.Application.Solar.Queries;
-
-public class GetSolarProductionAndConsumptionTodayQuery : IRequest<GetSolarProductionAndConsumptionTodayResponse>
-{
-}
-
-public class GetSolarProductionAndConsumptionTodayResponse
-{
-    public decimal Production { get; set; }
-    public decimal ProductionToHome { get; set; }
-    public decimal ProductionToBattery { get; set; }
-    public decimal ProductionToGrid { get; set; }
-    public decimal Consumption { get; set; }
-    public decimal ConsumptionFromSolar { get; set; }
-    public decimal ConsumptionFromBattery { get; set; }
-    public decimal ConsumptionFromGrid { get; set; }
-}
 
 public class GetSolarProductionAndConsumptionTodayQueryHandler : IRequestHandler<GetSolarProductionAndConsumptionTodayQuery, GetSolarProductionAndConsumptionTodayResponse>
 {

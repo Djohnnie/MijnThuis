@@ -5,22 +5,6 @@ using MijnThuis.DataAccess;
 
 namespace MijnThuis.Application.Solar.Queries;
 
-public class GetBatteryLevelTodayQuery : IRequest<GetBatteryLevelTodayResponse>
-{
-
-}
-
-public class GetBatteryLevelTodayResponse
-{
-    public List<BatteryLevelEntry> Entries { get; set; } = new();
-}
-
-public class BatteryLevelEntry
-{
-    public DateTime Date { get; set; }
-    public int? LevelOfCharge { get; set; }
-}
-
 public class GetBatteryLevelTodayQueryHandler : IRequestHandler<GetBatteryLevelTodayQuery, GetBatteryLevelTodayResponse>
 {
     private readonly MijnThuisDbContext _dbContext;

@@ -1,4 +1,4 @@
-using FakeItEasy;
+﻿using FakeItEasy;
 using MijnThuis.DataAccess.Repositories;
 using MijnThuis.Integrations.Car;
 using MijnThuis.Integrations.Solar;
@@ -13,7 +13,7 @@ public class CarChargingWorkerStepDefinitions
     private IFlagRepository? _flagRepository;
     private ICarChargingEnergyHistoryRepository _carChargingEnergyHistoryRepository;
     private ICarService? _carService;
-    private ISolarService? _solarService;
+    private IModbusService? _modbusService;
     private CarChargingHelper? _sot;
 
     private CarChargingHelperState? _state;
@@ -26,16 +26,16 @@ public class CarChargingWorkerStepDefinitions
         _flagRepository = A.Fake<IFlagRepository>();
         _carChargingEnergyHistoryRepository = A.Fake<ICarChargingEnergyHistoryRepository>();
         _carService = A.Fake<ICarService>();
-        _solarService = A.Fake<ISolarService>();
+        _modbusService = A.Fake<IModbusService>();
 
-        _sot = new CarChargingHelper(_flagRepository, _carChargingEnergyHistoryRepository, _carService, _solarService);
+        _sot = new CarChargingHelper(_flagRepository, _carChargingEnergyHistoryRepository, _carService, _modbusService);
 
         _state = new CarChargingHelperState();
         _carOverview = new CarOverview();
         _solarOverview = new SolarOverview();
 
         A.CallTo(() => _carService!.GetOverview()).Returns(_carOverview);
-        A.CallTo(() => _solarService!.GetOverview()).Returns(_solarOverview);
+        A.CallTo(() => _modbusService!.GetOverview()).Returns(_solarOverview);
     }
 
     [Given("The car charge port is not open")]
@@ -97,7 +97,7 @@ public class CarChargingWorkerStepDefinitions
     [Then("The worker should have checked the home battery")]
     public void ThenTheWorkerShouldHaveCheckedTheHomeBattery()
     {
-        A.CallTo(() => _solarService!.GetOverview()).MustHaveHappenedOnceExactly();
+        A.CallTo(() => _modbusService!.GetOverview()).MustHaveHappenedOnceExactly();
     }
 
 

@@ -1,7 +1,7 @@
 ﻿using ApexCharts;
 using MediatR;
 using Microsoft.AspNetCore.Components;
-using MijnThuis.Application.Solar.Queries;
+using MijnThuis.Contracts.Solar;
 using MijnThuis.Dashboard.Web.Model;
 using MijnThuis.Dashboard.Web.Model.Charts;
 

@@ -1,7 +1,7 @@
 ﻿using ApexCharts;
 using MediatR;
 using Microsoft.AspNetCore.Components;
-using MijnThuis.Application.Solar.Queries;
+using MijnThuis.Contracts.Solar;
 using MijnThuis.Dashboard.Web.Model;
 using MijnThuis.Dashboard.Web.Model.Charts;
 
@@ -91,8 +91,8 @@ public partial class BatteryWidgetTile
             Opacity = new Opacity(1)
         };
 
-        BatteryLevel.Description = "Thuisbatterij: gezondheid";
-        BatteryLevel.Series1Description = "Geregistreerde gezondheid";
+        BatteryLevel.Description = "Thuisbatterij";
+        BatteryLevel.Series1Description = "Laadtoestand vandaag";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
