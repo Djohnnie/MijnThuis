@@ -99,6 +99,7 @@ public partial class CarChargingHistoryChart
         };
 
         ChargingHistory.Description = $"Auto opladen uit zonne-energie";
+        ChargingHistory.Series1Description = $"Oplaadsessies";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

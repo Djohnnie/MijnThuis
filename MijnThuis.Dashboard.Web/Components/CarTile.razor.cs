@@ -1,6 +1,7 @@
-using MijnThuis.Contracts.Car;
+﻿using MijnThuis.Contracts.Car;
 using MijnThuis.Dashboard.Web.Components.Dialogs;
 using MudBlazor;
+using Microsoft.AspNetCore.Components;
 
 namespace MijnThuis.Dashboard.Web.Components;
 
@@ -9,6 +10,9 @@ public partial class CarTile
     private readonly IDialogService _dialogService;
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(1));
     private readonly string _pin;
+
+    [Inject]
+    protected NavigationManager NavigationManager { get; set; }
 
     public bool IsReady { get; set; }
     public string Title { get; set; }
@@ -180,6 +184,11 @@ public partial class CarTile
             ChargeAmps = 16
         });
         await RefreshData();
+    }
+
+    public void MoreCommand()
+    {
+        NavigationManager.NavigateTo($"car{new Uri(NavigationManager.Uri).Query}");
     }
 
     public void Dispose()

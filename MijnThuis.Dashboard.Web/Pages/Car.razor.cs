@@ -2,7 +2,7 @@
 
 namespace MijnThuis.Dashboard.Web.Pages;
 
-public partial class Power
+public partial class Car
 {
     [Inject]
     protected NavigationManager NavigationManager { get; set; }
