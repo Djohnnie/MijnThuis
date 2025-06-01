@@ -36,7 +36,7 @@ public partial class EnergyWidgetTile
             {
                 Enabled = false
             },
-            Background = "#373740"
+            Background = "#32333C"
         };
         _productionOptions.PlotOptions = new PlotOptions
         {
@@ -150,7 +150,7 @@ public partial class EnergyWidgetTile
         {
             if (DarkMode != null)
             {
-                _productionOptions.Chart.Background = _consumptionOptions.Chart.Background = DarkMode.IsDarkMode ? "#373740" : "#FFFFFF";
+                _productionOptions.Chart.Background = _consumptionOptions.Chart.Background = DarkMode.IsDarkMode ? "#32333C" : "#FFFFFF";
                 _productionOptions.Theme.Mode = _consumptionOptions.Theme.Mode = DarkMode.IsDarkMode ? Mode.Dark : Mode.Light;
                 await _productionChart.UpdateOptionsAsync(true, false, false);
                 await _consumptionChart.UpdateOptionsAsync(true, false, false);
@@ -159,7 +159,7 @@ public partial class EnergyWidgetTile
                 {
                     if (args.PropertyName == nameof(DarkMode.IsDarkMode))
                     {
-                        _productionOptions.Chart.Background = _consumptionOptions.Chart.Background = DarkMode.IsDarkMode ? "#373740" : "#FFFFFF";
+                        _productionOptions.Chart.Background = _consumptionOptions.Chart.Background = DarkMode.IsDarkMode ? "#32333C" : "#FFFFFF";
                         _productionOptions.Theme.Mode = _consumptionOptions.Theme.Mode = DarkMode.IsDarkMode ? Mode.Dark : Mode.Light;
                         _ = _productionChart.UpdateOptionsAsync(true, false, false);
                         _ = _consumptionChart.UpdateOptionsAsync(true, false, false);

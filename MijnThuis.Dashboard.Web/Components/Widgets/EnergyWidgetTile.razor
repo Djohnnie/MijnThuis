@@ -5,7 +5,7 @@
 @inject IServiceScopeFactory ServiceProvider
 @inject ILogger<EnergyWidgetTile> Logger;
 
-<MudPaper Elevation="0">
+<div>
     <MudStack>
         <ApexCharts.ApexChart Title="@Production.Description" TItem="ChartDataEntry<string, decimal>" Options="_productionOptions" @ref="_productionChart">
 
@@ -60,4 +60,4 @@
                                         ShowDataLabels />
         </ApexCharts.ApexChart>
     </MudStack>
-</MudPaper>
+</div>

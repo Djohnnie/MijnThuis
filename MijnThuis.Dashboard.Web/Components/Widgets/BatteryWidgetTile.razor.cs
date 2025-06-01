@@ -30,7 +30,7 @@ public partial class BatteryWidgetTile
             {
                 Enabled = false
             },
-            Background = "#373740",
+            Background = "#32333C",
         };
         _options.Responsive = new List<Responsive<ChartDataEntry<string, decimal?>>>
         {
@@ -102,7 +102,7 @@ public partial class BatteryWidgetTile
         {
             if (DarkMode != null)
             {
-                _options.Chart.Background = DarkMode.IsDarkMode ? "#373740" : "#FFFFFF";
+                _options.Chart.Background = DarkMode.IsDarkMode ? "#32333C" : "#FFFFFF";
                 _options.Theme.Mode = DarkMode.IsDarkMode ? Mode.Dark : Mode.Light;
                 await _apexChart.UpdateOptionsAsync(true, false, false);
 
@@ -110,7 +110,7 @@ public partial class BatteryWidgetTile
                 {
                     if (args.PropertyName == nameof(DarkMode.IsDarkMode))
                     {
-                        _options.Chart.Background = DarkMode.IsDarkMode ? "#373740" : "#FFFFFF";
+                        _options.Chart.Background = DarkMode.IsDarkMode ? "#32333C" : "#FFFFFF";
                         _options.Theme.Mode = DarkMode.IsDarkMode ? Mode.Dark : Mode.Light;
                         _ = _apexChart.UpdateOptionsAsync(true, false, false);
                     }

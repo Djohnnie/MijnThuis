@@ -4,7 +4,7 @@
 @inject IServiceScopeFactory ServiceProvider
 @inject ILogger<BatteryWidgetTile> Logger;
 
-<MudPaper Elevation="0">
+<div>
     <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal?>" Options="_options" @ref="_apexChart">
 
         <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal?>"
@@ -22,4 +22,4 @@
                                     SeriesType="ApexCharts.SeriesType.Line" />
 
     </ApexCharts.ApexChart>
-</MudPaper>
+</div>
