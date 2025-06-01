@@ -1,0 +1,57 @@
+﻿@using MijnThuis.Contracts.Heating
+@using MijnThuis.Dashboard.Web.Model.Charts;
+@implements IDisposable
+@inject IServiceScopeFactory ServiceProvider
+@inject ILogger<GasUsageChart> Logger
+
+<MudCard Outlined>
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <MudAvatar Color="Color.Primary">
+                <MudIcon Icon="@Icons.Material.Filled.LocalFireDepartment" />
+            </MudAvatar>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.body1">Gasverbruik</MudText>
+            <MudText Typo="Typo.body2">@GasUsage.Series1Description</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudTooltip Text="Vorige" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.NavigateBefore" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateBeforeCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Dagen van de maand" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.DensitySmall" Size="Size.Medium" Color="Color.Default"
+                               OnClick="HistoryPerDayInMonthCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Maanden van het jaar" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.DensityMedium" Size="Size.Medium" Color="Color.Default"
+                               OnClick="HistoryPerMonthInYearCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Jaren tijdens levensduur" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.DensityLarge" Size="Size.Medium" Color="Color.Default"
+                               OnClick="HistoryPerYearInLifetimeCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Volgende" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.NavigateNext" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateNextCommand" />
+            </MudTooltip>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal>" Options="_options" @ref="_apexChart">
+            <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
+                                        Items="@GasUsage.Series1"
+                                        Name="@GasUsage.Series1Description"
+                                        XValue="@(e => e.XValue)"
+                                        YValue="@(e => e.YValue)"
+                                        SeriesType="ApexCharts.SeriesType.Bar" />
+        </ApexCharts.ApexChart>
+    </MudCardContent>
+    <MudCardActions>
+    </MudCardActions>
+</MudCard>
