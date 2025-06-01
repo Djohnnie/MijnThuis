@@ -35,7 +35,7 @@ public class MijnThuisCopilotPowerFunctions
     public async Task<decimal> GetEnergyUseToday()
     {
         var response = await _mediator.Send(new GetPowerOverviewQuery());
-        return response.EnergyToday;
+        return response.ImportToday;
     }
 
     [KernelFunction]
@@ -43,7 +43,7 @@ public class MijnThuisCopilotPowerFunctions
     public async Task<decimal> GetEnergyUseThisMonth()
     {
         var response = await _mediator.Send(new GetPowerOverviewQuery());
-        return response.EnergyThisMonth;
+        return response.ImportThisMonth;
     }
 
     [KernelFunction]

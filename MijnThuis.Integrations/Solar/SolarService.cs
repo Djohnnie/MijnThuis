@@ -176,6 +176,7 @@ public class SolarService : BaseService, ISolarService
             Produced = result.EnergyDetails.Meters.Single(m => m.Type == "Production").Values.Sum(v => v.Value),
             Consumed = result.EnergyDetails.Meters.Single(m => m.Type == "Consumption").Values.Sum(v => v.Value),
             Purchased = result.EnergyDetails.Meters.Single(m => m.Type == "Purchased").Values.Sum(v => v.Value),
+            Injected = result.EnergyDetails.Meters.Single(m => m.Type == "FeedIn").Values.Sum(v => v.Value)
         };
     }
 
@@ -193,6 +194,7 @@ public class SolarService : BaseService, ISolarService
             Produced = result.EnergyDetails.Meters.Single(m => m.Type == "Production").Values.Sum(v => v.Value),
             Consumed = result.EnergyDetails.Meters.Single(m => m.Type == "Consumption").Values.Sum(v => v.Value),
             Purchased = result.EnergyDetails.Meters.Single(m => m.Type == "Purchased").Values.Sum(v => v.Value),
+            Injected = result.EnergyDetails.Meters.Single(m => m.Type == "FeedIn").Values.Sum(v => v.Value)
         };
     }
 

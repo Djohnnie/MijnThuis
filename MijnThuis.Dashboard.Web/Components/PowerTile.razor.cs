@@ -14,8 +14,10 @@ public partial class PowerTile
     public string Title { get; set; }
     public decimal CurrentPower { get; set; }
     public decimal PowerPeak { get; set; }
-    public decimal EnergyToday { get; set; }
-    public decimal EnergyThisMonth { get; set; }
+    public decimal ImportToday { get; set; }
+    public decimal ExportToday { get; set; }
+    public decimal ImportThisMonth { get; set; }
+    public decimal ExportThisMonth { get; set; }
     public string CurrentPricePeriod { get; set; }
     public decimal CurrentConsumptionPrice { get; set; }
     public decimal CurrentInjectionPrice { get; set; }
@@ -65,8 +67,10 @@ public partial class PowerTile
             var selfConsumption = await Mediator.Send(new GetSolarSelfConsumptionQuery { Date = DateTime.Today });
             CurrentPower = response.CurrentConsumption;
             PowerPeak = response.PowerPeak / 1000M;
-            EnergyToday = response.EnergyToday;
-            EnergyThisMonth = response.EnergyThisMonth;
+            ImportToday = response.ImportToday;
+            ExportToday = response.ExportToday;
+            ImportThisMonth = response.ImportThisMonth;
+            ExportThisMonth = response.ExportThisMonth;
             CurrentPricePeriod = response.CurrentPricePeriod;
             CurrentConsumptionPrice = response.CurrentConsumptionPrice;
             CurrentInjectionPrice = response.CurrentInjectionPrice;

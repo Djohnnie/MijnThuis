@@ -58,10 +58,10 @@
                 <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
                     @if (IsReady)
                     {
-                        <MudTooltip Text="Energie aangekocht vandaag" Arrow="true" Placement="Placement.Right">
+                        <MudTooltip Text="Energie aangekocht/geïnjecteerd vandaag" Arrow="true" Placement="Placement.Right">
                             <MudIcon Icon="@Icons.Material.Filled.Today" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
-                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", EnergyToday) kWh</MudText>
+                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", ImportToday)/@String.Format("{0:F1}", ExportToday) kWh</MudText>
                     }
                     else
                     {
@@ -74,10 +74,10 @@
                 <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
                     @if (IsReady)
                     {
-                        <MudTooltip Text="Energie aangekocht deze maand" Arrow="true" Placement="Placement.Left">
+                        <MudTooltip Text="Energie aangekocht/geïnjecteerd deze maand" Arrow="true" Placement="Placement.Left">
                             <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
-                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", EnergyThisMonth) kWh</MudText>
+                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", ImportThisMonth)/@String.Format("{0:F1}", ExportThisMonth) kWh</MudText>
                     }
                     else
                     {
