@@ -58,39 +58,26 @@
     @if (ExtraPageArguments.IsTesla)
     {
         <MudItem xs="12">
-            <HeatingTile />
+            <CarTile />
         </MudItem>
     }
     else
     {
         <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
-            <HeatingTile />
+            <CarTile />
         </MudItem>
     }
-
-    @* @if (ExtraPageArguments.IsTesla)
-    {
-    <MudItem xs="12">
-    <LampsTile />
-    </MudItem>
-    }
-    else
-    {
-    <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
-    <LampsTile />
-    </MudItem>
-    } *@
 
     @if (ExtraPageArguments.IsTesla)
     {
         <MudItem xs="12">
-            <CarTile />
+            <HeatingTile />
         </MudItem>
     }
     else
     {
         <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
-            <CarTile />
+            <HeatingTile />
         </MudItem>
     }
 
