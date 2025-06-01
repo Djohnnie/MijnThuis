@@ -1,13 +1,13 @@
 ﻿using ApexCharts;
 using MediatR;
 using Microsoft.AspNetCore.Components;
-using MijnThuis.Contracts.Power;
+using MijnThuis.Contracts.Heating;
 using MijnThuis.Dashboard.Web.Model;
 using MijnThuis.Dashboard.Web.Model.Charts;
 
 namespace MijnThuis.Dashboard.Web.Components.Charts;
 
-public partial class InvoicedEnergyCostChart
+public partial class InvoicedGasCostChart
 {
     [CascadingParameter]
     public NotifyingDarkMode DarkMode { get; set; }
@@ -17,7 +17,7 @@ public partial class InvoicedEnergyCostChart
     private ChartData2<string, decimal> Chart { get; set; } = new();
     private DateTime _selectedYear = new(DateTime.Today.Year, 1, 1);
 
-    public InvoicedEnergyCostChart()
+    public InvoicedGasCostChart()
     {
         _options.Chart = new Chart
         {
@@ -76,7 +76,7 @@ public partial class InvoicedEnergyCostChart
             using var scope = ServiceProvider.CreateScope();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-            var response = await mediator.Send(new GetInvoicedEnergyCostQuery
+            var response = await mediator.Send(new GetInvoicedGasCostQuery
             {
                 Year = _selectedYear == DateTime.MinValue ? 0 : _selectedYear.Year
             });
@@ -88,10 +88,10 @@ public partial class InvoicedEnergyCostChart
                 Chart.Series1.AddRange(response.AllYears.Select(x => new ChartDataEntry<string, decimal>
                 {
                     XValue = x.Date.ToString("yyyy"),
-                    YValue = x.ElectricityAmount
+                    YValue = x.GasAmount
                 }));
 
-                Chart.Description = "Facturen elektriciteit voor de hele levensduur";
+                Chart.Description = "Facturen gas voor de hele levensduur";
                 Chart.Series1Description = "Facturen per jaar";
                 Chart.Series2Description = " ";
             }
@@ -100,15 +100,15 @@ public partial class InvoicedEnergyCostChart
                 Chart.Series1.AddRange(response.LastYear.Select(x => new ChartDataEntry<string, decimal>
                 {
                     XValue = x.Date.ToString("MMMM"),
-                    YValue = x.ElectricityAmount
+                    YValue = x.GasAmount
                 }));
                 Chart.Series2.AddRange(response.ThisYear.Select(x => new ChartDataEntry<string, decimal>
                 {
                     XValue = x.Date.ToString("MMMM"),
-                    YValue = x.ElectricityAmount
+                    YValue = x.GasAmount
                 }));
 
-                Chart.Description = $"Facturen elektriciteit voor geselecteerde jaar {_selectedYear.Year}";
+                Chart.Description = $"Facturen gas voor geselecteerde jaar {_selectedYear.Year}";
                 Chart.Series1Description = $"Facturen in {_selectedYear.Year - 1}";
                 Chart.Series2Description = $"Facturen in {_selectedYear.Year}";
                 _options.Series[1].Hidden = false;
@@ -121,7 +121,7 @@ public partial class InvoicedEnergyCostChart
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Failed to refresh invoiced energy cost chart data");
+            Logger.LogError(ex, "Failed to refresh invoiced gas cost chart data");
         }
     }
 

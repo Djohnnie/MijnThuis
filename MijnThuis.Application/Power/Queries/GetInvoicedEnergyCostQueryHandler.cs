@@ -5,16 +5,16 @@ using MijnThuis.DataAccess;
 
 namespace MijnThuis.Application.Power.Queries;
 
-public class GetInvoicedPowerEnergyCostQueryHandler : IRequestHandler<GetInvoicedPowerEnergyCostQuery, GetInvoicedPowerEnergyCostResponse>
+public class GetInvoicedEnergyCostQueryHandler : IRequestHandler<GetInvoicedEnergyCostQuery, GetInvoicedEnergyCostResponse>
 {
     private readonly MijnThuisDbContext _dbContext;
 
-    public GetInvoicedPowerEnergyCostQueryHandler(MijnThuisDbContext dbContext)
+    public GetInvoicedEnergyCostQueryHandler(MijnThuisDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
-    public async Task<GetInvoicedPowerEnergyCostResponse> Handle(GetInvoicedPowerEnergyCostQuery request, CancellationToken cancellationToken)
+    public async Task<GetInvoicedEnergyCostResponse> Handle(GetInvoicedEnergyCostQuery request, CancellationToken cancellationToken)
     {
         if (request.Year == 0)
         {
@@ -26,13 +26,13 @@ public class GetInvoicedPowerEnergyCostQueryHandler : IRequestHandler<GetInvoice
         }
     }
 
-    private async Task<GetInvoicedPowerEnergyCostResponse> HandleForYear(int year, int lastYear, CancellationToken cancellationToken)
+    private async Task<GetInvoicedEnergyCostResponse> HandleForYear(int year, int lastYear, CancellationToken cancellationToken)
     {
         var invoices = await _dbContext.EnergyInvoices
             .Where(x => x.Date.Year == year || x.Date.Year == lastYear)
             .ToListAsync(cancellationToken);
 
-        var result = new GetInvoicedPowerEnergyCostResponse
+        var result = new GetInvoicedEnergyCostResponse
         {
             ThisYear = new List<EnergyInvoiceEntry>(12),
             LastYear = new List<EnergyInvoiceEntry>(12)
@@ -57,7 +57,7 @@ public class GetInvoicedPowerEnergyCostQueryHandler : IRequestHandler<GetInvoice
         return result;
     }
 
-    private async Task<GetInvoicedPowerEnergyCostResponse> HandleForAllYears(CancellationToken cancellationToken)
+    private async Task<GetInvoicedEnergyCostResponse> HandleForAllYears(CancellationToken cancellationToken)
     {
         var years = await _dbContext.EnergyInvoices
             .OrderBy(x => x.Date.Year)
@@ -65,6 +65,6 @@ public class GetInvoicedPowerEnergyCostQueryHandler : IRequestHandler<GetInvoice
             .Select(x => new EnergyInvoiceEntry { Date = new DateTime(x.Key, 1, 1), ElectricityAmount = x.Sum(x => x.ElectricityAmount) })
             .ToListAsync(cancellationToken);
 
-        return new GetInvoicedPowerEnergyCostResponse { AllYears = years };
+        return new GetInvoicedEnergyCostResponse { AllYears = years };
     }
 }

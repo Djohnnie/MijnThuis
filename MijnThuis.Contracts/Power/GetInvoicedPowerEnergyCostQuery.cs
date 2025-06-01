@@ -2,7 +2,7 @@
 
 namespace MijnThuis.Contracts.Power;
 
-public class GetInvoicedPowerEnergyCostQuery : IRequest<GetInvoicedPowerEnergyCostResponse>
+public class GetInvoicedEnergyCostQuery : IRequest<GetInvoicedEnergyCostResponse>
 {
     public int Year { get; set; }
 }

@@ -1,6 +1,6 @@
 ﻿namespace MijnThuis.Contracts.Power;
 
-public class GetInvoicedPowerEnergyCostResponse
+public class GetInvoicedEnergyCostResponse
 {
     public List<EnergyInvoiceEntry> ThisYear { get; set; }
     public List<EnergyInvoiceEntry> LastYear { get; set; }

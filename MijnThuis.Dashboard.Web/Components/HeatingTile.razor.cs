@@ -1,9 +1,13 @@
-﻿using MijnThuis.Contracts.Heating;
+﻿using Microsoft.AspNetCore.Components;
+using MijnThuis.Contracts.Heating;
 
 namespace MijnThuis.Dashboard.Web.Components;
 
 public partial class HeatingTile
 {
+    [Inject]
+    protected NavigationManager NavigationManager { get; set; }
+
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(1));
 
     public bool IsReady { get; set; }
@@ -131,6 +135,11 @@ public partial class HeatingTile
         AntiFrostHeatingPending = false;
 
         await RefreshData();
+    }
+
+    private void MoreCommand()
+    {
+        NavigationManager.NavigateTo($"heating{new Uri(NavigationManager.Uri).Query}");
     }
 
     public void Dispose()

@@ -1,0 +1,24 @@
+﻿@inherits OwningComponentBase
+
+@page "/heating"
+
+@using MijnThuis.Dashboard.Web.Components
+@using MijnThuis.Contracts.Heating
+@using MijnThuis.Dashboard.Web.Components.Charts
+
+<PageTitle>Mijn Thuis - Verwarming</PageTitle>
+
+<MudGrid>
+    <MudItem xs="12" sm="12" md="1" lg="1" xl="2">
+        <MudTooltip Text="Ga terug" Arrow="true" Placement="Placement.Right">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Default" OnClick="BackCommand" />
+        </MudTooltip>
+    </MudItem>
+
+    <MudItem xs="12" sm="12" md="11" lg="11" xl="10">
+    </MudItem>
+
+    <MudItem xs="12" sm="12" md="6" lg="6" xl="6">
+        <InvoicedGasCostChart />
+    </MudItem>
+</MudGrid>
