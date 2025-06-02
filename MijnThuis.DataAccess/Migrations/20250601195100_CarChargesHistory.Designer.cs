@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MijnThuis.DataAccess;
 
@@ -11,9 +12,11 @@ using MijnThuis.DataAccess;
 namespace MijnThuis.DataAccess.Migrations
 {
     [DbContext(typeof(MijnThuisDbContext))]
-    partial class MijnThuisDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250601195100_CarChargesHistory")]
+    partial class CarChargesHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -182,86 +185,6 @@ namespace MijnThuis.DataAccess.Migrations
                     b.HasIndex("Timestamp");
 
                     b.ToTable("CAR_CHARGING_HISTORY", (string)null);
-                });
-
-            modelBuilder.Entity("MijnThuis.DataAccess.Entities.CarDrivesHistoryEntry", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("AverageInsideTemperature")
-                        .HasPrecision(9, 2)
-                        .HasColumnType("decimal(9,2)");
-
-                    b.Property<decimal>("AverageOutsideTemperature")
-                        .HasPrecision(9, 2)
-                        .HasColumnType("decimal(9,2)");
-
-                    b.Property<int>("AverageSpeed")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Distance")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("EndedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EndingBattery")
-                        .HasColumnType("int");
-
-                    b.Property<string>("EndingLocation")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("EndingOdometer")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("EnergyUsed")
-                        .HasPrecision(9, 2)
-                        .HasColumnType("decimal(9,2)");
-
-                    b.Property<int>("MaximumSpeed")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RangeUsed")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("StartingBattery")
-                        .HasColumnType("int");
-
-                    b.Property<string>("StartingLocation")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("StartingOdometer")
-                        .HasColumnType("int");
-
-                    b.Property<long>("SysId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SysId"));
-
-                    b.Property<long>("TessieId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
-
-                    b.HasIndex("SysId");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("SysId"));
-
-                    b.HasIndex("TessieId");
-
-                    b.HasIndex("StartedAt", "EndedAt");
-
-                    b.ToTable("CAR_DRIVES_HISTORY", (string)null);
                 });
 
             modelBuilder.Entity("MijnThuis.DataAccess.Entities.DayAheadEnergyPricesEntry", b =>

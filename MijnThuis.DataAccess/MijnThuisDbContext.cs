@@ -17,6 +17,8 @@ public class MijnThuisDbContext : DbContext
     public DbSet<SolarForecastHistoryEntry> SolarForecastHistory { get; set; }
     public DbSet<DayAheadEnergyPricesEntry> DayAheadEnergyPrices { get; set; }
     public DbSet<EnergyInvoiceEntry> EnergyInvoices { get; set; }
+    public DbSet<CarChargesHistoryEntry> CarChargesHistory { get; set; }
+    public DbSet<CarDrivesHistoryEntry> CarDrivesHistory { get; set; }
 
     public MijnThuisDbContext(IConfiguration configuration)
     {
@@ -158,6 +160,31 @@ public class MijnThuisDbContext : DbContext
             entityBuilder.HasIndex(x => x.SysId).IsClustered();
             entityBuilder.Property(x => x.ElectricityAmount).HasPrecision(9, 2);
             entityBuilder.Property(x => x.GasAmount).HasPrecision(9, 2);
+        });
+
+        modelBuilder.Entity<CarChargesHistoryEntry>(entityBuilder =>
+        {
+            entityBuilder.ToTable("CAR_CHARGES_HISTORY");
+            entityBuilder.HasKey(x => x.Id).IsClustered(false);
+            entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
+            entityBuilder.HasIndex(x => x.SysId).IsClustered();
+            entityBuilder.HasIndex(x => x.TessieId);
+            entityBuilder.HasIndex(x => new { x.StartedAt, x.EndedAt });
+            entityBuilder.Property(x => x.EnergyAdded).HasPrecision(9, 2);
+            entityBuilder.Property(x => x.EnergyUsed).HasPrecision(9, 2);
+        });
+
+        modelBuilder.Entity<CarDrivesHistoryEntry>(entityBuilder =>
+        {
+            entityBuilder.ToTable("CAR_DRIVES_HISTORY");
+            entityBuilder.HasKey(x => x.Id).IsClustered(false);
+            entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
+            entityBuilder.HasIndex(x => x.SysId).IsClustered();
+            entityBuilder.HasIndex(x => x.TessieId);
+            entityBuilder.HasIndex(x => new { x.StartedAt, x.EndedAt });
+            entityBuilder.Property(x => x.EnergyUsed).HasPrecision(9, 2);
+            entityBuilder.Property(x => x.AverageInsideTemperature).HasPrecision(9, 2);
+            entityBuilder.Property(x => x.AverageOutsideTemperature).HasPrecision(9, 2);
         });
     }
 }

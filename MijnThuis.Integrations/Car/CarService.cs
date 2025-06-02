@@ -10,6 +10,8 @@ public interface ICarService
     Task<CarOverview> GetOverview();
     Task<BatteryHealth> GetBatteryHealth();
     Task<CarLocation> GetLocation();
+    Task<CarCharges> GetCharges();
+    Task<CarDrives> GetDrives();
     Task<bool> Lock();
     Task<bool> Unlock();
     Task<bool> Honk();
@@ -81,6 +83,62 @@ public class CarService : BaseService, ICarService
         {
             Address = result.Address,
             Location = result.Location
+        };
+    }
+
+    public async Task<CarCharges> GetCharges()
+    {
+        using var client = InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<ChargesResponse>($"{_vinNumber}/charges?distance_format=km&format=json");
+
+        return new CarCharges
+        {
+            Charges = result.Results.Select(c => new CarCharge
+            {
+                Id = c.Id,
+                StartedAt = DateTimeOffset.FromUnixTimeSeconds(c.StartedAt).ToLocalTime().DateTime,
+                EndedAt = DateTimeOffset.FromUnixTimeSeconds(c.EndedAt).ToLocalTime().DateTime,
+                Location = c.Location,
+                LocationFriendlyName = c.LocationFriendlyName,
+                IsSupercharger = c.IsSupercharger,
+                IsFastCharger = c.IsFastCharger,
+                Odometer = (int)Math.Round(c.Odometer),
+                EnergyAdded = c.EnergyAdded,
+                EnergyUsed = c.EnergyUsed,
+                RangeAdded = (int)Math.Round(c.RangeAdded),
+                BatteryLevelStart = c.BatteryLevelStart,
+                BatteryLevelEnd = c.BatteryLevelEnd,
+                DistanceSinceLastCharge = (int)Math.Round(c.DistanceSinceLastCharge)
+            }).ToList()
+        };
+    }
+
+    public async Task<CarDrives> GetDrives()
+    {
+        using var client = InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<DrivesResponse>($"{_vinNumber}/drives?distance_format=km&temperature_format=c");
+
+        return new CarDrives
+        {
+            Drives = result.Results.Select(c => new CarDrive
+            {
+                Id = c.Id,
+                StartedAt = DateTimeOffset.FromUnixTimeSeconds(c.StartedAt).ToLocalTime().DateTime,
+                EndedAt = DateTimeOffset.FromUnixTimeSeconds(c.EndedAt).ToLocalTime().DateTime,
+                StartingLocation = c.StartingLocation,
+                EndingLocation = c.EndingLocation,
+                StartingOdometer = (int)Math.Round(c.StartingOdometer),
+                EndingOdometer = (int)Math.Round(c.EndingOdometer),
+                StartingBattery = c.StartingBattery,
+                EndingBattery = c.EndingBattery,
+                EnergyUsed = c.EnergyUsed,
+                RangeUsed = (int)Math.Round(c.RangeUsed),
+                AverageSpeed = c.AverageSpeed,
+                MaximumSpeed = c.MaximumSpeed,
+                Distance = (int)Math.Round(c.Distance),
+                AverageInsideTemperature = c.AverageInsideTemperature,
+                AverageOutsideTemperature = c.AverageOutsideTemperature
+            }).ToList()
         };
     }
 
@@ -251,4 +309,112 @@ public class VehicleBatteryHealth
 
     [JsonPropertyName("health_percent")]
     public decimal Percentage { get; set; }
+}
+
+public class ChargesResponse
+{
+    [JsonPropertyName("results")]
+    public List<ChargeResult> Results { get; set; }
+}
+
+public class ChargeResult
+{
+    [JsonPropertyName("id")]
+    public long Id { get; set; }
+
+    [JsonPropertyName("started_at")]
+    public long StartedAt { get; set; }
+
+    [JsonPropertyName("ended_at")]
+    public long EndedAt { get; set; }
+
+    [JsonPropertyName("location")]
+    public string Location { get; set; }
+
+    [JsonPropertyName("saved_location")]
+    public string LocationFriendlyName { get; set; }
+
+    [JsonPropertyName("is_supercharger")]
+    public bool IsSupercharger { get; set; }
+
+    [JsonPropertyName("is_fast_charger")]
+    public bool IsFastCharger { get; set; }
+
+    [JsonPropertyName("odometer")]
+    public decimal Odometer { get; set; }
+
+    [JsonPropertyName("energy_added")]
+    public decimal EnergyAdded { get; set; }
+
+    [JsonPropertyName("energy_used")]
+    public decimal EnergyUsed { get; set; }
+
+    [JsonPropertyName("miles_added")]
+    public decimal RangeAdded { get; set; }
+
+    [JsonPropertyName("starting_battery")]
+    public int BatteryLevelStart { get; set; }
+
+    [JsonPropertyName("ending_battery")]
+    public int BatteryLevelEnd { get; set; }
+
+    [JsonPropertyName("since_last_charge")]
+    public decimal DistanceSinceLastCharge { get; set; }
+}
+
+public class DrivesResponse
+{
+    [JsonPropertyName("results")]
+    public List<DriveResult> Results { get; set; }
+}
+
+public class DriveResult
+{
+    [JsonPropertyName("id")]
+    public long Id { get; set; }
+
+    [JsonPropertyName("started_at")]
+    public long StartedAt { get; set; }
+
+    [JsonPropertyName("ended_at")]
+    public long EndedAt { get; set; }
+
+    [JsonPropertyName("starting_location")]
+    public string StartingLocation { get; set; }
+
+    [JsonPropertyName("ending_location")]
+    public string EndingLocation { get; set; }
+
+    [JsonPropertyName("starting_odometer")]
+    public decimal StartingOdometer { get; set; }
+
+    [JsonPropertyName("ending_odometer")]
+    public decimal EndingOdometer { get; set; }
+
+    [JsonPropertyName("starting_battery")]
+    public int StartingBattery { get; set; }
+
+    [JsonPropertyName("ending_battery")]
+    public int EndingBattery { get; set; }
+
+    [JsonPropertyName("energy_used")]
+    public decimal EnergyUsed { get; set; }
+
+    [JsonPropertyName("rated_range_used")]
+    public decimal RangeUsed { get; set; }
+
+    [JsonPropertyName("average_speed")]
+    public int AverageSpeed { get; set; }
+
+    [JsonPropertyName("max_speed")]
+    public int MaximumSpeed { get; set; }
+
+    [JsonPropertyName("odometer_distance")]
+    public decimal Distance { get; set; }
+
+    [JsonPropertyName("average_inside_temperature")]
+    public decimal AverageInsideTemperature { get; set; }
+
+    [JsonPropertyName("average_outside_temperature")]
+    public decimal AverageOutsideTemperature { get; set; }
 }
