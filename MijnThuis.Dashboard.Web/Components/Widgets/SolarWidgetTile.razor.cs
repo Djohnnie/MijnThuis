@@ -15,6 +15,7 @@ public partial class SolarWidgetTile
     public decimal CurrentGridPower { get; set; }
     public decimal CurrentHomePower { get; set; }
     public bool IsCarCharging { get; set; }
+    public int CurrentCarBattery { get; set; }
     public int CurrentCarAmps { get; set; }
     public decimal CurrentCarPower { get; set; }
     public int BatteryLevel { get; set; }
@@ -51,6 +52,7 @@ public partial class SolarWidgetTile
             CurrentBatteryPower = solarResponse.CurrentBatteryPower;
             CurrentGridPower = solarResponse.CurrentGridPower;
             IsCarCharging = carResponse.IsCharging;
+            CurrentCarBattery = carResponse.BatteryLevel;
             CurrentCarAmps = carResponse.ChargingAmps;
             CurrentCarPower = IsCarCharging ? (carResponse.ChargingAmps * 230 / 1000M) : 0M;
             CurrentHomePower = IsCarCharging ? solarResponse.CurrentConsumptionPower - (carResponse.ChargingAmps * 230 / 1000M) : solarResponse.CurrentConsumptionPower;

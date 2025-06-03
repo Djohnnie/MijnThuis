@@ -11,13 +11,13 @@
                 {
                     <MudIcon Class="svg-center mt-n10" Icon="@Icons.Material.Filled.ElectricCar" Size="Size.Large" Title="Tesla Model Y 2023" />
                     <MudStack Class="my-0">
-                        <MudChip Class="mx-4" T="string" Color="Color.Default" Variant="Variant.Text">@CurrentCarAmps A</MudChip>
-                        <MudChip Class="mt-n3" T="string" Color="Color.Tertiary" Variant="Variant.Text">@CurrentCarPower.ToString("F2") kW</MudChip>
+                        <MudChip T="string" Color="Color.Default" Variant="Variant.Text">@CurrentCarBattery% (@CurrentCarAmps A)</MudChip>
+                        <MudChip Class="mx-3 mt-n3" T="string" Color="Color.Tertiary" Variant="Variant.Text">@CurrentCarPower.ToString("F2") kW</MudChip>
                     </MudStack>
                     <MudDivider Class="my-2" />
                 }
                 <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.Home" Size="Size.Large" Title="Mijn huishouden" />
-                <MudChip T="string" Color="Color.Tertiary" Variant="Variant.Text">@CurrentHomePower.ToString("F2") kW</MudChip>
+                <MudChip Class="mx-3" T="string" Color="Color.Tertiary" Variant="Variant.Text">@CurrentHomePower.ToString("F2") kW</MudChip>
             </div>
         </div>
         <div class="d-flex justify-center">
@@ -43,7 +43,7 @@
                 <div class="align-self-center">
                     <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.BatteryChargingFull" Size="Size.Large" Title="SolarEdge 9,7kWh Thuisbatterij" />
                     <MudStack Class="my-0">
-                        <MudChip Class="mx-4" T="string" Color="Color.Default" Variant="Variant.Text">@BatteryLevel %</MudChip>
+                        <MudChip Class="mx-4" T="string" Color="Color.Default" Variant="Variant.Text">@BatteryLevel%</MudChip>
                         <MudChip Class="my-n3" T="string" Color="@(Math.Round(CurrentBatteryPower, 2) == 0M ? Color.Default : Math.Round(CurrentBatteryPower, 2) < 0M ? Color.Secondary : Color.Success)" Variant="Variant.Text">@Math.Abs(CurrentBatteryPower).ToString("F2") kW</MudChip>
                     </MudStack>
                 </div>
