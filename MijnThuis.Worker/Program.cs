@@ -19,6 +19,7 @@ builder.Services.AddHostedService<SolarForecastHistoryWorker>();
 builder.Services.AddHostedService<DayAheadEnergyPricesWorker>();
 builder.Services.AddHostedService<InjectionWithCostWorker>();
 builder.Services.AddHostedService<CarHistoryWorker>();
+builder.Services.AddHostedService<CarStatusWorker>();
 
 var host = builder.Build();
 

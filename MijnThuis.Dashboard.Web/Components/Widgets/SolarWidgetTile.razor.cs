@@ -6,6 +6,7 @@ namespace MijnThuis.Dashboard.Web.Components.Widgets;
 public partial class SolarWidgetTile
 {
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromSeconds(2));
+    private bool _firstRefresh = true;
 
     public bool IsReady { get; set; }
 
@@ -31,6 +32,7 @@ public partial class SolarWidgetTile
     private async Task RunTimer()
     {
         await RefreshData();
+        _firstRefresh = false;
 
         while (await _periodicTimer.WaitForNextTickAsync())
         {
@@ -42,8 +44,8 @@ public partial class SolarWidgetTile
     {
         try
         {
-            var solarResponse = await Mediator.Send(new GetSolarOverviewQuery());
-            var carResponse = await Mediator.Send(new GetCarOverviewQuery());
+            var solarResponse = await Mediator.Send(new GetMinimalSolarOverviewQuery());
+            var carResponse = _firstRefresh ? new GetCarOverviewResponse() : await Mediator.Send(new GetCarOverviewQuery());
 
             CurrentSolarPower = solarResponse.CurrentSolarPower;
             CurrentBatteryPower = solarResponse.CurrentBatteryPower;
