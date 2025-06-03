@@ -92,7 +92,7 @@ internal class CarHistoryWorker : BackgroundService
 
         foreach (var charge in result.Drives.OrderBy(x => x.StartedAt))
         {
-            if (!dbContext.CarChargesHistory.Any(x => x.TessieId == charge.Id))
+            if (!dbContext.CarDrivesHistory.Any(x => x.TessieId == charge.Id))
             {
                 dbContext.CarDrivesHistory.Add(new CarDrivesHistoryEntry
                 {
