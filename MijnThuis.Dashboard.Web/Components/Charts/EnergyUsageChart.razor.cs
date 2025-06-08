@@ -93,7 +93,6 @@ public partial class EnergyUsageChart
 
     private async Task RunTimer()
     {
-        await Task.Delay(Random.Shared.Next(1000, 5000));
         await RefreshData();
         while (await _periodicTimer.WaitForNextTickAsync())
         {

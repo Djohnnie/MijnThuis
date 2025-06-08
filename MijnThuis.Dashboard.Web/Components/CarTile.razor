@@ -210,6 +210,21 @@
         {
             <MudTooltip Text="Auto manueel opladen" Arrow="true" Placement="Placement.Bottom">
                 <MudIconButton Icon="@Icons.Material.Filled.Power" Size="Size.Large" Color="Color.Tertiary" Disabled="@(!IsReady)"
+                               OnClick="StartCharging2Command" />
+            </MudTooltip>
+        }
+
+        @if (IsChargingManually)
+        {
+            <MudTooltip Text="Stoppen met manueel opladen" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.PowerOff" Size="Size.Large" Color="Color.Secondary" Disabled="@(!IsReady)"
+                               OnClick="StopChargingCommand" />
+            </MudTooltip>
+        }
+        else
+        {
+            <MudTooltip Text="Auto manueel opladen" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.Power" Size="Size.Large" Color="Color.Tertiary" Disabled="@(!IsReady)"
                                OnClick="StartChargingCommand" />
             </MudTooltip>
         }

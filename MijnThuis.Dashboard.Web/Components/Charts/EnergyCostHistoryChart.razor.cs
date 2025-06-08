@@ -87,8 +87,8 @@ public partial class EnergyCostHistoryChart
         };
         _options.Fill = new Fill
         {
-            Type = new List<FillType> { FillType.Solid, FillType.Solid },
-            Opacity = new Opacity(1, 1)
+            Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid },
+            Opacity = new Opacity(1, 1, 1)
         };
 
         SolarPower.Description = $"Consumptie en injectie";
@@ -126,7 +126,6 @@ public partial class EnergyCostHistoryChart
 
     private async Task RunTimer()
     {
-        await Task.Delay(Random.Shared.Next(1000, 5000));
         await RefreshData();
 
         while (await _periodicTimer.WaitForNextTickAsync())

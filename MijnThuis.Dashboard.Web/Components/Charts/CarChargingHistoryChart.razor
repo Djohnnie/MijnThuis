@@ -31,6 +31,11 @@
                                OnClick="HistoryPerYearCommand" />
             </MudTooltip>
 
+            <MudTooltip Text="Jaren tijdens levensduur" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.DensityLarge" Size="Size.Medium" Color="Color.Default"
+                               OnClick="HistoryPerLifetimeCommand" />
+            </MudTooltip>
+
             <MudTooltip Text="Volgende" Arrow="true" Placement="Placement.Bottom">
                 <MudIconButton Icon="@Icons.Material.Filled.NavigateNext" Size="Size.Medium" Color="Color.Default"
                                OnClick="NavigateNextCommand" />
@@ -43,6 +48,13 @@
             <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
                                         Items="@ChargingHistory.Series1"
                                         Name="@ChargingHistory.Series1Description"
+                                        XValue="@(e => e.XValue)"
+                                        YValue="@(e => e.YValue)"
+                                        SeriesType="ApexCharts.SeriesType.Bar" />
+
+            <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
+                                        Items="@ChargingHistory.Series2"
+                                        Name="@ChargingHistory.Series2Description"
                                         XValue="@(e => e.XValue)"
                                         YValue="@(e => e.YValue)"
                                         SeriesType="ApexCharts.SeriesType.Bar" />

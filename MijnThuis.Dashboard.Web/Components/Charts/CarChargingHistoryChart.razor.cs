@@ -5,7 +5,6 @@ using MijnThuis.Contracts.Car;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.Dashboard.Web.Model;
 using MijnThuis.Dashboard.Web.Model.Charts;
-using System.Globalization;
 
 namespace MijnThuis.Dashboard.Web.Components.Charts;
 
@@ -17,14 +16,15 @@ public partial class CarChargingHistoryChart
     private enum HistoryType
     {
         PerMonth,
-        PerYear
+        PerYear,
+        PerLifetime
     }
 
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(30));
     private ApexChart<ChartDataEntry<string, decimal>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal>> _options { get; set; } = new();
 
-    private ChartData1<string, decimal> ChargingHistory { get; set; } = new();
+    private ChartData2<string, decimal> ChargingHistory { get; set; } = new();
 
     private HistoryType _historyType = HistoryType.PerMonth;
     private DateTime _historyDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
@@ -87,7 +87,7 @@ public partial class CarChargingHistoryChart
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
-        _options.Colors = new List<string> { "#5DE799" };
+        _options.Colors = new List<string> { "#5DE799", "#FBB550" };
         _options.Stroke = new Stroke
         {
             Show = false
@@ -131,7 +131,6 @@ public partial class CarChargingHistoryChart
 
     private async Task RunTimer()
     {
-        await Task.Delay(Random.Shared.Next(1000, 5000));
         await RefreshData();
 
         while (await _periodicTimer.WaitForNextTickAsync())
@@ -161,18 +160,21 @@ public partial class CarChargingHistoryChart
                 {
                     HistoryType.PerMonth => _historyDate,
                     HistoryType.PerYear => new DateTime(_historyDate.Year, 1, 1),
+                    HistoryType.PerLifetime => DateTime.MinValue,
                     _ => throw new InvalidOperationException()
                 },
                 To = _historyType switch
                 {
                     HistoryType.PerMonth => _historyDate.AddMonths(1).AddDays(-1),
                     HistoryType.PerYear => _historyDate.AddYears(1).AddDays(-1),
+                    HistoryType.PerLifetime => DateTime.MaxValue,
                     _ => throw new InvalidOperationException()
                 },
                 Unit = _historyType switch
                 {
                     HistoryType.PerMonth => EnergyHistoryUnit.Day,
                     HistoryType.PerYear => EnergyHistoryUnit.Month,
+                    HistoryType.PerLifetime => EnergyHistoryUnit.Year,
                     _ => throw new InvalidOperationException()
                 }
             });
@@ -184,28 +186,59 @@ public partial class CarChargingHistoryChart
                 case HistoryType.PerMonth:
                     _options.Xaxis.OverwriteCategories = Enumerable.Range(1, DateTime.DaysInMonth(_historyDate.Year, _historyDate.Month)).Select(x => $"{x}").ToList();
 
-                    ChargingHistory.Series1Description = TitleDescription =
-                        string.Create(CultureInfo.GetCultureInfo("nl-be"), $"Oplaadsessies in de maand {_historyDate:MMMM yyyy}");
+                    ChargingHistory.Series1Description = TitleDescription = "Oplaadsessies";
+                    ChargingHistory.Series2Description = "Energieverbruik tijdens opladen";
 
                     ChargingHistory.Series1.AddRange(FillData(response.Entries
                         .Select(x => new ChartDataEntry<string, decimal>
                         {
                             XValue = $"{x.Date:dd MMMM yyyy}",
-                            YValue = Math.Round(x.EnergyCharged / 1000, 2)
+                            YValue = Math.Round(x.EnergyCharged, 2)
+                        }), DateTime.DaysInMonth(_historyDate.Year, _historyDate.Month), n => $"{new DateTime(_historyDate.Year, _historyDate.Month, n):dd MMMM yyyy}"));
+                    ChargingHistory.Series2.AddRange(FillData(response.Entries
+                        .Select(x => new ChartDataEntry<string, decimal>
+                        {
+                            XValue = $"{x.Date:dd MMMM yyyy}",
+                            YValue = Math.Round(x.EnergyUsed, 2)
                         }), DateTime.DaysInMonth(_historyDate.Year, _historyDate.Month), n => $"{new DateTime(_historyDate.Year, _historyDate.Month, n):dd MMMM yyyy}"));
                     break;
                 case HistoryType.PerYear:
                     _options.Xaxis.OverwriteCategories = ["Jan", "Feb", "Maa", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"];
 
-                    ChargingHistory.Series1Description = TitleDescription =
-                        $"Oplaadsessies in het jaar {_historyDate:yyyy}";
+                    ChargingHistory.Series1Description = TitleDescription = "Oplaadsessies";
+                    ChargingHistory.Series2Description = "Energieverbruik tijdens opladen";
 
                     ChargingHistory.Series1.AddRange(FillData(response.Entries
                         .Select(x => new ChartDataEntry<string, decimal>
                         {
                             XValue = $"{x.Date:MMMM yyyy}",
-                            YValue = Math.Round(x.EnergyCharged / 1000, 2)
+                            YValue = Math.Round(x.EnergyCharged, 2)
                         }), 12, n => $"{new DateTime(_historyDate.Year, n, 1):MMMM yyyy}"));
+                    ChargingHistory.Series2.AddRange(FillData(response.Entries
+                        .Select(x => new ChartDataEntry<string, decimal>
+                        {
+                            XValue = $"{x.Date:MMMM yyyy}",
+                            YValue = Math.Round(x.EnergyUsed, 2)
+                        }), 12, n => $"{new DateTime(_historyDate.Year, n, 1):MMMM yyyy}"));
+                    break;
+                case HistoryType.PerLifetime:
+                    _options.Xaxis.OverwriteCategories = response.Entries.Select(x => $"{x.Date:yyyy}").ToList();
+
+                    ChargingHistory.Series1Description = TitleDescription = "Oplaadsessies";
+                    ChargingHistory.Series2Description = "Energieverbruik tijdens opladen";
+
+                    ChargingHistory.Series1.AddRange(response.Entries
+                        .Select(x => new ChartDataEntry<string, decimal>
+                        {
+                            XValue = $"{x.Date:yyyy}",
+                            YValue = Math.Round(x.EnergyCharged, 2)
+                        }));
+                    ChargingHistory.Series2.AddRange(response.Entries
+                        .Select(x => new ChartDataEntry<string, decimal>
+                        {
+                            XValue = $"{x.Date:yyyy}",
+                            YValue = Math.Round(x.EnergyUsed, 2)
+                        }));
                     break;
             }
 
@@ -241,6 +274,12 @@ public partial class CarChargingHistoryChart
     private async Task HistoryPerYearCommand()
     {
         _historyType = HistoryType.PerYear;
+        await RefreshData();
+    }
+
+    private async Task HistoryPerLifetimeCommand()
+    {
+        _historyType = HistoryType.PerLifetime;
         await RefreshData();
     }
 

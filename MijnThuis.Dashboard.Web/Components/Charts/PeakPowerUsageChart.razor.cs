@@ -114,7 +114,6 @@ public partial class PeakPowerUsageChart
 
     private async Task RunTimer()
     {
-        await Task.Delay(Random.Shared.Next(1000, 5000));
         await RefreshData();
 
         while (await _periodicTimer.WaitForNextTickAsync())

@@ -9,4 +9,5 @@ public class CarChargingEnergyHistoryEntry
 {
     public DateTime Date { get; set; }
     public decimal EnergyCharged { get; set; }
+    public decimal EnergyUsed { get; set; }
 }

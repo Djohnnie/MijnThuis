@@ -17,8 +17,9 @@ public class GetCarChargingHistoryQueryHandler : IRequestHandler<GetCarChargingH
 
     public async Task<GetCarChargingHistoryResponse> Handle(GetCarChargingHistoryQuery request, CancellationToken cancellationToken)
     {
-        var entries = await _dbContext.CarChargingHistory
-            .Where(x => x.Timestamp.Date >= request.From && x.Timestamp.Date <= request.To)
+        var entries = await _dbContext.CarChargesHistory
+            .Where(x => x.StartedAt.Date >= request.From && x.StartedAt.Date <= request.To)
+            .Where(x => x.LocationFriendlyName == "Thuis")
             .ToListAsync();
 
         var response = new GetCarChargingHistoryResponse();
@@ -39,38 +40,41 @@ public class GetCarChargingHistoryQueryHandler : IRequestHandler<GetCarChargingH
         return response;
     }
 
-    private List<CarChargingEnergyHistoryEntry> GroupEntriesByDay(List<DataAccess.Entities.CarChargingEnergyHistoryEntry> entries)
+    private List<CarChargingEnergyHistoryEntry> GroupEntriesByDay(List<DataAccess.Entities.CarChargesHistoryEntry> entries)
     {
         return entries
-            .GroupBy(x => x.Timestamp.Date)
+            .GroupBy(x => x.StartedAt.Date)
             .Select(g => new CarChargingEnergyHistoryEntry
             {
                 Date = g.Key,
-                EnergyCharged = g.Sum(x => x.EnergyCharged)
+                EnergyCharged = g.Sum(x => x.EnergyAdded),
+                EnergyUsed = g.Sum(x => x.EnergyUsed)
             })
             .ToList();
     }
 
-    private List<CarChargingEnergyHistoryEntry> GroupEntriesByMonth(List<DataAccess.Entities.CarChargingEnergyHistoryEntry> entries)
+    private List<CarChargingEnergyHistoryEntry> GroupEntriesByMonth(List<DataAccess.Entities.CarChargesHistoryEntry> entries)
     {
         return entries
-            .GroupBy(x => new { x.Timestamp.Year, x.Timestamp.Month })
+            .GroupBy(x => new { x.StartedAt.Year, x.StartedAt.Month })
             .Select(g => new CarChargingEnergyHistoryEntry
             {
                 Date = new DateTime(g.Key.Year, g.Key.Month, 1),
-                EnergyCharged = g.Sum(x => x.EnergyCharged)
+                EnergyCharged = g.Sum(x => x.EnergyAdded),
+                EnergyUsed = g.Sum(x => x.EnergyUsed)
             })
             .ToList();
     }
 
-    private List<CarChargingEnergyHistoryEntry> GroupEntriesByYear(List<DataAccess.Entities.CarChargingEnergyHistoryEntry> entries)
+    private List<CarChargingEnergyHistoryEntry> GroupEntriesByYear(List<DataAccess.Entities.CarChargesHistoryEntry> entries)
     {
         return entries
-            .GroupBy(x => x.Timestamp.Year)
+            .GroupBy(x => x.StartedAt.Year)
             .Select(g => new CarChargingEnergyHistoryEntry
             {
                 Date = new DateTime(g.Key, 1, 1),
-                EnergyCharged = g.Sum(x => x.EnergyCharged)
+                EnergyCharged = g.Sum(x => x.EnergyAdded),
+                EnergyUsed = g.Sum(x => x.EnergyUsed)
             })
             .ToList();
     }
