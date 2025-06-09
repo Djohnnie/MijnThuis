@@ -36,6 +36,19 @@ public partial class DayAheadEnergyPriceChart
             },
             Background = "#373740",
         };
+        _options.Annotations = new Annotations
+        {
+            Yaxis = new List<AnnotationsYAxis>
+            {
+                new AnnotationsYAxis
+                {
+                    Y = 0M,
+                    BorderColor = "#FF8888",
+                    StrokeDashArray = 0,
+                    BorderWidth = 2
+                }
+            }
+        };
         _options.Responsive = new List<Responsive<ChartDataEntry<string, decimal>>>
         {
             new Responsive<ChartDataEntry<string, decimal>>
@@ -46,14 +59,7 @@ public partial class DayAheadEnergyPriceChart
                     Legend = new Legend
                     {
                         Show = false
-                    },
-                    Xaxis = new XAxis
-                    {
-                        Labels = new XAxisLabels
-                        {
-                            Show = false
-                        }
-                    },
+                    }
                 },
             }
         };
