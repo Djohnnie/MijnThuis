@@ -1,4 +1,4 @@
-﻿using IdentityModel;
+﻿using Duende.IdentityModel;
 using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Http.Headers;
