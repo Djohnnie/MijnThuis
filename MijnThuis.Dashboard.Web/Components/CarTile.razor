@@ -199,7 +199,7 @@
                            OnClick="FartCommand" Disabled="@(!IsReady)" />
         </MudTooltip>
 
-        @if (IsChargingManually)
+        @if (IsChargingManuallyAt8)
         {
             <MudTooltip Text="Stoppen met manueel opladen" Arrow="true" Placement="Placement.Bottom">
                 <MudIconButton Icon="@Icons.Material.Filled.PowerOff" Size="Size.Large" Color="Color.Secondary" Disabled="@(!IsReady)"
@@ -208,13 +208,13 @@
         }
         else
         {
-            <MudTooltip Text="Auto manueel opladen" Arrow="true" Placement="Placement.Bottom">
+            <MudTooltip Text="Auto manueel opladen aan 8 ampère" Arrow="true" Placement="Placement.Bottom">
                 <MudIconButton Icon="@Icons.Material.Filled.Power" Size="Size.Large" Color="Color.Tertiary" Disabled="@(!IsReady)"
-                               OnClick="StartCharging2Command" />
+                               OnClick="StartChargingAt8Command" />
             </MudTooltip>
         }
 
-        @if (IsChargingManually)
+        @if (IsChargingManuallyAt16)
         {
             <MudTooltip Text="Stoppen met manueel opladen" Arrow="true" Placement="Placement.Bottom">
                 <MudIconButton Icon="@Icons.Material.Filled.PowerOff" Size="Size.Large" Color="Color.Secondary" Disabled="@(!IsReady)"
@@ -223,9 +223,9 @@
         }
         else
         {
-            <MudTooltip Text="Auto manueel opladen" Arrow="true" Placement="Placement.Bottom">
+            <MudTooltip Text="Auto manueel opladen aan 16 ampère" Arrow="true" Placement="Placement.Bottom">
                 <MudIconButton Icon="@Icons.Material.Filled.Power" Size="Size.Large" Color="Color.Tertiary" Disabled="@(!IsReady)"
-                               OnClick="StartChargingCommand" />
+                               OnClick="StartChargingAt16Command" />
             </MudTooltip>
         }
     </MudCardActions>

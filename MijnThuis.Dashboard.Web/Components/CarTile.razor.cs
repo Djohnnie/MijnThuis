@@ -24,7 +24,8 @@ public partial class CarTile
     public int TemperatureInside { get; set; }
     public int TemperatureOutside { get; set; }
     public bool IsCharging { get; set; }
-    public bool IsChargingManually { get; set; }
+    public bool IsChargingManuallyAt8 { get; set; }
+    public bool IsChargingManuallyAt16 { get; set; }
     public string ChargingCurrent { get; set; }
     public string ChargingRange { get; set; }
     public string Charger1 { get; set; }
@@ -99,7 +100,8 @@ public partial class CarTile
             Charger2 = response.Charger2;
             Charger2Available = response.Charger2Available;
             IsCharging = response.IsCharging;
-            IsChargingManually = response.IsChargingManually;
+            IsChargingManuallyAt8 = response.IsChargingManually && response.ChargingAmps == 8;
+            IsChargingManuallyAt16 = response.IsChargingManually && response.ChargingAmps == 16;
             ChargingCurrent = response.ChargingCurrent;
             ChargingRange = response.ChargingRange;
             IsReady = true;
@@ -159,24 +161,7 @@ public partial class CarTile
         await RefreshData();
     }
 
-    public async Task StartChargingCommand()
-    {
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
-        var dialogResult = await _dialogService.ShowAsync<PinCodeDialog>("Bevestigen met pincode", options);
-        var result = await dialogResult.GetReturnValueAsync<string>();
-
-        if (result == _pin)
-        {
-            await Mediator.Send(new SetManualCarChargeCommand
-            {
-                IsEnabled = true,
-                ChargeAmps = 16
-            });
-            await RefreshData();
-        }
-    }
-
-    public async Task StartCharging2Command()
+    public async Task StartChargingAt8Command()
     {
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
         var dialogResult = await _dialogService.ShowAsync<PinCodeDialog>("Bevestigen met pincode", options);
@@ -193,12 +178,29 @@ public partial class CarTile
         }
     }
 
+    public async Task StartChargingAt16Command()
+    {
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
+        var dialogResult = await _dialogService.ShowAsync<PinCodeDialog>("Bevestigen met pincode", options);
+        var result = await dialogResult.GetReturnValueAsync<string>();
+
+        if (result == _pin)
+        {
+            await Mediator.Send(new SetManualCarChargeCommand
+            {
+                IsEnabled = true,
+                ChargeAmps = 16
+            });
+            await RefreshData();
+        }
+    }
+
     public async Task StopChargingCommand()
     {
         await Mediator.Send(new SetManualCarChargeCommand
         {
             IsEnabled = false,
-            ChargeAmps = 16
+            ChargeAmps = 0
         });
         await RefreshData();
     }
