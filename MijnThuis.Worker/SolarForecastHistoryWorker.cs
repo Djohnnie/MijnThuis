@@ -47,7 +47,7 @@ internal class SolarForecastHistoryWorker : BackgroundService
                 var mostRecentEntryToday = await dbContext.SolarForecastPeriods
                     .FirstOrDefaultAsync(x => x.Timestamp.Date == DateTime.Today);
 
-                if (mostRecentEntryToday is null || (DateTime.Now - mostRecentEntryToday.DataFetched).TotalMinutes > 1)
+                if (mostRecentEntryToday is null || (DateTime.Now - mostRecentEntryToday.DataFetched).TotalMinutes > 30)
                 {
                     var now = DateTime.Now;
                     var today = DateTime.Today;
@@ -92,7 +92,7 @@ internal class SolarForecastHistoryWorker : BackgroundService
                             var actualMeasurement2 = actual.Chart.Measurements.FirstOrDefault(x => x.MeasurementTime == period.Timestamp.AddMinutes(15));
 
                             var forecastedEnergy = zw6.WattHourPeriods[i].WattHours + no3.WattHourPeriods[i].WattHours + zo4.WattHourPeriods[i].WattHours;
-                            var actualEnergy = actualMeasurement1?.Production ?? 0 + actualMeasurement2?.Production ?? 0;
+                            var actualEnergy = (actualMeasurement1?.Production ?? 0) + (actualMeasurement2?.Production ?? 0);
 
                             if (existingPeriod != null)
                             {
