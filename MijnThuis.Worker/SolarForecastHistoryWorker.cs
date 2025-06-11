@@ -45,6 +45,7 @@ internal class SolarForecastHistoryWorker : BackgroundService
                 using var dbContext = scope.ServiceProvider.GetRequiredService<MijnThuisDbContext>();
 
                 var mostRecentEntryToday = await dbContext.SolarForecastPeriods
+                    .OrderByDescending(x => x.DataFetched)
                     .FirstOrDefaultAsync(x => x.Timestamp.Date == DateTime.Today);
 
                 if (mostRecentEntryToday is null || (DateTime.Now - mostRecentEntryToday.DataFetched).TotalMinutes > 30)
@@ -58,7 +59,7 @@ internal class SolarForecastHistoryWorker : BackgroundService
                     var actual = await _solarService.GetEnergyOverview(today);
 
                     var periodsToday = zw6.WattHourPeriods.Where(x => x.Timestamp.Date == today).ToList();
-
+                    
                     for (var i = 0; i < periodsToday.Count; i++)
                     {
                         var periodZw6 = zw6.WattHourPeriods[i];
@@ -99,14 +100,14 @@ internal class SolarForecastHistoryWorker : BackgroundService
                                 if (existingPeriod.ForecastedEnergy != forecastedEnergy)
                                 {
                                     existingPeriod.ForecastedEnergy = forecastedEnergy;
-                                    existingPeriod.DataFetched = now;
                                 }
 
                                 if (existingPeriod.ActualEnergy != actualEnergy)
                                 {
                                     existingPeriod.ActualEnergy = actualEnergy;
-                                    existingPeriod.DataFetched = now;
                                 }
+
+                                existingPeriod.DataFetched = now;
 
                                 continue;
                             }
