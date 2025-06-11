@@ -13,9 +13,18 @@
         </CardHeaderAvatar>
         <CardHeaderContent>
             <MudText Typo="Typo.body1">Zonne-energie voorspelling vs. werkelijkheid</MudText>
-            <MudText Typo="Typo.body2">Vergelijking van voorspelde en gemeten zonne-energie per periode</MudText>
+            <MudText Typo="Typo.body2">@SolarForecast.Description</MudText>
         </CardHeaderContent>
         <CardHeaderActions>
+            <MudTooltip Text="Vorige" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.NavigateBefore" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateBeforeCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Volgende" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.NavigateNext" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateNextCommand" />
+            </MudTooltip>
         </CardHeaderActions>
     </MudCardHeader>
     <MudCardContent>

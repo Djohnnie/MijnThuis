@@ -17,6 +17,7 @@ public partial class SolarForecastVsActualChart
     private ApexChartOptions<ChartDataEntry<string, decimal?>> _options { get; set; } = new();
 
     private ChartData2<string, decimal?> SolarForecast { get; set; } = new();
+    private DateTime _currentDate = DateTime.Today;
 
     public SolarForecastVsActualChart()
     {
@@ -85,7 +86,7 @@ public partial class SolarForecastVsActualChart
             Opacity = new Opacity(1, 1, 1)
         };
 
-        SolarForecast.Description = "Zonne-energie: Voorspelling vs. Effectief";
+        SolarForecast.Description = "Vergelijking van voorspelde en gemeten zonne-energie per periode";
         SolarForecast.Series1Description = "Voorspelling";
         SolarForecast.Series2Description = "Effectief";
     }
@@ -144,7 +145,7 @@ public partial class SolarForecastVsActualChart
 
             var response = await mediator.Send(new GetSolarForecastPeriodsQuery
             {
-                Date = DateTime.Today
+                Date = _currentDate
             });
 
             SolarForecast.Clear();
@@ -163,6 +164,8 @@ public partial class SolarForecastVsActualChart
                     YValue = x.ActualEnergy
                 }));
 
+            SolarForecast.Description = $"Vergelijking van voorspelde en gemeten zonne-energie op {_currentDate:d MMMM yyyy}";
+
             await InvokeAsync(StateHasChanged);
             await Task.Delay(100);
             await _apexChart.UpdateSeriesAsync(true);
@@ -172,6 +175,20 @@ public partial class SolarForecastVsActualChart
         {
             Logger.LogError(ex, "Failed to refresh graph data");
         }
+    }
+
+    private async Task NavigateBeforeCommand()
+    {
+        _currentDate = _currentDate.AddDays(-1);
+
+        await RefreshData();
+    }
+
+    private async Task NavigateNextCommand()
+    {
+        _currentDate = _currentDate.AddDays(1);
+
+        await RefreshData();
     }
 
     public void Dispose()
