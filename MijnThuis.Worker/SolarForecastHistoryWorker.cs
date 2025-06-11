@@ -1,4 +1,5 @@
-﻿using MijnThuis.DataAccess;
+﻿using Microsoft.EntityFrameworkCore;
+using MijnThuis.DataAccess;
 using MijnThuis.DataAccess.Entities;
 using MijnThuis.Integrations.Forecast;
 using MijnThuis.Integrations.Solar;
@@ -36,20 +37,101 @@ internal class SolarForecastHistoryWorker : BackgroundService
 
             try
             {
-                // Gather data just before midnight.
+                const decimal LATITUDE = 51.06M;
+                const decimal LONGITUDE = 4.36M;
+                const byte DAMPING = 0;
+
+                using var scope = _serviceProvider.CreateScope();
+                using var dbContext = scope.ServiceProvider.GetRequiredService<MijnThuisDbContext>();
+
+                var mostRecentEntryToday = await dbContext.SolarForecastPeriods
+                    .FirstOrDefaultAsync(x => x.Timestamp.Date == DateTime.Today);
+
+                if (mostRecentEntryToday is null || (DateTime.Now - mostRecentEntryToday.DataFetched).TotalMinutes > 1)
+                {
+                    var now = DateTime.Now;
+                    var today = DateTime.Today;
+
+                    var zw6 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 28M, 43M, 2.4M, DAMPING);
+                    var no3 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 33M, -137M, 1.2M, DAMPING);
+                    var zo4 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 12M, -47M, 1.6M, DAMPING);
+                    var actual = await _solarService.GetEnergyOverview(today);
+
+                    var periodsToday = zw6.WattHourPeriods.Where(x => x.Timestamp.Date == today).ToList();
+
+                    for (var i = 0; i < periodsToday.Count; i++)
+                    {
+                        var periodZw6 = zw6.WattHourPeriods[i];
+                        var periodNo3 = no3.WattHourPeriods[i];
+                        var periodZo4 = zo4.WattHourPeriods[i];
+
+                        if (i == 0)
+                        {
+                            periodZw6.Timestamp = zw6.WattHourPeriods[i + 1].Timestamp.AddMinutes(-30);
+                            periodNo3.Timestamp = no3.WattHourPeriods[i + 1].Timestamp.AddMinutes(-30);
+                            periodZo4.Timestamp = zo4.WattHourPeriods[i + 1].Timestamp.AddMinutes(-30);
+                        }
+
+                        if (i == periodsToday.Count - 1)
+                        {
+                            periodZw6.Timestamp = zw6.WattHourPeriods[i - 1].Timestamp.AddMinutes(30);
+                            periodNo3.Timestamp = no3.WattHourPeriods[i - 1].Timestamp.AddMinutes(30);
+                            periodZo4.Timestamp = zo4.WattHourPeriods[i - 1].Timestamp.AddMinutes(30);
+                        }
+                    }
+
+                    for (var i = 0; i < zw6.WattHourPeriods.Count; i++)
+                    {
+                        var period = zw6.WattHourPeriods[i];
+                        if (period.Timestamp.Date == today)
+                        {
+                            var existingPeriod = await dbContext.SolarForecastPeriods
+                                .FirstOrDefaultAsync(x => x.Timestamp == period.Timestamp);
+
+                            var actualMeasurement1 = actual.Chart.Measurements.FirstOrDefault(x => x.MeasurementTime == period.Timestamp);
+                            var actualMeasurement2 = actual.Chart.Measurements.FirstOrDefault(x => x.MeasurementTime == period.Timestamp.AddMinutes(15));
+
+                            var forecastedEnergy = zw6.WattHourPeriods[i].WattHours + no3.WattHourPeriods[i].WattHours + zo4.WattHourPeriods[i].WattHours;
+                            var actualEnergy = actualMeasurement1?.Production ?? 0 + actualMeasurement2?.Production ?? 0;
+
+                            if (existingPeriod != null)
+                            {
+                                if (existingPeriod.ForecastedEnergy != forecastedEnergy)
+                                {
+                                    existingPeriod.ForecastedEnergy = forecastedEnergy;
+                                    existingPeriod.DataFetched = now;
+                                }
+
+                                if (existingPeriod.ActualEnergy != actualEnergy)
+                                {
+                                    existingPeriod.ActualEnergy = actualEnergy;
+                                    existingPeriod.DataFetched = now;
+                                }
+
+                                continue;
+                            }
+
+                            dbContext.SolarForecastPeriods.Add(new SolarForecastPeriodEntry
+                            {
+                                Id = Guid.CreateVersion7(),
+                                Timestamp = period.Timestamp,
+                                DataFetched = now,
+                                ForecastedEnergy = forecastedEnergy,
+                                ActualEnergy = actualEnergy,
+                            });
+                        }
+                    }
+
+                    await dbContext.SaveChangesAsync();
+                }
+
+                // Gather historic data just before midnight.
                 if ((lastRun == null || lastRun < DateTime.Today) && DateTime.Now.Hour >= 23 && DateTime.Now.Minute >= 45)
                 {
-                    const decimal LATITUDE = 51.06M;
-                    const decimal LONGITUDE = 4.36M;
-                    const byte DAMPING = 0;
-
-                    var zw6 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, 43M, 2.4M, DAMPING);
-                    var no3 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, -137M, 1.2M, DAMPING);
-                    var zo4 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 10M, -47M, 1.6M, DAMPING);
+                    var zw6 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 28M, 43M, 2.4M, DAMPING);
+                    var no3 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 33M, -137M, 1.2M, DAMPING);
+                    var zo4 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 12M, -47M, 1.6M, DAMPING);
                     var actual = await _solarService.GetEnergy();
-
-                    using var scope = _serviceProvider.CreateScope();
-                    using var dbContext = scope.ServiceProvider.GetRequiredService<MijnThuisDbContext>();
 
                     dbContext.SolarForecastHistory.Add(new SolarForecastHistoryEntry
                     {

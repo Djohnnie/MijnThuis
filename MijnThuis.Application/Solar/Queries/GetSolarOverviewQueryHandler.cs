@@ -34,9 +34,9 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
         var solarResult = await GetOverview();
         var batteryResult = await GetBatteryLevel();
         var energyResult = await GetEnergy();
-        var zw6 = await GetForecast(LATITUDE, LONGITUDE, 39M, 43M, 2.4M, DAMPING);
-        var no3 = await GetForecast(LATITUDE, LONGITUDE, 39M, -137M, 1.2M, DAMPING);
-        var zo4 = await GetForecast(LATITUDE, LONGITUDE, 10M, -47M, 1.6M, DAMPING);
+        var zw6 = await GetForecast(LATITUDE, LONGITUDE, 28M, 43M, 2.4M, DAMPING);
+        var no3 = await GetForecast(LATITUDE, LONGITUDE, 33M, -137M, 1.2M, DAMPING);
+        var zo4 = await GetForecast(LATITUDE, LONGITUDE, 12M, -47M, 1.6M, DAMPING);
 
         var result = new GetSolarOverviewResponse();
         result.CurrentSolarPower = solarResult.CurrentSolarPower / 1000M;

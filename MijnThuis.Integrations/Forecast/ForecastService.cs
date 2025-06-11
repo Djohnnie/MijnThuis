@@ -31,6 +31,7 @@ public class ForecastService : BaseForecastService, IForecastService
                 EstimatedWattHoursToday = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today)],
                 EstimatedWattHoursTomorrow = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today.AddDays(1))],
                 EstimatedWattHoursDayAfterTomorrow = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today.AddDays(2))],
+                WattHourPeriods = ConvertToWattHourPeriods(response.Result.WattHoursPeriod),
                 Sunrise = wattHoursPeriodTimes.First().TimeOfDay,
                 Sunset = wattHoursPeriodTimes.Last().TimeOfDay
             };
@@ -46,6 +47,17 @@ public class ForecastService : BaseForecastService, IForecastService
                 Sunset = TimeSpan.Zero
             };
         }
+    }
+
+    private List<WattHourPeriod> ConvertToWattHourPeriods(Dictionary<string, int> wattHoursPeriod)
+    {
+        var periods = new List<WattHourPeriod>();
+
+        return wattHoursPeriod.Select(kvp => new WattHourPeriod
+        {
+            Timestamp = DateTime.ParseExact(kvp.Key, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+            WattHours = kvp.Value
+        }).ToList();
     }
 }
 
