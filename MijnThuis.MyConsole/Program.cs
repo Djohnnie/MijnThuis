@@ -39,32 +39,8 @@ var dbContext = serviceProvider.GetRequiredService<MijnThuisDbContext>();
 
 dbContext.EnergyInvoices.Add(new EnergyInvoiceEntry
 {
-    Date = new DateTime(2025, 1, 1),
-    ElectricityAmount = 80.74M,
-    GasAmount = 121.5M
-});
-await dbContext.SaveChangesAsync();
-
-dbContext.EnergyInvoices.Add(new EnergyInvoiceEntry
-{
-    Date = new DateTime(2025, 2, 1),
-    ElectricityAmount = 49.19M,
-    GasAmount = 114.2M
-});
-await dbContext.SaveChangesAsync();
-
-dbContext.EnergyInvoices.Add(new EnergyInvoiceEntry
-{
-    Date = new DateTime(2025, 3, 1),
-    ElectricityAmount = 15.59M,
-    GasAmount = 78.32M
-});
-await dbContext.SaveChangesAsync();
-
-dbContext.EnergyInvoices.Add(new EnergyInvoiceEntry
-{
-    Date = new DateTime(2025, 4, 1),
-    ElectricityAmount = 13.78M,
-    GasAmount = 38.7M
+    Date = new DateTime(2025, 5, 1),
+    ElectricityAmount = 17.43M,
+    GasAmount = 19.16M
 });
 await dbContext.SaveChangesAsync();

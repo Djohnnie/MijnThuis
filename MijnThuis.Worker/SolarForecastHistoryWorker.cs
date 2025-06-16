@@ -60,14 +60,22 @@ internal class SolarForecastHistoryWorker : BackgroundService
                     var actual = await _solarService.GetEnergyOverview(today);
 
                     var zw6Today = zw6.WattHourPeriods.Where(x => x.Timestamp.Date == today).ToList();
-                    var zw6Tomorrow = zw6.WattHourPeriods.Where(x => x.Timestamp.Date == today.AddDays(1)).ToList();
+                    var zw6Today1 = zw6.WattHourPeriods.Where(x => x.Timestamp.Date == today.AddDays(1)).ToList();
+                    var zw6Today2 = zw6.WattHourPeriods.Where(x => x.Timestamp.Date == today.AddDays(2)).ToList();
+                    var zw6Today3 = zw6.WattHourPeriods.Where(x => x.Timestamp.Date == today.AddDays(3)).ToList();
                     var no3Today = no3.WattHourPeriods.Where(x => x.Timestamp.Date == today).ToList();
-                    var no3Tomorrow = no3.WattHourPeriods.Where(x => x.Timestamp.Date == today.AddDays(1)).ToList();
+                    var no3Today1 = no3.WattHourPeriods.Where(x => x.Timestamp.Date == today.AddDays(1)).ToList();
+                    var no3Today2 = no3.WattHourPeriods.Where(x => x.Timestamp.Date == today.AddDays(2)).ToList();
+                    var no3Today3 = no3.WattHourPeriods.Where(x => x.Timestamp.Date == today.AddDays(3)).ToList();
                     var zo4Today = zo4.WattHourPeriods.Where(x => x.Timestamp.Date == today).ToList();
-                    var zo4Tomorrow = zo4.WattHourPeriods.Where(x => x.Timestamp.Date == today.AddDays(1)).ToList();
+                    var zo4Today1 = zo4.WattHourPeriods.Where(x => x.Timestamp.Date == today.AddDays(1)).ToList();
+                    var zo4Today2 = zo4.WattHourPeriods.Where(x => x.Timestamp.Date == today.AddDays(2)).ToList();
+                    var zo4Today3 = zo4.WattHourPeriods.Where(x => x.Timestamp.Date == today.AddDays(3)).ToList();
 
                     await ProcessPeriods(dbContext, now, today, zw6Today, no3Today, zo4Today, actual);
-                    await ProcessPeriods(dbContext, now, tomorrow, zw6Tomorrow, no3Tomorrow, zo4Tomorrow, actual);
+                    await ProcessPeriods(dbContext, now, tomorrow, zw6Today1, no3Today1, zo4Today1, actual);
+                    await ProcessPeriods(dbContext, now, tomorrow, zw6Today2, no3Today2, zo4Today2, actual);
+                    await ProcessPeriods(dbContext, now, tomorrow, zw6Today3, no3Today3, zo4Today3, actual);
 
                     await dbContext.SaveChangesAsync();
                 }
