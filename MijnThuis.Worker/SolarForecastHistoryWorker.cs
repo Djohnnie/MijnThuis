@@ -52,7 +52,6 @@ internal class SolarForecastHistoryWorker : BackgroundService
                 {
                     var now = DateTime.Now;
                     var today = DateTime.Today;
-                    var tomorrow = DateTime.Today.AddDays(1);
 
                     var zw6 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 28M, 43M, 2.4M, DAMPING);
                     var no3 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 33M, -137M, 1.2M, DAMPING);
@@ -73,9 +72,9 @@ internal class SolarForecastHistoryWorker : BackgroundService
                     var zo4Today3 = zo4.WattHourPeriods.Where(x => x.Timestamp.Date == today.AddDays(3)).ToList();
 
                     await ProcessPeriods(dbContext, now, today, zw6Today, no3Today, zo4Today, actual);
-                    await ProcessPeriods(dbContext, now, tomorrow, zw6Today1, no3Today1, zo4Today1, actual);
-                    await ProcessPeriods(dbContext, now, tomorrow, zw6Today2, no3Today2, zo4Today2, actual);
-                    await ProcessPeriods(dbContext, now, tomorrow, zw6Today3, no3Today3, zo4Today3, actual);
+                    await ProcessPeriods(dbContext, now, today.AddDays(1), zw6Today1, no3Today1, zo4Today1, actual);
+                    await ProcessPeriods(dbContext, now, today.AddDays(2), zw6Today2, no3Today2, zo4Today2, actual);
+                    await ProcessPeriods(dbContext, now, today.AddDays(3), zw6Today3, no3Today3, zo4Today3, actual);
 
                     await dbContext.SaveChangesAsync();
                 }
