@@ -250,7 +250,7 @@ public class ChargeState
     [JsonPropertyName("charging_state")]
     public string ChargingState { get; set; }
 
-    [JsonPropertyName("charge_amps")]
+    [JsonPropertyName("charger_actual_current")]
     public int ChargingAmps { get; set; }
 
     [JsonPropertyName("charge_current_request_max")]
