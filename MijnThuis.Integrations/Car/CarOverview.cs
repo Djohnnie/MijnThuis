@@ -10,6 +10,7 @@ public class CarOverview
     public bool IsLocked { get; set; }
     public bool IsCharging { get; set; }
     public bool IsPreconditioning { get; set; }
+    public bool IsCabinOverheatProtection { get; set; }
     public int ChargingAmps { get; set; }
     public int MaxChargingAmps { get; set; }
     public int ChargeLimit { get; set; }

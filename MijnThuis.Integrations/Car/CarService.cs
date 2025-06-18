@@ -19,6 +19,8 @@ public interface ICarService
     Task<bool> Preheat();
     Task<bool> StartCharging(int chargingAmps);
     Task<bool> StopCharging();
+    Task<bool> SetCabinHeatProtection(bool enable, bool fanOnly);
+    Task<bool> SetCabinHeatProtectionTemperature(int temperature);
 }
 
 public class CarService : BaseService, ICarService
@@ -45,6 +47,7 @@ public class CarService : BaseService, ICarService
             TemperatureInside = (int)result.ClimateState.InsideTemp,
             TemperatureOutside = (int)result.ClimateState.OutsideTemp,
             IsPreconditioning = result.ClimateState.IsPreconditioning,
+            IsCabinOverheatProtection = result.ClimateState.CabinOverheatProtection == "On",
             ChargingAmps = result.ChargeState.ChargingAmps,
             MaxChargingAmps = result.ChargeState.MaxChargingAmps,
             ChargeLimit = result.ChargeState.ChargeLimit,
@@ -177,16 +180,16 @@ public class CarService : BaseService, ICarService
     public async Task<bool> StartCharging(int chargingAmps)
     {
         using var client = InitializeHttpClient();
+        _ = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/set_charging_amps?amps={chargingAmps}");
+        var result = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/start_charging");
 
-        var result1 = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/set_charging_amps?amps={chargingAmps}");
-        var result2 = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/start_charging");
-
-        return result1.Result;
+        return result.Result;
     }
 
     public async Task<bool> StopCharging()
     {
         using var client = InitializeHttpClient();
+        _ = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/set_charging_amps?amps={0}");
         var result = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/stop_charging");
 
         return result.Result;
@@ -196,6 +199,22 @@ public class CarService : BaseService, ICarService
     {
         using var client = InitializeHttpClient();
         var result = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/unlock");
+
+        return result.Result;
+    }
+
+    public async Task<bool> SetCabinHeatProtection(bool enable, bool fanOnly)
+    {
+        using var client = InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/set_cabin_overheat_protection?on={(enable ? "true" : "false")}&fan_only={(fanOnly ? "true" : "false")}");
+
+        return result.Result;
+    }
+
+    public async Task<bool> SetCabinHeatProtectionTemperature(int temperature)
+    {
+        using var client = InitializeHttpClient();
+        var result = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/set_cop_temp?temperature={temperature}");
 
         return result.Result;
     }
@@ -279,6 +298,9 @@ public class ClimateState
 
     [JsonPropertyName("is_preconditioning")]
     public bool IsPreconditioning { get; set; }
+
+    [JsonPropertyName("cabin_overheat_protection")]
+    public string CabinOverheatProtection { get; set; }
 }
 
 public class VehicleState

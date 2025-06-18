@@ -6,7 +6,9 @@ public record GetCarOverviewResponse
     public bool IsLocked { get; init; }
     public bool IsCharging { get; init; }
     public bool IsChargingManually { get; set; }
+    public int ManualChargingAmps { get; set; }
     public bool IsPreconditioning { get; init; }
+    public bool IsCabinOverheatProtection { get; init; }
     public byte BatteryLevel { get; init; }
     public int RemainingRange { get; init; }
     public int TemperatureInside { get; init; }

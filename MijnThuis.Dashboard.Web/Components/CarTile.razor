@@ -126,7 +126,7 @@
                     @if (IsReady)
                     {
                         <MudTooltip Text="Adrien Dezaegerplein" Arrow="true" Placement="Placement.Right">
-                            <MudIcon Icon="@Icons.Material.Filled.ElectricCar" Size="Size.Medium" Color="@(Charger1Available ? Color.Tertiary : Color.Secondary)" />
+                            <MudIcon Icon="@Icons.Material.Filled.ElectricCar" Size="Size.Medium" Color="@(Charger1Available? Color.Tertiary: Color.Secondary)" />
                         </MudTooltip>
                         <MudText Typo="Typo.subtitle1">@Charger1</MudText>
                     }
@@ -142,7 +142,7 @@
                     @if (IsReady)
                     {
                         <MudTooltip Text="Breendonkstraat" Arrow="true" Placement="Placement.Left">
-                            <MudIcon Icon="@Icons.Material.Filled.ElectricCar" Size="Size.Medium" Color="@(Charger2Available ? Color.Tertiary : Color.Secondary)" />
+                            <MudIcon Icon="@Icons.Material.Filled.ElectricCar" Size="Size.Medium" Color="@(Charger2Available? Color.Tertiary: Color.Secondary)" />
                         </MudTooltip>
                         <MudText Typo="Typo.subtitle1">@Charger2</MudText>
                     }
@@ -197,6 +197,11 @@
         <MudTooltip Text="Scheetje laten" Arrow="true" Placement="Placement.Bottom">
             <MudIconButton Icon="@Icons.Material.Filled.Air" Size="Size.Large" Color="Color.Primary"
                            OnClick="FartCommand" Disabled="@(!IsReady)" />
+        </MudTooltip>
+
+        <MudTooltip Text="@($"Beschermen tegen oververhitting {(IsOverheatProtection ? "uitzetten" : "aanzetten")}")" Arrow="true" Placement="Placement.Bottom">
+            <MudIconButton Icon="@Icons.Material.Filled.HeatPump" Size="Size.Large" Color="@(IsOverheatProtection? Color.Secondary: Color.Tertiary)"
+                           OnClick="OverheatProtectionCommand" Disabled="@(!IsReady)" />
         </MudTooltip>
 
         @if (IsChargingManuallyAt8)

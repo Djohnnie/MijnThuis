@@ -58,7 +58,9 @@ public class GetCarOverviewQueryHandler : IRequestHandler<GetCarOverviewQuery, G
         result.Charger2Available = charger2Result.NumberOfChargersAvailable > 0;
 
         var flag = await dbContext.Flags.SingleOrDefaultAsync(x => x.Name == ManualCarChargeFlag.Name, cancellationToken);
-        result.IsChargingManually = flag != null && ManualCarChargeFlag.Deserialize(flag.Value).ShouldCharge;
+        var manualChargeFlag = flag != null ? ManualCarChargeFlag.Deserialize(flag.Value) : ManualCarChargeFlag.Default;
+        result.IsChargingManually = manualChargeFlag.ShouldCharge;
+        result.ManualChargingAmps = manualChargeFlag.ChargeAmps;
 
         return result;
     }

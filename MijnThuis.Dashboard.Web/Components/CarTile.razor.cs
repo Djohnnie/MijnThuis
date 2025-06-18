@@ -24,6 +24,7 @@ public partial class CarTile
     public int TemperatureInside { get; set; }
     public int TemperatureOutside { get; set; }
     public bool IsCharging { get; set; }
+    public bool IsOverheatProtection { get; set; }
     public bool IsChargingManuallyAt8 { get; set; }
     public bool IsChargingManuallyAt16 { get; set; }
     public string ChargingCurrent { get; set; }
@@ -100,6 +101,7 @@ public partial class CarTile
             Charger2 = response.Charger2;
             Charger2Available = response.Charger2Available;
             IsCharging = response.IsCharging;
+            IsOverheatProtection = response.IsCabinOverheatProtection;
             IsChargingManuallyAt8 = response.IsChargingManually && response.ChargingAmps == 8;
             IsChargingManuallyAt16 = response.IsChargingManually && response.ChargingAmps == 16;
             ChargingCurrent = response.ChargingCurrent;
@@ -202,6 +204,16 @@ public partial class CarTile
             IsEnabled = false,
             ChargeAmps = 0
         });
+        await RefreshData();
+    }
+
+    public async Task OverheatProtectionCommand()
+    {
+        await Mediator.Send(new CarOverheatProtectionCommand
+        {
+            Enable = !IsOverheatProtection
+        });
+
         await RefreshData();
     }
 
