@@ -160,7 +160,7 @@ public partial class BatteryWidgetTile
             BatteryLevel.Series2.AddRange(response.Entries.Select(x => new ChartDataEntry<string, decimal?>
             {
                 XValue = $"{x.Date:HH:mm}",
-                YValue = Math.Min(x.StateOfHealth ?? 0, 100)
+                YValue = x.StateOfHealth.HasValue ? Math.Min(x.StateOfHealth.Value, 100) : null
             }));
 
             await InvokeAsync(StateHasChanged);
