@@ -6,6 +6,7 @@ using MijnThuis.Contracts.Power;
 using MijnThuis.DataAccess;
 using MijnThuis.DataAccess.Repositories;
 using MijnThuis.Integrations.Power;
+using MijnThuis.Integrations.Samsung;
 using MijnThuis.Integrations.Solar;
 
 namespace MijnThuis.Application.Power.Queries;
@@ -15,27 +16,24 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
     private readonly MijnThuisDbContext _dbContext;
     private readonly IPowerService _powerService;
     private readonly IShellyService _shellyService;
-    private readonly ISolarService _solarService;
     private readonly IModbusService _modbusService;
+    private readonly ISamsungService _samsungService;
     private readonly IDayAheadEnergyPricesRepository _energyPricesRepository;
-    private readonly IMemoryCache _memoryCache;
 
     public GetPowerOverviewQueryHandler(
         MijnThuisDbContext dbContext,
         IPowerService powerService,
         IShellyService shellyService,
-        ISolarService solarService,
         IModbusService modbusService,
-        IDayAheadEnergyPricesRepository energyPricesRepository,
-        IMemoryCache memoryCache)
+        ISamsungService samsungService,
+        IDayAheadEnergyPricesRepository energyPricesRepository)
     {
         _dbContext = dbContext;
         _powerService = powerService;
         _shellyService = shellyService;
-        _solarService = solarService;
         _modbusService = modbusService;
+        _samsungService = samsungService;
         _energyPricesRepository = energyPricesRepository;
-        _memoryCache = memoryCache;
     }
 
     public async Task<GetPowerOverviewResponse> Handle(GetPowerOverviewQuery request, CancellationToken cancellationToken)
@@ -74,6 +72,7 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         result.IsTvOn = tvPowerSwitchOverview.IsOn;
         result.IsBureauOn = bureauPowerSwitchOverview.IsOn;
         result.IsVijverOn = vijverPowerSwitchOverview.IsOn;
+        result.IsTheFrameOn = await _samsungService.IsTheFrameOn();
 
         return result;
     }

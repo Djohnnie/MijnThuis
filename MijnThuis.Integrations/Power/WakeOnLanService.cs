@@ -26,13 +26,13 @@ public class WakeOnLanService : BaseService, IWakeOnLanService
 
     public async Task Wake()
     {
-        await WakeOnLan();
+        await WakeOnLan(_wakeOnLanMacAddress, _wakeOnLanIpAddress);
     }
 
-    private async Task WakeOnLan()
+    private async Task WakeOnLan(string macAddress, string ipAddress)
     {
-        byte[] magicPacket = BuildMagicPacket(_wakeOnLanMacAddress);
-        await SendWakeOnLan(IPAddress.Any, IPAddress.Parse(_wakeOnLanIpAddress), magicPacket);
+        byte[] magicPacket = BuildMagicPacket(macAddress);
+        await SendWakeOnLan(IPAddress.Any, IPAddress.Parse(ipAddress), magicPacket);
     }
 
     private byte[] BuildMagicPacket(string macAddress) // MacAddress in any standard HEX format

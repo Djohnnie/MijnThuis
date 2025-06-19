@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using MijnThuis.Application.Power.Commands;
 using MijnThuis.Contracts.Power;
 using MijnThuis.Contracts.Solar;
 
@@ -30,6 +31,7 @@ public partial class PowerTile
     public bool ToggleBureauPowerSwitchPending { get; set; }
     public bool IsVijverOn { get; set; }
     public bool ToggleVijverPowerSwitchPending { get; set; }
+    public bool IsTheFrameOn { get; set; }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -79,6 +81,7 @@ public partial class PowerTile
             IsTvOn = response.IsTvOn;
             IsBureauOn = response.IsBureauOn;
             IsVijverOn = response.IsVijverOn;
+            IsTheFrameOn = response.IsTheFrameOn;
             IsReady = true;
 
             await InvokeAsync(StateHasChanged);
@@ -121,6 +124,13 @@ public partial class PowerTile
         var commandResult = await Mediator.Send(new SetVijverPowerSwitchCommand { IsOn = !IsVijverOn });
 
         ToggleVijverPowerSwitchPending = false;
+
+        await RefreshData();
+    }
+
+    public async Task ToggleTheFrame()
+    {
+        await Mediator.Send(new SetTheFrameCommand { TurnOn = !IsTheFrameOn });
 
         await RefreshData();
     }

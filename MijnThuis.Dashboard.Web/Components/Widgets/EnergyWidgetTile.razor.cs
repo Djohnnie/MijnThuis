@@ -25,7 +25,7 @@ public partial class EnergyWidgetTile
     {
         _productionOptions.Chart = new Chart
         {
-            Height = "125px",
+            Height = "100px",
             Stacked = true,
             StackType = StackType.Percent100,
             Toolbar = new Toolbar
@@ -81,7 +81,7 @@ public partial class EnergyWidgetTile
 
         _consumptionOptions.Chart = new Chart
         {
-            Height = "125px",
+            Height = "100px",
             Stacked = true,
             StackType = StackType.Percent100,
             Toolbar = new Toolbar

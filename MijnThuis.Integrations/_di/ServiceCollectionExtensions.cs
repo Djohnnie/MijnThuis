@@ -4,6 +4,7 @@ using MijnThuis.Integrations.Forecast;
 using MijnThuis.Integrations.Heating;
 using MijnThuis.Integrations.Lamps;
 using MijnThuis.Integrations.Power;
+using MijnThuis.Integrations.Samsung;
 using MijnThuis.Integrations.Sauna;
 using MijnThuis.Integrations.SmartLock;
 using MijnThuis.Integrations.Solar;
@@ -27,6 +28,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IForecastService, ForecastService>();
         services.AddTransient<ISmartLockService, SmartLockService>();
         services.AddTransient<IEnergyPricesService, EnergyPricesService>();
+        services.AddTransient<ISamsungService, SamsungService>();
 
         return services;
     }

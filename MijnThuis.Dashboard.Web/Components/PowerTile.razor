@@ -195,6 +195,11 @@
             </MudTooltip>
         }
 
+        <MudTooltip Text="@($"Fotokader {(IsTheFrameOn ? "uitzetten" : "aanzetten")}")" Arrow="true" Placement="Placement.Bottom">
+            <MudIconButton Icon="@Icons.Material.Filled.PhotoCameraBack" Size="Size.Large" Color="@(IsTheFrameOn? Color.Tertiary: Color.Secondary)"
+                           OnClick="ToggleTheFrame" Disabled="@(!IsReady)" />
+        </MudTooltip>
+
         <MudTooltip Text="Computer wakker maken" Arrow="true" Placement="Placement.Bottom">
             <MudIconButton Icon="@Icons.Material.Filled.Computer" Size="Size.Large" Color="Color.Primary"
                            OnClick="WakeOnLan" Disabled="@(!IsReady)" />
