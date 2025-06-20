@@ -70,3 +70,22 @@ public class InjectionTariffExpressionFlag : IFlag
         return JsonSerializer.Deserialize<InjectionTariffExpressionFlag>(json);
     }
 }
+
+public class SamsungTheFrameTokenFlag : IFlag
+{
+    public static string Name => "SamsungTheFrameToken";
+    public static SamsungTheFrameTokenFlag Default => new SamsungTheFrameTokenFlag();
+    public TimeSpan AutoOn { get; set; }
+    public TimeSpan AutoOff { get; set; }
+    public string Token { get; set; }
+
+    public string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
+
+    public static SamsungTheFrameTokenFlag Deserialize(string json)
+    {
+        return JsonSerializer.Deserialize<SamsungTheFrameTokenFlag>(json);
+    }
+}

@@ -16,6 +16,9 @@ public interface IFlagRepository
 
     Task<InjectionTariffExpressionFlag> GetInjectionTariffExpressionFlag();
     Task SetInjectionTariffExpressionFlag(string expression, string source);
+
+    Task<SamsungTheFrameTokenFlag> GetSamsungTheFrameTokenFlag();
+    Task SetSamsungTheFrameTokenFlag(string token, TimeSpan autoOn, TimeSpan autoOff);
 }
 
 public class FlagRepository : IFlagRepository
@@ -29,7 +32,7 @@ public class FlagRepository : IFlagRepository
 
     public async Task<Flag?> GetFlag(string name)
     {
-        return await _dbContext.Flags.SingleOrDefaultAsync(f => f.Name == name);
+        return await _dbContext.Flags.AsNoTracking().SingleOrDefaultAsync(f => f.Name == name);
     }
 
     public async Task SetFlag<TFlag>(string name, TFlag flag) where TFlag : IFlag
@@ -93,6 +96,22 @@ public class FlagRepository : IFlagRepository
         {
             Expression = expression,
             Source = source
+        });
+    }
+
+    public async Task<SamsungTheFrameTokenFlag> GetSamsungTheFrameTokenFlag()
+    {
+        var flag = await GetFlag(SamsungTheFrameTokenFlag.Name);
+        return flag != null ? SamsungTheFrameTokenFlag.Deserialize(flag.Value) : SamsungTheFrameTokenFlag.Default;
+    }
+
+    public async Task SetSamsungTheFrameTokenFlag(string token, TimeSpan autoOn, TimeSpan autoOff)
+    {
+        await SetFlag(SamsungTheFrameTokenFlag.Name, new SamsungTheFrameTokenFlag
+        {
+            Token = token,
+            AutoOn = autoOn,
+            AutoOff = autoOff
         });
     }
 }
