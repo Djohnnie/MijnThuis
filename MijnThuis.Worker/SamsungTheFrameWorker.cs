@@ -34,17 +34,19 @@ internal class SamsungTheFrameWorker : BackgroundService
                 var flag = await flagRepository.GetSamsungTheFrameTokenFlag();
 
                 var isOn = await samsungService.IsTheFrameOn();
+                var now = DateTime.Now;
+                var today = DateTime.Today;
 
-                if (!isOn && DateTime.Now >= DateTime.Today.Add(flag.AutoOn))
+                if (!isOn && now > today.Add(flag.AutoOn) && now < today.Add(flag.AutoOff))
                 {
                     await samsungService.TurnOnTheFrame(flag.Token);
-                    _logger.LogInformation($"Samsung The Frame TV turned on at {flag.AutoOn:HH:mm}.");
+                    _logger.LogInformation($"Samsung The Frame TV turned on at {flag.AutoOn:hh\\:mm}.");
                 }
 
-                if (isOn && DateTime.Now >= DateTime.Today.Add(flag.AutoOff))
+                if (isOn && (now < today.Add(flag.AutoOn) || now > today.Add(flag.AutoOff)))
                 {
                     await samsungService.TurnOffTheFrame(flag.Token);
-                    _logger.LogInformation($"Samsung The Frame TV turned off at {flag.AutoOff:HH:mm}.");
+                    _logger.LogInformation($"Samsung The Frame TV turned off at {flag.AutoOff:hh\\:mm}.");
                 }
             }
             catch (Exception ex)
