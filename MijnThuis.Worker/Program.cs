@@ -20,6 +20,7 @@ builder.Services.AddHostedService<DayAheadEnergyPricesWorker>();
 builder.Services.AddHostedService<InjectionWithCostWorker>();
 builder.Services.AddHostedService<CarHistoryWorker>();
 builder.Services.AddHostedService<CarStatusWorker>();
+builder.Services.AddHostedService<SamsungTheFrameWorker>();
 
 var host = builder.Build();
 
