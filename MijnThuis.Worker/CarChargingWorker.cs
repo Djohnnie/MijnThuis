@@ -23,6 +23,8 @@ public class CarChargingWorker : BackgroundService
             NumberOfSamplesToCollect = 6,
         };
 
+        CarChargingHelperResultType? lastResultType = null;
+
         // While the service is not requested to stop...
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -34,7 +36,11 @@ public class CarChargingWorker : BackgroundService
                 using var serviceScope = _serviceProvider.CreateScope();
                 var helper = serviceScope.ServiceProvider.GetRequiredService<ICarChargingHelper>();
                 await helper.Do(state, stoppingToken);
-                LogResults(state);
+
+                if (lastResultType != state.Result.Type)
+                {
+                    lastResultType = LogResults(state);
+                }
             }
             catch (Exception ex)
             {
@@ -57,7 +63,7 @@ public class CarChargingWorker : BackgroundService
         }
     }
 
-    private void LogResults(CarChargingHelperState state)
+    private CarChargingHelperResultType LogResults(CarChargingHelperState state)
     {
         var message = state.Result.Type switch
         {
@@ -76,5 +82,7 @@ public class CarChargingWorker : BackgroundService
         {
             _logger.LogInformation(message);
         }
+
+        return state.Result.Type;
     }
 }
