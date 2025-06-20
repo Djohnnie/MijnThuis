@@ -189,7 +189,6 @@ public class CarService : BaseService, ICarService
     public async Task<bool> StopCharging()
     {
         using var client = InitializeHttpClient();
-        _ = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/set_charging_amps?amps={0}");
         var result = await client.GetFromJsonAsync<BaseResponse>($"{_vinNumber}/command/stop_charging");
 
         return result.Result;
