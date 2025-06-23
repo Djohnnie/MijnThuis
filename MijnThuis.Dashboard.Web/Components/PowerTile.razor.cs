@@ -67,6 +67,7 @@ public partial class PowerTile
         {
             var response = await Mediator.Send(new GetPowerOverviewQuery());
             var selfConsumption = await Mediator.Send(new GetSolarSelfConsumptionQuery { Date = DateTime.Today });
+            Title = response.Description;
             CurrentPower = response.CurrentConsumption;
             PowerPeak = response.PowerPeak / 1000M;
             ImportToday = response.ImportToday;

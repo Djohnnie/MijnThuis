@@ -55,12 +55,14 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
                 ImportToday = x.TotalImportDelta,
                 ExportToday = x.TotalExportDelta
             }).ToListAsync();
+        var negativePriceRange = await _energyPricesRepository.GetNegativeInjectionPriceRange();
         var energyPricing = await _energyPricesRepository.GetEnergyPriceForTimestamp(DateTime.Now);
         var tvPowerSwitchOverview = await _shellyService.GetTvPowerSwitchOverview();
         var bureauPowerSwitchOverview = await _shellyService.GetBureauPowerSwitchOverview();
         var vijverPowerSwitchOverview = await _shellyService.GetVijverPowerSwitchOverview();
 
         var result = powerResult.Adapt<GetPowerOverviewResponse>();
+        result.Description = $"Negatief injectietarief {(negativePriceRange.From.Date == DateTime.Today ? "vandaag" : "morgen")} tussen {negativePriceRange.From.Hour}u en {negativePriceRange.To.Hour}u";
         result.CurrentConsumption = consumptionResult.CurrentConsumptionPower / 1000M;
         result.ImportToday = energyToday.Sum(x => x.ImportToday);
         result.ExportToday = energyToday.Sum(x => x.ExportToday);

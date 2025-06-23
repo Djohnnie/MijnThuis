@@ -2,6 +2,7 @@
 
 public record GetPowerOverviewResponse
 {
+    public string Description { get; set; }
     public decimal CurrentPower { get; init; }
     public decimal CurrentConsumption { get; set; }
     public int PowerPeak { get; init; }
