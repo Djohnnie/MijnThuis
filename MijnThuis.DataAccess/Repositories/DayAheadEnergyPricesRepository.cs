@@ -48,7 +48,7 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
 
             if (negativePriceEntries.Any())
             {
-                description = $"Negatief injectietarief morgen tussen {negativePriceEntries.First().From.Hour}u en {negativePriceEntries.First().To.Hour}u";
+                description = $"Negatief injectietarief morgen tussen {negativePriceEntries.First().From.Hour}u en {negativePriceEntries.Last().To.Hour + 1}u";
             }
             else
             {
@@ -57,7 +57,7 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
         }
         else
         {
-            description = $"Negatief injectietarief vandaag tussen {negativePriceEntries.First().From.Hour}u en {negativePriceEntries.First().To.Hour}u";
+            description = $"Negatief injectietarief vandaag tussen {negativePriceEntries.First().From.Hour}u en {negativePriceEntries.Last().To.Hour + 1}u";
         }
 
         return new EnergyPriceRange
