@@ -37,18 +37,34 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
             .OrderBy(x => x.From)
             .ToListAsync();
 
-        if ((negativePriceEntries.LastOrDefault()?.To ?? today.AddDays(1)) < DateTime.Now)
+        var description = "Geen negatieve injectietarieven voor vandaag";
+
+        if (!negativePriceEntries.Any() || (negativePriceEntries.LastOrDefault()?.To ?? today.AddDays(1)) < DateTime.Now)
         {
             negativePriceEntries = await _dbContext.DayAheadEnergyPrices
                 .Where(x => x.From.Date == tomorrow && x.InjectionCentsPerKWh < 0)
                 .OrderBy(x => x.From)
                 .ToListAsync();
+
+            if (negativePriceEntries.Any())
+            {
+                description = $"Negatief injectietarief morgen tussen {negativePriceEntries.First().From.Hour}u en {negativePriceEntries.First().To.Hour}u";
+            }
+            else
+            {
+                description = "Geen negatieve injectietarieven voor morgen";
+            }
+        }
+        else
+        {
+            description = $"Negatief injectietarief vandaag tussen {negativePriceEntries.First().From.Hour}u en {negativePriceEntries.First().To.Hour}u";
         }
 
         return new EnergyPriceRange
         {
-            From = negativePriceEntries.FirstOrDefault()?.From ?? today,
-            To = negativePriceEntries.LastOrDefault()?.To.AddHours(1) ?? today.AddDays(1)
+            From = negativePriceEntries.FirstOrDefault()?.From ?? null,
+            To = negativePriceEntries.LastOrDefault()?.To.AddHours(1) ?? null,
+            Description = description
         };
     }
 
@@ -80,6 +96,7 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
 
 public class EnergyPriceRange
 {
-    public DateTime From { get; set; }
-    public DateTime To { get; set; }
+    public DateTime? From { get; set; }
+    public DateTime? To { get; set; }
+    public string Description { get; set; }
 }

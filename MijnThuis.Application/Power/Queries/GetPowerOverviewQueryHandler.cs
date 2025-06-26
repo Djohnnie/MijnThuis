@@ -1,7 +1,6 @@
 ﻿using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using MijnThuis.Contracts.Power;
 using MijnThuis.DataAccess;
 using MijnThuis.DataAccess.Repositories;
@@ -62,7 +61,7 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         var vijverPowerSwitchOverview = await _shellyService.GetVijverPowerSwitchOverview();
 
         var result = powerResult.Adapt<GetPowerOverviewResponse>();
-        result.Description = $"Negatief injectietarief {(negativePriceRange.From.Date == DateTime.Today ? "vandaag" : "morgen")} tussen {negativePriceRange.From.Hour}u en {negativePriceRange.To.Hour}u";
+        result.Description = negativePriceRange.Description;
         result.CurrentConsumption = consumptionResult.CurrentConsumptionPower / 1000M;
         result.ImportToday = energyToday.Sum(x => x.ImportToday);
         result.ExportToday = energyToday.Sum(x => x.ExportToday);
