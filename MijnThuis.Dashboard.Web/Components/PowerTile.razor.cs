@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using MijnThuis.Application.Power.Commands;
 using MijnThuis.Contracts.Power;
 using MijnThuis.Contracts.Solar;
 
