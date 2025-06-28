@@ -18,7 +18,7 @@ public interface IFlagRepository
     Task SetInjectionTariffExpressionFlag(string expression, string source);
 
     Task<SamsungTheFrameTokenFlag> GetSamsungTheFrameTokenFlag();
-    Task SetSamsungTheFrameTokenFlag(string token, TimeSpan autoOn, TimeSpan autoOff);
+    Task SetSamsungTheFrameTokenFlag(string token, TimeSpan autoOn, TimeSpan autoOff, bool isDisabled);
 }
 
 public class FlagRepository : IFlagRepository
@@ -105,13 +105,14 @@ public class FlagRepository : IFlagRepository
         return flag != null ? SamsungTheFrameTokenFlag.Deserialize(flag.Value) : SamsungTheFrameTokenFlag.Default;
     }
 
-    public async Task SetSamsungTheFrameTokenFlag(string token, TimeSpan autoOn, TimeSpan autoOff)
+    public async Task SetSamsungTheFrameTokenFlag(string token, TimeSpan autoOn, TimeSpan autoOff, bool isDisabled)
     {
         await SetFlag(SamsungTheFrameTokenFlag.Name, new SamsungTheFrameTokenFlag
         {
             Token = token,
             AutoOn = autoOn,
-            AutoOff = autoOff
+            AutoOff = autoOff,
+            IsDisabled = isDisabled
         });
     }
 }

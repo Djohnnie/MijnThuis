@@ -77,6 +77,7 @@ public class SamsungTheFrameTokenFlag : IFlag
     public static SamsungTheFrameTokenFlag Default => new SamsungTheFrameTokenFlag();
     public TimeSpan AutoOn { get; set; }
     public TimeSpan AutoOff { get; set; }
+    public bool IsDisabled { get; set; }
     public string Token { get; set; }
 
     public string Serialize()

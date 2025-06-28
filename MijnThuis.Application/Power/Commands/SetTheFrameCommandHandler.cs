@@ -22,20 +22,16 @@ public class SetTheFrameCommandHandler : IRequestHandler<SetTheFrameCommand, Set
     {
         var flag = await _flagRepository.GetSamsungTheFrameTokenFlag();
         var token = flag.Token;
-        var tokenWasEmpty = string.IsNullOrEmpty(token);
 
         if (request.TurnOn)
         {
             token = await _samsungService.TurnOnTheFrame(token);
+            await _flagRepository.SetSamsungTheFrameTokenFlag(token, flag.AutoOn, flag.AutoOff, isDisabled: false);
         }
         else
         {
             token = await _samsungService.TurnOffTheFrame(token);
-        }
-
-        if (tokenWasEmpty)
-        {
-            await _flagRepository.SetSamsungTheFrameTokenFlag(token, flag.AutoOn, flag.AutoOff);
+            await _flagRepository.SetSamsungTheFrameTokenFlag(token, flag.AutoOn, flag.AutoOff, isDisabled: true);
         }
 
         return new SetTheFrameResponse();
