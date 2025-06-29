@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Buffers.Text;
+using System.Text.Json;
 
 namespace MijnThuis.DataAccess.Entities;
 
@@ -68,6 +69,28 @@ public class InjectionTariffExpressionFlag : IFlag
     public static InjectionTariffExpressionFlag Deserialize(string json)
     {
         return JsonSerializer.Deserialize<InjectionTariffExpressionFlag>(json);
+    }
+}
+
+public class ElectricityTariffDetailsFlag : IFlag
+{
+    public static string Name => "ElectricityTariffDetailsFlag";
+    public static ElectricityTariffDetailsFlag Default => new ElectricityTariffDetailsFlag();
+    public decimal GreenEnergyContribution { get; set; }
+    public decimal CapacityTariff { get; set; }
+    public decimal UsageTariff { get; set; }
+    public decimal DataAdministration { get; set; }
+    public decimal SpecialExciseTax { get; set; }
+    public decimal EnergyContribution { get; set; }
+
+    public string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
+
+    public static ElectricityTariffDetailsFlag Deserialize(string json)
+    {
+        return JsonSerializer.Deserialize<ElectricityTariffDetailsFlag>(json);
     }
 }
 

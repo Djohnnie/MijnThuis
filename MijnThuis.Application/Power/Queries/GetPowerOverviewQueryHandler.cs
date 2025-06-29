@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MijnThuis.Contracts.Power;
 using MijnThuis.DataAccess;
+using MijnThuis.DataAccess.Entities;
 using MijnThuis.DataAccess.Repositories;
 using MijnThuis.Integrations.Power;
 using MijnThuis.Integrations.Samsung;
@@ -18,6 +19,7 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
     private readonly IModbusService _modbusService;
     private readonly ISamsungService _samsungService;
     private readonly IDayAheadEnergyPricesRepository _energyPricesRepository;
+    private readonly IFlagRepository _flagRepository;
 
     public GetPowerOverviewQueryHandler(
         MijnThuisDbContext dbContext,
@@ -25,7 +27,8 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         IShellyService shellyService,
         IModbusService modbusService,
         ISamsungService samsungService,
-        IDayAheadEnergyPricesRepository energyPricesRepository)
+        IDayAheadEnergyPricesRepository energyPricesRepository,
+        IFlagRepository flagRepository)
     {
         _dbContext = dbContext;
         _powerService = powerService;
@@ -33,6 +36,7 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         _modbusService = modbusService;
         _samsungService = samsungService;
         _energyPricesRepository = energyPricesRepository;
+        _flagRepository = flagRepository;
     }
 
     public async Task<GetPowerOverviewResponse> Handle(GetPowerOverviewQuery request, CancellationToken cancellationToken)
@@ -47,6 +51,13 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
                 ImportToday = x.TotalImportDelta,
                 ExportToday = x.TotalExportDelta
             }).ToListAsync();
+        var energyCostToday = await _dbContext.EnergyHistory
+            .Where(x => x.Date.Date == today)
+            .Select(x => new
+            {
+                ImportCost = x.CalculatedImportCost,
+                ExportCost = x.CalculatedExportCost
+            }).ToListAsync();
         var energyThisMonth = await _dbContext.EnergyHistory
             .Where(x => x.Date.Date >= new DateTime(today.Year, today.Month, 1) && x.Date.Date <= today)
             .Select(x => new
@@ -54,11 +65,20 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
                 ImportToday = x.TotalImportDelta,
                 ExportToday = x.TotalExportDelta
             }).ToListAsync();
+
+        var energyCostThisMonth = await _dbContext.EnergyHistory
+            .Where(x => x.Date.Date >= new DateTime(today.Year, today.Month, 1) && x.Date.Date <= today)
+            .Select(x => new
+            {
+                ImportCost = x.CalculatedImportCost,
+                ExportCost = x.CalculatedExportCost
+            }).ToListAsync();
         var negativePriceRange = await _energyPricesRepository.GetNegativeInjectionPriceRange();
         var energyPricing = await _energyPricesRepository.GetEnergyPriceForTimestamp(DateTime.Now);
         var tvPowerSwitchOverview = await _shellyService.GetTvPowerSwitchOverview();
         var bureauPowerSwitchOverview = await _shellyService.GetBureauPowerSwitchOverview();
         var vijverPowerSwitchOverview = await _shellyService.GetVijverPowerSwitchOverview();
+        var electricityFlag = await _flagRepository.GetElectricityTariffDetailsFlag();
 
         var result = powerResult.Adapt<GetPowerOverviewResponse>();
         result.Description = negativePriceRange.Description;
@@ -74,7 +94,22 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         result.IsBureauOn = bureauPowerSwitchOverview.IsOn;
         result.IsVijverOn = vijverPowerSwitchOverview.IsOn;
         result.IsTheFrameOn = await _samsungService.IsTheFrameOn();
+        result.CostToday = CalculateCost(electricityFlag, result.ImportToday, result.ExportToday, energyCostToday.Sum(x => x.ImportCost) + energyCostToday.Sum(x => x.ExportCost), daily: true);
+        result.CostThisMonth = CalculateCost(electricityFlag, result.ImportThisMonth, result.ExportThisMonth, energyCostThisMonth.Sum(x => x.ImportCost) + energyCostThisMonth.Sum(x => x.ExportCost), daily: false);
 
         return result;
+    }
+
+    private decimal CalculateCost(ElectricityTariffDetailsFlag electricityFlag, decimal importToday, decimal exportToday, decimal energyCost, bool daily)
+    {
+        var capacityCost =
+              importToday * electricityFlag.GreenEnergyContribution / 100M // Bijdrage groene stroom: 1.554 c€/kWh
+            + electricityFlag.CapacityTariff * 2.5M / (daily ? 365M : 12M) // Capaciteitstarief: 53.2565412 €/KW/jaar (min 2.5 kW)
+            + importToday * electricityFlag.UsageTariff / 100M // Afnametarief:  5.99007 c€/kWh
+            + electricityFlag.DataAdministration / (daily ? 365M : 12M) // Tarief databeheer: 18.56 €/jaar
+            + importToday * electricityFlag.SpecialExciseTax / 100M // Bijzondere accijns: 5.03288 c€/kWh
+            + importToday * electricityFlag.EnergyContribution / 100M; // Energiebijdrage: 0.20417 c€/kWh
+
+        return energyCost + capacityCost;
     }
 }

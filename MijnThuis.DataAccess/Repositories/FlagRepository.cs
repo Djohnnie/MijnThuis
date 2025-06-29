@@ -17,6 +17,9 @@ public interface IFlagRepository
     Task<InjectionTariffExpressionFlag> GetInjectionTariffExpressionFlag();
     Task SetInjectionTariffExpressionFlag(string expression, string source);
 
+    Task<ElectricityTariffDetailsFlag> GetElectricityTariffDetailsFlag();
+    Task SetElectricityTariffDetailsFlag(decimal greenEnergyContribution, decimal capacityTariff, decimal usageTariff, decimal dataAdministration, decimal specialExciseTax, decimal energyContribution);
+
     Task<SamsungTheFrameTokenFlag> GetSamsungTheFrameTokenFlag();
     Task SetSamsungTheFrameTokenFlag(string token, TimeSpan autoOn, TimeSpan autoOff, bool isDisabled);
 }
@@ -96,6 +99,31 @@ public class FlagRepository : IFlagRepository
         {
             Expression = expression,
             Source = source
+        });
+    }
+
+    public async Task<ElectricityTariffDetailsFlag> GetElectricityTariffDetailsFlag()
+    {
+        var flag = await GetFlag(ElectricityTariffDetailsFlag.Name);
+        return flag != null ? ElectricityTariffDetailsFlag.Deserialize(flag.Value) : ElectricityTariffDetailsFlag.Default;
+    }
+
+    public async Task SetElectricityTariffDetailsFlag(
+        decimal greenEnergyContribution,
+        decimal capacityTariff,
+        decimal usageTariff,
+        decimal dataAdministration,
+        decimal specialExciseTax,
+        decimal energyContribution)
+    {
+        await SetFlag(ElectricityTariffDetailsFlag.Name, new ElectricityTariffDetailsFlag
+        {
+            GreenEnergyContribution = greenEnergyContribution,
+            CapacityTariff = capacityTariff,
+            UsageTariff = usageTariff,
+            DataAdministration = dataAdministration,
+            SpecialExciseTax = specialExciseTax,
+            EnergyContribution = energyContribution
         });
     }
 
