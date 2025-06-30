@@ -24,7 +24,7 @@ public partial class EnergyCostHistoryChart
     private ApexChart<ChartDataEntry<string, decimal>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal>> _options { get; set; } = new();
 
-    private ChartData4<string, decimal> SolarPower { get; set; } = new();
+    private ChartData5<string, decimal> SolarPower { get; set; } = new();
 
     private HistoryType _historyType = HistoryType.PerMonthInYear;
     private DateTime _historyDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
@@ -43,6 +43,7 @@ public partial class EnergyCostHistoryChart
             },
             Background = "#373740",
             Stacked = true,
+            StackOnlyBar = true
         };
         _options.Responsive = new List<Responsive<ChartDataEntry<string, decimal>>>
         {
@@ -81,15 +82,15 @@ public partial class EnergyCostHistoryChart
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
-        _options.Colors = new List<string> { "#6FE59D", "#FBB550", "#95B6F8", "#C021C7" };
+        _options.Colors = new List<string> { "#6FE59D", "#FBB550", "#95B6F8", "#C021C7", "#000000" };
         _options.Stroke = new Stroke
         {
             Show = false
         };
         _options.Fill = new Fill
         {
-            Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid, FillType.Solid },
-            Opacity = new Opacity(1, 1, 1, 1)
+            Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid, FillType.Solid, FillType.Solid },
+            Opacity = new Opacity(1, 1, 1, 1, 1)
         };
 
         SolarPower.Description = $"Totaalkost voor elektriciteit";
@@ -97,6 +98,7 @@ public partial class EnergyCostHistoryChart
         SolarPower.Series2Description = "Capaciteitstarief";
         SolarPower.Series3Description = "Transportkost";
         SolarPower.Series4Description = "Belastingen";
+        SolarPower.Series5Description = "Totaal";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -206,6 +208,12 @@ public partial class EnergyCostHistoryChart
                             XValue = $"{x.Date:dd MMM}",
                             YValue = Math.Round(x.Taxes, 2)
                         }));
+                    SolarPower.Series5.AddRange(entries
+                        .Select(x => new ChartDataEntry<string, decimal>
+                        {
+                            XValue = $"{x.Date:dd MMM}",
+                            YValue = Math.Round(x.EnergyCost + x.CapacityTariffCost + x.TransportCost + x.Taxes, 2)
+                        }));
                     break;
                 case HistoryType.PerMonthInYear:
                     SolarPower.Series1.AddRange(entries
@@ -232,6 +240,12 @@ public partial class EnergyCostHistoryChart
                             XValue = $"{x.Date:MMMM yyyy}",
                             YValue = Math.Round(x.Taxes, 2)
                         }));
+                    SolarPower.Series5.AddRange(entries
+                        .Select(x => new ChartDataEntry<string, decimal>
+                        {
+                            XValue = $"{x.Date:MMMM yyyy}",
+                            YValue = Math.Round(x.EnergyCost + x.CapacityTariffCost + x.TransportCost + x.Taxes, 2)
+                        }));
                     break;
                 case HistoryType.PerYearInLifetime:
                     SolarPower.Series1.AddRange(entries
@@ -257,6 +271,12 @@ public partial class EnergyCostHistoryChart
                         {
                             XValue = $"{x.Date:yyyy}",
                             YValue = Math.Round(x.Taxes, 2)
+                        }));
+                    SolarPower.Series5.AddRange(entries
+                        .Select(x => new ChartDataEntry<string, decimal>
+                        {
+                            XValue = $"{x.Date:yyyy}",
+                            YValue = Math.Round(x.EnergyCost + x.CapacityTariffCost + x.TransportCost + x.Taxes, 2)
                         }));
                     break;
             }
