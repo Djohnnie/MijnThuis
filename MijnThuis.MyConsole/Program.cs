@@ -19,7 +19,7 @@ serviceCollection.AddSingleton<IConfiguration>(configuration);
 using var serviceProvider = serviceCollection.BuildServiceProvider();
 
 var flagRepository = serviceProvider.GetRequiredService<IFlagRepository>();
-await flagRepository.SetElectricityTariffDetailsFlag(greenEnergyContribution: 1.554M, capacityTariff: 53.2565412M, usageTariff: 5.99007M, dataAdministration: 18.56M, specialExciseTax: 5.03288M, energyContribution: 0.20417M);
+await flagRepository.SetElectricityTariffDetailsFlag(fixedCharge: 42.4M, greenEnergyContribution: 1.554M, capacityTariff: 53.2565412M, usageTariff: 5.99007M, dataAdministration: 18.56M, specialExciseTax: 5.03288M, energyContribution: 0.20417M);
 //await flagRepository.SetSamsungTheFrameTokenFlag("", new TimeSpan(8, 0, 0), new TimeSpan(22, 0, 0));
 //await flagRepository.SetConsumptionTariffExpressionFlag("price * 1.05M + 1.525M", "https://my.mega.be/resources/tarif/Mega-NL-EL-B2C-VL-052025-Dynamic.pdf");
 //await flagRepository.SetInjectionTariffExpressionFlag("price * 1.0M - 4.0M", "https://my.mega.be/resources/tarif/Mega-NL-EL-B2C-VL-052025-Dynamic.pdf");

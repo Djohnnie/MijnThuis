@@ -18,7 +18,7 @@ public interface IFlagRepository
     Task SetInjectionTariffExpressionFlag(string expression, string source);
 
     Task<ElectricityTariffDetailsFlag> GetElectricityTariffDetailsFlag();
-    Task SetElectricityTariffDetailsFlag(decimal greenEnergyContribution, decimal capacityTariff, decimal usageTariff, decimal dataAdministration, decimal specialExciseTax, decimal energyContribution);
+    Task SetElectricityTariffDetailsFlag(decimal fixedCharge, decimal greenEnergyContribution, decimal capacityTariff, decimal usageTariff, decimal dataAdministration, decimal specialExciseTax, decimal energyContribution);
 
     Task<SamsungTheFrameTokenFlag> GetSamsungTheFrameTokenFlag();
     Task SetSamsungTheFrameTokenFlag(string token, TimeSpan autoOn, TimeSpan autoOff, bool isDisabled);
@@ -109,6 +109,7 @@ public class FlagRepository : IFlagRepository
     }
 
     public async Task SetElectricityTariffDetailsFlag(
+        decimal fixedCharge,
         decimal greenEnergyContribution,
         decimal capacityTariff,
         decimal usageTariff,
@@ -118,6 +119,7 @@ public class FlagRepository : IFlagRepository
     {
         await SetFlag(ElectricityTariffDetailsFlag.Name, new ElectricityTariffDetailsFlag
         {
+            FixedCharge = fixedCharge,
             GreenEnergyContribution = greenEnergyContribution,
             CapacityTariff = capacityTariff,
             UsageTariff = usageTariff,

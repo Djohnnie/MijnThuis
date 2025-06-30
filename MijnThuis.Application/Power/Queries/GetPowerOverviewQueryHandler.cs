@@ -94,17 +94,34 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         result.IsBureauOn = bureauPowerSwitchOverview.IsOn;
         result.IsVijverOn = vijverPowerSwitchOverview.IsOn;
         result.IsTheFrameOn = await _samsungService.IsTheFrameOn();
-        result.CostToday = CalculateCost(electricityFlag, result.ImportToday, result.ExportToday, energyCostToday.Sum(x => x.ImportCost) + energyCostToday.Sum(x => x.ExportCost), daily: true);
-        result.CostThisMonth = CalculateCost(electricityFlag, result.ImportThisMonth, result.ExportThisMonth, energyCostThisMonth.Sum(x => x.ImportCost) + energyCostThisMonth.Sum(x => x.ExportCost), daily: false);
+        result.CostToday = await CalculateCost(electricityFlag, result.ImportToday, result.ExportToday, energyCostToday.Sum(x => x.ImportCost) + energyCostToday.Sum(x => x.ExportCost), daily: true);
+        result.CostThisMonth = await CalculateCost(electricityFlag, result.ImportThisMonth, result.ExportThisMonth, energyCostThisMonth.Sum(x => x.ImportCost) + energyCostThisMonth.Sum(x => x.ExportCost), daily: false);
 
         return result;
     }
 
-    private decimal CalculateCost(ElectricityTariffDetailsFlag electricityFlag, decimal importToday, decimal exportToday, decimal energyCost, bool daily)
+    private async Task<decimal> CalculateCost(ElectricityTariffDetailsFlag electricityFlag, decimal importToday, decimal exportToday, decimal energyCost, bool daily)
     {
+        // Skip the first entry in each month because it still has data from the previous month
+        var to = DateTime.Today;
+        var from = to.AddMonths(-6);
+        from = new DateTime(from.Year, from.Month, 1);
+        var entries = await _dbContext.EnergyHistory
+            .Where(x => x.Date.Date >= from && x.Date.Date <= to)
+            .GroupBy(x => new { x.Date.Year, x.Date.Month })
+            .Select(x => new MonthlyPowerPeak
+            {
+                Date = new DateTime(x.Key.Year, x.Key.Month, 1),
+                PowerPeak = x.Skip(1).Select(y => y.MonthlyPowerPeak).Max(),
+            })
+            .ToListAsync();
+
+        var averagePowerPeak = entries.Any() ? entries.Average(x => Math.Max(x.PowerPeak, 2.5M)) : 2.5M;
+
         var capacityCost =
               importToday * electricityFlag.GreenEnergyContribution / 100M // Bijdrage groene stroom: 1.554 c€/kWh
-            + electricityFlag.CapacityTariff * 2.5M / (daily ? 365M : 12M) // Capaciteitstarief: 53.2565412 €/KW/jaar (min 2.5 kW)
+            + electricityFlag.FixedCharge / (daily ? 365M : 12M) // Vaste vergoeding: 42.4 €/jaar
+            + electricityFlag.CapacityTariff * averagePowerPeak / (daily ? 365M : 12M) // Capaciteitstarief: 53.2565412 €/KW/jaar (min 2.5 kW)
             + importToday * electricityFlag.UsageTariff / 100M // Afnametarief:  5.99007 c€/kWh
             + electricityFlag.DataAdministration / (daily ? 365M : 12M) // Tarief databeheer: 18.56 €/jaar
             + importToday * electricityFlag.SpecialExciseTax / 100M // Bijzondere accijns: 5.03288 c€/kWh

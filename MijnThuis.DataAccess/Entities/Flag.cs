@@ -76,6 +76,7 @@ public class ElectricityTariffDetailsFlag : IFlag
 {
     public static string Name => "ElectricityTariffDetailsFlag";
     public static ElectricityTariffDetailsFlag Default => new ElectricityTariffDetailsFlag();
+    public decimal FixedCharge { get; set; }
     public decimal GreenEnergyContribution { get; set; }
     public decimal CapacityTariff { get; set; }
     public decimal UsageTariff { get; set; }
