@@ -17,7 +17,7 @@ public partial class DayAheadEnergyPriceChart
     private ApexChart<ChartDataEntry<string, decimal>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal>> _options { get; set; } = new();
 
-    private ChartData3<string, decimal> DayAheadEnergyPrices { get; set; } = new();
+    private ChartData4<string, decimal> DayAheadEnergyPrices { get; set; } = new();
     private DateTime _selectedDate = DateTime.Today;
 
     public string TitleDescription { get; set; }
@@ -83,23 +83,24 @@ public partial class DayAheadEnergyPriceChart
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
-        _options.Colors = new List<string> { "#5DE799", "#FBB550", "#B0D8FD" };
+        _options.Colors = new List<string> { "#5DE799", "#5DE799", "#FBB550", "#B0D8FD" };
         _options.Stroke = new Stroke
         {
             Curve = Curve.Smooth,
-            Width = new Size(3, 3, 2),
-            DashArray = [0, 0, 3]
+            Width = new Size(3, 5, 3, 2),
+            DashArray = [0, 0, 0, 3]
         };
         _options.Fill = new Fill
         {
-            Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid },
-            Opacity = new Opacity(1, 1, 0.5)
+            Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid, FillType.Solid },
+            Opacity = new Opacity(1, 1, 1, 0.5)
         };
 
         DayAheadEnergyPrices.Description = "Elektriciteit: Dynamische tarieven";
         DayAheadEnergyPrices.Series1Description = "Mega tarieven voor consumptie";
-        DayAheadEnergyPrices.Series2Description = "Mega tarieven voor injectie";
-        DayAheadEnergyPrices.Series3Description = "Dynamische tarieven";
+        DayAheadEnergyPrices.Series2Description = "Totale tarieven voor consumptie";
+        DayAheadEnergyPrices.Series3Description = "Mega tarieven voor injectie";
+        DayAheadEnergyPrices.Series4Description = "Dynamische tarieven";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -172,9 +173,14 @@ public partial class DayAheadEnergyPriceChart
             DayAheadEnergyPrices.Series2.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:HH:mm}",
-                YValue = x.InjectionPrice
+                YValue = x.RealConsumptionPrice
             }));
             DayAheadEnergyPrices.Series3.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
+            {
+                XValue = $"{x.Date:HH:mm}",
+                YValue = x.InjectionPrice
+            }));
+            DayAheadEnergyPrices.Series4.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:HH:mm}",
                 YValue = x.Price
@@ -257,6 +263,12 @@ public partial class DayAheadEnergyPriceChart
         }
     }
 
+    private async Task NavigateBeforeLargeCommand()
+    {
+        _selectedDate = _selectedDate.AddMonths(-1);
+        await RefreshData();
+    }
+
     private async Task NavigateBeforeCommand()
     {
         _selectedDate = _selectedDate.AddDays(-1);
@@ -268,6 +280,12 @@ public partial class DayAheadEnergyPriceChart
     {
         _selectedDate = _selectedDate.AddDays(1);
 
+        await RefreshData();
+    }
+
+    private async Task NavigateNextLargeCommand()
+    {
+        _selectedDate = _selectedDate.AddMonths(1);
         await RefreshData();
     }
 

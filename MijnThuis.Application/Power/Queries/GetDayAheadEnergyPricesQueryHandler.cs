@@ -2,16 +2,21 @@
 using Microsoft.EntityFrameworkCore;
 using MijnThuis.Contracts.Power;
 using MijnThuis.DataAccess;
+using MijnThuis.DataAccess.Repositories;
 
 namespace MijnThuis.Application.Power.Queries;
 
 public class GetDayAheadEnergyPricesQueryHandler : IRequestHandler<GetDayAheadEnergyPricesQuery, GetDayAheadEnergyPricesResponse>
 {
     private readonly MijnThuisDbContext _dbContext;
+    private readonly IFlagRepository _flagRepository;
 
-    public GetDayAheadEnergyPricesQueryHandler(MijnThuisDbContext dbContext)
+    public GetDayAheadEnergyPricesQueryHandler(
+        MijnThuisDbContext dbContext,
+        IFlagRepository flagRepository)
     {
         _dbContext = dbContext;
+        _flagRepository = flagRepository;
     }
 
     public async Task<GetDayAheadEnergyPricesResponse> Handle(GetDayAheadEnergyPricesQuery request, CancellationToken cancellationToken)
@@ -31,6 +36,18 @@ public class GetDayAheadEnergyPricesQueryHandler : IRequestHandler<GetDayAheadEn
             })
             .ToListAsync();
 
-        return new GetDayAheadEnergyPricesResponse { Entries = entries };
+        var flag = await _flagRepository.GetElectricityTariffDetailsFlag();
+
+        return new GetDayAheadEnergyPricesResponse
+        {
+            Entries = entries.Select(x => new DayAheadEnergyPrice
+            {
+                Date = x.Date,
+                Price = x.Price,
+                ConsumptionPrice = x.ConsumptionPrice,
+                RealConsumptionPrice = x.ConsumptionPrice + flag.GreenEnergyContribution + flag.UsageTariff + flag.SpecialExciseTax + flag.EnergyContribution,
+                InjectionPrice = x.InjectionPrice
+            }).ToList()
+        };
     }
 }

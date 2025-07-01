@@ -16,14 +16,24 @@
             <MudText Typo="Typo.body2">@TitleDescription</MudText>
         </CardHeaderContent>
         <CardHeaderActions>
-            <MudTooltip Text="Vorige" Arrow="true" Placement="Placement.Bottom">
+            <MudTooltip Text="Vorige maand" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateBeforeLargeCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Vorige dag" Arrow="true" Placement="Placement.Bottom">
                 <MudIconButton Icon="@Icons.Material.Filled.NavigateBefore" Size="Size.Medium" Color="Color.Default"
                                OnClick="NavigateBeforeCommand" />
             </MudTooltip>
 
-            <MudTooltip Text="Volgende" Arrow="true" Placement="Placement.Bottom">
+            <MudTooltip Text="Volgende dag" Arrow="true" Placement="Placement.Bottom">
                 <MudIconButton Icon="@Icons.Material.Filled.NavigateNext" Size="Size.Medium" Color="Color.Default"
                                OnClick="NavigateNextCommand" />
+            </MudTooltip>            
+
+            <MudTooltip Text="Volgende maand" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowRight" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateNextLargeCommand" />
             </MudTooltip>
         </CardHeaderActions>
     </MudCardHeader>
@@ -47,6 +57,13 @@
             <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
                                         Items="@DayAheadEnergyPrices.Series3"
                                         Name="@DayAheadEnergyPrices.Series3Description"
+                                        XValue="@(e => e.XValue)"
+                                        YValue="@(e => e.YValue)"
+                                        SeriesType="ApexCharts.SeriesType.Line" />
+
+            <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
+                                        Items="@DayAheadEnergyPrices.Series4"
+                                        Name="@DayAheadEnergyPrices.Series4Description"
                                         XValue="@(e => e.XValue)"
                                         YValue="@(e => e.YValue)"
                                         SeriesType="ApexCharts.SeriesType.Line" />
