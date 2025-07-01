@@ -5,6 +5,7 @@ public record GetCarOverviewResponse
     public string State { get; init; }
     public bool IsLocked { get; init; }
     public bool IsCharging { get; init; }
+    public bool IsChargingAtHome { get; set; }
     public bool IsChargingManually { get; set; }
     public int ManualChargingAmps { get; set; }
     public bool IsPreconditioning { get; init; }

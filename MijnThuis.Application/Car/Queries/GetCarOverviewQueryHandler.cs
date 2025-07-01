@@ -44,6 +44,7 @@ public class GetCarOverviewQueryHandler : IRequestHandler<GetCarOverviewQuery, G
         var charger2Result = await _chargerService.GetChargerOverview(charger2Id);
 
         var result = overviewResult.Adapt<GetCarOverviewResponse>();
+        result.IsChargingAtHome = result.IsCharging && locationResult.Location == "Thuis";
         result.BatteryHealth = (int)Math.Round(batteryResult.Percentage);
         result.Address = string.Join(", ", locationResult.Address.Split(", ").Take(2));
         if (overviewResult.IsCharging)

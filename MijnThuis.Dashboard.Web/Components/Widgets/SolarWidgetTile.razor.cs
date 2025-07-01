@@ -51,7 +51,7 @@ public partial class SolarWidgetTile
             CurrentSolarPower = solarResponse.CurrentSolarPower;
             CurrentBatteryPower = solarResponse.CurrentBatteryPower;
             CurrentGridPower = solarResponse.CurrentGridPower;
-            IsCarCharging = carResponse.IsCharging;
+            IsCarCharging = carResponse.IsChargingAtHome;
             CurrentCarBattery = carResponse.BatteryLevel;
             CurrentCarAmps = carResponse.ChargingAmps;
             CurrentCarPower = IsCarCharging ? (carResponse.ChargingAmps * 230 / 1000M) : 0M;
