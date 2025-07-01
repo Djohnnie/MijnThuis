@@ -1,0 +1,42 @@
+﻿@inherits OwningComponentBase
+
+@page "/chart/{ChartType}"
+@using MijnThuis.Dashboard.Web.Components
+@using MijnThuis.Contracts.Solar
+@using MijnThuis.Dashboard.Web.Components.Charts
+
+<PageTitle>Mijn Thuis - Grafiek</PageTitle>
+
+<MudGrid>
+
+    <MudItem xs="12" sm="12" md="1" lg="1" xl="2">
+        <MudTooltip Text="Ga terug" Arrow="true" Placement="Placement.Right">
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Default" OnClick="BackCommand" />
+        </MudTooltip>
+    </MudItem>
+
+    <MudItem xs="12" sm="12" md="11" lg="11" xl="10">
+    </MudItem>
+
+    <MudItem xs="12" sm="12" md="12" lg="12" xl="12">
+        @switch (ChartType)
+        {
+            case "EnergyUsageChart":
+                <EnergyUsageChart />
+                break;
+            case "PeakPowerUsageChart":
+                <PeakPowerUsageChart />
+                break;
+            case "DayAheadEnergyPriceChart":
+                <DayAheadEnergyPriceChart />
+                break;
+            case "SolarSelfConsumptionChart":
+                <SolarSelfConsumptionChart />
+                break;
+            default:
+                <p>Onbekend grafiektype</p>
+                break;
+        }
+    </MudItem>
+
+</MudGrid>

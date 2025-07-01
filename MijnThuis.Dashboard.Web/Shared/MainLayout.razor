@@ -30,7 +30,17 @@
     [CascadingParameter]
     public NotifyingDarkMode DarkMode { get; set; }
 
-    MudTheme _theme = new();
+    MudTheme _theme = new MudTheme
+    {
+        PaletteLight = new PaletteLight
+        {
+            ActionDefault = "#000000"
+        },
+        PaletteDark = new PaletteDark
+        {
+            ActionDefault = "#FFFFFF"
+        }
+    };
     MudThemeProvider _mudThemeProvider = new MudThemeProvider();
     string modeIcon => DarkMode.IsDarkMode ? @Icons.Material.Outlined.DarkMode : @Icons.Material.Outlined.LightMode;
 

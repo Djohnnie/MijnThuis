@@ -149,6 +149,26 @@ public partial class PowerTile
         NavigationManager.NavigateTo($"power{new Uri(NavigationManager.Uri).Query}");
     }
 
+    public void CurrentPowerCommand()
+    {
+        NavigationManager.NavigateTo($"chart/EnergyUsageChart{new Uri(NavigationManager.Uri).Query}");
+    }
+
+    public void PowerPeakCommand()
+    {
+        NavigationManager.NavigateTo($"chart/PeakPowerUsageChart{new Uri(NavigationManager.Uri).Query}");
+    }
+
+    public void ConsumptionPriceCommand()
+    {
+        NavigationManager.NavigateTo($"chart/DayAheadEnergyPriceChart{new Uri(NavigationManager.Uri).Query}");
+    }
+
+    public void SelfConsumptionCommand()
+    {
+        NavigationManager.NavigateTo($"chart/SolarSelfConsumptionChart{new Uri(NavigationManager.Uri).Query}");
+    }
+
     public void Dispose()
     {
         _periodicTimer.Dispose();
