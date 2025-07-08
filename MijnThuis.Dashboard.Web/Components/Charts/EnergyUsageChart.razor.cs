@@ -33,7 +33,7 @@ public partial class EnergyUsageChart
         {
             Toolbar = new Toolbar { Show = false },
             Zoom = new Zoom { Enabled = false },
-            Background = "#373740",
+            Background = "#373740"
         };
         _options.Responsive = new List<Responsive<ChartDataEntry<string, decimal>>>
         {

@@ -69,8 +69,6 @@ internal class SamsungTheFrameWorker : BackgroundService
                     {
                         await samsungService.TurnOffTheFrame(flag.Token);
                         await Task.Delay(10000, stoppingToken);
-                        await samsungService.TurnOnTheFrame(flag.Token);
-                        await Task.Delay(10000, stoppingToken);
                         _logger.LogInformation($"Samsung The Frame TV restarted at {DateTime.Now:hh\\:mm}.");
                         await Task.Delay(10000, stoppingToken);
 

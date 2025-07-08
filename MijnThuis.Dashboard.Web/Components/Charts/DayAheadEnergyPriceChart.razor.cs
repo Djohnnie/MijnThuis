@@ -248,6 +248,28 @@ public partial class DayAheadEnergyPriceChart
                                 Color = DarkMode.IsDarkMode ? "#FFFFFF" : "#000000"
                             }
                         }
+                    },
+                    new AnnotationsPoint
+                    {
+                        X = $"{now:HH:mm}",
+                        Y = (double)(entries.SingleOrDefault(x=>x.Date == now)?.RealConsumptionPrice ?? 0),
+                        SeriesIndex = 1,
+                        Marker = new AnnotationMarker
+                        {
+                            FillColor = "#5DE799",
+                            StrokeColor = DarkMode.IsDarkMode ? "#000000" : "#FFFFFF"
+                        },
+                        Label = new Label
+                        {
+                            TextAnchor = TextAnchor.End,
+                            OffsetX = -10,
+                            Text = $"{(double)(entries.SingleOrDefault(x=>x.Date == now)?.RealConsumptionPrice ?? 0)} €c/kWh",
+                            Style = new Style
+                            {
+                                Background = DarkMode.IsDarkMode ? "#000000" : "#FFFFFF",
+                                Color = DarkMode.IsDarkMode ? "#FFFFFF" : "#000000"
+                            }
+                        }
                     }
                 }
             };
