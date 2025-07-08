@@ -283,7 +283,7 @@ public class ChargeState
     [JsonPropertyName("charge_energy_added")]
     public decimal ChargeEnergyAdded { get; set; }
 
-    [JsonPropertyName("charge_miles_added_ideal")]
+    [JsonPropertyName("charge_miles_added_rated")]
     public decimal ChargeMilesAdded { get; set; }
 }
 
