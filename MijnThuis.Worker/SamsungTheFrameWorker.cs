@@ -50,7 +50,7 @@ internal class SamsungTheFrameWorker : BackgroundService
                         _logger.LogInformation($"Samsung The Frame TV turned on at {flag.AutoOn:hh\\:mm}.");
                         await Task.Delay(10000, stoppingToken);
 
-                        break;
+                        continue;
                     }
 
                     if (isOn && (now < today.Add(flag.AutoOn) || now > today.Add(flag.AutoOff)))
@@ -59,7 +59,7 @@ internal class SamsungTheFrameWorker : BackgroundService
                         _logger.LogInformation($"Samsung The Frame TV turned off at {flag.AutoOff:hh\\:mm}.");
                         await Task.Delay(10000, stoppingToken);
 
-                        break;
+                        continue;
                     }
 
                     var lastPingFlag = await GetLastPingFlag();
@@ -68,11 +68,10 @@ internal class SamsungTheFrameWorker : BackgroundService
                     if (isOn && shouldBeOn && lastPingLongTimeAgo)
                     {
                         await samsungService.TurnOffTheFrame(flag.Token);
-                        await Task.Delay(10000, stoppingToken);
-                        _logger.LogInformation($"Samsung The Frame TV restarted at {DateTime.Now:hh\\:mm}.");
+                        _logger.LogInformation("Samsung The Frame TV should restart in the next iteration.");
                         await Task.Delay(10000, stoppingToken);
 
-                        break;
+                        continue;
                     }
                 }
             }
