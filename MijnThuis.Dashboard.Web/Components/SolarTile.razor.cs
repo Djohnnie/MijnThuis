@@ -99,6 +99,31 @@ public partial class SolarTile
         }
     }
 
+    public void SolarPowerCommand()
+    {
+        NavigationManager.NavigateTo($"chart/SolarProductionChart{new Uri(NavigationManager.Uri).Query}");
+    }
+
+    public void BatteryLevelCommand()
+    {
+        NavigationManager.NavigateTo($"chart/BatteryHistoryChart{new Uri(NavigationManager.Uri).Query}");
+    }
+
+    public void LastDayEnergyCommand()
+    {
+        NavigationManager.NavigateTo($"chart/SolarProductionHistoryChart{new Uri(NavigationManager.Uri).Query}");
+    }
+
+    public void LastMonthEnergyCommand()
+    {
+        NavigationManager.NavigateTo($"chart/SolarYearlyProductionChart{new Uri(NavigationManager.Uri).Query}");
+    }
+
+    public void SolarForecastTodayCommand()
+    {
+        NavigationManager.NavigateTo($"chart/SolarForecastVsActualChart{new Uri(NavigationManager.Uri).Query}");
+    }
+
     public async Task ChargeBatteryForOneHourCommand()
     {
         await ChargeBattery(1);

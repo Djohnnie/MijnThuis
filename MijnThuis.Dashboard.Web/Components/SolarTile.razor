@@ -29,7 +29,8 @@
                         <MudTooltip Text="Huidig vermogen van de zon" Arrow="true" Placement="Placement.Right">
                             <MudIcon Icon="@Icons.Material.Filled.WbSunny" Size="Size.Medium" Color="@(CurrentSolarPower <= 0 ? Color.Secondary : Color.Tertiary)" />
                         </MudTooltip>
-                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F2}", CurrentSolarPower) kW</MudText>
+                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="SolarPowerCommand">@String.Format("{0:F2}", CurrentSolarPower) kW</MudLink>
+                        <MudText Typo="Typo.subtitle1"></MudText>
                     }
                     else
                     {
@@ -45,7 +46,7 @@
                         <MudTooltip Text="Batterij" Arrow="true" Placement="Placement.Left">
                             <MudIcon Icon="@BatteryBar" Size="Size.Medium" Color="@(BatteryLevel > 0 ? Color.Tertiary : Color.Secondary)" />
                         </MudTooltip>
-                        <MudText Typo="Typo.subtitle1">@BatteryLevel% (@BatteryHealth%)</MudText>
+                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="BatteryLevelCommand">@BatteryLevel% (@BatteryHealth%)</MudLink>
                     }
                     else
                     {
@@ -93,7 +94,7 @@
                         <MudTooltip Text="Opbrengst vandaag" Arrow="true" Placement="Placement.Right">
                             <MudIcon Icon="@Icons.Material.Filled.SolarPower" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
-                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", LastDayEnergy) kWh</MudText>
+                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="LastDayEnergyCommand">@String.Format("{0:F1}", LastDayEnergy) kWh</MudLink>
                     }
                     else
                     {
@@ -109,7 +110,7 @@
                         <MudTooltip Text="Opbrengst deze maand" Arrow="true" Placement="Placement.Left">
                             <MudIcon Icon="@Icons.Material.Filled.SolarPower" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
-                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", LastMonthEnergy) kWh</MudText>
+                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="LastMonthEnergyCommand">@String.Format("{0:F1}", LastMonthEnergy) kWh</MudLink>
                     }
                     else
                     {
@@ -125,7 +126,7 @@
                         <MudTooltip Text="Voorspelde opbrengst vandaag" Arrow="true" Placement="Placement.Right">
                             <MudIcon Icon="@Icons.Material.Filled.ArrowDownward" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
-                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", SolarForecastToday) kWh</MudText>
+                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="SolarForecastTodayCommand">@String.Format("{0:F1}", SolarForecastToday) kWh</MudLink>
                     }
                     else
                     {
@@ -141,7 +142,7 @@
                         <MudTooltip Text="Voorspelde opbrengst morgen" Arrow="true" Placement="Placement.Left">
                             <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
-                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", SolarForecastTomorrow) kWh</MudText>
+                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="SolarForecastTodayCommand">@String.Format("{0:F1}", SolarForecastTomorrow) kWh</MudLink>
                     }
                     else
                     {
