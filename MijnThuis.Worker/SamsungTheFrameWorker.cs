@@ -48,7 +48,7 @@ internal class SamsungTheFrameWorker : BackgroundService
                     {
                         await samsungService.TurnOnTheFrame(flag.Token);
                         _logger.LogInformation($"Samsung The Frame TV turned on at {flag.AutoOn:hh\\:mm}.");
-                        await Task.Delay(10000, stoppingToken);
+                        await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
 
                         continue;
                     }
@@ -57,7 +57,7 @@ internal class SamsungTheFrameWorker : BackgroundService
                     {
                         await samsungService.TurnOffTheFrame(flag.Token);
                         _logger.LogInformation($"Samsung The Frame TV turned off at {flag.AutoOff:hh\\:mm}.");
-                        await Task.Delay(10000, stoppingToken);
+                        await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
 
                         continue;
                     }
@@ -69,7 +69,7 @@ internal class SamsungTheFrameWorker : BackgroundService
                     {
                         await samsungService.TurnOffTheFrame(flag.Token);
                         _logger.LogInformation("Samsung The Frame TV should restart in the next iteration.");
-                        await Task.Delay(10000, stoppingToken);
+                        await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
 
                         continue;
                     }

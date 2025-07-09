@@ -61,7 +61,7 @@ public class SamsungService : ISamsungService
 
         // Keep the power key pressed to fully turn off the TV
         await PressKey("Press", "KEY_POWER", token);
-        await Task.Delay(4000);
+        await Task.Delay(5000);
         await PressKey("Release", "KEY_POWER", token);
 
         return token;
