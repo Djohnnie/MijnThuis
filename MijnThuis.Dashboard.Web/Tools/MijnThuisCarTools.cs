@@ -9,9 +9,9 @@ namespace MijnThuis.Dashboard.Web.Tools;
 [McpServerToolType]
 public class MijnThuisCarTools
 {
-    private readonly Mediator _mediator;
+    private readonly IMediator _mediator;
 
-    public MijnThuisCarTools(Mediator mediator)
+    public MijnThuisCarTools(IMediator mediator)
     {
         _mediator = mediator;
     }
