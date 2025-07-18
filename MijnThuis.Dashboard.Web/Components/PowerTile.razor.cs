@@ -159,6 +159,11 @@ public partial class PowerTile
         NavigationManager.NavigateTo($"chart/PeakPowerUsageChart{new Uri(NavigationManager.Uri).Query}");
     }
 
+    public void CostCommand()
+    {
+        NavigationManager.NavigateTo($"chart/EnergyCostHistoryChart{new Uri(NavigationManager.Uri).Query}");
+    }
+
     public void ConsumptionPriceCommand()
     {
         NavigationManager.NavigateTo($"chart/DayAheadEnergyPriceChart{new Uri(NavigationManager.Uri).Query}");

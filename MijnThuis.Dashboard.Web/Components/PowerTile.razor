@@ -61,7 +61,7 @@
                         <MudTooltip Text="Energie aangekocht/geïnjecteerd vandaag" Arrow="true" Placement="Placement.Right">
                             <MudIcon Icon="@Icons.Material.Filled.Today" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
-                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", ImportToday)/@String.Format("{0:F1}", ExportToday) kWh/€@String.Format("{0:F2}", CostToday)</MudText>
+                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="CostCommand">@String.Format("{0:F1}", ImportToday)/@String.Format("{0:F1}", ExportToday) kWh/€@String.Format("{0:F2}", CostToday)</MudLink>
                     }
                     else
                     {
@@ -77,7 +77,7 @@
                         <MudTooltip Text="Energie aangekocht/geïnjecteerd deze maand" Arrow="true" Placement="Placement.Left">
                             <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
-                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", ImportThisMonth)/@String.Format("{0:F1}", ExportThisMonth) kWh/€@String.Format("{0:F2}", CostThisMonth)</MudText>
+                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="CostCommand">@String.Format("{0:F1}", ImportThisMonth)/@String.Format("{0:F1}", ExportThisMonth) kWh/€@String.Format("{0:F2}", CostThisMonth)</MudLink>
                     }
                     else
                     {
