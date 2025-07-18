@@ -1,4 +1,4 @@
-using MijnThuis.Api.Endpoints.Car;
+﻿using MijnThuis.Api.Endpoints.Car;
 using MijnThuis.Api.Endpoints.Power;
 using MijnThuis.Api.Endpoints.Solar;
 

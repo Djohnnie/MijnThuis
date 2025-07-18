@@ -47,6 +47,9 @@ builder.Services.AddMemoryCache();
 builder.Services.AddTransient<ICopilotHelper, CopilotHelper>();
 builder.Services.AddScoped<SpeechToTextNotificationService>();
 builder.Services.AddNotifyingCascadingValue(new NotifyingDarkMode { IsDarkMode = false });
+builder.Services.AddMcpServer()
+    .WithHttpTransport()
+    .WithTools<MijnThuisTools>();
 
 var app = builder.Build();
 
@@ -66,5 +69,6 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+app.MapMcp();
 
 app.Run();
