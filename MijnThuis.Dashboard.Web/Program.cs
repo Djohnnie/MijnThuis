@@ -66,10 +66,12 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
+
 app.UseRouting();
+
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
-app.MapMcp();
+app.MapMcp("mcp");
 
 app.Run();
