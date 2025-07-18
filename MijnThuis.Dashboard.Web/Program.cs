@@ -6,6 +6,7 @@ using MijnThuis.Dashboard.Web.DependencyInjection;
 using MijnThuis.Dashboard.Web.Middleware;
 using MijnThuis.Dashboard.Web.Model;
 using MijnThuis.Dashboard.Web.Notifications;
+using MijnThuis.Dashboard.Web.Tools;
 using MudBlazor.Services;
 using System.Net;
 
@@ -49,7 +50,7 @@ builder.Services.AddScoped<SpeechToTextNotificationService>();
 builder.Services.AddNotifyingCascadingValue(new NotifyingDarkMode { IsDarkMode = false });
 builder.Services.AddMcpServer()
     .WithHttpTransport()
-    .WithTools<MijnThuisTools>();
+    .WithTools<MijnThuisCarTools>();
 
 var app = builder.Build();
 

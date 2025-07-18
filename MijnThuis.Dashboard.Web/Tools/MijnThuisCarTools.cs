@@ -7,11 +7,11 @@ using System.Text.Json;
 namespace MijnThuis.Dashboard.Web.Tools;
 
 [McpServerToolType]
-public class MijnThuisTools
+public class MijnThuisCarTools
 {
     private readonly Mediator _mediator;
 
-    public MijnThuisTools(Mediator mediator)
+    public MijnThuisCarTools(Mediator mediator)
     {
         _mediator = mediator;
     }
