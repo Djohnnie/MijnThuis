@@ -137,18 +137,15 @@ public partial class CarTile
         var dialogResult = await _dialogService.ShowAsync<PinCodeDialog>("Bevestigen met pincode", options);
         var result = await dialogResult.GetReturnValueAsync<string>();
 
-        if (result == _pin)
-        {
-            UnlockPending = true;
-            await InvokeAsync(StateHasChanged);
+        UnlockPending = true;
+        await InvokeAsync(StateHasChanged);
 
-            var commandResult = await Mediator.Send(new UnlockCarCommand());
+        var commandResult = await Mediator.Send(new UnlockCarCommand { Pin = result });
 
-            UnlockPending = false;
-            IsLocked = !commandResult.Success;
+        UnlockPending = false;
+        IsLocked = !commandResult.Success;
 
-            await InvokeAsync(StateHasChanged);
-        }
+        await InvokeAsync(StateHasChanged);
     }
 
     public async Task PreheatCommand()

@@ -24,4 +24,13 @@ public class MijnThuisCarTools
         var carInfo = await _mediator.Send(new GetCarOverviewQuery());
         return JsonSerializer.Serialize(carInfo);
     }
+
+    [McpServerTool]
+    [Description("Unlocks my electric car.")]
+    [return: Description("True, if the car unlocked successfully. False, if the car did not unlock successfully or if the provided pin code was invalid.")]
+    public async Task<bool> UnlockCar([Description("The pin code needed to be able to execute sensitive commands.")] string pin)
+    {
+        var response = await _mediator.Send(new UnlockCarCommand { Pin = pin });
+        return response.Success;
+    }
 }
