@@ -33,4 +33,46 @@ public class MijnThuisCarTools
         var response = await _mediator.Send(new UnlockCarCommand { Pin = pin });
         return response.Success;
     }
+
+    [McpServerTool]
+    [Description("Locks my electric car.")]
+    [return: Description("True, if the car locked successfully. False, if the car did not lock successfully or if the provided pin code was invalid.")]
+    public async Task<bool> LockCar([Description("The pin code needed to be able to execute sensitive commands.")] string pin)
+    {
+        var response = await _mediator.Send(new LockCarCommand { Pin = pin });
+        return response.Success;
+    }
+
+    [McpServerTool]
+    [Description("Start charging my electric car.")]
+    [return: Description("True, if the car started charging successfully. False, otherwise.")]
+    public async Task<bool> StartChargingCar(
+        [Description("The number of amps to charge the car with.")] int chargeAmps,
+        [Description("The pin code needed to be able to execute sensitive commands.")] string pin)
+    {
+        var response = await _mediator.Send(new SetManualCarChargeCommand
+        {
+            IsEnabled = true,
+            ChargeAmps = chargeAmps,
+            Pin = pin
+        });
+
+        return response.Success;
+    }
+
+    [McpServerTool]
+    [Description("Stop charging my electric car.")]
+    [return: Description("True, if the car stopped charging successfully. False, otherwise.")]
+    public async Task<bool> StopChargingCar(
+        [Description("The pin code needed to be able to execute sensitive commands.")] string pin)
+    {
+        var response = await _mediator.Send(new SetManualCarChargeCommand
+        {
+            IsEnabled = true,
+            ChargeAmps = 16,
+            Pin = pin
+        });
+
+        return response.Success;
+    }
 }

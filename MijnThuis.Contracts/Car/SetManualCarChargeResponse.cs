@@ -2,4 +2,5 @@
 
 public class SetManualCarChargeResponse
 {
+    public bool Success { get; set; }
 }

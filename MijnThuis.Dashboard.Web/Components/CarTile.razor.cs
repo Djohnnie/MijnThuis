@@ -9,7 +9,6 @@ public partial class CarTile
 {
     private readonly IDialogService _dialogService;
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(1));
-    private readonly string _pin;
 
     [Inject]
     protected NavigationManager NavigationManager { get; set; }
@@ -38,11 +37,9 @@ public partial class CarTile
     public bool UnlockPending { get; set; }
 
     public CarTile(
-       IDialogService dialogService,
-       IConfiguration configuration)
+       IDialogService dialogService)
     {
         _dialogService = dialogService;
-        _pin = configuration.GetValue<string>("PINCODE");
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -135,12 +132,12 @@ public partial class CarTile
     {
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
         var dialogResult = await _dialogService.ShowAsync<PinCodeDialog>("Bevestigen met pincode", options);
-        var result = await dialogResult.GetReturnValueAsync<string>();
+        var pin = await dialogResult.GetReturnValueAsync<string>();
 
         UnlockPending = true;
         await InvokeAsync(StateHasChanged);
 
-        var commandResult = await Mediator.Send(new UnlockCarCommand { Pin = result });
+        var commandResult = await Mediator.Send(new UnlockCarCommand { Pin = pin });
 
         UnlockPending = false;
         IsLocked = !commandResult.Success;
@@ -164,34 +161,30 @@ public partial class CarTile
     {
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
         var dialogResult = await _dialogService.ShowAsync<PinCodeDialog>("Bevestigen met pincode", options);
-        var result = await dialogResult.GetReturnValueAsync<string>();
+        var pin = await dialogResult.GetReturnValueAsync<string>();
 
-        if (result == _pin)
+        await Mediator.Send(new SetManualCarChargeCommand
         {
-            await Mediator.Send(new SetManualCarChargeCommand
-            {
-                IsEnabled = true,
-                ChargeAmps = 8
-            });
-            await RefreshData();
-        }
+            Pin = pin,
+            IsEnabled = true,
+            ChargeAmps = 8
+        });
+        await RefreshData();
     }
 
     public async Task StartChargingAt16Command()
     {
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
         var dialogResult = await _dialogService.ShowAsync<PinCodeDialog>("Bevestigen met pincode", options);
-        var result = await dialogResult.GetReturnValueAsync<string>();
+        var pin = await dialogResult.GetReturnValueAsync<string>();
 
-        if (result == _pin)
+        await Mediator.Send(new SetManualCarChargeCommand
         {
-            await Mediator.Send(new SetManualCarChargeCommand
-            {
-                IsEnabled = true,
-                ChargeAmps = 16
-            });
-            await RefreshData();
-        }
+            Pin = pin,
+            IsEnabled = true,
+            ChargeAmps = 16
+        });
+        await RefreshData();
     }
 
     public async Task StopChargingCommand()
