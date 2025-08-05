@@ -32,6 +32,7 @@ internal class HomeBatteryNotificationWorker : BackgroundService
         var mailgunReceivers = _configuration.GetValue<string>("MAILGUN_RECEIVERS");
 
         DateOnly? notifiedFullBatteryToday = null;
+        DateOnly? notifiedHalfBatteryToday = null;
         DateOnly? notifiedLowBatteryToday = null;
         DateOnly? notifiedEmptyBatteryToday = null;
 
@@ -46,6 +47,11 @@ internal class HomeBatteryNotificationWorker : BackgroundService
                 if (notifiedFullBatteryToday.HasValue && notifiedFullBatteryToday.Value != DateOnly.FromDateTime(DateTime.Today))
                 {
                     notifiedFullBatteryToday = null;
+                }
+
+                if (notifiedHalfBatteryToday.HasValue && notifiedHalfBatteryToday.Value != DateOnly.FromDateTime(DateTime.Today))
+                {
+                    notifiedHalfBatteryToday = null;
                 }
 
                 if (notifiedLowBatteryToday.HasValue && notifiedLowBatteryToday.Value != DateOnly.FromDateTime(DateTime.Today))
@@ -69,6 +75,13 @@ internal class HomeBatteryNotificationWorker : BackgroundService
                 {
                     notifiedFullBatteryToday = DateOnly.FromDateTime(DateTime.Today);
                     await SendEmail("De thuisbatterij is volledig opgeladen (100%)!",
+                        mailgunBaseAddress, mailgunDomain, mailgunSender, mailgunReceivers, mailgunApiKey);
+                }
+
+                if (solarOverview.BatteryLevel <= 50 && notifiedHalfBatteryToday == null)
+                {
+                    notifiedHalfBatteryToday = DateOnly.FromDateTime(DateTime.Today);
+                    await SendEmail("De thuisbatterij is nog half vol (50%)!",
                         mailgunBaseAddress, mailgunDomain, mailgunSender, mailgunReceivers, mailgunApiKey);
                 }
 
