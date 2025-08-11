@@ -83,7 +83,7 @@ public partial class DayAheadEnergyPriceChart
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
-        _options.Colors = new List<string> { "#5DE799", "#5DE799", "#FBB550", "#B0D8FD" };
+        _options.Colors = new List<string> { "#5DE799", "#B0D8FD", "#FBB550", "#B0D8FD" };
         _options.Stroke = new Stroke
         {
             Curve = Curve.Smooth,
@@ -93,7 +93,7 @@ public partial class DayAheadEnergyPriceChart
         _options.Fill = new Fill
         {
             Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid, FillType.Solid },
-            Opacity = new Opacity(1, 1, 1, 0.5)
+            Opacity = new Opacity(1, 1, 1, 0.8)
         };
 
         DayAheadEnergyPrices.Description = "Elektriciteit: Dynamische tarieven";
@@ -256,7 +256,7 @@ public partial class DayAheadEnergyPriceChart
                         SeriesIndex = 1,
                         Marker = new AnnotationMarker
                         {
-                            FillColor = "#5DE799",
+                            FillColor = "#B0D8FD",
                             StrokeColor = DarkMode.IsDarkMode ? "#000000" : "#FFFFFF"
                         },
                         Label = new Label

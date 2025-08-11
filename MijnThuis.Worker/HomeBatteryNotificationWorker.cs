@@ -1,6 +1,4 @@
 ﻿using MijnThuis.Integrations.Solar;
-using SendGrid;
-using SendGrid.Helpers.Mail;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text;
