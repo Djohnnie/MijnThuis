@@ -16,7 +16,7 @@ public class MijnThuisCarTools
         _mediator = mediator;
     }
 
-    [McpServerTool]
+    [McpServerTool(Name = $"mijnthuis_car_{nameof(GetCarInformation)}", ReadOnly = true)]
     [Description("Gets information about my electric car like location, battery level and health, charging statistics, temperature and charging possibilities.")]
     [return: Description("Information, formatted in JSON containing the car location, battery level and health, charging statistics, temperature and charging possibilities.")]
     public async Task<string> GetCarInformation()
@@ -25,7 +25,7 @@ public class MijnThuisCarTools
         return JsonSerializer.Serialize(carInfo);
     }
 
-    [McpServerTool]
+    [McpServerTool(Name = $"mijnthuis_car_{nameof(UnlockCar)}", Idempotent = true)]
     [Description("Unlocks my electric car.")]
     [return: Description("True, if the car unlocked successfully. False, if the car did not unlock successfully or if the provided pin code was invalid.")]
     public async Task<bool> UnlockCar([Description("The pin code needed to be able to execute sensitive commands.")] string pin)
@@ -34,7 +34,7 @@ public class MijnThuisCarTools
         return response.Success;
     }
 
-    [McpServerTool]
+    [McpServerTool(Name = $"mijnthuis_car_{nameof(LockCar)}", Idempotent = true)]
     [Description("Locks my electric car.")]
     [return: Description("True, if the car locked successfully. False, if the car did not lock successfully or if the provided pin code was invalid.")]
     public async Task<bool> LockCar([Description("The pin code needed to be able to execute sensitive commands.")] string pin)
@@ -43,7 +43,7 @@ public class MijnThuisCarTools
         return response.Success;
     }
 
-    [McpServerTool]
+    [McpServerTool(Name = $"mijnthuis_car_{nameof(StartChargingCar)}", Idempotent = true)]
     [Description("Start charging my electric car.")]
     [return: Description("True, if the car started charging successfully. False, otherwise.")]
     public async Task<bool> StartChargingCar(
@@ -60,7 +60,7 @@ public class MijnThuisCarTools
         return response.Success;
     }
 
-    [McpServerTool]
+    [McpServerTool(Name = $"mijnthuis_car_{nameof(StopChargingCar)}", Idempotent = true)]
     [Description("Stop charging my electric car.")]
     [return: Description("True, if the car stopped charging successfully. False, otherwise.")]
     public async Task<bool> StopChargingCar(

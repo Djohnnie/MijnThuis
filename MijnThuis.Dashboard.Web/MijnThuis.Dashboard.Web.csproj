@@ -7,16 +7,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Blazor-ApexCharts" Version="6.0.1" />
-		<PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.44.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+		<PackageReference Include="Blazor-ApexCharts" Version="6.0.2" />
+		<PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.45.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.55.0" />
-		<PackageReference Include="MudBlazor" Version="8.7.0" />
-		<PackageReference Include="Microsoft.SemanticKernel" Version="1.55.0" />
-		<PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.3.0-preview.2" />
+		<PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.64.0" />
+		<PackageReference Include="MudBlazor" Version="8.12.0" />
+		<PackageReference Include="Microsoft.SemanticKernel" Version="1.64.0" />
+		<PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.3.0-preview.4" />
 	</ItemGroup>
 
 	<ItemGroup>

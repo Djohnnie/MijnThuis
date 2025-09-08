@@ -50,7 +50,11 @@ builder.Services.AddScoped<SpeechToTextNotificationService>();
 builder.Services.AddNotifyingCascadingValue(new NotifyingDarkMode { IsDarkMode = false });
 builder.Services.AddMcpServer()
     .WithHttpTransport()
-    .WithTools<MijnThuisCarTools>();
+    .WithTools<MijnThuisPowerTools>()
+    .WithTools<MijnThuisSolarTools>()
+    .WithTools<MijnThuisCarTools>()
+    .WithTools<MijnThuisHeatingTools>()
+    .WithTools<MijnThuisSmartLockTools>();
 
 var app = builder.Build();
 
@@ -66,9 +70,7 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
-
 app.UseRouting();
-
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
