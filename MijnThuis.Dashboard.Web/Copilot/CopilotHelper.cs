@@ -53,7 +53,7 @@ public class CopilotHelper : ICopilotHelper
 
         await foreach (var response in agent.InvokeAsync(chatHistory))
         {
-            responseBuilder.Append(response.ToString());
+            responseBuilder.Append(response.Message.Content.ToString());
         }
 
         return responseBuilder.ToString();
