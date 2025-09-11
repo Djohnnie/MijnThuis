@@ -11,6 +11,7 @@ public partial class PowerTile
     [Inject]
     protected NavigationManager NavigationManager { get; set; }
     public bool IsReady { get; set; }
+    public bool IsSwitchesReady { get; set; }
     public string Title { get; set; }
     public decimal CurrentPower { get; set; }
     public decimal PowerPeak { get; set; }
@@ -82,12 +83,15 @@ public partial class PowerTile
             CurrentInjectionPrice = response.CurrentInjectionPrice;
             SelfConsumption = $"{Math.Round(selfConsumption.SelfConsumptionToday):F0}% - {Math.Round(selfConsumption.SelfConsumptionThisMonth):F0}% - {Math.Round(selfConsumption.SelfConsumptionThisYear):F0}%";
             SelfSufficiency = $"{Math.Round(selfConsumption.SelfSufficiencyToday):F0}% - {Math.Round(selfConsumption.SelfSufficiencyThisMonth):F0}% - {Math.Round(selfConsumption.SelfSufficiencyThisYear):F0}%";
-            IsTvOn = response.IsTvOn;
-            IsBureauOn = response.IsBureauOn;
-            IsVijverOn = response.IsVijverOn;
-            IsTheFrameOn = response.IsTheFrameOn;
             IsReady = true;
+            await InvokeAsync(StateHasChanged);
 
+            var switchResponse = await Mediator.Send(new GetPowerSwitchOverviewQuery());
+            IsTvOn = switchResponse.IsTvOn;
+            IsBureauOn = switchResponse.IsBureauOn;
+            IsVijverOn = switchResponse.IsVijverOn;
+            IsTheFrameOn = switchResponse.IsTheFrameOn;
+            IsSwitchesReady = true;
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)

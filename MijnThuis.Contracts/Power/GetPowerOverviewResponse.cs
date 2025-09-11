@@ -15,8 +15,4 @@ public record GetPowerOverviewResponse
     public string CurrentPricePeriod { get; set; }
     public decimal CurrentConsumptionPrice { get; set; }
     public decimal CurrentInjectionPrice { get; set; }
-    public bool IsTvOn { get; set; }
-    public bool IsBureauOn { get; set; }
-    public bool IsVijverOn { get; set; }
-    public bool IsTheFrameOn { get; set; }
 }

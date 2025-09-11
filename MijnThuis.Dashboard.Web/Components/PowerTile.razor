@@ -4,206 +4,206 @@
 @inject ILogger<PowerTile> Logger;
 
 <MudCard Outlined>
-    <MudCardHeader>
-        <CardHeaderAvatar>
-            <MudAvatar Color="Color.Primary">
-                <MudIcon Icon="@Icons.Material.Filled.ElectricalServices" Title="Favorite" />
-            </MudAvatar>
-        </CardHeaderAvatar>
-        <CardHeaderContent>
-            <MudText Typo="Typo.body1">Elektriciteit</MudText>
-            <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(Title) ? "Het huidige stroomverbruik" : Title)</MudText>
-        </CardHeaderContent>
-        <CardHeaderActions>
-            <MudTooltip Text="Meer details" Arrow="true" Placement="Placement.Left">
-                <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" OnClick="MoreCommand" />
-            </MudTooltip>
-        </CardHeaderActions>
-    </MudCardHeader>
-    <MudCardContent>
-        <MudGrid>
-            <MudItem xs="6">
-                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
-                    @if (IsReady)
-                    {
-                        <MudTooltip Text="Huidig vermogen" Arrow="true" Placement="Placement.Right">
-                            <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(CurrentPower <= 0 ? Color.Tertiary : Color.Secondary)" />
-                        </MudTooltip>
-                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="CurrentPowerCommand">@String.Format("{0:F2}", CurrentPower) kW</MudLink>
-                    }
-                    else
-                    {
-                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                    }
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="6">
-                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
-                    @if (IsReady)
-                    {
-                        <MudTooltip Text="Piekvermogen" Arrow="true" Placement="Placement.Left">
-                            <MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(PowerPeak < 2.5M ? Color.Tertiary : Color.Secondary)" />
-                        </MudTooltip>
-                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="PowerPeakCommand">@String.Format("{0:F2}", PowerPeak) kW</MudLink>
-                    }
-                    else
-                    {
-                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                    }
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="6">
-                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
-                    @if (IsReady)
-                    {
-                        <MudTooltip Text="Energie aangekocht/geïnjecteerd vandaag" Arrow="true" Placement="Placement.Right">
-                            <MudIcon Icon="@Icons.Material.Filled.Today" Size="Size.Medium" Color="Color.Primary" />
-                        </MudTooltip>
-                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="CostCommand">@String.Format("{0:F1}", ImportToday)/@String.Format("{0:F1}", ExportToday) kWh/€@String.Format("{0:F2}", CostToday)</MudLink>
-                    }
-                    else
-                    {
-                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                    }
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="6">
-                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
-                    @if (IsReady)
-                    {
-                        <MudTooltip Text="Energie aangekocht/geïnjecteerd deze maand" Arrow="true" Placement="Placement.Left">
-                            <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Color="Color.Primary" />
-                        </MudTooltip>
-                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="CostCommand">@String.Format("{0:F1}", ImportThisMonth)/@String.Format("{0:F1}", ExportThisMonth) kWh/€@String.Format("{0:F2}", CostThisMonth)</MudLink>
-                    }
-                    else
-                    {
-                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                    }
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="6">
-                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
-                    @if (IsReady)
-                    {
-                        <MudTooltip Text="Dynamische tarief voor consumptie (in ¢/kWh)" Arrow="true" Placement="Placement.Left">
-                            <MudIcon Icon="@Icons.Material.Filled.EuroSymbol" Size="Size.Medium" Color="@(CurrentConsumptionPrice < 0M ? Color.Tertiary : Color.Secondary)" />
-                        </MudTooltip>
-                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="ConsumptionPriceCommand">@Math.Round(CurrentConsumptionPrice, 2)¢ @CurrentPricePeriod</MudLink>
-                    }
-                    else
-                    {
-                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                    }
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="6">
-                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
-                    @if (IsReady)
-                    {
-                        <MudTooltip Text="Dynamische tarief voor injectie (in ¢/kWh)" Arrow="true" Placement="Placement.Left">
-                            <MudIcon Icon="@Icons.Material.Filled.EuroSymbol" Size="Size.Medium" Color="@(CurrentInjectionPrice > 0M ? Color.Tertiary : Color.Secondary)" />
-                        </MudTooltip>
-                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="ConsumptionPriceCommand">@Math.Round(CurrentInjectionPrice, 2)¢ @CurrentPricePeriod</MudLink>
-                    }
-                    else
-                    {
-                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                    }
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="6">
-                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
-                    @if (IsReady)
-                    {
-                        <MudTooltip Text="Zelf-consumptie vandaag/deze maand/dit jaar" Arrow="true" Placement="Placement.Left">
-                            <MudIcon Icon="@Icons.Material.Filled.Percent" Size="Size.Medium" Color="Color.Primary" />
-                        </MudTooltip>
-                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="SelfConsumptionCommand">@SelfConsumption</MudLink>
-                    }
-                    else
-                    {
-                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                    }
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="6">
-                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
-                    @if (IsReady)
-                    {
-                        <MudTooltip Text="Zelf-sufficiëntie vandaag/deze maand/dit jaar" Arrow="true" Placement="Placement.Left">
-                            <MudIcon Icon="@Icons.Material.Filled.Percent" Size="Size.Medium" Color="Color.Primary" />
-                        </MudTooltip>
-                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="SelfConsumptionCommand">@SelfSufficiency</MudLink>
-                    }
-                    else
-                    {
-                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                    }
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
-    </MudCardContent>
-    <MudCardActions>
-        @if (ToggleTvPowerSwitchPending)
-        {
-            <MudIconButton Size="Size.Large" Disabled="true">
-                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
-            </MudIconButton>
-        }
-        else
-        {
-            <MudTooltip Text="TV" Arrow="true" Placement="Placement.Bottom">
-                <MudIconButton Icon="@Icons.Material.Filled.Tv" Size="Size.Large" Color="@(IsTvOn ? Color.Tertiary : Color.Secondary)"
-                               Disabled="@(!IsReady)" OnClick="ToggleTvPowerSwitchCommand" />
-            </MudTooltip>
-        }
+	<MudCardHeader>
+		<CardHeaderAvatar>
+			<MudAvatar Color="Color.Primary">
+				<MudIcon Icon="@Icons.Material.Filled.ElectricalServices" Title="Favorite" />
+			</MudAvatar>
+		</CardHeaderAvatar>
+		<CardHeaderContent>
+			<MudText Typo="Typo.body1">Elektriciteit</MudText>
+			<MudText Typo="Typo.body2">@(string.IsNullOrEmpty(Title) ? "Het huidige stroomverbruik" : Title)</MudText>
+		</CardHeaderContent>
+		<CardHeaderActions>
+			<MudTooltip Text="Meer details" Arrow="true" Placement="Placement.Left">
+				<MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" OnClick="MoreCommand" />
+			</MudTooltip>
+		</CardHeaderActions>
+	</MudCardHeader>
+	<MudCardContent>
+		<MudGrid>
+			<MudItem xs="6">
+				<MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
+					@if (IsReady)
+					{
+						<MudTooltip Text="Huidig vermogen" Arrow="true" Placement="Placement.Right">
+							<MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(CurrentPower <= 0 ? Color.Tertiary : Color.Secondary)" />
+						</MudTooltip>
+						<MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="CurrentPowerCommand">@String.Format("{0:F2}", CurrentPower) kW</MudLink>
+					}
+					else
+					{
+						<MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+						<MudSkeleton Animation="Animation.Wave" Width="60%" />
+					}
+				</MudPaper>
+			</MudItem>
+			<MudItem xs="6">
+				<MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
+					@if (IsReady)
+					{
+						<MudTooltip Text="Piekvermogen" Arrow="true" Placement="Placement.Left">
+							<MudIcon Icon="@Icons.Material.Filled.ElectricBolt" Size="Size.Medium" Color="@(PowerPeak < 2.5M ? Color.Tertiary : Color.Secondary)" />
+						</MudTooltip>
+						<MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="PowerPeakCommand">@String.Format("{0:F2}", PowerPeak) kW</MudLink>
+					}
+					else
+					{
+						<MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+						<MudSkeleton Animation="Animation.Wave" Width="60%" />
+					}
+				</MudPaper>
+			</MudItem>
+			<MudItem xs="6">
+				<MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
+					@if (IsReady)
+					{
+						<MudTooltip Text="Energie aangekocht/geïnjecteerd vandaag" Arrow="true" Placement="Placement.Right">
+							<MudIcon Icon="@Icons.Material.Filled.Today" Size="Size.Medium" Color="Color.Primary" />
+						</MudTooltip>
+						<MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="CostCommand">@String.Format("{0:F1}", ImportToday)/@String.Format("{0:F1}", ExportToday) kWh/€@String.Format("{0:F2}", CostToday)</MudLink>
+					}
+					else
+					{
+						<MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+						<MudSkeleton Animation="Animation.Wave" Width="60%" />
+					}
+				</MudPaper>
+			</MudItem>
+			<MudItem xs="6">
+				<MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
+					@if (IsReady)
+					{
+						<MudTooltip Text="Energie aangekocht/geïnjecteerd deze maand" Arrow="true" Placement="Placement.Left">
+							<MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Color="Color.Primary" />
+						</MudTooltip>
+						<MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="CostCommand">@String.Format("{0:F1}", ImportThisMonth)/@String.Format("{0:F1}", ExportThisMonth) kWh/€@String.Format("{0:F2}", CostThisMonth)</MudLink>
+					}
+					else
+					{
+						<MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+						<MudSkeleton Animation="Animation.Wave" Width="60%" />
+					}
+				</MudPaper>
+			</MudItem>
+			<MudItem xs="6">
+				<MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
+					@if (IsReady)
+					{
+						<MudTooltip Text="Dynamische tarief voor consumptie (in ¢/kWh)" Arrow="true" Placement="Placement.Left">
+							<MudIcon Icon="@Icons.Material.Filled.EuroSymbol" Size="Size.Medium" Color="@(CurrentConsumptionPrice < 0M ? Color.Tertiary : Color.Secondary)" />
+						</MudTooltip>
+						<MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="ConsumptionPriceCommand">@Math.Round(CurrentConsumptionPrice, 2)¢ @CurrentPricePeriod</MudLink>
+					}
+					else
+					{
+						<MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+						<MudSkeleton Animation="Animation.Wave" Width="60%" />
+					}
+				</MudPaper>
+			</MudItem>
+			<MudItem xs="6">
+				<MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
+					@if (IsReady)
+					{
+						<MudTooltip Text="Dynamische tarief voor injectie (in ¢/kWh)" Arrow="true" Placement="Placement.Left">
+							<MudIcon Icon="@Icons.Material.Filled.EuroSymbol" Size="Size.Medium" Color="@(CurrentInjectionPrice > 0M ? Color.Tertiary : Color.Secondary)" />
+						</MudTooltip>
+						<MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="ConsumptionPriceCommand">@Math.Round(CurrentInjectionPrice, 2)¢ @CurrentPricePeriod</MudLink>
+					}
+					else
+					{
+						<MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+						<MudSkeleton Animation="Animation.Wave" Width="60%" />
+					}
+				</MudPaper>
+			</MudItem>
+			<MudItem xs="6">
+				<MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
+					@if (IsReady)
+					{
+						<MudTooltip Text="Zelf-consumptie vandaag/deze maand/dit jaar" Arrow="true" Placement="Placement.Left">
+							<MudIcon Icon="@Icons.Material.Filled.Percent" Size="Size.Medium" Color="Color.Primary" />
+						</MudTooltip>
+						<MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="SelfConsumptionCommand">@SelfConsumption</MudLink>
+					}
+					else
+					{
+						<MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+						<MudSkeleton Animation="Animation.Wave" Width="60%" />
+					}
+				</MudPaper>
+			</MudItem>
+			<MudItem xs="6">
+				<MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
+					@if (IsReady)
+					{
+						<MudTooltip Text="Zelf-sufficiëntie vandaag/deze maand/dit jaar" Arrow="true" Placement="Placement.Left">
+							<MudIcon Icon="@Icons.Material.Filled.Percent" Size="Size.Medium" Color="Color.Primary" />
+						</MudTooltip>
+						<MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="SelfConsumptionCommand">@SelfSufficiency</MudLink>
+					}
+					else
+					{
+						<MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
+						<MudSkeleton Animation="Animation.Wave" Width="60%" />
+					}
+				</MudPaper>
+			</MudItem>
+		</MudGrid>
+	</MudCardContent>
+	<MudCardActions>
+		@if (ToggleTvPowerSwitchPending)
+		{
+			<MudIconButton Size="Size.Large" Disabled="true">
+				<MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+			</MudIconButton>
+		}
+		else
+		{
+			<MudTooltip Text="TV" Arrow="true" Placement="Placement.Bottom">
+				<MudIconButton Icon="@Icons.Material.Filled.Tv" Size="Size.Large" Color="@(IsTvOn? Color.Tertiary: Color.Secondary)"
+							   Disabled="@(!IsSwitchesReady)" OnClick="ToggleTvPowerSwitchCommand" />
+			</MudTooltip>
+		}
 
-        @if (ToggleBureauPowerSwitchPending)
-        {
-            <MudIconButton Size="Size.Large" Disabled="true">
-                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
-            </MudIconButton>
-        }
-        else
-        {
-            <MudTooltip Text="Bureau" Arrow="true" Placement="Placement.Bottom">
-                <MudIconButton Icon="@Icons.Material.Filled.Desk" Size="Size.Large" Color="@(IsBureauOn ? Color.Tertiary : Color.Secondary)"
-                               Disabled="@(!IsReady)" OnClick="ToggleBureauPowerSwitchCommand" />
-            </MudTooltip>
-        }
+		@if (ToggleBureauPowerSwitchPending)
+		{
+			<MudIconButton Size="Size.Large" Disabled="true">
+				<MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+			</MudIconButton>
+		}
+		else
+		{
+			<MudTooltip Text="Bureau" Arrow="true" Placement="Placement.Bottom">
+				<MudIconButton Icon="@Icons.Material.Filled.Desk" Size="Size.Large" Color="@(IsBureauOn? Color.Tertiary: Color.Secondary)"
+							   Disabled="@(!IsSwitchesReady)" OnClick="ToggleBureauPowerSwitchCommand" />
+			</MudTooltip>
+		}
 
-        @if (ToggleVijverPowerSwitchPending)
-        {
-            <MudIconButton Size="Size.Large" Disabled="true">
-                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
-            </MudIconButton>
-        }
-        else
-        {
-            <MudTooltip Text="Vijver" Arrow="true" Placement="Placement.Bottom">
-                <MudIconButton Icon="@Icons.Material.Filled.Water" Size="Size.Large" Color="@(IsVijverOn ? Color.Tertiary : Color.Secondary)"
-                               Disabled="@(!IsReady)" OnClick="ToggleVijverPowerSwitchCommand" />
-            </MudTooltip>
-        }
+		@if (ToggleVijverPowerSwitchPending)
+		{
+			<MudIconButton Size="Size.Large" Disabled="true">
+				<MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+			</MudIconButton>
+		}
+		else
+		{
+			<MudTooltip Text="Vijver" Arrow="true" Placement="Placement.Bottom">
+				<MudIconButton Icon="@Icons.Material.Filled.Water" Size="Size.Large" Color="@(IsVijverOn? Color.Tertiary: Color.Secondary)"
+							   Disabled="@(!IsSwitchesReady)" OnClick="ToggleVijverPowerSwitchCommand" />
+			</MudTooltip>
+		}
 
-        <MudTooltip Text="@($"Fotokader {(IsTheFrameOn ? "uitzetten" : "aanzetten")}")" Arrow="true" Placement="Placement.Bottom">
-            <MudIconButton Icon="@Icons.Material.Filled.PhotoCameraBack" Size="Size.Large" Color="@(IsTheFrameOn? Color.Tertiary: Color.Secondary)"
-                           OnClick="ToggleTheFrame" Disabled="@(!IsReady)" />
-        </MudTooltip>
+		<MudTooltip Text="@($"Fotokader {(IsTheFrameOn ? "uitzetten" : "aanzetten")}")" Arrow="true" Placement="Placement.Bottom">
+			<MudIconButton Icon="@Icons.Material.Filled.PhotoCameraBack" Size="Size.Large" Color="@(IsTheFrameOn? Color.Tertiary: Color.Secondary)"
+						   OnClick="ToggleTheFrame" Disabled="@(!IsSwitchesReady)" />
+		</MudTooltip>
 
-        <MudTooltip Text="Computer wakker maken" Arrow="true" Placement="Placement.Bottom">
-            <MudIconButton Icon="@Icons.Material.Filled.Computer" Size="Size.Large" Color="Color.Primary"
-                           OnClick="WakeOnLan" Disabled="@(!IsReady)" />
-        </MudTooltip>
+		<MudTooltip Text="Computer wakker maken" Arrow="true" Placement="Placement.Bottom">
+			<MudIconButton Icon="@Icons.Material.Filled.Computer" Size="Size.Large" Color="Color.Primary"
+						   OnClick="WakeOnLan" Disabled="@(!IsReady)" />
+		</MudTooltip>
 
-    </MudCardActions>
+	</MudCardActions>
 </MudCard>

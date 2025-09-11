@@ -15,26 +15,20 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
 {
     private readonly MijnThuisDbContext _dbContext;
     private readonly IPowerService _powerService;
-    private readonly IShellyService _shellyService;
     private readonly IModbusService _modbusService;
-    private readonly ISamsungService _samsungService;
     private readonly IDayAheadEnergyPricesRepository _energyPricesRepository;
     private readonly IFlagRepository _flagRepository;
 
     public GetPowerOverviewQueryHandler(
         MijnThuisDbContext dbContext,
         IPowerService powerService,
-        IShellyService shellyService,
         IModbusService modbusService,
-        ISamsungService samsungService,
         IDayAheadEnergyPricesRepository energyPricesRepository,
         IFlagRepository flagRepository)
     {
         _dbContext = dbContext;
         _powerService = powerService;
-        _shellyService = shellyService;
         _modbusService = modbusService;
-        _samsungService = samsungService;
         _energyPricesRepository = energyPricesRepository;
         _flagRepository = flagRepository;
     }
@@ -75,9 +69,6 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
             }).ToListAsync();
         var negativePriceRange = await _energyPricesRepository.GetNegativeInjectionPriceRange();
         var energyPricing = await _energyPricesRepository.GetEnergyPriceForTimestamp(DateTime.Now);
-        var tvPowerSwitchOverview = await _shellyService.GetTvPowerSwitchOverview();
-        var bureauPowerSwitchOverview = await _shellyService.GetBureauPowerSwitchOverview();
-        var vijverPowerSwitchOverview = await _shellyService.GetVijverPowerSwitchOverview();
         var electricityFlag = await _flagRepository.GetElectricityTariffDetailsFlag();
 
         var result = powerResult.Adapt<GetPowerOverviewResponse>();
@@ -90,10 +81,6 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         result.CurrentPricePeriod = $"({energyPricing.From:HHu} - {energyPricing.To.AddSeconds(1):HHu})";
         result.CurrentConsumptionPrice = energyPricing.ConsumptionCentsPerKWh;
         result.CurrentInjectionPrice = energyPricing.InjectionCentsPerKWh;
-        result.IsTvOn = tvPowerSwitchOverview.IsOn;
-        result.IsBureauOn = bureauPowerSwitchOverview.IsOn;
-        result.IsVijverOn = vijverPowerSwitchOverview.IsOn;
-        result.IsTheFrameOn = await _samsungService.IsTheFrameOn();
         result.CostToday = await CalculateCost(electricityFlag, result.ImportToday, result.ExportToday, energyCostToday.Sum(x => x.ImportCost) + energyCostToday.Sum(x => x.ExportCost), daily: true);
         result.CostThisMonth = await CalculateCost(electricityFlag, result.ImportThisMonth, result.ExportThisMonth, energyCostThisMonth.Sum(x => x.ImportCost) + energyCostThisMonth.Sum(x => x.ExportCost), daily: false);
 
