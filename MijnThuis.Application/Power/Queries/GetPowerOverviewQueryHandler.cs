@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using MijnThuis.Contracts.Power;
 using MijnThuis.DataAccess;
 using MijnThuis.DataAccess.Entities;
+using MijnThuis.DataAccess.Migrations;
 using MijnThuis.DataAccess.Repositories;
 using MijnThuis.Integrations.Power;
-using MijnThuis.Integrations.Samsung;
 using MijnThuis.Integrations.Solar;
 
 namespace MijnThuis.Application.Power.Queries;
@@ -80,6 +80,7 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         result.ExportThisMonth = energyThisMonth.Sum(x => x.ExportToday);
         result.CurrentPricePeriod = $"({energyPricing.From:HHu} - {energyPricing.To.AddSeconds(1):HHu})";
         result.CurrentConsumptionPrice = energyPricing.ConsumptionCentsPerKWh;
+        result.CurrentConsumptionPrice = Math.Round(energyPricing.ConsumptionCentsPerKWh * 1.06M, 3) + electricityFlag.GreenEnergyContribution + electricityFlag.UsageTariff + electricityFlag.SpecialExciseTax + electricityFlag.EnergyContribution;
         result.CurrentInjectionPrice = energyPricing.InjectionCentsPerKWh;
         result.CostToday = await CalculateCost(electricityFlag, result.ImportToday, result.ExportToday, energyCostToday.Sum(x => x.ImportCost) + energyCostToday.Sum(x => x.ExportCost), daily: true);
         result.CostThisMonth = await CalculateCost(electricityFlag, result.ImportThisMonth, result.ExportThisMonth, energyCostThisMonth.Sum(x => x.ImportCost) + energyCostThisMonth.Sum(x => x.ExportCost), daily: false);

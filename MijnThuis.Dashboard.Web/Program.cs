@@ -58,6 +58,8 @@ builder.Services.AddMcpServer()
 
 var app = builder.Build();
 
+var accessKey = app.Configuration.GetValue<string>("SUPER_SECRET_ACCESS_KEY");
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -74,6 +76,6 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
-app.MapMcp("mcp");
+app.MapMcp($"{accessKey}/mcp");
 
 app.Run();

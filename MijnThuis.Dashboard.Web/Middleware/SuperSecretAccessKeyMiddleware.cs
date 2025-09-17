@@ -13,21 +13,30 @@ public class SuperSecretAccessKeyMiddleware
         _superSecretAccessKey = configuration.GetValue<string>("SUPER_SECRET_ACCESS_KEY");
     }
 
-    public async Task InvokeAsync(HttpContext context, ExtraPageArguments extraPageArguments)
+    public async Task InvokeAsync(HttpContext context, ExtraPageArguments extraPageArguments, ILogger<SuperSecretAccessKeyMiddleware> logger)
     {
         var accessKey = context.Request.Query["accessKey"];
         var isTesla = context.Request.Query["isTesla"];
+        var isAllowed = true;
 
         if (context.Request.Path == "/")
         {
             extraPageArguments.IsTesla = isTesla.Count > 0;
         }
 
-        if ((context.Request.Path == "/" || context.Request.Path == "/solar") && accessKey != _superSecretAccessKey)
+        if ((context.Request.Path == "/" || context.Request.Path == "/power" || context.Request.Path == "/solar" || context.Request.Path == "/car" || context.Request.Path == "/heating") && accessKey != _superSecretAccessKey)
         {
-            await context.Response.WriteAsync("<html><head><title>Mijn Thuis</title></head><body><h1>Mijn Thuis</h1></body></html>");
+            isAllowed = false;
         }
 
-        await _next(context);
+        if (isAllowed)
+        {
+            await _next(context);
+        }
+        else
+        {
+            logger.LogWarning("Access DENIED for path {Path} without valid access key!", context.Request.Path);
+            await context.Response.WriteAsync("<html><head><title>Mijn Thuis</title></head><body><h1>Mijn Thuis</h1></body></html>");
+        }
     }
 }
