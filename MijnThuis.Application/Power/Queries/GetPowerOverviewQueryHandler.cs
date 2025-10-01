@@ -78,7 +78,7 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         result.ExportToday = energyToday.Sum(x => x.ExportToday);
         result.ImportThisMonth = energyThisMonth.Sum(x => x.ImportToday);
         result.ExportThisMonth = energyThisMonth.Sum(x => x.ExportToday);
-        result.CurrentPricePeriod = $"({energyPricing.From:HHu} - {energyPricing.To.AddSeconds(1):HHu})";
+        result.CurrentPricePeriod = $"({energyPricing.From:HHumm} - {energyPricing.To.AddSeconds(1):HHumm})";
         result.CurrentConsumptionPrice = energyPricing.ConsumptionCentsPerKWh;
         result.CurrentConsumptionPrice = Math.Round(energyPricing.ConsumptionCentsPerKWh * 1.06M, 3) + electricityFlag.GreenEnergyContribution + electricityFlag.UsageTariff + electricityFlag.SpecialExciseTax + electricityFlag.EnergyContribution;
         result.CurrentInjectionPrice = energyPricing.InjectionCentsPerKWh;
