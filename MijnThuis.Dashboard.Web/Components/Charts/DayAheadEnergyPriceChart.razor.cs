@@ -66,7 +66,7 @@ public partial class DayAheadEnergyPriceChart
         _options.Xaxis = new XAxis
         {
             Type = XAxisType.Category,
-            OverwriteCategories = Enumerable.Range(0, 24 * 4 + 1).Select(x => new DateTime().AddMinutes(15 * x).Minute == 0 ? $"{new DateTime().AddMinutes(15 * x):HH:mm}" : "").ToList(),
+            OverwriteCategories = Enumerable.Range(0, 24 * 4).Select(x => new DateTime().AddMinutes(15 * x).Minute == 0 ? $"{new DateTime().AddMinutes(15 * x):HH:mm}" : "").ToList(),
         };
         _options.Yaxis = new List<YAxis>
         {
@@ -156,7 +156,8 @@ public partial class DayAheadEnergyPriceChart
             using var scope = ServiceProvider.CreateScope();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-            var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, 0, 0);
+            var minutes = DateTime.Now.Minute / 15 * 15;
+            var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, minutes, 0);
 
             var response = await mediator.Send(new GetDayAheadEnergyPricesQuery
             {

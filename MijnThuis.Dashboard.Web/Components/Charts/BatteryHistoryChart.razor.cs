@@ -57,7 +57,7 @@ public partial class BatteryHistoryChart
         _options.Xaxis = new XAxis
         {
             Type = XAxisType.Category,
-            OverwriteCategories = Enumerable.Range(0, 24 * 4 + 1).Select(x => new DateTime().AddMinutes(15 * x).Minute == 0 && new DateTime().AddMinutes(15 * x).Hour % 2 == 0 ? $"{new DateTime().AddMinutes(15 * x):HH:mm}" : "").ToList(),
+            OverwriteCategories = Enumerable.Range(0, 24 * 4).Select(x => new DateTime().AddMinutes(15 * x).Minute == 0 && new DateTime().AddMinutes(15 * x).Hour % 2 == 0 ? $"{new DateTime().AddMinutes(15 * x):HH:mm}" : "").ToList(),
         };
         _options.Yaxis = new List<YAxis>
         {

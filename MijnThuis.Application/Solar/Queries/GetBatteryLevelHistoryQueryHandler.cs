@@ -56,7 +56,7 @@ public class GetBatteryLevelHistoryQueryHandler : IRequestHandler<GetBatteryLeve
             }
         }
 
-        result.Entries.Add(new BatteryLevelEntry { Date = request.Date.Date.AddDays(1), LevelOfCharge = null });
+        //result.Entries.Add(new BatteryLevelEntry { Date = request.Date.Date.AddDays(1), LevelOfCharge = null });
 
         return result;
     }
