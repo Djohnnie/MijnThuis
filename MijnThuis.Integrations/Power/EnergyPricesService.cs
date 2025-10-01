@@ -40,7 +40,7 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
 
         var domain = "10YBE----------2";
         var start = $"{date:yyyyMMdd}0000";
-        var end = $"{date:yyyyMMdd}2300";
+        var end = $"{date:yyyyMMdd}2359";
 
         var url = $"?documentType=A44&in_Domain={domain}&out_Domain={domain}&periodStart={start}&periodEnd={end}&securityToken={_apiKey}";
         var response = await client.GetAsync(url);
@@ -60,30 +60,33 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
 
         var sortedPoints = period.Points.OrderBy(x => x.Position).ToList();
 
-        var hoursInDay = GetHoursInDay(date);
-        if (sortedPoints.Count != hoursInDay)
+        // From 2025-10-01, tarrifs will be for each 15 minutes instead of each hour.
+        var factor = date == new DateTime(2025, 10, 1) ? 4 : 1;
+
+        var periodsInDay = GetPeriodsInDay(date, factor);
+        if (sortedPoints.Count != periodsInDay)
         {
-            if (sortedPoints.Count < hoursInDay)
+            if (sortedPoints.Count < periodsInDay)
             {
-                for (var hour = 0; hour < hoursInDay; hour++)
+                for (var periodInDay = 0; periodInDay < periodsInDay; periodInDay++)
                 {
-                    if (hour >= sortedPoints.Count)
+                    if (periodInDay >= sortedPoints.Count)
                     {
                         sortedPoints.Add(new Point
                         {
-                            Position = hour,
-                            Price = sortedPoints[hour - 1].Price
+                            Position = periodInDay,
+                            Price = sortedPoints[periodInDay - 1].Price
                         });
                     }
                     else
                     {
-                        var point = sortedPoints[hour];
-                        if (point.Position > hour)
+                        var point = sortedPoints[periodInDay];
+                        if (point.Position > periodInDay)
                         {
-                            sortedPoints.Insert(hour, new Point
+                            sortedPoints.Insert(periodInDay, new Point
                             {
-                                Position = hour,
-                                Price = sortedPoints[hour - 1].Price
+                                Position = periodInDay,
+                                Price = sortedPoints[periodInDay - 1].Price
                             });
                         }
                     }
@@ -91,26 +94,37 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
             }
             else
             {
-                throw new Exception($"{date} should have {hoursInDay} hours, but service returned {sortedPoints.Count} points.");
+                throw new Exception($"{date} should have {periodsInDay} periods, but service returned {sortedPoints.Count} points.");
             }
         }
 
         var energyPrices = new List<EnergyPrice>();
-        for (int hour = 0; hour < hoursInDay; hour++)
+        for (int periodInDay = 0; periodInDay < periodsInDay; periodInDay++)
         {
-            var point = sortedPoints[hour];
+            var point = sortedPoints[periodInDay];
 
-            var hourOffset = hoursInDay switch
+            var periodOffset = 0;
+
+            if (periodsInDay == 23 * factor)
             {
-                23 => hour < 2 ? hour : hour + 1,
-                24 => hour,
-                25 => hour < 3 ? hour : hour - 1,
-                _ => throw new Exception($"Invalid number of hours in day: {hoursInDay}")
-            };
+                periodOffset = periodInDay < 2 ? periodInDay : periodInDay + 1;
+            }
+            else if (periodsInDay == 24 * factor)
+            {
+                periodOffset = periodInDay;
+            }
+            else if (periodsInDay == 25 * factor)
+            {
+                periodOffset = periodInDay < 3 ? periodInDay : periodInDay - 1;
+            }
+            else
+            {
+                throw new Exception($"Invalid number of periods in day: {periodsInDay}");
+            }
 
             energyPrices.Add(new EnergyPrice
             {
-                TimeStamp = date.AddHours(hourOffset),
+                TimeStamp = date.AddMinutes(periodOffset * (factor == 1 ? 60 : 15)),
                 Price = point.Price
             });
         }
@@ -122,7 +136,7 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
         };
     }
 
-    private int GetHoursInDay(DateTime date)
+    private int GetPeriodsInDay(DateTime date, int factor)
     {
         var adjustmentRules = TimeZoneInfo.Local.GetAdjustmentRules();
 
@@ -139,25 +153,25 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
         if (currentAdjustmentRule == null)
         {
             // No adjustment rule found, return the default 24 hours.
-            return 24;
+            return 24 * factor;
         }
 
         var start = GetTransitionDate(currentAdjustmentRule.DaylightTransitionStart, date.Year);
         if (date == start)
         {
             // This day has 23 hours, and should skip an hour.
-            return 23;
+            return 23 * factor;
         }
 
         var end = GetTransitionDate(currentAdjustmentRule.DaylightTransitionEnd, date.Year);
         if (date == end)
         {
             // This day has 25 hours, and should add an extra hour.
-            return 25;
+            return 25 * factor;
         }
 
         // Return default of 24 hours.
-        return 24;
+        return 24 * factor;
     }
 
     private static DateTime GetTransitionDate(TimeZoneInfo.TransitionTime transitionTime, int year)
