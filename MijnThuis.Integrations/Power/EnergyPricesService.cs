@@ -55,13 +55,13 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
         var serializer = new XmlSerializer(typeof(PublicationMarketDocument));
         var result = serializer.Deserialize(stream) as PublicationMarketDocument;
 
-        var period = result.TimeSeries.First().Periods.First();
-        period.Points.ForEach(x => x.Position = period.Resolution == "PT15M" ? (x.Position - 1) / 4 : x.Position - 1);
-
-        var sortedPoints = period.Points.OrderBy(x => x.Position).ToList();
-
         // From 2025-10-01, tarrifs will be for each 15 minutes instead of each hour.
         var factor = date >= new DateTime(2025, 10, 1) ? 4 : 1;
+
+        var period = result.TimeSeries.First().Periods.First();
+        period.Points.ForEach(x => x.Position = period.Resolution == "PT15M" && factor == 1 ? (x.Position - 1) / 4 : x.Position - 1);
+
+        var sortedPoints = period.Points.OrderBy(x => x.Position).ToList();
 
         var periodsInDay = GetPeriodsInDay(date, factor);
         if (sortedPoints.Count != periodsInDay)
