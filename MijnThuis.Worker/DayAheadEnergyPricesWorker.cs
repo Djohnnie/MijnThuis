@@ -75,11 +75,13 @@ internal class DayAheadEnergyPricesWorker : BackgroundService
 
                             foreach (var price in energyPrices.Prices)
                             {
+                                var minutesPerPeriod = dateToProcess >= new DateTime(2025, 10, 1) ? 15 : 60;
+
                                 await energyPricesRepository.AddEnergyPrice(new DayAheadEnergyPricesEntry
                                 {
                                     Id = Guid.NewGuid(),
                                     From = price.TimeStamp,
-                                    To = price.TimeStamp.AddHours(1).AddSeconds(-1),
+                                    To = price.TimeStamp.AddMinutes(minutesPerPeriod).AddSeconds(-1),
                                     EuroPerMWh = price.Price,
                                     ConsumptionTariffFormulaExpression = dateToProcess < new DateTime(2025, 5, 1) ? "" : consumptionTariffExpressionFlag.Expression,
                                     ConsumptionCentsPerKWh = dateToProcess < new DateTime(2025, 5, 1) ? price.Price / 10M : await RunExpression(consumptionTariffScript, price.Price / 10M),

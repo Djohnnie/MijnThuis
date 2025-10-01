@@ -61,7 +61,7 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
         var sortedPoints = period.Points.OrderBy(x => x.Position).ToList();
 
         // From 2025-10-01, tarrifs will be for each 15 minutes instead of each hour.
-        var factor = date == new DateTime(2025, 10, 1) ? 4 : 1;
+        var factor = date >= new DateTime(2025, 10, 1) ? 4 : 1;
 
         var periodsInDay = GetPeriodsInDay(date, factor);
         if (sortedPoints.Count != periodsInDay)
