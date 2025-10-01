@@ -41,14 +41,16 @@ public class EnergyHistoryWorker : BackgroundService
 
                 var previousEntry = await dbContext.EnergyHistory.OrderByDescending(x => x.Date).FirstOrDefaultAsync();
 
-                if (previousEntry == null || (DateTime.Now - previousEntry.Date).TotalHours >= 1)
+                if (previousEntry == null || (DateTime.Now - previousEntry.Date).TotalMinutes >= 15)
                 {
                     var powerOverview = await powerService.GetOverview();
-                    var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, 0, 0);
+
+                    var now = DateTime.Now;
+                    var date = new DateTime(now.Year, now.Month, now.Day, now.Hour, (now.Minute / 15) * 15, 0);
 
                     // Get the energy cost entry for the past hour.
                     var costEntry = await dbContext.DayAheadEnergyPrices
-                        .Where(x => x.From == date.AddHours(-1))
+                        .Where(x => x.From == date.AddMinutes(-15))
                         .FirstOrDefaultAsync();
 
                     var energyHistoryEntry = new EnergyHistoryEntry
