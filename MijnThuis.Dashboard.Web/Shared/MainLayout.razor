@@ -3,6 +3,8 @@
 
 @inherits LayoutComponentBase
 
+@inject IJSRuntime JSRuntime
+
 <MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@DarkMode.IsDarkMode" Theme="_theme" />
 <MudDialogProvider />
 <MudSnackbarProvider />
@@ -10,7 +12,7 @@
 
 <MudLayout>
     <MudAppBar Elevation="0">
-        <MudIcon Icon="@Icons.Material.Filled.Home" Color="Color.Inherit" />
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" OnClick="NavigateBack" />
         <MudText Typo="Typo.h5" Class="ml-3">Mijn Thuis</MudText>
         <MudSpacer />
         <MudIconButton @onclick="SpeechToText" Color="Color.Inherit" Icon="@Icons.Material.Filled.Mic" />
@@ -74,4 +76,9 @@
     {
         _sttService.NotifyEventClick(this);
     }
+
+    async Task NavigateBack()
+    {
+        await JSRuntime.InvokeVoidAsync("history.back");
+	}
 }
