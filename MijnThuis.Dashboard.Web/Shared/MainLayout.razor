@@ -4,6 +4,7 @@
 @inherits LayoutComponentBase
 
 @inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
 
 <MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@DarkMode.IsDarkMode" Theme="_theme" />
 <MudDialogProvider />
@@ -11,74 +12,83 @@
 <MudPopoverProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="0">
-        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" OnClick="NavigateBack" />
-        <MudText Typo="Typo.h5" Class="ml-3">Mijn Thuis</MudText>
-        <MudSpacer />
-        <MudIconButton @onclick="SpeechToText" Color="Color.Inherit" Icon="@Icons.Material.Filled.Mic" />
-        <MudIconButton @onclick="ToggleDarkMode" Color="Color.Inherit" Icon="@modeIcon" />
-    </MudAppBar>
-    <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="my-2 pt-4">
-            @Body
-        </MudContainer>
-    </MudMainContent>
+	<MudAppBar Elevation="0">
+		@if (IsHomePage)
+		{
+			<MudIcon Icon="@Icons.Material.Filled.Home" Color="Color.Inherit" />
+		}
+		else
+		{
+			<MudIconButton Class="mx-n3" Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" OnClick="NavigateBack" />
+		}
+		<MudText Typo="Typo.h5" Class="ml-3">Mijn Thuis</MudText>
+		<MudSpacer />
+		<MudIconButton @onclick="SpeechToText" Color="Color.Inherit" Icon="@Icons.Material.Filled.Mic" />
+		<MudIconButton @onclick="ToggleDarkMode" Color="Color.Inherit" Icon="@modeIcon" />
+	</MudAppBar>
+	<MudMainContent>
+		<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="my-2 pt-4">
+			@Body
+		</MudContainer>
+	</MudMainContent>
 </MudLayout>
 
 @code
 {
-    [Inject] private SpeechToTextNotificationService _sttService { get; set; }
+	[Inject] private SpeechToTextNotificationService _sttService { get; set; }
 
-    [CascadingParameter]
-    public NotifyingDarkMode DarkMode { get; set; }
+	[CascadingParameter]
+	public NotifyingDarkMode DarkMode { get; set; }
 
-    MudTheme _theme = new MudTheme
-    {
-        PaletteLight = new PaletteLight
-        {
-            ActionDefault = "#000000"
-        },
-        PaletteDark = new PaletteDark
-        {
-            ActionDefault = "#FFFFFF"
-        }
-    };
-    MudThemeProvider _mudThemeProvider = new MudThemeProvider();
-    string modeIcon => DarkMode.IsDarkMode ? @Icons.Material.Outlined.DarkMode : @Icons.Material.Outlined.LightMode;
+	MudTheme _theme = new MudTheme
+	{
+		PaletteLight = new PaletteLight
+		{
+			ActionDefault = "#000000"
+		},
+		PaletteDark = new PaletteDark
+		{
+			ActionDefault = "#FFFFFF"
+		}
+	};
+	MudThemeProvider _mudThemeProvider = new MudThemeProvider();
+	string modeIcon => DarkMode.IsDarkMode ? @Icons.Material.Outlined.DarkMode : @Icons.Material.Outlined.LightMode;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            DarkMode.IsDarkMode = await _mudThemeProvider.GetSystemPreference();
+	private bool IsHomePage => new Uri(NavigationManager.Uri).PathAndQuery.Replace(new Uri(NavigationManager.Uri).Query, string.Empty).Equals("/");
 
-            await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			DarkMode.IsDarkMode = await _mudThemeProvider.GetSystemPreference();
 
-            StateHasChanged();
-        }
-    }
+			await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
 
-    private Task OnSystemPreferenceChanged(bool newValue)
-    {
-        DarkMode.IsDarkMode = newValue;
+			StateHasChanged();
+		}
+	}
 
-        StateHasChanged();
+	private Task OnSystemPreferenceChanged(bool newValue)
+	{
+		DarkMode.IsDarkMode = newValue;
 
-        return Task.CompletedTask;
-    }
+		StateHasChanged();
 
-    void ToggleDarkMode()
-    {
-        DarkMode.ToggleDarkMode();
-    }
+		return Task.CompletedTask;
+	}
 
-    void SpeechToText()
-    {
-        _sttService.NotifyEventClick(this);
-    }
+	void ToggleDarkMode()
+	{
+		DarkMode.ToggleDarkMode();
+	}
 
-    async Task NavigateBack()
-    {
-        await JSRuntime.InvokeVoidAsync("history.back");
+	void SpeechToText()
+	{
+		_sttService.NotifyEventClick(this);
+	}
+
+	async Task NavigateBack()
+	{
+		await JSRuntime.InvokeVoidAsync("history.back");
 	}
 }
