@@ -84,24 +84,24 @@ public partial class DayAheadEnergyPriceChart
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
-        _options.Colors = new List<string> { "#5DE799", "#B0D8FD", "#FBB550", "#B0D8FD" };
+        _options.Colors = new List<string> { "#FBB550", "#B0D8FD", "#B0D8FD", "#5DE799" };
         _options.Stroke = new Stroke
         {
             Curve = Curve.Smooth,
-            Width = new Size(3, 5, 3, 2),
-            DashArray = [0, 0, 0, 3]
+            Width = new Size(5, 3, 3, 3),
+            DashArray = [0, 0, 3, 0]
         };
         _options.Fill = new Fill
         {
             Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid, FillType.Solid },
-            Opacity = new Opacity(1, 1, 1, 0.8)
+            Opacity = new Opacity(1, 1, 0.8, 1)
         };
 
         DayAheadEnergyPrices.Description = "Elektriciteit: Dynamische tarieven";
-        DayAheadEnergyPrices.Series1Description = "Mega tarieven voor consumptie";
-        DayAheadEnergyPrices.Series2Description = "Totale tarieven voor consumptie";
-        DayAheadEnergyPrices.Series3Description = "Mega tarieven voor injectie";
-        DayAheadEnergyPrices.Series4Description = "Dynamische tarieven";
+        DayAheadEnergyPrices.Series1Description = "Totale tarieven voor consumptie";
+        DayAheadEnergyPrices.Series2Description = "Mega tarieven voor consumptie";
+        DayAheadEnergyPrices.Series3Description = "Dynamische tarieven";
+        DayAheadEnergyPrices.Series4Description = "Mega tarieven voor injectie";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -170,22 +170,22 @@ public partial class DayAheadEnergyPriceChart
             DayAheadEnergyPrices.Series1.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:HH:mm}",
-                YValue = x.ConsumptionPrice
+                YValue = x.RealConsumptionPrice
             }));
             DayAheadEnergyPrices.Series2.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:HH:mm}",
-                YValue = x.RealConsumptionPrice
+                YValue = x.ConsumptionPrice
             }));
             DayAheadEnergyPrices.Series3.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:HH:mm}",
-                YValue = x.InjectionPrice
+                YValue = x.Price
             }));
             DayAheadEnergyPrices.Series4.AddRange(entries.Select(x => new ChartDataEntry<string, decimal>
             {
                 XValue = $"{x.Date:HH:mm}",
-                YValue = x.Price
+                YValue = x.InjectionPrice
             }));
 
             TitleDescription = string.Create(CultureInfo.GetCultureInfo("nl-be"), $"Dynamische tarieven voor {_selectedDate:D}");
@@ -210,11 +210,33 @@ public partial class DayAheadEnergyPriceChart
                     new AnnotationsPoint
                     {
                         X = $"{now:HH:mm}",
-                        Y = (double)(entries.SingleOrDefault(x=>x.Date == now)?.ConsumptionPrice ?? 0),
+                        Y = (double)(entries.SingleOrDefault(x=>x.Date == now)?.RealConsumptionPrice ?? 0),
                         SeriesIndex = 0,
                         Marker = new AnnotationMarker
                         {
-                            FillColor = "#5DE799",
+                            FillColor = "#FBB550",
+                            StrokeColor = DarkMode.IsDarkMode ? "#000000" : "#FFFFFF"
+                        },
+                        Label = new Label
+                        {
+                            TextAnchor = TextAnchor.End,
+                            OffsetX = -10,
+                            Text = $"{(double)(entries.SingleOrDefault(x=>x.Date == now)?.RealConsumptionPrice ?? 0)} €c/kWh",
+                            Style = new Style
+                            {
+                                Background = DarkMode.IsDarkMode ? "#000000" : "#FFFFFF",
+                                Color = DarkMode.IsDarkMode ? "#FFFFFF" : "#000000"
+                            }
+                        }
+                    },
+                    new AnnotationsPoint
+                    {
+                        X = $"{now:HH:mm}",
+                        Y = (double)(entries.SingleOrDefault(x=>x.Date == now)?.ConsumptionPrice ?? 0),
+                        SeriesIndex = 1,
+                        Marker = new AnnotationMarker
+                        {
+                            FillColor = "#B0D8FD",
                             StrokeColor = DarkMode.IsDarkMode ? "#000000" : "#FFFFFF"
                         },
                         Label = new Label
@@ -236,7 +258,7 @@ public partial class DayAheadEnergyPriceChart
                         SeriesIndex = 1,
                         Marker = new AnnotationMarker
                         {
-                            FillColor = "#FBB550",
+                            FillColor = "#5DE799",
                             StrokeColor = DarkMode.IsDarkMode ? "#000000" : "#FFFFFF"
                         },
                         Label = new Label
@@ -244,28 +266,6 @@ public partial class DayAheadEnergyPriceChart
                             TextAnchor = TextAnchor.End,
                             OffsetX = -10,
                             Text = $"{(double)(entries.SingleOrDefault(x=>x.Date == now)?.InjectionPrice ?? 0)} €c/kWh",
-                            Style = new Style
-                            {
-                                Background = DarkMode.IsDarkMode ? "#000000" : "#FFFFFF",
-                                Color = DarkMode.IsDarkMode ? "#FFFFFF" : "#000000"
-                            }
-                        }
-                    },
-                    new AnnotationsPoint
-                    {
-                        X = $"{now:HH:mm}",
-                        Y = (double)(entries.SingleOrDefault(x=>x.Date == now)?.RealConsumptionPrice ?? 0),
-                        SeriesIndex = 1,
-                        Marker = new AnnotationMarker
-                        {
-                            FillColor = "#B0D8FD",
-                            StrokeColor = DarkMode.IsDarkMode ? "#000000" : "#FFFFFF"
-                        },
-                        Label = new Label
-                        {
-                            TextAnchor = TextAnchor.End,
-                            OffsetX = -10,
-                            Text = $"{(double)(entries.SingleOrDefault(x=>x.Date == now)?.RealConsumptionPrice ?? 0)} €c/kWh",
                             Style = new Style
                             {
                                 Background = DarkMode.IsDarkMode ? "#000000" : "#FFFFFF",
