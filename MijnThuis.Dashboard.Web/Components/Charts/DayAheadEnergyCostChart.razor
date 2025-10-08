@@ -1,0 +1,74 @@
+﻿@using MijnThuis.Contracts.Solar
+@using MijnThuis.Dashboard.Web.Model.Charts;
+@implements IDisposable
+@inject IServiceScopeFactory ServiceProvider
+@inject ILogger<DayAheadEnergyCostChart> Logger
+
+<MudCard Outlined>
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <MudAvatar Color="Color.Primary">
+                <MudIcon Icon="@Icons.Material.Filled.EuroSymbol" />
+            </MudAvatar>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.body1">Elektriciteit</MudText>
+            <MudText Typo="Typo.body2">@TitleDescription</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudTooltip Text="Vorige maand" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateBeforeLargeCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Vorige dag" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.NavigateBefore" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateBeforeCommand" />
+            </MudTooltip>
+
+            <MudTooltip Text="Volgende dag" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.NavigateNext" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateNextCommand" />
+            </MudTooltip>            
+
+            <MudTooltip Text="Volgende maand" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowRight" Size="Size.Medium" Color="Color.Default"
+                               OnClick="NavigateNextLargeCommand" />
+            </MudTooltip>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal?>" Options="_options" @ref="_apexChart">
+
+            <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal?>"
+                                        Items="@DayAheadEnergyPrices.Series1"
+                                        Name="@DayAheadEnergyPrices.Series1Description"
+                                        XValue="@(e => e.XValue)"
+                                        YValue="@(e => e.YValue)"
+                                        SeriesType="ApexCharts.SeriesType.Bar" />
+
+            <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal?>"
+                                        Items="@DayAheadEnergyPrices.Series2"
+                                        Name="@DayAheadEnergyPrices.Series2Description"
+                                        XValue="@(e => e.XValue)"
+                                        YValue="@(e => e.YValue)"
+                                        SeriesType="ApexCharts.SeriesType.Bar" />
+
+            <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal?>"
+                                        Items="@DayAheadEnergyPrices.Series3"
+                                        Name="@DayAheadEnergyPrices.Series3Description"
+                                        XValue="@(e => e.XValue)"
+                                        YValue="@(e => e.YValue)"
+                                        SeriesType="ApexCharts.SeriesType.Line" />
+
+            <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal?>"
+                                        Items="@DayAheadEnergyPrices.Series4"
+                                        Name="@DayAheadEnergyPrices.Series4Description"
+                                        XValue="@(e => e.XValue)"
+                                        YValue="@(e => e.YValue)"
+                                        SeriesType="ApexCharts.SeriesType.Line" />
+        </ApexCharts.ApexChart>
+    </MudCardContent>
+    <MudCardActions>
+    </MudCardActions>
+</MudCard>
