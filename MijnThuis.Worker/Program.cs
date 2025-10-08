@@ -10,6 +10,7 @@ builder.Services.AddIntegrations();
 builder.Services.AddScoped<ICarChargingHelper, CarChargingHelper>();
 builder.Services.AddScoped<IHomeBatteryChargingHelper, HomeBatteryChargingHelper>();
 
+builder.Services.AddHostedService<PowerPeakNotificationWorker>();
 builder.Services.AddHostedService<CarChargingWorker>();
 //builder.Services.AddHostedService<HomeBatteryChargingWorker>();
 builder.Services.AddHostedService<HomeBatteryNotificationWorker>();
