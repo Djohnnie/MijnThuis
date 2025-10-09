@@ -84,6 +84,8 @@ public partial class DayAheadEnergyCostChart
             new YAxis
             {
                 DecimalsInFloat = 0,
+                Min = 0,
+                Max = 100,
                 Labels = new YAxisLabels
                 {
                     Formatter = @"function (value) { return value + ' %'; }"
