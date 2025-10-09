@@ -80,6 +80,8 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             Entries = new List<DayAheadEnergyCost>()
         };
 
+        var previousPrice = 0M;
+
         for (var i = 0; i < 96; i++)
         {
             var date = from.AddMinutes(i * 15);
@@ -92,6 +94,11 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             if (priceEntry != null)
             {
                 entry.ConsumptionPrice = priceEntry.ConsumptionPrice + flag.GreenEnergyContribution + flag.UsageTariff + flag.SpecialExciseTax + flag.EnergyContribution;
+                previousPrice = entry.ConsumptionPrice;
+            }
+            else
+            {
+                entry.ConsumptionPrice = previousPrice;
             }
 
             if (consumptionEntry != null)
