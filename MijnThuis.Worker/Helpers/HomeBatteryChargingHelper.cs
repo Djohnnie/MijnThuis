@@ -57,7 +57,10 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var numberOf15MinuteBlocksNeeded = (int)(totalEnergyNeeded / (gridChargingPower / 4M));
         for (var i = 0; i < cheapestPricesToday.Count; i++)
         {
-            await _dayAheadEnergyPricesRepository.SetCheapestEnergyPriceShouldCharge(cheapestPricesToday[i].Id, i < numberOf15MinuteBlocksNeeded);
+            if (cheapestPricesToday[i].From > DateTime.Now)
+            {
+                await _dayAheadEnergyPricesRepository.SetCheapestEnergyPriceShouldCharge(cheapestPricesToday[i].Id, i < numberOf15MinuteBlocksNeeded);
+            }
         }
     }
 
