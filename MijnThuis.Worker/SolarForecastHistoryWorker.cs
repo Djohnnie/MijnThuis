@@ -39,7 +39,7 @@ internal class SolarForecastHistoryWorker : BackgroundService
             {
                 const decimal LATITUDE = 51.06M;
                 const decimal LONGITUDE = 4.36M;
-                const byte DAMPING = 0;
+                const byte DAMPING = 1;
 
                 using var scope = _serviceProvider.CreateScope();
                 using var dbContext = scope.ServiceProvider.GetRequiredService<MijnThuisDbContext>();
