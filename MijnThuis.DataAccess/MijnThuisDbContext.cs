@@ -17,6 +17,7 @@ public class MijnThuisDbContext : DbContext
     public DbSet<SolarForecastHistoryEntry> SolarForecastHistory { get; set; }
     public DbSet<SolarForecastPeriodEntry> SolarForecastPeriods { get; set; }
     public DbSet<DayAheadEnergyPricesEntry> DayAheadEnergyPrices { get; set; }
+    public DbSet<DayAheadCheapestEnergyPricesEntry> DayAheadCheapestEnergyPrices { get; set; }
     public DbSet<EnergyInvoiceEntry> EnergyInvoices { get; set; }
     public DbSet<CarChargesHistoryEntry> CarChargesHistory { get; set; }
     public DbSet<CarDrivesHistoryEntry> CarDrivesHistory { get; set; }
@@ -163,6 +164,16 @@ public class MijnThuisDbContext : DbContext
             entityBuilder.Property(x => x.ConsumptionCentsPerKWh).HasPrecision(9, 3);
             entityBuilder.Property(x => x.InjectionTariffFormulaExpression).IsRequired();
             entityBuilder.Property(x => x.InjectionCentsPerKWh).HasPrecision(9, 3);
+        });
+
+        modelBuilder.Entity<DayAheadCheapestEnergyPricesEntry>(entityBuilder =>
+        {
+            entityBuilder.ToTable("DAY_AHEAD_CHEAPEST_ENERGY_PRICES");
+            entityBuilder.HasKey(x => x.Id).IsClustered(false);
+            entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
+            entityBuilder.HasIndex(x => x.SysId).IsClustered();
+            entityBuilder.HasIndex(x => x.Order);
+            entityBuilder.Property(x => x.EuroPerMWh).HasPrecision(9, 3);
         });
 
         modelBuilder.Entity<EnergyInvoiceEntry>(entityBuilder =>

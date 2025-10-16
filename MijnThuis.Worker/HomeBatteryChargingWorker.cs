@@ -10,7 +10,7 @@ public class HomeBatteryChargingWorker : BackgroundService
     private readonly ILogger<HomeBatteryChargingWorker> _logger;
 
     public HomeBatteryChargingWorker(
-        IConfiguration configuration, 
+        IConfiguration configuration,
         IServiceScopeFactory serviceProvider,
         ILogger<HomeBatteryChargingWorker> logger)
     {
@@ -23,12 +23,6 @@ public class HomeBatteryChargingWorker : BackgroundService
     {
         var iterationInMinutes = _configuration.GetValue<int>("ITERATION_IN_MINUTES");
 
-        // Keep a flag to know if the battery was charged today.
-        DateTime? charged = null;
-
-        // Keep a flag to know when the battery should be charged.
-        DateTime? chargeFrom = null;
-
         // While the service is not requested to stop...
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -39,8 +33,7 @@ public class HomeBatteryChargingWorker : BackgroundService
             {
                 using var serviceScope = _serviceProvider.CreateScope();
                 var helper = serviceScope.ServiceProvider.GetRequiredService<IHomeBatteryChargingHelper>();
-                var battery = new BatteryCharged(charged, chargeFrom);
-                (charged, chargeFrom) = await helper.Verify(battery, stoppingToken);
+                await helper.PrepareCheapestPeriods(stoppingToken);
             }
             catch (Exception ex)
             {

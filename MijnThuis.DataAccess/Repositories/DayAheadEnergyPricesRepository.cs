@@ -6,9 +6,12 @@ namespace MijnThuis.DataAccess.Repositories;
 public interface IDayAheadEnergyPricesRepository
 {
     Task<DayAheadEnergyPricesEntry> GetEnergyPriceForTimestamp(DateTime timestamp);
+    Task<List<DayAheadEnergyPricesEntry>> GetEnergyPriceForDate(DateTime date, CancellationToken cancellationToken);
     Task<EnergyPriceRange> GetNegativeInjectionPriceRange();
     Task<List<DayAheadEnergyPricesEntry>> GetLatestEnergyPrices();
     Task AddEnergyPrice(DayAheadEnergyPricesEntry energyPrice);
+    Task AddCheapestEnergyPrice(DayAheadCheapestEnergyPricesEntry cheapestEnergyPrice);
+    Task<bool> AnyCheapestEnergyPricesOnDate(DateTime date, CancellationToken cancellationToken);
 }
 
 public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
@@ -26,6 +29,16 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
             .OrderByDescending(x => x.From)
             .Where(x => x.From <= timestamp && x.To >= timestamp)
             .FirstOrDefaultAsync() ?? new DayAheadEnergyPricesEntry();
+    }
+
+    public async Task<List<DayAheadEnergyPricesEntry>> GetEnergyPriceForDate(DateTime date, CancellationToken cancellationToken)
+    {
+        var prices = await _dbContext.DayAheadEnergyPrices
+            .OrderByDescending(x => x.From)
+            .Where(x => x.From.Date == date.Date)
+            .ToListAsync(cancellationToken);
+
+        return prices ?? new List<DayAheadEnergyPricesEntry>();
     }
 
     public async Task<EnergyPriceRange> GetNegativeInjectionPriceRange()
@@ -91,6 +104,18 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
     {
         _dbContext.Add(energyPrice);
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task AddCheapestEnergyPrice(DayAheadCheapestEnergyPricesEntry cheapestEnergyPrice)
+    {
+        _dbContext.Add(cheapestEnergyPrice);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<bool> AnyCheapestEnergyPricesOnDate(DateTime date, CancellationToken cancellationToken)
+    {
+        return await _dbContext.DayAheadCheapestEnergyPrices
+            .AnyAsync(x => x.From.Date == date.Date, cancellationToken);
     }
 }
 
