@@ -23,6 +23,7 @@ public class DayAheadEnergyCost
     public decimal ConsumptionPrice { get; set; }
     public int? BatteryLevel { get; set; }
     public bool ShouldCharge { get; set; }
+    public decimal? ConsumptionPriceShouldCharge { get; set; }
 }
 
 internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEnergyCostQuery, GetDayAheadEnergyCostResponse>
@@ -88,6 +89,7 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
 
         var previousPrice = 0M;
 
+        var previousEntryShouldCharge = false;
         for (var i = 0; i < 96; i++)
         {
             var date = from.AddMinutes(i * 15);
@@ -122,6 +124,12 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             if (dayAheadCheapestEntry != null)
             {
                 entry.ShouldCharge = dayAheadCheapestEntry.ShouldCharge;
+                if (entry.ShouldCharge || previousEntryShouldCharge)
+                {
+                    entry.ConsumptionPriceShouldCharge = 0.0M;
+                }
+
+                previousEntryShouldCharge = entry.ShouldCharge;
             }
 
             result.Entries.Add(entry);
