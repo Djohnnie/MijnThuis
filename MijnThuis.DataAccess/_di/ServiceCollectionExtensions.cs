@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFlagRepository, FlagRepository>();
         services.AddScoped<ICarChargingEnergyHistoryRepository, CarChargingEnergyHistoryRepository>();
         services.AddScoped<IDayAheadEnergyPricesRepository, DayAheadEnergyPricesRepository>();
+        services.AddScoped<ISolarPowerHistoryRepository, SolarPowerHistoryRepository>();
 
         return services;
     }
