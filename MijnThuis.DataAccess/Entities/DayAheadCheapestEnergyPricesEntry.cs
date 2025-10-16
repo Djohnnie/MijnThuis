@@ -8,4 +8,5 @@ public class DayAheadCheapestEnergyPricesEntry
     public DateTime To { get; set; }
     public int Order { get; set; }
     public decimal EuroPerMWh { get; set; }
+    public bool ShouldCharge { get; set; }
 }

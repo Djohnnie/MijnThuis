@@ -6,6 +6,7 @@ namespace MijnThuis.DataAccess.Repositories;
 public interface IDayAheadEnergyPricesRepository
 {
     Task<DayAheadEnergyPricesEntry> GetEnergyPriceForTimestamp(DateTime timestamp);
+    Task<DayAheadCheapestEnergyPricesEntry> GetCheapestEnergyPriceForTimestamp(DateTime timestamp);
     Task<List<DayAheadEnergyPricesEntry>> GetEnergyPriceForDate(DateTime date, CancellationToken cancellationToken);
     Task<EnergyPriceRange> GetNegativeInjectionPriceRange();
     Task<List<DayAheadEnergyPricesEntry>> GetLatestEnergyPrices();
@@ -29,6 +30,14 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
             .OrderByDescending(x => x.From)
             .Where(x => x.From <= timestamp && x.To >= timestamp)
             .FirstOrDefaultAsync() ?? new DayAheadEnergyPricesEntry();
+    }
+
+    public async Task<DayAheadCheapestEnergyPricesEntry> GetCheapestEnergyPriceForTimestamp(DateTime timestamp)
+    {
+        return await _dbContext.DayAheadCheapestEnergyPrices
+            .OrderBy(x => x.Order)
+            .Where(x => x.From <= timestamp && x.To >= timestamp)
+            .FirstOrDefaultAsync() ?? new DayAheadCheapestEnergyPricesEntry();
     }
 
     public async Task<List<DayAheadEnergyPricesEntry>> GetEnergyPriceForDate(DateTime date, CancellationToken cancellationToken)

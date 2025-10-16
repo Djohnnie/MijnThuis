@@ -8,6 +8,7 @@ namespace MijnThuis.Worker.Helpers;
 
 public interface IHomeBatteryChargingHelper
 {
+    Task CheckForBatteryCharging(CancellationToken cancellationToken);
     Task PrepareCheapestPeriods(CancellationToken cancellationToken);
 }
 
@@ -34,6 +35,20 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         _configuration = configuration;
         _dayAheadEnergyPricesRepository = dayAheadEnergyPricesRepository;
         _logger = logger;
+    }
+
+    public async Task CheckForBatteryCharging(CancellationToken cancellationToken)
+    {
+        var gridChargingPower = _configuration.GetValue<int>("GRID_CHARGING_POWER");
+
+        var currentDayAheadEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(DateTime.Now);
+        var chargingTimeRemaining = currentDayAheadEnergyPrice.To - DateTime.Now;
+        var shouldCharge = currentDayAheadEnergyPrice.ShouldCharge;
+        var isNotCharging = await _modbusService.IsNotChargingInRemoteControlMode();
+        if (shouldCharge && isNotCharging)
+        {
+            await _modbusService.StartChargingBattery(chargingTimeRemaining, gridChargingPower);
+        }
     }
 
     public async Task PrepareCheapestPeriods(CancellationToken cancellationToken)
