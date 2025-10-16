@@ -46,21 +46,18 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var gridChargingPower = _configuration.GetValue<int>("GRID_CHARGING_POWER");
 
         var solarForecast = await GetSolarForecast();
+        var batteryLevel = await _modbusService.GetBatteryLevel();
 
         var today = DateTime.Today;
         var cheapestPricesToday = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForDate(today, cancellationToken);
         var averageDailyEnergy = await _solarPowerHistoryRepository.GetAverageDailyConsumption(DateTime.Today.AddDays(-7), DateTime.Today, cancellationToken);
+        var batteryEnergyToCharge = 97 * (100 - batteryLevel.Level);
+        var totalEnergyNeeded = (int)averageDailyEnergy + (int)batteryEnergyToCharge - solarForecast.EstimatedWattHoursToday;
 
-        // Calculate the total amount of 15-minute blocks needed to charge the battery
-        // based on the grid charging power, the remaining battery level and the solar forecast.
-
-        var numberOf15MinuteBlocksNeeded = 0;
+        var numberOf15MinuteBlocksNeeded = (int)(totalEnergyNeeded / (gridChargingPower / 4M));
         for (var i = 0; i < cheapestPricesToday.Count; i++)
         {
-            if (i < numberOf15MinuteBlocksNeeded)
-            {
-                cheapestPricesToday[i].ShouldCharge = true;
-            }
+            await _dayAheadEnergyPricesRepository.SetCheapestEnergyPriceShouldCharge(cheapestPricesToday[i].Id, i < numberOf15MinuteBlocksNeeded);
         }
     }
 
@@ -71,10 +68,13 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var currentDayAheadEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(DateTime.Now);
         var chargingTimeRemaining = currentDayAheadEnergyPrice.To - DateTime.Now;
         var shouldCharge = currentDayAheadEnergyPrice.ShouldCharge;
-        var isNotCharging = await _modbusService.IsNotChargingInRemoteControlMode();
-        if (shouldCharge && isNotCharging)
+        if (shouldCharge)
         {
-            await _modbusService.StartChargingBattery(chargingTimeRemaining, gridChargingPower);
+            var isNotCharging = await _modbusService.IsNotChargingInRemoteControlMode();
+            if (isNotCharging)
+            {
+                await _modbusService.StartChargingBattery(chargingTimeRemaining, gridChargingPower);
+            }
         }
     }
 

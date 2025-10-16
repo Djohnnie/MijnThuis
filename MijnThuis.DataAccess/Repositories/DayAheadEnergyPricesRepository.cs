@@ -14,6 +14,7 @@ public interface IDayAheadEnergyPricesRepository
     Task AddEnergyPrice(DayAheadEnergyPricesEntry energyPrice);
     Task AddCheapestEnergyPrice(DayAheadCheapestEnergyPricesEntry cheapestEnergyPrice);
     Task<bool> AnyCheapestEnergyPricesOnDate(DateTime date, CancellationToken cancellationToken);
+    Task SetCheapestEnergyPriceShouldCharge(Guid id, bool shouldCharge);
 }
 
 public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
@@ -54,7 +55,7 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
     public async Task<List<DayAheadCheapestEnergyPricesEntry>> GetCheapestEnergyPriceForDate(DateTime date, CancellationToken cancellationToken)
     {
         var prices = await _dbContext.DayAheadCheapestEnergyPrices
-            .OrderByDescending(x => x.Order)
+            .OrderBy(x => x.Order)
             .Where(x => x.From.Date == date.Date)
             .ToListAsync(cancellationToken);
 
@@ -136,6 +137,12 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
     {
         return await _dbContext.DayAheadCheapestEnergyPrices
             .AnyAsync(x => x.From.Date == date.Date, cancellationToken);
+    }
+
+    public async Task SetCheapestEnergyPriceShouldCharge(Guid id, bool shouldCharge)
+    {
+        await _dbContext.DayAheadCheapestEnergyPrices.Where(x => x.Id == id)
+            .ExecuteUpdateAsync(x => x.SetProperty(p => p.ShouldCharge, shouldCharge));
     }
 }
 

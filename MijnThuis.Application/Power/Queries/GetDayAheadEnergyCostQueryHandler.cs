@@ -22,6 +22,7 @@ public class DayAheadEnergyCost
     public decimal? ConsumptionCost { get; set; }
     public decimal ConsumptionPrice { get; set; }
     public int? BatteryLevel { get; set; }
+    public bool ShouldCharge { get; set; }
 }
 
 internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEnergyCostQuery, GetDayAheadEnergyCostResponse>
@@ -73,6 +74,11 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             })
             .ToListAsync();
 
+        var dayAheadCheapestEntries = await _dbContext.DayAheadCheapestEnergyPrices
+            .Where(x => x.From >= from && x.To <= to)
+            .OrderBy(x => x.From)
+            .ToListAsync();
+
         var flag = await _flagRepository.GetElectricityTariffDetailsFlag();
 
         var result = new GetDayAheadEnergyCostResponse
@@ -88,6 +94,7 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             var priceEntry = priceEntries.FirstOrDefault(x => x.From == date);
             var consumptionEntry = consumptionEntries.FirstOrDefault(x => x.From == date);
             var batteryEntry = batteryEntries.FirstOrDefault(x => x.From == date);
+            var dayAheadCheapestEntry = dayAheadCheapestEntries.FirstOrDefault(x => x.From == date);
 
             var entry = new DayAheadEnergyCost { Date = date };
 
@@ -110,6 +117,11 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             if (batteryEntry != null)
             {
                 entry.BatteryLevel = (int)batteryEntry.BatteryLevel;
+            }
+
+            if (dayAheadCheapestEntry != null)
+            {
+                entry.ShouldCharge = dayAheadCheapestEntry.ShouldCharge;
             }
 
             result.Entries.Add(entry);
