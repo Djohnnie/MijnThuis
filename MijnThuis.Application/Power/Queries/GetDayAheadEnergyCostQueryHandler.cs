@@ -112,8 +112,8 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
 
             if (consumptionEntry != null)
             {
-                entry.Consumption = consumptionEntry.Consumption;
-                entry.ConsumptionCost = consumptionEntry.ImportCost;
+                entry.Consumption = consumptionEntry.Consumption > 0M ? consumptionEntry.Consumption : null;
+                entry.ConsumptionCost = consumptionEntry.ImportCost > 0M ? consumptionEntry.ImportCost : null;
             }
 
             if (batteryEntry != null)

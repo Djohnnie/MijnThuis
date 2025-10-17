@@ -62,7 +62,7 @@ public partial class DayAheadEnergyCostChart
                 DecimalsInFloat = 3,
                 Labels = new YAxisLabels
                 {
-                    Formatter = @"function (value) { return value + ' kWh'; }"
+                    Formatter = @"function (value) { return value === null ? 'geen waarde' : value + ' kWh'; }"
                 },
                 Show = false
             },
@@ -71,7 +71,7 @@ public partial class DayAheadEnergyCostChart
                 DecimalsInFloat = 3,
                 Labels = new YAxisLabels
                 {
-                    Formatter = @"function (value) { return value + ' €'; }"
+                    Formatter = @"function (value) { return value === null ? 'geen waarde' : value + ' €'; }"
                 },
                 Show = false
             },
@@ -100,7 +100,7 @@ public partial class DayAheadEnergyCostChart
                 Max = 100,
                 Labels = new YAxisLabels
                 {
-                    Formatter = @"function (value) { return value + ' %'; }"
+                    Formatter = @"function (value) { return value === null ? 'geen waarde' : value + ' %'; }"
                 },
                 Show = false
             }
@@ -110,11 +110,11 @@ public partial class DayAheadEnergyCostChart
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
-        _options.Colors = new List<string> { "#5DE799", "#B0D8FD", "#FBB550", "#FF0000", "#000000" };
+        _options.Colors = new List<string> { "#5DE799", "#FF9090", "#B0D8FD", "#FF0000", "#000000" };
         _options.Stroke = new Stroke
         {
             Curve = Curve.Smooth,
-            Width = new Size(4, 4, 3, 4, 2),
+            Width = new Size(4, 4, 4, 4, 2),
             DashArray = [0, 0, 0, 0, 0]
         };
         _options.Fill = new Fill
