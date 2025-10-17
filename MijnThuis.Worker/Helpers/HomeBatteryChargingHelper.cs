@@ -91,13 +91,35 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
     public async Task PrepareCheapestPeriods(CancellationToken cancellationToken)
     {
         var today = DateTime.Today;
+        var tomorrow = today.AddDays(1);
 
-        var prices = await _dayAheadEnergyPricesRepository.GetEnergyPriceForDate(today, cancellationToken);
-        var anyCheapestPrices = await _dayAheadEnergyPricesRepository.AnyCheapestEnergyPricesOnDate(today, cancellationToken);
+        var pricesToday = await _dayAheadEnergyPricesRepository.GetEnergyPriceForDate(today, cancellationToken);
+        var pricesTomorrow = await _dayAheadEnergyPricesRepository.GetEnergyPriceForDate(tomorrow, cancellationToken);
+        var anyCheapestPricesToday = await _dayAheadEnergyPricesRepository.AnyCheapestEnergyPricesOnDate(today, cancellationToken);
+        var anyCheapestPricesTomorrow = await _dayAheadEnergyPricesRepository.AnyCheapestEnergyPricesOnDate(tomorrow, cancellationToken);
 
-        if (prices.Any() && !anyCheapestPrices)
+        if (pricesToday.Any() && !anyCheapestPricesToday)
         {
-            var orderedPrices = prices.OrderBy(x => x.EuroPerMWh).ThenBy(x => x.From);
+            var orderedPrices = pricesToday.OrderBy(x => x.EuroPerMWh).ThenBy(x => x.From);
+
+            var results = new List<DayAheadCheapestEnergyPricesEntry>();
+            var order = 0;
+            foreach (var price in orderedPrices)
+            {
+                await _dayAheadEnergyPricesRepository.AddCheapestEnergyPrice(
+                    new DayAheadCheapestEnergyPricesEntry
+                    {
+                        From = price.From,
+                        To = price.To,
+                        Order = ++order,
+                        EuroPerMWh = price.EuroPerMWh
+                    });
+            }
+        }
+
+        if (pricesTomorrow.Any() && !anyCheapestPricesTomorrow)
+        {
+            var orderedPrices = pricesTomorrow.OrderBy(x => x.EuroPerMWh).ThenBy(x => x.From);
 
             var results = new List<DayAheadCheapestEnergyPricesEntry>();
             var order = 0;
