@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using MijnThuis.Contracts.Power;
 using MijnThuis.DataAccess;
 using MijnThuis.DataAccess.Entities;
-using MijnThuis.DataAccess.Migrations;
 using MijnThuis.DataAccess.Repositories;
 using MijnThuis.Integrations.Power;
 using MijnThuis.Integrations.Solar;

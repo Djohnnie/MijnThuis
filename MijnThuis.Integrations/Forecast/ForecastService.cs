@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
@@ -12,29 +13,36 @@ public interface IForecastService
 
 public class ForecastService : BaseForecastService, IForecastService
 {
-    public ForecastService(IConfiguration configuration) : base(configuration)
-    {
+    private readonly IMemoryCache _memoryCache;
 
+    public ForecastService(
+        IConfiguration configuration,
+        IMemoryCache memoryCache) : base(configuration)
+    {
+        _memoryCache = memoryCache;
     }
 
     public async Task<ForecastOverview> GetSolarForecastEstimate(decimal latitude, decimal longitude, decimal declination, decimal azimuth, decimal power, byte damping)
     {
         try
         {
-            using var client = InitializeHttpClient();
-
-            var response = await client.GetFromJsonAsync<GetForecastEstimateResponse>($"{_apiKey}/estimate/{latitude}/{longitude}/{declination}/{azimuth}/{power}?damping={damping}");
-            var wattHoursPeriodTimes = response.Result.WattHoursPeriod.Keys.Select(x => DateTime.ParseExact(x, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)).Where(x => x.Day == DateTime.Today.Day);
-
-            return new ForecastOverview
+            return await GetCachedValue($"SOLAR_FORECAST_ESTIMATE[{latitude}|{longitude}|{declination}|{azimuth}|{power}|{damping}]", async () =>
             {
-                EstimatedWattHoursToday = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today)],
-                EstimatedWattHoursTomorrow = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today.AddDays(1))],
-                EstimatedWattHoursDayAfterTomorrow = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today.AddDays(2))],
-                WattHourPeriods = ConvertToWattHourPeriods(response.Result.WattHoursPeriod),
-                Sunrise = wattHoursPeriodTimes.First().TimeOfDay,
-                Sunset = wattHoursPeriodTimes.Last().TimeOfDay
-            };
+                using var client = InitializeHttpClient();
+
+                var response = await client.GetFromJsonAsync<GetForecastEstimateResponse>($"{_apiKey}/estimate/{latitude}/{longitude}/{declination}/{azimuth}/{power}?damping={damping}");
+                var wattHoursPeriodTimes = response.Result.WattHoursPeriod.Keys.Select(x => DateTime.ParseExact(x, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)).Where(x => x.Day == DateTime.Today.Day);
+
+                return new ForecastOverview
+                {
+                    EstimatedWattHoursToday = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today)],
+                    EstimatedWattHoursTomorrow = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today.AddDays(1))],
+                    EstimatedWattHoursDayAfterTomorrow = response.Result.WattHoursDay[DateOnly.FromDateTime(DateTime.Today.AddDays(2))],
+                    WattHourPeriods = ConvertToWattHourPeriods(response.Result.WattHoursPeriod),
+                    Sunrise = wattHoursPeriodTimes.First().TimeOfDay,
+                    Sunset = wattHoursPeriodTimes.Last().TimeOfDay
+                };
+            }, 30);
         }
         catch
         {
@@ -58,6 +66,19 @@ public class ForecastService : BaseForecastService, IForecastService
             Timestamp = DateTime.ParseExact(kvp.Key, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
             WattHours = kvp.Value
         }).ToList();
+    }
+
+    private async Task<T> GetCachedValue<T>(string key, Func<Task<T>> valueFactory, int absoluteExpiration)
+    {
+        if (_memoryCache.TryGetValue(key, out T value))
+        {
+            return value;
+        }
+
+        value = await valueFactory();
+        _memoryCache.Set(key, value, TimeSpan.FromMinutes(absoluteExpiration));
+
+        return value;
     }
 }
 
