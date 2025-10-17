@@ -48,18 +48,24 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var solarForecast = await GetSolarForecast();
         var batteryLevel = await _modbusService.GetBatteryLevel();
 
-        var today = DateTime.Today;
-        var cheapestPricesToday = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForDate(today, cancellationToken);
-        var averageDailyEnergy = await _solarPowerHistoryRepository.GetAverageDailyConsumption(DateTime.Today.AddDays(-7), DateTime.Today, cancellationToken);
+        // Start scheduling the next day from 6 PM today.
+        var dayToSchedule = DateTime.Now.Hour < 18 ? DateTime.Today : DateTime.Today.AddDays(1);
+        var calculatedSolarForecastOnDayToSchedule = solarForecast.WattHourPeriods
+            .Where(x => x.Timestamp.Date == dayToSchedule)
+            .Sum(x => x.WattHours);
+        var cheapestPricesToday = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForDate(dayToSchedule, cancellationToken);
+        var averageDailyEnergy = await _solarPowerHistoryRepository.GetAverageDailyConsumption(dayToSchedule.AddDays(-7), dayToSchedule, cancellationToken);
         var batteryEnergyToCharge = 97 * (100 - batteryLevel.Level);
-        var totalEnergyNeeded = (int)averageDailyEnergy + (int)batteryEnergyToCharge - solarForecast.EstimatedWattHoursToday;
+        var totalEnergyNeeded = (int)averageDailyEnergy + (int)batteryEnergyToCharge - calculatedSolarForecastOnDayToSchedule;
 
         var numberOf15MinuteBlocksNeeded = (int)(totalEnergyNeeded / (gridChargingPower / 4M));
+        var numberOf15MinuteBlocksMarked = 0;
         for (var i = 0; i < cheapestPricesToday.Count; i++)
         {
             if (cheapestPricesToday[i].From > DateTime.Now)
             {
-                await _dayAheadEnergyPricesRepository.SetCheapestEnergyPriceShouldCharge(cheapestPricesToday[i].Id, i < numberOf15MinuteBlocksNeeded);
+                await _dayAheadEnergyPricesRepository.SetCheapestEnergyPriceShouldCharge(cheapestPricesToday[i].Id, numberOf15MinuteBlocksMarked < numberOf15MinuteBlocksNeeded);
+                numberOf15MinuteBlocksMarked++;
             }
         }
     }
@@ -126,7 +132,23 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             EstimatedWattHoursTomorrow = zw6.EstimatedWattHoursTomorrow + no3.EstimatedWattHoursTomorrow + zo4.EstimatedWattHoursTomorrow,
             Sunrise = zw6.Sunrise,
             Sunset = zw6.Sunset,
-            //WattHourPeriods = 
+            WattHourPeriods = BuildPeriods(zw6.WattHourPeriods, no3.WattHourPeriods, zo4.WattHourPeriods)
         };
+    }
+
+    private List<WattHourPeriod> BuildPeriods(List<WattHourPeriod> wattHourPeriods1, List<WattHourPeriod> wattHourPeriods2, List<WattHourPeriod> wattHourPeriods3)
+    {
+        var result = new List<WattHourPeriod>();
+
+        for (var i = 0; i < wattHourPeriods1.Count; i++)
+        {
+            result.Add(new WattHourPeriod
+            {
+                Timestamp = wattHourPeriods1[i].Timestamp,
+                WattHours = wattHourPeriods1[i].WattHours + wattHourPeriods2[i].WattHours + wattHourPeriods3[i].WattHours
+            });
+        }
+
+        return result;
     }
 }
