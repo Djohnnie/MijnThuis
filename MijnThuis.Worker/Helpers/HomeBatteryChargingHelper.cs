@@ -79,8 +79,9 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var shouldCharge = currentDayAheadEnergyPrice.ShouldCharge;
         if (shouldCharge)
         {
+            var batteryLevel = await _modbusService.GetBatteryLevel();
             var isNotCharging = await _modbusService.IsNotChargingInRemoteControlMode();
-            if (isNotCharging)
+            if (isNotCharging && batteryLevel.Level < 95)
             {
                 await _modbusService.StartChargingBattery(chargingTimeRemaining, gridChargingPower);
             }
