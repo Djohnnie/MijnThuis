@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.AI;
 using MijnThuis.Contracts.Heating;
 using System.ComponentModel;
 
@@ -7,56 +7,61 @@ namespace MijnThuis.Dashboard.Web.Copilot;
 
 public class MijnThuisCopilotHeatingFunctions
 {
-    private readonly IMediator _mediator;
-
-    public MijnThuisCopilotHeatingFunctions(IMediator mediator)
+    public static IList<AITool> GetTools()
     {
-        _mediator = mediator;
+        return [
+            AIFunctionFactory.Create(GetHeatingMode),
+            AIFunctionFactory.Create(GetInsideTemperature),
+            AIFunctionFactory.Create(GetOutdoorTemperature),
+            AIFunctionFactory.Create(GetsNextSetPoint),
+            AIFunctionFactory.Create(SetScheduledHeating),
+            AIFunctionFactory.Create(SetHeatingOff)
+        ];
     }
 
-    [KernelFunction]
     [Description("Gets the heating mode.")]
-    public async Task<string> GetHeatingMode()
+    public static async Task<string> GetHeatingMode(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetHeatingOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetHeatingOverviewQuery());
         return response.Mode;
     }
 
-    [KernelFunction]
     [Description("Gets the current temperature inside the house in degrees Celcius.")]
-    public async Task<decimal> GetInsideTemperature()
+    public static async Task<decimal> GetInsideTemperature(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetHeatingOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetHeatingOverviewQuery());
         return response.RoomTemperature;
     }
 
-    [KernelFunction]
     [Description("Gets the current outside temperature in degrees Celcius.")]
-    public async Task<decimal> GetOutdoorTemperature()
+    public static async Task<decimal> GetOutdoorTemperature(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetHeatingOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetHeatingOverviewQuery());
         return response.OutdoorTemperature;
     }
 
-    [KernelFunction]
     [Description("Gets the next heating schedule setting.")]
-    public async Task<string> GetsNextSetPoint()
+    public static async Task<string> GetsNextSetPoint(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetHeatingOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetHeatingOverviewQuery());
         return $"{response.NextSetpoint}°C at {response.NextSwitchTime}";
     }
 
-    [KernelFunction]
     [Description("Sets the heating to the default schedule.")]
-    public async Task SetScheduledHeating()
+    public static async Task SetScheduledHeating(IServiceProvider serviceProvider)
     {
-        await _mediator.Send(new SetScheduledHeatingCommand());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        await mediator.Send(new SetScheduledHeatingCommand());
     }
 
-    [KernelFunction]
     [Description("Turns off the heating.")]
-    public async Task SetHeatingOff()
+    public static async Task SetHeatingOff(IServiceProvider serviceProvider)
     {
-        await _mediator.Send(new SetAntiFrostHeatingCommand());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        await mediator.Send(new SetAntiFrostHeatingCommand());
     }
 }

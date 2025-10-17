@@ -1,8 +1,9 @@
-﻿using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Agents;
-using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
+﻿using Azure.AI.OpenAI;
+using Microsoft.Agents.AI;
+using Microsoft.Extensions.AI;
 using MijnThuis.Application.DependencyInjection;
+using OpenAI;
+using System.ClientModel;
 using System.Text;
 
 namespace MijnThuis.Dashboard.Web.Copilot;
@@ -23,57 +24,42 @@ public class CopilotHelper : ICopilotHelper
 
     public async Task<string> ExecutePrompt(string prompt)
     {
-        var kernel = InitializeSemanticKernel();
-        kernel.ImportPluginFromType<MijnThuisCopilotGeneralFunctions>();
-        kernel.ImportPluginFromType<MijnThuisCopilotSolarFunctions>();
-        kernel.ImportPluginFromType<MijnThuisCopilotPowerFunctions>();
-        kernel.ImportPluginFromType<MijnThuisCopilotCarFunctions>();
-        kernel.ImportPluginFromType<MijnThuisCopilotHeatingFunctions>();
-        kernel.ImportPluginFromType<MijnThuisCopilotSaunaFunctions>();
-
         var instructionBuilder = new StringBuilder();
         instructionBuilder.Append("You are a digital assistent that can answer questions about the different home automation tools.");
         instructionBuilder.Append("If your answer contains a decimal number, always show 1 digit after the decimal point.");
 
-        var agent = new ChatCompletionAgent
-        {
-            Name = "MijnThuis",
-            Instructions = instructionBuilder.ToString(),
-            Kernel = kernel,
-            Arguments = new KernelArguments(new OpenAIPromptExecutionSettings
-            {
-                ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
-            })
-        };
+        var agent = InitializeAgent("MijnThuis", "MijnThuis Agent", instructionBuilder.ToString());
 
-        ChatHistory chatHistory = [];
-        chatHistory.AddUserMessage(prompt);
+        var agentThread = agent.GetNewThread();
 
-        var responseBuilder = new StringBuilder();
+        var response = await agent.RunAsync(new ChatMessage(ChatRole.User, prompt), agentThread);
 
-        await foreach (var response in agent.InvokeAsync(chatHistory))
-        {
-            responseBuilder.Append(response.Message.Content.ToString());
-        }
-
-        return responseBuilder.ToString();
+        return response.ToString();
     }
 
-    private Kernel InitializeSemanticKernel()
+    private AIAgent InitializeAgent(string name, string description, string instructions)
     {
-        var builder = Kernel.CreateBuilder();
-
         var deploymentName = _configuration.GetValue<string>("AZURE_OPEN_AI_DEPLOYMENT_NAME");
         var endpoint = _configuration.GetValue<string>("AZURE_OPEN_AI_ENDPOINT");
         var apiKey = _configuration.GetValue<string>("AZURE_OPEN_AI_APIKEY");
 
-        builder.AddAzureOpenAIChatCompletion(deploymentName, endpoint, apiKey);
-        builder.Services.AddApplication();
-        builder.Services.AddMemoryCache();
-        builder.Services.AddSingleton(_configuration);
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddApplication();
+        serviceCollection.AddMemoryCache();
+        serviceCollection.AddSingleton(_configuration);
 
-        var kernel = builder.Build();
+        var tools =
+            MijnThuisCopilotGeneralFunctions.GetTools().Concat(
+                MijnThuisCopilotSolarFunctions.GetTools().Concat(
+                    MijnThuisCopilotPowerFunctions.GetTools().Concat(
+                        MijnThuisCopilotCarFunctions.GetTools().Concat(
+                            MijnThuisCopilotHeatingFunctions.GetTools().Concat(
+                                MijnThuisCopilotSaunaFunctions.GetTools()))))).ToList();
 
-        return kernel;
+        var client = new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
+        var chatClient = client.GetChatClient(deploymentName);
+        var agentClient = chatClient.CreateAIAgent(
+            name: name, description: description, instructions: instructions, tools: tools, services: serviceCollection.BuildServiceProvider());
+        return agentClient;
     }
 }

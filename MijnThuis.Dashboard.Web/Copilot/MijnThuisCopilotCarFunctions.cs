@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.AI;
 using MijnThuis.Contracts.Car;
 using System.ComponentModel;
 
@@ -7,102 +7,113 @@ namespace MijnThuis.Dashboard.Web.Copilot;
 
 public class MijnThuisCopilotCarFunctions
 {
-    private readonly IMediator _mediator;
-
-    public MijnThuisCopilotCarFunctions(IMediator mediator)
+    public static IList<AITool> GetTools()
     {
-        _mediator = mediator;
+        return [
+            AIFunctionFactory.Create(GetCarLocation),
+            AIFunctionFactory.Create(IsCarLocked),
+            AIFunctionFactory.Create(IsCharging),
+            AIFunctionFactory.Create(GetRange),
+            AIFunctionFactory.Create(GetCarBattery),
+            AIFunctionFactory.Create(GetCarBatteryHealth),
+            AIFunctionFactory.Create(CarFart),
+            AIFunctionFactory.Create(CarPreheat),
+            AIFunctionFactory.Create(LockCar),
+            AIFunctionFactory.Create(UnlockCar),
+            AIFunctionFactory.Create(GetCharger1State),
+            AIFunctionFactory.Create(GetCharger2State)
+        ];
     }
 
-    [KernelFunction]
     [Description("Gets the location where the car is parked or driving.")]
-    public async Task<string> GetCarLocation()
+    public static async Task<string> GetCarLocation(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetCarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetCarOverviewQuery());
         return response.Address;
     }
 
-    [KernelFunction]
     [Description("Is the car locked?")]
-    public async Task<bool> IsCarLocked()
+    public static async Task<bool> IsCarLocked(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetCarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetCarOverviewQuery());
         return response.IsLocked;
     }
 
-    [KernelFunction]
     [Description("Is the car charging?")]
-    public async Task<bool> IsCharging()
+    public static async Task<bool> IsCharging(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetCarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetCarOverviewQuery());
         return response.IsCharging;
     }
 
-    [KernelFunction]
     [Description("Gets the remaining range for my car in km.")]
-    public async Task<int> GetRange()
+    public static async Task<int> GetRange(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetCarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetCarOverviewQuery());
         return response.RemainingRange;
     }
 
-    [KernelFunction]
     [Description("Gets the remaining car battery percentage.")]
-    public async Task<int> GetCarBattery()
+    public static async Task<int> GetCarBattery(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetCarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetCarOverviewQuery());
         return response.BatteryLevel;
     }
 
-    [KernelFunction]
     [Description("Gets the health percentage of the car battery.")]
-    public async Task<int> GetCarBatteryHealth()
+    public static async Task<int> GetCarBatteryHealth(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetCarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetCarOverviewQuery());
         return response.BatteryHealth;
     }
 
-    [KernelFunction]
     [Description("Makes the car play a fart sound.")]
-    public async Task CarFart()
+    public static async Task CarFart(IServiceProvider serviceProvider)
     {
-        await _mediator.Send(new CarFartCommand());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        await mediator.Send(new CarFartCommand());
     }
 
-    [KernelFunction]
     [Description("Preheats the car.")]
-    public async Task CarPreheat()
+    public static async Task CarPreheat(IServiceProvider serviceProvider)
     {
-        await _mediator.Send(new PreheatCarCommand());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        await mediator.Send(new PreheatCarCommand());
     }
 
-    [KernelFunction]
     [Description("Locks the car.")]
-    public async Task LockCar()
+    public static async Task LockCar(IServiceProvider serviceProvider)
     {
-        await _mediator.Send(new LockCarCommand());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        await mediator.Send(new LockCarCommand());
     }
 
-    [KernelFunction]
     [Description("Unlocks the car.")]
-    public async Task UnlockCar()
+    public static async Task UnlockCar(IServiceProvider serviceProvider)
     {
-        await _mediator.Send(new UnlockCarCommand());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        await mediator.Send(new UnlockCarCommand());
     }
 
-    [KernelFunction]
     [Description("Gets the number of available chargers for the 'Adrien Dezaegerplein' location.")]
-    public async Task<string> GetCharger1State()
+    public static async Task<string> GetCharger1State(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetCarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetCarOverviewQuery());
         return response.Charger1;
     }
 
-    [KernelFunction]
     [Description("Gets the number of available chargers for the 'Breendonkstraat' location.")]
-    public async Task<string> GetCharger2State()
+    public static async Task<string> GetCharger2State(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetCarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetCarOverviewQuery());
         return response.Charger2;
     }
 }

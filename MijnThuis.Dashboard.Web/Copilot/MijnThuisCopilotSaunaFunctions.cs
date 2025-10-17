@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.AI;
 using MijnThuis.Contracts.Sauna;
 using System.ComponentModel;
 
@@ -7,55 +7,60 @@ namespace MijnThuis.Dashboard.Web.Copilot;
 
 public class MijnThuisCopilotSaunaFunctions
 {
-    private readonly IMediator _mediator;
-
-    public MijnThuisCopilotSaunaFunctions(IMediator mediator)
+    public static IList<AITool> GetTools()
     {
-        _mediator = mediator;
+        return [
+            AIFunctionFactory.Create(IsSaunaOn),
+            AIFunctionFactory.Create(IsInfraredOn),
+            AIFunctionFactory.Create(GetSaunaTemperature),
+            AIFunctionFactory.Create(TurnOnSauna),
+            AIFunctionFactory.Create(TurnOnInfrared),
+            AIFunctionFactory.Create(TurnOff)
+        ];
     }
 
-    [KernelFunction]
     [Description("Is the sauna turned on?")]
-    public async Task<bool> IsSaunaOn()
+    public static async Task<bool> IsSaunaOn(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetSaunaOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetSaunaOverviewQuery());
         return response.State == "Sauna";
     }
 
-    [KernelFunction]
     [Description("Is the infrared sauna turned on?")]
-    public async Task<bool> IsInfraredOn()
+    public static async Task<bool> IsInfraredOn(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetSaunaOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetSaunaOverviewQuery());
         return response.State == "Infrarood";
     }
 
-    [KernelFunction]
     [Description("Gets the temperature in the sauna?")]
-    public async Task<int> GetSaunaTemperature()
+    public static async Task<int> GetSaunaTemperature(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetSaunaOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetSaunaOverviewQuery());
         return response.InsideTemperature;
     }
 
-    [KernelFunction]
     [Description("Turns on the sauna.")]
-    public async Task TurnOnSauna()
+    public static async Task TurnOnSauna(IServiceProvider serviceProvider)
     {
-        await _mediator.Send(new StartSaunaCommand());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        await mediator.Send(new StartSaunaCommand());
     }
 
-    [KernelFunction]
     [Description("Turns on the infrared sauna.")]
-    public async Task TurnOnInfrared()
+    public static async Task TurnOnInfrared(IServiceProvider serviceProvider)
     {
-        await _mediator.Send(new StartInfraredCommand());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        await mediator.Send(new StartInfraredCommand());
     }
 
-    [KernelFunction]
     [Description("Turns of the sauna and infrared sauna.")]
-    public async Task TurnOff()
+    public static async Task TurnOff(IServiceProvider serviceProvider)
     {
-        await _mediator.Send(new StopSaunaCommand());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        await mediator.Send(new StopSaunaCommand());
     }
 }

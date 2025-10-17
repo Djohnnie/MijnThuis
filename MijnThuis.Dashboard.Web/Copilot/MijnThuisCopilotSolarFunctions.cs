@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.AI;
 using MijnThuis.Contracts.Solar;
 using System.ComponentModel;
 
@@ -7,93 +7,102 @@ namespace MijnThuis.Dashboard.Web.Copilot;
 
 public class MijnThuisCopilotSolarFunctions
 {
-    private readonly IMediator _mediator;
-
-    public MijnThuisCopilotSolarFunctions(IMediator mediator)
+    public static IList<AITool> GetTools()
     {
-        _mediator = mediator;
+        return [
+            AIFunctionFactory.Create(GetSolarEnergyToday),
+            AIFunctionFactory.Create(GetSolarEnergyThisMonth),
+            AIFunctionFactory.Create(GetSolarBatteryChargeState),
+            AIFunctionFactory.Create(GetSolarBatteryHealthState),
+            AIFunctionFactory.Create(GetSolarPower),
+            AIFunctionFactory.Create(GetBatteryPower),
+            AIFunctionFactory.Create(GetGridPower),
+            AIFunctionFactory.Create(GetBatteryMaximumEnergy),
+            AIFunctionFactory.Create(GetSolarForecastToday),
+            AIFunctionFactory.Create(GetSolarForecastTomorrow)
+        ];
     }
 
-    [KernelFunction]
     [Description("Gets the solar energy generated today in kWh.")]
-    public async Task<decimal> GetSolarEnergyToday()
+    public static async Task<decimal> GetSolarEnergyToday(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetSolarOverviewQuery());
         return response.LastDayEnergy;
     }
 
-    [KernelFunction]
     [Description("Gets the solar energy generated this month in kWh.")]
-    public async Task<decimal> GetSolarEnergyThisMonth()
+    public static async Task<decimal> GetSolarEnergyThisMonth(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetSolarOverviewQuery());
         return response.LastMonthEnergy;
     }
 
-    [KernelFunction]
     [Description("Gets the current solar battery charge state in percentage. A value of 100% is fully charged.")]
-    public async Task<int> GetSolarBatteryChargeState()
+    public static async Task<int> GetSolarBatteryChargeState(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetSolarOverviewQuery());
         return response.BatteryLevel;
     }
 
-    [KernelFunction]
     [Description("Gets the current solar battery health in percentage. A value larger than 100% is a very good health.")]
-    public async Task<int> GetSolarBatteryHealthState()
+    public static async Task<int> GetSolarBatteryHealthState(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetSolarOverviewQuery());
         return response.BatteryHealth;
     }
 
-    [KernelFunction]
     [Description("Gets the current solar power in kW. A zero value is no solar power.")]
-    public async Task<decimal> GetSolarPower()
+    public static async Task<decimal> GetSolarPower(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetSolarOverviewQuery());
         return response.CurrentSolarPower;
     }
 
-    [KernelFunction]
     [Description("Gets the current battery power in kW. A negative value is power draining the battery. A positive value is power charging the battery.")]
-    public async Task<decimal> GetBatteryPower()
+    public static async Task<decimal> GetBatteryPower(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetSolarOverviewQuery());
         return response.CurrentBatteryPower;
     }
 
-    [KernelFunction]
     [Description("Gets the current grid power in kW. A positive value is power returned to the grid. A negative value is power taken from the grid.")]
-    public async Task<decimal> GetGridPower()
+    public static async Task<decimal> GetGridPower(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetSolarOverviewQuery());
         return response.CurrentGridPower;
     }
 
-    [KernelFunction]
     [Description("Gets the maximum energy capacity of the home battery in Watthours.")]
     [return: Description("The maximum energy capacity of the home battery in Watthours.")]
-    public async Task<int> GetBatteryMaximumEnergy()
+    public static async Task<int> GetBatteryMaximumEnergy(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetSolarOverviewQuery());
         return response.BatteryMaxEnergy;
     }
 
-    [KernelFunction]
     [Description("Gets the solar energy forecast for today.")]
     [return: Description("The solar energy forecast for today in kWh.")]
-    public async Task<decimal> GetSolarForecastToday()
+    public static async Task<decimal> GetSolarForecastToday(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetSolarOverviewQuery());
         return response.SolarForecastToday;
     }
 
-    [KernelFunction]
     [Description("Gets the solar energy forecast for tomorrow.")]
     [return: Description("The solar energy forecast for tomorrow in kWh.")]
-    public async Task<decimal> GetSolarForecastTomorrow()
+    public static async Task<decimal> GetSolarForecastTomorrow(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetSolarOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetSolarOverviewQuery());
         return response.SolarForecastTomorrow;
     }
 }

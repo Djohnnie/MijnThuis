@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using Microsoft.SemanticKernel;
+using Microsoft.Extensions.AI;
 using MijnThuis.Contracts.Power;
 using System.ComponentModel;
 
@@ -7,58 +7,63 @@ namespace MijnThuis.Dashboard.Web.Copilot;
 
 public class MijnThuisCopilotPowerFunctions
 {
-    private readonly IMediator _mediator;
-
-    public MijnThuisCopilotPowerFunctions(IMediator mediator)
+    public static IList<AITool> GetTools()
     {
-        _mediator = mediator;
+        return [
+            AIFunctionFactory.Create(GetPowerUsage),
+            AIFunctionFactory.Create(GetPowerPeek),
+            AIFunctionFactory.Create(GetEnergyUseToday),
+            AIFunctionFactory.Create(GetEnergyUseThisMonth),
+            AIFunctionFactory.Create(GetCurrentConsumptionPrice),
+            AIFunctionFactory.Create(CurrentInjectionPrice)
+        ];
     }
 
-    [KernelFunction]
     [Description("Gets the current live power usage in kW.")]
-    public async Task<decimal> GetPowerUsage()
+    public static async Task<decimal> GetPowerUsage(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetPowerOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetPowerOverviewQuery());
         return response.CurrentPower / 1000;
     }
 
-    [KernelFunction]
     [Description("Gets the power peek for this month in kW.")]
-    public async Task<decimal> GetPowerPeek()
+    public static async Task<decimal> GetPowerPeek(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetPowerOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetPowerOverviewQuery());
         return response.PowerPeak / 1000;
     }
 
-    [KernelFunction]
     [Description("Gets the energy use for today in kWh.")]
-    public async Task<decimal> GetEnergyUseToday()
+    public static async Task<decimal> GetEnergyUseToday(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetPowerOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetPowerOverviewQuery());
         return response.ImportToday;
     }
 
-    [KernelFunction]
     [Description("Gets the energy use for this month in kWh.")]
-    public async Task<decimal> GetEnergyUseThisMonth()
+    public static async Task<decimal> GetEnergyUseThisMonth(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetPowerOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetPowerOverviewQuery());
         return response.ImportThisMonth;
     }
 
-    [KernelFunction]
     [Description("Gets the price in eurocents per kWh for consuming 1kWh of energy right now. A positive number would cost me money, a negative number would make me money.")]
-    public async Task<decimal> GetCurrentConsumptionPrice()
+    public static async Task<decimal> GetCurrentConsumptionPrice(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetPowerOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetPowerOverviewQuery());
         return response.CurrentConsumptionPrice;
     }
 
-    [KernelFunction]
     [Description("Gets the price in eurocents per kWh for injecting 1kWh of energy right now. A positive number would make me money, a negative number would cost me money.")]
-    public async Task<decimal> CurrentInjectionPrice()
+    public static async Task<decimal> CurrentInjectionPrice(IServiceProvider serviceProvider)
     {
-        var response = await _mediator.Send(new GetPowerOverviewQuery());
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetPowerOverviewQuery());
         return response.CurrentInjectionPrice;
     }
 }
