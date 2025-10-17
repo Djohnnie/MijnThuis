@@ -6,6 +6,7 @@ using MijnThuis.Worker.Helpers;
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddDataAccess();
 builder.Services.AddIntegrations();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped<ICarChargingHelper, CarChargingHelper>();
 builder.Services.AddScoped<IHomeBatteryChargingHelper, HomeBatteryChargingHelper>();
