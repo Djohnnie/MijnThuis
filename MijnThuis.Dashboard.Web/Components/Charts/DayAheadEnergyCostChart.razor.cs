@@ -13,7 +13,7 @@ public partial class DayAheadEnergyCostChart
     [CascadingParameter]
     public NotifyingDarkMode DarkMode { get; set; }
 
-    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(15));
+    private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(5));
     private ApexChart<ChartDataEntry<string, decimal?>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal?>> _options { get; set; } = new();
 

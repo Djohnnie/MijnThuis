@@ -70,7 +70,7 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             .OrderBy(x => x.Date)
             .Select(x => new
             {
-                From = x.Date.AddMinutes(-15),
+                From = x.Date,
                 BatteryLevel = x.StorageLevel * 100
             })
             .ToListAsync();
