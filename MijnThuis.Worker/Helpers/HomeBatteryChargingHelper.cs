@@ -55,7 +55,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             .Sum(x => x.WattHours);
         var cheapestPricesToday = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForDate(dayToSchedule, cancellationToken);
         var averageDailyEnergy = await _solarPowerHistoryRepository.GetAverageDailyConsumption(dayToSchedule.AddDays(-7), dayToSchedule, cancellationToken);
-        var batteryEnergyToCharge = 97 * (100 - batteryLevel.Level);
+        var batteryEnergyToCharge = 97 * (90 - batteryLevel.Level);
         var totalEnergyNeeded = (int)averageDailyEnergy + (int)batteryEnergyToCharge - calculatedSolarForecastOnDayToSchedule;
 
         var numberOf15MinuteBlocksNeeded = (int)(totalEnergyNeeded / (gridChargingPower / 4M));
