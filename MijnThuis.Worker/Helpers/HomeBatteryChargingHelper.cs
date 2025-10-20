@@ -77,23 +77,23 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var currentDayAheadEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(DateTime.Now);
         var chargingTimeRemaining = currentDayAheadEnergyPrice.To - DateTime.Now;
         var shouldCharge = currentDayAheadEnergyPrice.ShouldCharge;
-        var isCharging = await _modbusService.IsNotMaxSelfConsumption();
         if (shouldCharge)
         {
-            var batteryLevel = await _modbusService.GetBatteryLevel();
-            if (!isCharging && batteryLevel.Level < 95)
-            {
-                _logger.LogInformation("Starting home battery charging for {ChargingTimeRemaining} at {GridChargingPower}W", chargingTimeRemaining, gridChargingPower);
-                await _modbusService.StartChargingBattery(chargingTimeRemaining, gridChargingPower);
-            }
+            var modbusOverview = await _modbusService.GetBulkOverview();
+
+            //if (!isCharging && batteryLevel.Level < 95)
+            //{
+            //    _logger.LogInformation("Starting home battery charging for {ChargingTimeRemaining} at {GridChargingPower}W", chargingTimeRemaining, gridChargingPower);
+            //    await _modbusService.StartChargingBattery(chargingTimeRemaining, gridChargingPower);
+            //}
         }
         else
         {
-            if (isCharging)
-            {
-                _logger.LogInformation("Stopping home battery charging");
-                await _modbusService.StopChargingBattery();
-            }
+            //if (isCharging)
+            //{
+            //    _logger.LogInformation("Stopping home battery charging");
+            //    await _modbusService.StopChargingBattery();
+            //}
         }
     }
 

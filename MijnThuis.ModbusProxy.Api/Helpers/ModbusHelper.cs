@@ -18,10 +18,6 @@ public interface IModbusHelper
 
     Task<ModbusDataSet> GetBatteryLevel();
 
-    Task<bool> IsNotMaxSelfConsumption();
-
-    Task<bool> IsNotChargingInRemoteControlMode();
-
     Task StartChargingBattery(TimeSpan duration, int power);
 
     Task StopChargingBattery();
@@ -92,6 +88,7 @@ public class ModbusHelper : IModbusHelper
                     var max = await _modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_Max_Energy);
                     var storageControlMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
                     var remoteControlMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
+                    var remoteControlDefaultMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Charge_Discharge_Default_Mode);
                     var remoteControlCommandTimeout = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Timeout);
                     var remoteControlChargeLimit = await _modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Remote_Control_Charge_Limit);
                     var exportControlMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.ExportControlMode);
@@ -114,11 +111,13 @@ public class ModbusHelper : IModbusHelper
                         BatteryLevel = Convert.ToInt32(soe.Value),
                         BatteryHealth = Convert.ToInt32(soh.Value),
                         BatteryMaxEnergy = Convert.ToInt32(max.Value),
-                        StorageControlMode = storageControlMode.Value,
-                        RemoteControlMode = remoteControlMode.Value,
+                        StorageControlMode = (StorageControlMode)storageControlMode.Value,
+                        RemoteControlMode = (RemoteControlMode)remoteControlMode.Value,
+                        RemoteControlDefaultMode = (RemoteControlMode)remoteControlDefaultMode.Value,
                         RemoteControlCommandTimeout = remoteControlCommandTimeout.Value,
                         RemoteControlChargeLimit = Convert.ToDecimal(remoteControlChargeLimit.Value),
-                        HasExportLimitation = exportControlMode.Value == 1,
+                        ExportControlMode = (ExportControlMode)exportControlMode.Value,
+                        HasExportLimitation = exportControlMode.Value > 0,
                         ExportPowerLimitation = Convert.ToDecimal(exportLimitation.Value),
                     };
 
@@ -223,56 +222,6 @@ public class ModbusHelper : IModbusHelper
         }, absoluteExpirationInSeconds: 60);
     }
 
-    public async Task<bool> IsNotMaxSelfConsumption()
-    {
-        var address = _configuration.GetValue<string>("MODBUS_ADDRESS");
-        var port = _configuration.GetValue<int>("MODBUS_PORT");
-
-        try
-        {
-            await _semaphoreSlim.WaitAsync();
-
-            return await RetryOnFailure(async () =>
-            {
-                await Connect();
-
-                var storageControlMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
-                var remoteControlMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
-
-                return storageControlMode.Value != 1 && remoteControlMode.Value != 3;
-            });
-        }
-        finally
-        {
-            _semaphoreSlim.Release();
-        }
-    }
-
-    public async Task<bool> IsNotChargingInRemoteControlMode()
-    {
-        var address = _configuration.GetValue<string>("MODBUS_ADDRESS");
-        var port = _configuration.GetValue<int>("MODBUS_PORT");
-
-        try
-        {
-            await _semaphoreSlim.WaitAsync();
-
-            return await RetryOnFailure(async () =>
-            {
-                await Connect();
-
-                var storageControlMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
-                var remoteControlMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
-
-                return storageControlMode.Value == 4 && remoteControlMode.Value != 3;
-            });
-        }
-        finally
-        {
-            _semaphoreSlim.Release();
-        }
-    }
-
     public async Task StartChargingBattery(TimeSpan duration, int power)
     {
         var address = _configuration.GetValue<string>("MODBUS_ADDRESS");
@@ -286,9 +235,9 @@ public class ModbusHelper : IModbusHelper
             {
                 await Connect();
 
-                await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)4);
+                await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)StorageControlMode.RemoteControl);
                 await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Timeout, (uint)duration.TotalSeconds);
-                await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Mode, (ushort)3);
+                await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Mode, (ushort)RemoteControlMode.ChargeFromPVPlusACAccordingToTheMaxBatteryPower);
                 await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Charge_Limit, (float)power);
             });
         }
@@ -311,7 +260,7 @@ public class ModbusHelper : IModbusHelper
             {
                 await Connect();
 
-                await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)1);
+                await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)StorageControlMode.MaximizeSelfConsumption);
                 await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Charge_Limit, (float)5000);
             });
         }
@@ -366,7 +315,7 @@ public class ModbusHelper : IModbusHelper
 
                 await Connect();
 
-                await _modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)1);
+                await _modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)ExportControlMode.DirectExportLimitation);
                 await _modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, powerLimit);
 
                 var stopTimeStamp = Stopwatch.GetTimestamp();
@@ -395,7 +344,7 @@ public class ModbusHelper : IModbusHelper
 
                 await Connect();
 
-                await _modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)0);
+                await _modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)ExportControlMode.Disabled);
                 await _modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, 0f);
 
                 var stopTimeStamp = Stopwatch.GetTimestamp();
