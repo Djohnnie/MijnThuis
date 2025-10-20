@@ -238,7 +238,7 @@ public class ModbusHelper : IModbusHelper
                 await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)StorageControlMode.RemoteControl);
                 await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Timeout, (uint)duration.TotalSeconds);
                 await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Mode, (ushort)RemoteControlMode.ChargeFromPVPlusACAccordingToTheMaxBatteryPower);
-                await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Charge_Discharge_Default_Mode, (ushort)RemoteControlMode.MaximizeSelfConsumption);
+                //await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Charge_Discharge_Default_Mode, (ushort)RemoteControlMode.MaximizeSelfConsumption);
                 await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Charge_Limit, (float)power);
             });
         }
@@ -264,7 +264,7 @@ public class ModbusHelper : IModbusHelper
                 await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)StorageControlMode.MaximizeSelfConsumption);
                 await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Timeout, (uint)0);
                 await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Mode, (ushort)RemoteControlMode.MaximizeSelfConsumption);
-                await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Charge_Discharge_Default_Mode, (ushort)RemoteControlMode.MaximizeSelfConsumption);
+                //await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Charge_Discharge_Default_Mode, (ushort)RemoteControlMode.MaximizeSelfConsumption);
                 await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Charge_Limit, (float)5000);
             });
         }
