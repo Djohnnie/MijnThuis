@@ -17,7 +17,6 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 {
     private readonly IForecastService _forecastService;
     private readonly IModbusService _modbusService;
-    private readonly IPowerService _powerService;
     private readonly IConfiguration _configuration;
     private readonly IDayAheadEnergyPricesRepository _dayAheadEnergyPricesRepository;
     private readonly ISolarPowerHistoryRepository _solarPowerHistoryRepository;
@@ -26,7 +25,6 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
     public HomeBatteryChargingHelper(
         IForecastService forecastService,
         IModbusService modbusService,
-        IPowerService powerService,
         IConfiguration configuration,
         IDayAheadEnergyPricesRepository dayAheadEnergyPricesRepository,
         ISolarPowerHistoryRepository solarPowerHistoryRepository,
@@ -34,7 +32,6 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
     {
         _forecastService = forecastService;
         _modbusService = modbusService;
-        _powerService = powerService;
         _configuration = configuration;
         _dayAheadEnergyPricesRepository = dayAheadEnergyPricesRepository;
         _solarPowerHistoryRepository = solarPowerHistoryRepository;
