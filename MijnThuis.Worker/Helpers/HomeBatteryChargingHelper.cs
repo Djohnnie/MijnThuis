@@ -75,25 +75,46 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var gridChargingPower = _configuration.GetValue<int>("GRID_CHARGING_POWER");
 
         var currentDayAheadEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(DateTime.Now);
+        var modbusOverview = await _modbusService.GetBulkOverview();
+        var isCharging = modbusOverview.StorageControlMode == StorageControlMode.RemoteControl;
         var chargingTimeRemaining = currentDayAheadEnergyPrice.To - DateTime.Now;
         var shouldCharge = currentDayAheadEnergyPrice.ShouldCharge;
+        var shouldStartCharging = false;
+        var shouldStopCharging = false;
+
         if (shouldCharge)
         {
-            var modbusOverview = await _modbusService.GetBulkOverview();
+            // If there is no high consumption right now, start charging from grid.
+            if (modbusOverview.CurrentConsumptionPower < 1000)
+            {
+                shouldStartCharging = true;
+            }
+            else
+            {
+                shouldStopCharging = true;
+            }
 
-            //if (!isCharging && batteryLevel.Level < 95)
-            //{
-            //    _logger.LogInformation("Starting home battery charging for {ChargingTimeRemaining} at {GridChargingPower}W", chargingTimeRemaining, gridChargingPower);
-            //    await _modbusService.StartChargingBattery(chargingTimeRemaining, gridChargingPower);
-            //}
+            // If the current solar power is higher than the grid charging power, stop charging from grid.
+            if (modbusOverview.CurrentSolarPower > gridChargingPower)
+            {
+                shouldStopCharging = true;
+            }
         }
-        else
+        else if (isCharging)
         {
-            //if (isCharging)
-            //{
-            //    _logger.LogInformation("Stopping home battery charging");
-            //    await _modbusService.StopChargingBattery();
-            //}
+            shouldStopCharging = true;
+        }
+
+        if (shouldStartCharging && !shouldStopCharging)
+        {
+            _logger.LogInformation("Starting home battery charging for {ChargingTimeRemaining} at {GridChargingPower}W", chargingTimeRemaining, gridChargingPower);
+            await _modbusService.StartChargingBattery(chargingTimeRemaining, gridChargingPower);
+        }
+
+        if (shouldStopCharging)
+        {
+            _logger.LogInformation("Stopping home battery charging");
+            await _modbusService.StopChargingBattery();
         }
     }
 
