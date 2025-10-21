@@ -82,7 +82,7 @@ public partial class DayAheadEnergyCostChart
                 {
                     Formatter = @"function (value) { return value + ' €c/kWh'; }"
                 },
-                Show = false
+                Show = true
             },
             new YAxis
             {                
@@ -114,7 +114,8 @@ public partial class DayAheadEnergyCostChart
         _options.Stroke = new Stroke
         {
             Curve = Curve.Smooth,
-            Width = new Size(4, 4, 4, 4, 2),
+            Width = new Size(4, 4, 4, 8, 2),
+            LineCap = LineCap.Round,
             DashArray = [0, 0, 0, 0, 0]
         };
         _options.Fill = new Fill
