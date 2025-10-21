@@ -81,8 +81,9 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 
         if (shouldCharge)
         {
-            // If there is no high consumption right now, start charging from grid.
-            if (modbusOverview.CurrentConsumptionPower < 1000)
+            // If the current battery level is below 90% and there is no
+            // high consumption right now, start charging from grid.
+            if (modbusOverview.BatteryLevel < 90 && modbusOverview.CurrentConsumptionPower < 1000)
             {
                 shouldStartCharging = true;
             }

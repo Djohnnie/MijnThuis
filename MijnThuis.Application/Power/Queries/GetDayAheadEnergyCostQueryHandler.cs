@@ -124,7 +124,7 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             if (dayAheadCheapestEntry != null)
             {
                 entry.ShouldCharge = dayAheadCheapestEntry.ShouldCharge;
-                if (entry.ShouldCharge || previousEntryShouldCharge)
+                if (entry.ShouldCharge /*|| previousEntryShouldCharge*/)
                 {
                     entry.ConsumptionPriceShouldCharge = 0.0M;
                 }
