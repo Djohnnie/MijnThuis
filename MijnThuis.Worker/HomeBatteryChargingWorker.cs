@@ -22,6 +22,7 @@ public class HomeBatteryChargingWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var iterationInMinutes = _configuration.GetValue<int>("ITERATION_IN_MINUTES");
+        var iterations = 0;
 
         // While the service is not requested to stop...
         while (!stoppingToken.IsCancellationRequested)
@@ -35,8 +36,13 @@ public class HomeBatteryChargingWorker : BackgroundService
                 var helper = serviceScope.ServiceProvider.GetRequiredService<IHomeBatteryChargingHelper>();
 
                 await helper.CheckForBatteryCharging(stoppingToken);
-                await helper.PrepareCheapestPeriods(stoppingToken);
-                await helper.UpdateChargingSchedule(stoppingToken);
+
+                // Only prepare the cheapest periods and update the charging schedule every 60 iterations.
+                if (iterations % 60 == 0)
+                {
+                    await helper.PrepareCheapestPeriods(stoppingToken);
+                    await helper.UpdateChargingSchedule(stoppingToken);
+                }
             }
             catch (Exception ex)
             {
@@ -54,6 +60,8 @@ public class HomeBatteryChargingWorker : BackgroundService
             {
                 await Task.Delay(duration, stoppingToken);
             }
+
+            iterations++;
         }
     }
 }

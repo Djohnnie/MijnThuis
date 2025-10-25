@@ -27,4 +27,18 @@ internal class SolarPowerHistoryRepository : ISolarPowerHistoryRepository
                 Consumption = x.Sum(y => y.Consumption)
             }).AverageAsync(x => x.Consumption, cancellationToken);
     }
+
+    //public async Task<decimal> GetAverageEnergyConsumption(DateTime date, CancellationToken cancellationToken = default)
+    //{
+    //    var monthStart = new DateTime(date.Year, date.Month, 1);
+    //    var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+
+    //    var energyConsumptionPerFifteenMinutes = await _dbContext.SolarEnergyHistory
+    //        .Where(x => x.Date >= date && x.Date <= date)
+    //        .Select(x => new
+    //        {
+    //            x.Date,
+    //            x.Consumption
+    //        })
+    //}
 }
