@@ -1,7 +1,6 @@
 ﻿using MijnThuis.DataAccess.Entities;
 using MijnThuis.DataAccess.Repositories;
 using MijnThuis.Integrations.Forecast;
-using MijnThuis.Integrations.Power;
 using MijnThuis.Integrations.Solar;
 
 namespace MijnThuis.Worker.Helpers;
@@ -20,6 +19,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
     private readonly IConfiguration _configuration;
     private readonly IDayAheadEnergyPricesRepository _dayAheadEnergyPricesRepository;
     private readonly ISolarPowerHistoryRepository _solarPowerHistoryRepository;
+    private readonly IEnergyForecastsRepository _energyForecastsRepository;
     private readonly ILogger<HomeBatteryChargingHelper> _logger;
 
     public HomeBatteryChargingHelper(
@@ -28,6 +28,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         IConfiguration configuration,
         IDayAheadEnergyPricesRepository dayAheadEnergyPricesRepository,
         ISolarPowerHistoryRepository solarPowerHistoryRepository,
+        IEnergyForecastsRepository energyForecastsRepository,
         ILogger<HomeBatteryChargingHelper> logger)
     {
         _forecastService = forecastService;
@@ -35,6 +36,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         _configuration = configuration;
         _dayAheadEnergyPricesRepository = dayAheadEnergyPricesRepository;
         _solarPowerHistoryRepository = solarPowerHistoryRepository;
+        _energyForecastsRepository = energyForecastsRepository;
         _logger = logger;
     }
 
@@ -56,6 +58,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var averageEnergyConsumption = await _solarPowerHistoryRepository.GetAverageEnergyConsumption(DateTime.Today);
         ReorderAverageEnergyConsumtion(averageEnergyConsumption, now);
         var cumulativeConsumption = 0;
+        var cumulativeBatteryLevel = (int)currentBatteryLevel;
         var estimatedEmptyBatteryTime = DateTime.MinValue;
         for (int i = 0; i < averageEnergyConsumption.Count; i++)
         {
@@ -64,10 +67,17 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 
             var forecastedSolarEnergy = FindForecastedSolarEnergy(solarForecast, dateTime);
 
-            if (dateTime > DateTime.Now)
+            cumulativeConsumption += averageEnergyConsumption[i].Consumption - forecastedSolarEnergy;
+            cumulativeBatteryLevel -= (int)Math.Round((averageEnergyConsumption[i].Consumption - forecastedSolarEnergy) / maximumBatteryEnergy * 100M);
+            cumulativeBatteryLevel = Math.Clamp(cumulativeBatteryLevel, 0, 100);
+
+            await _energyForecastsRepository.SaveEnergyForecast(new EnergyForecastEntry
             {
-                cumulativeConsumption += averageEnergyConsumption[i].Consumption - forecastedSolarEnergy;
-            }
+                Date = dateTime,
+                EnergyConsumptionInWattHours = averageEnergyConsumption[i].Consumption,
+                SolarEnergyInWattHours = forecastedSolarEnergy,
+                EstimatedBatteryLevel = cumulativeBatteryLevel
+            });
 
             if (cumulativeConsumption >= remainingBatteryEnergy)
             {

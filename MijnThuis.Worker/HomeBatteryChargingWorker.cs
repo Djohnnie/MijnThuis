@@ -37,8 +37,8 @@ public class HomeBatteryChargingWorker : BackgroundService
 
                 await helper.CheckForBatteryCharging(stoppingToken);
 
-                // Only prepare the cheapest periods and update the charging schedule every 60 iterations.
-                if (iterations % 60 == 0)
+                // Only prepare the cheapest periods and update the charging schedule every 15 iterations.
+                if (iterations % 15 == 0)
                 {
                     await helper.PrepareCheapestPeriods(stoppingToken);
                     await helper.UpdateChargingSchedule(stoppingToken);
@@ -53,7 +53,7 @@ public class HomeBatteryChargingWorker : BackgroundService
             // Calculate the duration for this whole process.
             var stopTimer = Stopwatch.GetTimestamp();
 
-            // Wait for a maximum of 5 minutes before the next iteration.
+            // Wait for a maximum of 1 minute before the next iteration.
             var duration = TimeSpan.FromMinutes(iterationInMinutes) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
 
             if (duration > TimeSpan.Zero)
