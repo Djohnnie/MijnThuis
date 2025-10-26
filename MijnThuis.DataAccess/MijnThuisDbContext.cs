@@ -21,6 +21,7 @@ public class MijnThuisDbContext : DbContext
     public DbSet<EnergyInvoiceEntry> EnergyInvoices { get; set; }
     public DbSet<CarChargesHistoryEntry> CarChargesHistory { get; set; }
     public DbSet<CarDrivesHistoryEntry> CarDrivesHistory { get; set; }
+    public DbSet<EnergyForecastEntry> EnergyForecasts { get; set; }
 
     public MijnThuisDbContext(IConfiguration configuration)
     {
@@ -209,6 +210,14 @@ public class MijnThuisDbContext : DbContext
             entityBuilder.Property(x => x.EnergyUsed).HasPrecision(9, 2);
             entityBuilder.Property(x => x.AverageInsideTemperature).HasPrecision(9, 2);
             entityBuilder.Property(x => x.AverageOutsideTemperature).HasPrecision(9, 2);
+        });
+
+        modelBuilder.Entity<EnergyForecastEntry>(entityBuilder =>
+        {
+            entityBuilder.ToTable("ENERGY_FORECASTS");
+            entityBuilder.HasKey(x => x.Id).IsClustered(false);
+            entityBuilder.Property(x => x.SysId).ValueGeneratedOnAdd();
+            entityBuilder.HasIndex(x => x.SysId).IsClustered();
         });
     }
 }
