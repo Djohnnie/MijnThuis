@@ -60,12 +60,15 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var cumulativeConsumption = 0;
         var cumulativeBatteryLevel = (int)currentBatteryLevel;
         var estimatedEmptyBatteryTime = DateTime.MinValue;
+        var currentDateTime = DateTime.Today;
         for (int i = 0; i < averageEnergyConsumption.Count; i++)
         {
             var timeOfDay = averageEnergyConsumption[i].TimeOfDay;
-            var dateTime = timeOfDay >= now ? DateTime.Today.Add(timeOfDay) : DateTime.Today.AddDays(1).Add(timeOfDay);
 
-            var forecastedSolarEnergy = FindForecastedSolarEnergy(solarForecast, dateTime);
+            var dateTime = timeOfDay >= now ? DateTime.Today.Add(timeOfDay) : DateTime.Today.AddDays(1).Add(timeOfDay);
+            currentDateTime = dateTime > currentDateTime ? dateTime : DateTime.Today.AddDays(1).Add(timeOfDay);
+
+            var forecastedSolarEnergy = FindForecastedSolarEnergy(solarForecast, currentDateTime);
 
             cumulativeConsumption += averageEnergyConsumption[i].Consumption - forecastedSolarEnergy;
             cumulativeBatteryLevel -= (int)Math.Round((averageEnergyConsumption[i].Consumption - forecastedSolarEnergy) / maximumBatteryEnergy * 100M);
@@ -73,17 +76,17 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 
             await _energyForecastsRepository.SaveEnergyForecast(new EnergyForecastEntry
             {
-                Date = dateTime,
+                Date = currentDateTime,
                 EnergyConsumptionInWattHours = averageEnergyConsumption[i].Consumption,
                 SolarEnergyInWattHours = forecastedSolarEnergy,
                 EstimatedBatteryLevel = cumulativeBatteryLevel
             });
 
-            if (cumulativeConsumption >= remainingBatteryEnergy)
-            {
-                estimatedEmptyBatteryTime = dateTime;
-                break;
-            }
+            //if (cumulativeConsumption >= remainingBatteryEnergy)
+            //{
+            //    estimatedEmptyBatteryTime = currentDateTime;
+            //    break;
+            //}
         }
 
         // 
@@ -143,6 +146,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         averageEnergyConsumption.Clear();
         averageEnergyConsumption.AddRange(entriesFromNow);
         averageEnergyConsumption.AddRange(entriesBeforeNow);
+        averageEnergyConsumption.AddRange(entriesFromNow);
     }
 
     public async Task CheckForBatteryCharging(CancellationToken cancellationToken)

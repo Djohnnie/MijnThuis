@@ -129,7 +129,7 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             }
             else
             {
-                if (entry.Date > DateTime.Now && energyForecastEntry != null)
+                if (entry.Date >= DateTime.Now.AddHours(-1) && energyForecastEntry != null)
                 {
                     entry.EstimatedBatteryLevel = energyForecastEntry.EstimatedBatteryLevel;
                 }
