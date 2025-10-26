@@ -5,6 +5,8 @@ namespace MijnThuis.DataAccess.Repositories;
 public interface ISolarPowerHistoryRepository
 {
     Task<decimal> GetAverageDailyConsumption(DateTime from, DateTime to, CancellationToken cancellationToken = default);
+
+    Task<List<ConsumptionPerFifteenMinutes>> GetAverageEnergyConsumption(DateTime date, CancellationToken cancellationToken = default);
 }
 
 internal class SolarPowerHistoryRepository : ISolarPowerHistoryRepository
@@ -28,17 +30,28 @@ internal class SolarPowerHistoryRepository : ISolarPowerHistoryRepository
             }).AverageAsync(x => x.Consumption, cancellationToken);
     }
 
-    //public async Task<decimal> GetAverageEnergyConsumption(DateTime date, CancellationToken cancellationToken = default)
-    //{
-    //    var monthStart = new DateTime(date.Year, date.Month, 1);
-    //    var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+    public async Task<List<ConsumptionPerFifteenMinutes>> GetAverageEnergyConsumption(DateTime date, CancellationToken cancellationToken = default)
+    {
+        var startYear = 2024;
+        var month = date.Month;
 
-    //    var energyConsumptionPerFifteenMinutes = await _dbContext.SolarEnergyHistory
-    //        .Where(x => x.Date >= date && x.Date <= date)
-    //        .Select(x => new
-    //        {
-    //            x.Date,
-    //            x.Consumption
-    //        })
-    //}
+        var energyConsumptionPerFifteenMinutes = await _dbContext.SolarEnergyHistory
+            .Where(x => x.Date.Year >= startYear)
+            .Where(x => x.Date.Month == month)
+            .GroupBy(x => x.Date.TimeOfDay)
+            .OrderBy(x => x.Key)
+            .Select(x => new ConsumptionPerFifteenMinutes
+            {
+                TimeOfDay = x.Key,
+                Consumption = (int)Math.Round(x.Average(p => p.Consumption))
+            }).ToListAsync();
+
+        return energyConsumptionPerFifteenMinutes;
+    }
+}
+
+public class ConsumptionPerFifteenMinutes
+{
+    public TimeSpan TimeOfDay { get; set; }
+    public int Consumption { get; set; }
 }
