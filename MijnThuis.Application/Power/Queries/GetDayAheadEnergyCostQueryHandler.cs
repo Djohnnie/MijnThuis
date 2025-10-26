@@ -18,6 +18,7 @@ public class GetDayAheadEnergyCostResponse
 public class DayAheadEnergyCost
 {
     public DateTime Date { get; set; }
+    public decimal ForecastedYield { get; set; }
     public decimal? Consumption { get; set; }
     public decimal? ConsumptionCost { get; set; }
     public decimal ConsumptionPrice { get; set; }
@@ -106,6 +107,8 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             var dayAheadCheapestEntry = dayAheadCheapestEntries.FirstOrDefault(x => x.From == date);
 
             var entry = new DayAheadEnergyCost { Date = date };
+
+            entry.ForecastedYield = energyForecastEntry != null ? energyForecastEntry.SolarEnergyInWattHours : 0M;
 
             if (priceEntry != null)
             {
