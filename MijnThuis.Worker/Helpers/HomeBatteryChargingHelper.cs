@@ -89,26 +89,26 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             //}
         }
 
-        // Start scheduling the next day from 6 PM today.
-        var dayToSchedule = DateTime.Now.Hour < 18 ? DateTime.Today : DateTime.Today.AddDays(1);
-        var calculatedSolarForecastOnDayToSchedule = solarForecast.WattHourPeriods
-            .Where(x => x.Timestamp.Date == dayToSchedule)
-            .Sum(x => x.WattHours);
-        var cheapestPricesToday = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForDate(dayToSchedule, cancellationToken);
-        var averageDailyEnergy = await _solarPowerHistoryRepository.GetAverageDailyConsumption(dayToSchedule.AddDays(-7), dayToSchedule, cancellationToken);
-        var batteryEnergyToCharge = 97 * (90 - batteryLevel.Level);
-        var totalEnergyNeeded = (int)averageDailyEnergy + (int)batteryEnergyToCharge - calculatedSolarForecastOnDayToSchedule;
+        //// Start scheduling the next day from 6 PM today.
+        //var dayToSchedule = DateTime.Now.Hour < 18 ? DateTime.Today : DateTime.Today.AddDays(1);
+        //var calculatedSolarForecastOnDayToSchedule = solarForecast.WattHourPeriods
+        //    .Where(x => x.Timestamp.Date == dayToSchedule)
+        //    .Sum(x => x.WattHours);
+        //var cheapestPricesToday = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForDate(dayToSchedule, cancellationToken);
+        //var averageDailyEnergy = await _solarPowerHistoryRepository.GetAverageDailyConsumption(dayToSchedule.AddDays(-7), dayToSchedule, cancellationToken);
+        //var batteryEnergyToCharge = 97 * (90 - batteryLevel.Level);
+        //var totalEnergyNeeded = (int)averageDailyEnergy + (int)batteryEnergyToCharge - calculatedSolarForecastOnDayToSchedule;
 
-        var numberOf15MinuteBlocksNeeded = (int)(totalEnergyNeeded / (gridChargingPower / 4M));
-        var numberOf15MinuteBlocksMarked = 0;
-        for (var i = 0; i < cheapestPricesToday.Count; i++)
-        {
-            if (cheapestPricesToday[i].From > DateTime.Now)
-            {
-                await _dayAheadEnergyPricesRepository.SetCheapestEnergyPriceShouldCharge(cheapestPricesToday[i].Id, numberOf15MinuteBlocksMarked < numberOf15MinuteBlocksNeeded);
-                numberOf15MinuteBlocksMarked++;
-            }
-        }
+        //var numberOf15MinuteBlocksNeeded = (int)(totalEnergyNeeded / (gridChargingPower / 4M));
+        //var numberOf15MinuteBlocksMarked = 0;
+        //for (var i = 0; i < cheapestPricesToday.Count; i++)
+        //{
+        //    if (cheapestPricesToday[i].From > DateTime.Now)
+        //    {
+        //        await _dayAheadEnergyPricesRepository.SetCheapestEnergyPriceShouldCharge(cheapestPricesToday[i].Id, numberOf15MinuteBlocksMarked < numberOf15MinuteBlocksNeeded);
+        //        numberOf15MinuteBlocksMarked++;
+        //    }
+        //}
     }
 
     private int FindForecastedSolarEnergy(ForecastOverview solarForecast, DateTime dateTime)
@@ -184,14 +184,14 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 
         if (shouldStartCharging && !shouldStopCharging)
         {
-            _logger.LogInformation("Starting home battery charging for {ChargingTimeRemaining} at {GridChargingPower}W", chargingTimeRemaining, gridChargingPower);
-            await _modbusService.StartChargingBattery(chargingTimeRemaining, gridChargingPower);
+            //_logger.LogInformation("Starting home battery charging for {ChargingTimeRemaining} at {GridChargingPower}W", chargingTimeRemaining, gridChargingPower);
+            //await _modbusService.StartChargingBattery(chargingTimeRemaining, gridChargingPower);
         }
 
         if (shouldStopCharging)
         {
-            _logger.LogInformation("Stopping home battery charging");
-            await _modbusService.StopChargingBattery();
+            //_logger.LogInformation("Stopping home battery charging");
+            //await _modbusService.StopChargingBattery();
         }
     }
 
