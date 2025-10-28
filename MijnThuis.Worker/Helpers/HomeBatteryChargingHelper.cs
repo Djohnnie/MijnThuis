@@ -184,14 +184,14 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 
         if (shouldStartCharging && !shouldStopCharging)
         {
-            //_logger.LogInformation("Starting home battery charging for {ChargingTimeRemaining} at {GridChargingPower}W", chargingTimeRemaining, gridChargingPower);
-            //await _modbusService.StartChargingBattery(chargingTimeRemaining, gridChargingPower);
+            _logger.LogInformation("Starting home battery charging for {ChargingTimeRemaining} at {GridChargingPower}W", chargingTimeRemaining, gridChargingPower);
+            await _modbusService.StartChargingBattery(chargingTimeRemaining, gridChargingPower);
         }
 
         if (shouldStopCharging)
         {
-            //_logger.LogInformation("Stopping home battery charging");
-            //await _modbusService.StopChargingBattery();
+            _logger.LogInformation("Stopping home battery charging");
+            await _modbusService.StopChargingBattery();
         }
     }
 
