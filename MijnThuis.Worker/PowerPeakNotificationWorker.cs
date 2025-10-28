@@ -31,6 +31,7 @@ internal class PowerPeakNotificationWorker : BackgroundService
         var mailgunReceivers = _configuration.GetValue<string>("MAILGUN_RECEIVERS");
 
         var lastNotificationTime = DateTime.MinValue;
+        var consecutiveHighUsageCount = 0;
 
         // While the service is not requested to stop...
         while (!stoppingToken.IsCancellationRequested)
@@ -50,15 +51,24 @@ internal class PowerPeakNotificationWorker : BackgroundService
 
                 if (powerOverview.CurrentPower > 2500)
                 {
-                    // Disable battery charging if it is active.
-                    await modbusService.StopChargingBattery();
+                    consecutiveHighUsageCount++;
 
-                    if ((DateTime.Now - lastNotificationTime).TotalMinutes > 5)
+                    if (consecutiveHighUsageCount >= 3 && (DateTime.Now - lastNotificationTime).TotalMinutes > 5)
                     {
+                        // Disable battery charging if it is active.
+                        await modbusService.StopChargingBattery();
+
+                        consecutiveHighUsageCount = 0;
                         lastNotificationTime = DateTime.Now;
+
                         await SendEmail($"Er is momenteel een hoog verbruik van {powerOverview.CurrentPower}W!",
                             mailgunBaseAddress, mailgunDomain, mailgunSender, mailgunReceivers, mailgunApiKey);
                     }
+                }
+                else
+                {
+                    // Reset the counter if usage is below threshold.
+                    consecutiveHighUsageCount = 0;
                 }
 
                 // Calculate the duration for this whole process.
