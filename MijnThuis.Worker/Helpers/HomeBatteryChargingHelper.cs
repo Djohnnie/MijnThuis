@@ -70,8 +70,20 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 
             var forecastedSolarEnergy = FindForecastedSolarEnergy(solarForecast, currentDateTime);
 
-            cumulativeConsumption += averageEnergyConsumption[i].Consumption - forecastedSolarEnergy;
-            cumulativeBatteryLevel -= (int)Math.Round((averageEnergyConsumption[i].Consumption - forecastedSolarEnergy) / maximumBatteryEnergy * 100M);
+            // If manually charging is enabled
+            var cheapestEnergyPriceEntry = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(currentDateTime);
+            if (cheapestEnergyPriceEntry is not null && cheapestEnergyPriceEntry.ShouldCharge)
+            {
+                var energyFromGrid = (int)Math.Round(gridChargingPower / 4M); // 15 minutes of charging at grid power
+                if (forecastedSolarEnergy < energyFromGrid)
+                {
+                    forecastedSolarEnergy = energyFromGrid;
+                }
+            }
+
+            var consumption = averageEnergyConsumption[i].Consumption - forecastedSolarEnergy;
+            cumulativeConsumption += consumption;
+            cumulativeBatteryLevel -= (int)Math.Round(consumption / maximumBatteryEnergy * 100M);
             cumulativeBatteryLevel = Math.Clamp(cumulativeBatteryLevel, 0, 100);
 
             await _energyForecastsRepository.SaveEnergyForecast(new EnergyForecastEntry
