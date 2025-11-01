@@ -29,10 +29,10 @@ public class GetSolarProductionAndConsumptionTodayQueryHandler : IRequestHandler
             ProductionToHome = entries.Sum(x => x.ProductionToHome) / 1000M,
             ProductionToBattery = entries.Sum(x => x.ProductionToBattery) / 1000M,
             ProductionToGrid = entries.Sum(x => x.ProductionToGrid) / 1000M,
-            Consumption = entries.Sum(x => x.Consumption) / 1000M,
+            Consumption = (entries.Sum(x => x.Consumption) + entries.Sum(x => x.ImportToBattery) - entries.Sum(x => x.ConsumptionFromBattery)) / 1000M,
             ConsumptionFromSolar = entries.Sum(x => x.ConsumptionFromSolar) / 1000M,
             ConsumptionFromBattery = entries.Sum(x => x.ConsumptionFromBattery) / 1000M,
-            ConsumptionFromGrid = entries.Sum(x => x.ConsumptionFromGrid) / 1000M
+            ConsumptionFromGrid = (entries.Sum(x => x.ConsumptionFromGrid) + entries.Sum(x => x.ImportToBattery)) / 1000M
         };
     }
 }
