@@ -88,6 +88,7 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             .ToListAsync();
 
         var flag = await _flagRepository.GetElectricityTariffDetailsFlag();
+        var additionalCostsPerKwh = flag.GreenEnergyContribution + flag.UsageTariff + flag.SpecialExciseTax + flag.EnergyContribution;
 
         var result = new GetDayAheadEnergyCostResponse
         {
@@ -112,7 +113,7 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
 
             if (priceEntry != null)
             {
-                entry.ConsumptionPrice = priceEntry.ConsumptionPrice + flag.GreenEnergyContribution + flag.UsageTariff + flag.SpecialExciseTax + flag.EnergyContribution;
+                entry.ConsumptionPrice = priceEntry.ConsumptionPrice + additionalCostsPerKwh;
                 previousPrice = entry.ConsumptionPrice;
             }
             else
@@ -123,7 +124,7 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             if (consumptionEntry != null)
             {
                 entry.Consumption = consumptionEntry.Consumption > 0M ? consumptionEntry.Consumption : null;
-                entry.ConsumptionCost = consumptionEntry.ImportCost > 0M ? consumptionEntry.ImportCost : null;
+                entry.ConsumptionCost = consumptionEntry.ImportCost + consumptionEntry.Consumption * additionalCostsPerKwh;
             }
 
             if (batteryEntry != null)
