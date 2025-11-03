@@ -8,50 +8,58 @@
 <PageTitle>Mijn Thuis - Grafiek</PageTitle>
 
 <MudGrid>
+    @if (ChartType != "DayAheadEnergyCostChart")
+    {
+        <MudItem xs="12" sm="12" md="2" lg="2" xl="4">
+        </MudItem>
 
-    <MudItem xs="12" sm="12" md="2" lg="2" xl="4">
-    </MudItem>
+        <MudItem xs="12" sm="12" md="8" lg="8" xl="6">
+            @switch (ChartType)
+            {
+                case "EnergyUsageChart":
+                    <EnergyUsageChart />
+                    break;
+                case "PeakPowerUsageChart":
+                    <PeakPowerUsageChart />
+                    break;
+                case "EnergyCostHistoryChart":
+                    <EnergyCostHistoryChart />
+                    break;
+                case "DayAheadEnergyPriceChart":
+                    <DayAheadEnergyPriceChart />
+                    break;
+                case "SolarSelfConsumptionChart":
+                    <SolarSelfConsumptionChart />
+                    break;
+                case "SolarProductionChart":
+                    <SolarProductionChart />
+                    break;
+                case "BatteryHistoryChart":
+                    <BatteryHistoryChart />
+                    break;
+                case "SolarProductionHistoryChart":
+                    <SolarProductionHistoryChart />
+                    break;
+                case "SolarYearlyProductionChart":
+                    <SolarYearlyProductionChart />
+                    break;
+                case "SolarForecastVsActualChart":
+                    <SolarForecastVsActualChart />
+                    break;
+                default:
+                    <p>Onbekend grafiektype</p>
+                    break;
+            }
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12" sm="12" md="12" lg="1" xl="1">
+        </MudItem>
 
-    <MudItem xs="12" sm="12" md="8" lg="8" xl="6">
-        @switch (ChartType)
-        {
-            case "EnergyUsageChart":
-                <EnergyUsageChart />
-                break;
-            case "PeakPowerUsageChart":
-                <PeakPowerUsageChart />
-                break;
-            case "EnergyCostHistoryChart":
-                <EnergyCostHistoryChart />
-                break;
-            case "DayAheadEnergyCostChart":
-                <DayAheadEnergyCostChart />
-                break;
-            case "DayAheadEnergyPriceChart":
-                <DayAheadEnergyPriceChart />
-                break;
-            case "SolarSelfConsumptionChart":
-                <SolarSelfConsumptionChart />
-                break;
-            case "SolarProductionChart":
-                <SolarProductionChart />
-                break;
-            case "BatteryHistoryChart":
-                <BatteryHistoryChart />
-                break;
-            case "SolarProductionHistoryChart":
-                <SolarProductionHistoryChart />
-                break;
-            case "SolarYearlyProductionChart":
-                <SolarYearlyProductionChart />
-                break;
-            case "SolarForecastVsActualChart":
-                <SolarForecastVsActualChart />
-                break;
-            default:
-                <p>Onbekend grafiektype</p>
-                break;
-        }
-    </MudItem>
+        <MudItem xs="12" sm="12" md="12" lg="10" xl="10">
+            <DayAheadEnergyCostChart />
+        </MudItem>
+	}
 
 </MudGrid>
