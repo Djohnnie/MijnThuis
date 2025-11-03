@@ -9,15 +9,15 @@
 	<ItemGroup>
 		<PackageReference Include="Azure.AI.OpenAI" Version="2.5.0-beta.1" />
 		<PackageReference Include="Blazor-ApexCharts" Version="6.0.2" />
-		<PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.0.0-preview.251016.1" />
+		<PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.0.0-preview.251028.1" />
 		<PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.46.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="MudBlazor" Version="8.13.0" />
-		<PackageReference Include="Microsoft.Extensions.AI" Version="9.10.0" />
-		<PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.4.0-preview.2" />
+		<PackageReference Include="Microsoft.Extensions.AI" Version="9.10.2" />
+		<PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.4.0-preview.3" />
 	</ItemGroup>
 
 	<ItemGroup>
