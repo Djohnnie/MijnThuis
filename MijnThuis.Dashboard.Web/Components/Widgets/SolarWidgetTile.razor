@@ -12,17 +12,17 @@
                     <MudIcon Class="svg-center mt-n10" Icon="@Icons.Material.Filled.ElectricCar" Size="Size.Large" Title="Tesla Model Y 2023" />
                     <MudStack Class="my-0">
                         <MudChip T="string" Color="Color.Default" Variant="Variant.Text">@CurrentCarBattery% (@CurrentCarAmps A)</MudChip>
-                        <MudChip Class="mx-3 mt-n3" T="string" Color="Color.Tertiary" Variant="Variant.Text">@CurrentCarPower.ToString("F2") kW</MudChip>
+                        <MudChip Class="mx-3 mt-n3" T="string" Color="Color.Info" Variant="Variant.Text">@CurrentCarPower.ToString("F2") kW</MudChip>
                     </MudStack>
                     <MudDivider Class="my-2" />
                 }
                 <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.Home" Size="Size.Large" Title="Mijn huishouden" />
-                <MudChip Class="mx-3" T="string" Color="Color.Tertiary" Variant="Variant.Text">@CurrentHomePower.ToString("F2") kW</MudChip>
+                <MudChip Class="mx-3" T="string" Color="Color.Info" Variant="Variant.Text">@CurrentHomePower.ToString("F2") kW</MudChip>
             </div>
         </div>
         <div class="d-flex justify-center">
             <div class="align-self-center">
-                <MudIcon Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft" Color="Color.Tertiary" Size="Size.Small" Title="Vermogen naar huishouden" />
+                <MudIcon Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft" Color="Color.Info" Size="Size.Small" Title="Vermogen naar huishouden" />
             </div>
         </div>
         <div class="d-flex justify-center">
