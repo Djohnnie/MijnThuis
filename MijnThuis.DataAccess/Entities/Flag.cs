@@ -32,7 +32,28 @@ public class ManualCarChargeFlag : IFlag
 
     public static ManualCarChargeFlag Deserialize(string json)
     {
-        return JsonSerializer.Deserialize<ManualCarChargeFlag>(json);
+        return JsonSerializer.Deserialize<ManualCarChargeFlag>(json) ?? Default;
+    }
+}
+
+public class ManualHomeBatteryChargeFlag : IFlag
+{
+    public static string Name => "ManualHomeBatteryCharge";
+
+    public static ManualHomeBatteryChargeFlag Default => new ManualHomeBatteryChargeFlag();
+
+    public bool ShouldCharge { get; set; }
+    public int ChargeWattage { get; set; }
+    public DateTime ChargeUntil { get; set; }
+
+    public string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
+
+    public static ManualHomeBatteryChargeFlag Deserialize(string json)
+    {
+        return JsonSerializer.Deserialize<ManualHomeBatteryChargeFlag>(json) ?? Default;
     }
 }
 

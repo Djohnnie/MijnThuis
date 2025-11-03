@@ -11,6 +11,9 @@ public interface IFlagRepository
     Task<ManualCarChargeFlag> GetManualCarChargeFlag();
     Task SetCarChargingFlag(bool shouldCharge, int chargeAmps);
 
+    Task<ManualHomeBatteryChargeFlag> GetManualHomeBatteryChargeFlag();
+    Task SetManualHomeBatteryChargeFlag(bool shouldCharge, int chargeWattage, DateTime chargeUntil);
+
     Task<ConsumptionTariffExpressionFlag> GetConsumptionTariffExpressionFlag();
     Task SetConsumptionTariffExpressionFlag(string expression, string source);
 
@@ -69,6 +72,22 @@ public class FlagRepository : IFlagRepository
         {
             ShouldCharge = shouldCharge,
             ChargeAmps = chargeAmps
+        });
+    }
+
+    public async Task<ManualHomeBatteryChargeFlag> GetManualHomeBatteryChargeFlag()
+    {
+        var flag = await GetFlag(ManualHomeBatteryChargeFlag.Name);
+        return flag != null ? ManualHomeBatteryChargeFlag.Deserialize(flag.Value) : ManualHomeBatteryChargeFlag.Default;
+    }
+
+    public async Task SetManualHomeBatteryChargeFlag(bool shouldCharge, int chargeWattage, DateTime chargeUntil)
+    {
+        await SetFlag(ManualHomeBatteryChargeFlag.Name, new ManualHomeBatteryChargeFlag
+        {
+            ShouldCharge = shouldCharge,
+            ChargeWattage = chargeWattage,
+            ChargeUntil = chargeUntil
         });
     }
 

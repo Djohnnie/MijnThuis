@@ -1,22 +1,24 @@
 ﻿using MediatR;
 using MijnThuis.Contracts.Solar;
-using MijnThuis.Integrations.Solar;
+using MijnThuis.DataAccess.Repositories;
 
 namespace MijnThuis.Application.Solar.Commands;
 
 public class ChargeBatteryCommandHandler : IRequestHandler<ChargeBatteryCommand, ChargeBatteryResponse>
 {
-    private readonly IModbusService _modbusService;
+    private readonly IFlagRepository _flagRepository;
 
     public ChargeBatteryCommandHandler(
-        IModbusService modbusService)
+        IFlagRepository flagRepository)
     {
-        _modbusService = modbusService;
+        _flagRepository = flagRepository;
     }
 
     public async Task<ChargeBatteryResponse> Handle(ChargeBatteryCommand request, CancellationToken cancellationToken)
     {
-        await _modbusService.StartChargingBattery(request.Duration, request.Power);
+        var chargeUntil = DateTime.Now.Add(request.Duration);
+
+        await _flagRepository.SetManualHomeBatteryChargeFlag(true, request.Power, chargeUntil);
 
         return new ChargeBatteryResponse
         {

@@ -20,6 +20,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
     private readonly IDayAheadEnergyPricesRepository _dayAheadEnergyPricesRepository;
     private readonly ISolarPowerHistoryRepository _solarPowerHistoryRepository;
     private readonly IEnergyForecastsRepository _energyForecastsRepository;
+    private readonly IFlagRepository _flagRepository;
     private readonly ILogger<HomeBatteryChargingHelper> _logger;
 
     public HomeBatteryChargingHelper(
@@ -29,6 +30,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         IDayAheadEnergyPricesRepository dayAheadEnergyPricesRepository,
         ISolarPowerHistoryRepository solarPowerHistoryRepository,
         IEnergyForecastsRepository energyForecastsRepository,
+        IFlagRepository flagRepository,
         ILogger<HomeBatteryChargingHelper> logger)
     {
         _forecastService = forecastService;
@@ -37,6 +39,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         _dayAheadEnergyPricesRepository = dayAheadEnergyPricesRepository;
         _solarPowerHistoryRepository = solarPowerHistoryRepository;
         _energyForecastsRepository = energyForecastsRepository;
+        _flagRepository = flagRepository;
         _logger = logger;
     }
 
@@ -58,7 +61,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var averageEnergyConsumption = await _solarPowerHistoryRepository.GetAverageEnergyConsumption(DateTime.Today);
         ReorderAverageEnergyConsumtion(averageEnergyConsumption, now);
         var cumulativeConsumption = 0;
-        var cumulativeBatteryLevel = (int)currentBatteryLevel;
+        var cumulativeBatteryLevel = currentBatteryLevel;
         var estimatedEmptyBatteryTime = DateTime.MinValue;
         var currentDateTime = DateTime.Today;
         for (int i = 0; i < averageEnergyConsumption.Count; i++)
@@ -83,7 +86,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 
             var consumption = averageEnergyConsumption[i].Consumption - forecastedSolarEnergy;
             cumulativeConsumption += consumption;
-            cumulativeBatteryLevel -= (int)Math.Round(consumption / maximumBatteryEnergy * 100M);
+            cumulativeBatteryLevel -= consumption / maximumBatteryEnergy * 100M;
             cumulativeBatteryLevel = Math.Clamp(cumulativeBatteryLevel, 0, 100);
 
             await _energyForecastsRepository.SaveEnergyForecast(new EnergyForecastEntry
@@ -91,7 +94,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
                 Date = currentDateTime,
                 EnergyConsumptionInWattHours = averageEnergyConsumption[i].Consumption,
                 SolarEnergyInWattHours = forecastedSolarEnergy,
-                EstimatedBatteryLevel = cumulativeBatteryLevel
+                EstimatedBatteryLevel = (int)Math.Round(cumulativeBatteryLevel)
             });
 
             //if (cumulativeConsumption >= remainingBatteryEnergy)
@@ -160,15 +163,32 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 
     public async Task CheckForBatteryCharging(CancellationToken cancellationToken)
     {
-        var gridChargingPower = _configuration.GetValue<int>("GRID_CHARGING_POWER");
-
-        var currentDayAheadEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(DateTime.Now);
-        var modbusOverview = await _modbusService.GetBulkOverview();
-        var isCharging = modbusOverview.StorageControlMode == StorageControlMode.RemoteControl;
-        var chargingTimeRemaining = currentDayAheadEnergyPrice.To - DateTime.Now;
-        var shouldCharge = currentDayAheadEnergyPrice.ShouldCharge;
+        var chargingPower = _configuration.GetValue<int>("GRID_CHARGING_POWER");
         var shouldStartCharging = false;
         var shouldStopCharging = false;
+
+        var manualChargingFlag = await _flagRepository.GetManualHomeBatteryChargeFlag();
+        var modbusOverview = await _modbusService.GetBulkOverview();
+        var isCharging = modbusOverview.StorageControlMode == StorageControlMode.RemoteControl;
+
+        if (manualChargingFlag.ShouldCharge && manualChargingFlag.ChargeUntil > DateTime.Now)
+        {
+            await _flagRepository.SetManualHomeBatteryChargeFlag(false, 0, DateTime.MinValue);
+        }
+
+        if (manualChargingFlag.ShouldCharge)
+        {
+            chargingPower = manualChargingFlag.ChargeWattage;
+            shouldStartCharging = true;
+        }
+        else
+        {
+            shouldStopCharging = true;
+        }
+
+        var currentDayAheadEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(DateTime.Now);
+        var chargingTimeRemaining = currentDayAheadEnergyPrice.To - DateTime.Now;
+        var shouldCharge = currentDayAheadEnergyPrice.ShouldCharge;
 
         if (shouldCharge)
         {
@@ -184,7 +204,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             }
 
             // If the current solar power is higher than the grid charging power, stop charging from grid.
-            if (modbusOverview.CurrentSolarPower > gridChargingPower)
+            if (modbusOverview.CurrentSolarPower > chargingPower)
             {
                 shouldStopCharging = true;
             }
@@ -196,8 +216,8 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 
         if (shouldStartCharging && !shouldStopCharging)
         {
-            _logger.LogInformation("Starting home battery charging for {ChargingTimeRemaining} at {GridChargingPower}W", chargingTimeRemaining, gridChargingPower);
-            //await _modbusService.StartChargingBattery(chargingTimeRemaining, gridChargingPower);
+            _logger.LogInformation("Starting home battery charging for {ChargingTimeRemaining} at {GridChargingPower}W", chargingTimeRemaining, chargingPower);
+            //await _modbusService.StartChargingBattery(chargingTimeRemaining, chargingPower);
         }
 
         if (shouldStopCharging)

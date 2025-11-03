@@ -1,22 +1,22 @@
 ﻿using MediatR;
 using MijnThuis.Contracts.Solar;
-using MijnThuis.Integrations.Solar;
+using MijnThuis.DataAccess.Repositories;
 
 namespace MijnThuis.Application.Solar.Commands;
 
 public class StopChargingBatteryCommandHandler : IRequestHandler<StopChargingBatteryCommand, StopChargingBatteryResponse>
 {
-    private readonly IModbusService _modbusService;
+    private readonly IFlagRepository _flagRepository;
 
     public StopChargingBatteryCommandHandler(
-        IModbusService modbusService)
+        IFlagRepository flagRepository)
     {
-        _modbusService = modbusService;
+        _flagRepository = flagRepository;
     }
 
     public async Task<StopChargingBatteryResponse> Handle(StopChargingBatteryCommand request, CancellationToken cancellationToken)
     {
-        await _modbusService.StopChargingBattery();
+        await _flagRepository.SetManualHomeBatteryChargeFlag(false, 0, DateTime.MinValue);
 
         return new StopChargingBatteryResponse
         {
