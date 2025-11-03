@@ -176,15 +176,15 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             await _flagRepository.SetManualHomeBatteryChargeFlag(false, 0, DateTime.MinValue);
         }
 
-        if (manualChargingFlag.ShouldCharge)
-        {
-            chargingPower = manualChargingFlag.ChargeWattage;
-            shouldStartCharging = true;
-        }
-        else
-        {
-            shouldStopCharging = true;
-        }
+        //if (manualChargingFlag.ShouldCharge)
+        //{
+        //    chargingPower = manualChargingFlag.ChargeWattage;
+        //    shouldStartCharging = true;
+        //}
+        //else
+        //{
+        //    shouldStopCharging = true;
+        //}
 
         var currentDayAheadEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(DateTime.Now);
         var chargingTimeRemaining = currentDayAheadEnergyPrice.To - DateTime.Now;
@@ -217,13 +217,13 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         if (shouldStartCharging && !shouldStopCharging)
         {
             _logger.LogInformation("Starting home battery charging for {ChargingTimeRemaining} at {GridChargingPower}W", chargingTimeRemaining, chargingPower);
-            //await _modbusService.StartChargingBattery(chargingTimeRemaining, chargingPower);
+            await _modbusService.StartChargingBattery(chargingTimeRemaining, chargingPower);
         }
 
         if (shouldStopCharging)
         {
             _logger.LogInformation("Stopping home battery charging");
-            //await _modbusService.StopChargingBattery();
+            await _modbusService.StopChargingBattery();
         }
     }
 
