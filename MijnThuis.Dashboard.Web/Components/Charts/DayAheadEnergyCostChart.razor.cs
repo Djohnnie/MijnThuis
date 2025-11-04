@@ -17,7 +17,7 @@ public partial class DayAheadEnergyCostChart
     private ApexChart<ChartDataEntry<string, decimal?>> _apexChart = null!;
     private ApexChartOptions<ChartDataEntry<string, decimal?>> _options { get; set; } = new();
 
-    private ChartData6<string, decimal?> DayAheadEnergyPrices { get; set; } = new();
+    private ChartData7<string, decimal?> DayAheadEnergyPrices { get; set; } = new();
     private DateTime _selectedDate = DateTime.Today;
 
     public string TitleDescription { get; set; }
@@ -130,6 +130,18 @@ public partial class DayAheadEnergyCostChart
                 AxisBorder = new AxisBorder{ Show = false },
                 AxisTicks = new AxisTicks{ Show = false },
                 Show = false
+            },
+            new YAxis
+            {
+                DecimalsInFloat = 0,
+                Labels = new YAxisLabels
+                {
+                    Formatter = @"function (value) { return value === null ? 'geen waarde' : value + ' Wh'; }"
+                },
+                ForceNiceScale = true,
+                AxisBorder = new AxisBorder{ Show = false },
+                AxisTicks = new AxisTicks{ Show = false },
+                Show = false
             }
         };
         _options.Theme = new Theme
@@ -137,18 +149,18 @@ public partial class DayAheadEnergyCostChart
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
-        _options.Colors = new List<string> { "#5DE799", "#FF9090", "#B0D8FD", "#FF0000", "#000000", "#DDDDDD" };
+        _options.Colors = new List<string> { "#5DE799", "#FF9090", "#B0D8FD", "#FF0000", "#000000", "#DDDDDD", "#5DE799" };
         _options.Stroke = new Stroke
         {
             Curve = Curve.Smooth,
-            Width = new Size(4, 4, 4, 8, 2, 2),
+            Width = new Size(4, 4, 4, 8, 2, 2, 2),
             LineCap = LineCap.Round,
-            DashArray = [0, 0, 0, 0, 0, 0]
+            DashArray = [0, 0, 0, 0, 0, 0, 0]
         };
         _options.Fill = new Fill
         {
-            Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid, FillType.Solid, FillType.Solid, FillType.Solid },
-            Opacity = new Opacity(1, 1, 1, 1, 1, 1)
+            Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid, FillType.Solid, FillType.Solid, FillType.Solid, FillType.Solid },
+            Opacity = new Opacity(1, 1, 1, 1, 1, 1, 1)
         };
 
         DayAheadEnergyPrices.Description = "Elektriciteit: Dynamische tarieven";
@@ -158,6 +170,7 @@ public partial class DayAheadEnergyCostChart
         DayAheadEnergyPrices.Series4Description = "Batterij opladen via netstroom";
         DayAheadEnergyPrices.Series5Description = "Actueel batterijpercentage";
         DayAheadEnergyPrices.Series6Description = "Geschat batterijpercentage";
+        DayAheadEnergyPrices.Series7Description = "Opbrengstvoorspelling";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -253,13 +266,17 @@ public partial class DayAheadEnergyCostChart
                 XValue = $"{x.Date:HH:mm}",
                 YValue = x.EstimatedBatteryLevel
             }));
+            DayAheadEnergyPrices.Series7.AddRange(entries.Select(x => new ChartDataEntry<string, decimal?>
+            {
+                XValue = $"{x.Date:HH:mm}",
+                YValue = x.ForecastedYield
+            }));
 
             TitleDescription = string.Create(CultureInfo.GetCultureInfo("nl-be"), $"Dynamische tarieven voor {_selectedDate:D}");
 
             await InvokeAsync(StateHasChanged);
-            await Task.Delay(100);
+            await Task.Delay(250);
             await _apexChart.UpdateSeriesAsync(true);
-            await _apexChart.UpdateOptionsAsync(true, true, true);
         }
         catch (Exception ex)
         {
@@ -276,14 +293,12 @@ public partial class DayAheadEnergyCostChart
     private async Task NavigateBeforeCommand()
     {
         _selectedDate = _selectedDate.AddDays(-1);
-
         await RefreshData();
     }
 
     private async Task NavigateNextCommand()
     {
         _selectedDate = _selectedDate.AddDays(1);
-
         await RefreshData();
     }
 

@@ -82,6 +82,11 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             .OrderBy(x => x.Date)
             .ToListAsync();
 
+        var solarForecasts = await _dbContext.SolarForecastPeriods
+            .Where(x => x.Timestamp >= from && x.Timestamp <= to)
+            .OrderBy(x => x.Timestamp)
+            .ToListAsync();
+
         var dayAheadCheapestEntries = await _dbContext.DayAheadCheapestEnergyPrices
             .Where(x => x.From >= from && x.To <= to)
             .OrderBy(x => x.From)
@@ -96,6 +101,7 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
         };
 
         var previousPrice = 0M;
+        var previousSolarForecast = 0M;
 
         var previousEntryShouldCharge = false;
         for (var i = 0; i < 96; i++)
@@ -105,11 +111,13 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             var consumptionEntry = consumptionEntries.FirstOrDefault(x => x.From == date);
             var batteryEntry = batteryEntries.FirstOrDefault(x => x.From == date);
             var energyForecastEntry = energyForecasts.FirstOrDefault(x => x.Date == date);
+            var solarForecastEntry = solarForecasts.FirstOrDefault(x => x.Timestamp == date);
             var dayAheadCheapestEntry = dayAheadCheapestEntries.FirstOrDefault(x => x.From == date);
 
             var entry = new DayAheadEnergyCost { Date = date };
 
-            entry.ForecastedYield = energyForecastEntry != null ? energyForecastEntry.SolarEnergyInWattHours : 0M;
+            entry.ForecastedYield = solarForecastEntry != null ? solarForecastEntry.ForecastedEnergy : previousSolarForecast;
+            previousSolarForecast = solarForecastEntry != null ? solarForecastEntry.ForecastedEnergy : previousSolarForecast;
 
             if (priceEntry != null)
             {
