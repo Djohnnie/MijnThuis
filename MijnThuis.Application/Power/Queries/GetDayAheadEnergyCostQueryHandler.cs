@@ -123,8 +123,9 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
 
             if (consumptionEntry != null)
             {
+                var consumptionCost = Math.Round(consumptionEntry.ImportCost + consumptionEntry.Consumption * additionalCostsPerKwh / 100M, 2);
                 entry.Consumption = consumptionEntry.Consumption > 0M ? consumptionEntry.Consumption : null;
-                entry.ConsumptionCost = consumptionEntry.ImportCost + consumptionEntry.Consumption * additionalCostsPerKwh / 100M;
+                entry.ConsumptionCost = consumptionCost > 0M ? consumptionCost : null;
             }
 
             if (batteryEntry != null)

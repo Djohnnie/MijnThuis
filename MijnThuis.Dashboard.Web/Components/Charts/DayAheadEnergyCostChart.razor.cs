@@ -34,7 +34,7 @@ public partial class DayAheadEnergyCostChart
             {
                 Enabled = false
             },
-            Background = "#373740",
+            Background = "#373740"
         };
         _options.Responsive = new List<Responsive<ChartDataEntry<string, decimal?>>>
         {
@@ -64,6 +64,9 @@ public partial class DayAheadEnergyCostChart
                 {
                     Formatter = @"function (value) { return value === null ? 'geen waarde' : value + ' kWh'; }"
                 },
+                ForceNiceScale = true,
+                AxisBorder = new AxisBorder{ Show = false },
+                AxisTicks = new AxisTicks{ Show = false },
                 Show = false
             },
             new YAxis
@@ -73,6 +76,9 @@ public partial class DayAheadEnergyCostChart
                 {
                     Formatter = @"function (value) { return value === null ? 'geen waarde' : value + ' €'; }"
                 },
+                ForceNiceScale = true,
+                AxisBorder = new AxisBorder{ Show = false },
+                AxisTicks = new AxisTicks{ Show = false },
                 Show = false
             },
             new YAxis
@@ -82,6 +88,7 @@ public partial class DayAheadEnergyCostChart
                 {
                     Formatter = @"function (value) { return value + ' €c/kWh'; }"
                 },
+                ForceNiceScale = true,
                 Show = true
             },
             new YAxis
@@ -91,6 +98,9 @@ public partial class DayAheadEnergyCostChart
                 {
                     Formatter = @"function (value) { return value == 0 ? ' Ja' : ' Neen'; }"
                 },
+                ForceNiceScale = true,
+                AxisBorder = new AxisBorder{ Show = false },
+                AxisTicks = new AxisTicks{ Show = false },
                 Show = false
             },
             new YAxis
@@ -98,21 +108,27 @@ public partial class DayAheadEnergyCostChart
                 DecimalsInFloat = 0,
                 Min = 0,
                 Max = 100,
+                StepSize = 10,
                 Labels = new YAxisLabels
                 {
                     Formatter = @"function (value) { return value === null ? 'geen waarde' : value + ' %'; }"
                 },
-                Show = false
+                Opposite = true,
+                Show = true
             },
             new YAxis
             {
                 DecimalsInFloat = 0,
                 Min = 0,
                 Max = 100,
+                StepSize = 10,
                 Labels = new YAxisLabels
                 {
                     Formatter = @"function (value) { return value === null ? 'geen waarde' : value + ' %'; }"
                 },
+                ForceNiceScale = true,
+                AxisBorder = new AxisBorder{ Show = false },
+                AxisTicks = new AxisTicks{ Show = false },
                 Show = false
             }
         };
@@ -140,8 +156,8 @@ public partial class DayAheadEnergyCostChart
         DayAheadEnergyPrices.Series2Description = "Kost in €";
         DayAheadEnergyPrices.Series3Description = "Dynamisch tarief in €c/kWh";
         DayAheadEnergyPrices.Series4Description = "Batterij opladen via netstroom";
-        DayAheadEnergyPrices.Series5Description = "Batterijpercentage";
-        DayAheadEnergyPrices.Series6Description = "Batterijpercentage";
+        DayAheadEnergyPrices.Series5Description = "Actueel batterijpercentage";
+        DayAheadEnergyPrices.Series6Description = "Geschat batterijpercentage";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -220,7 +236,7 @@ public partial class DayAheadEnergyCostChart
             DayAheadEnergyPrices.Series3.AddRange(entries.Select(x => new ChartDataEntry<string, decimal?>
             {
                 XValue = $"{x.Date:HH:mm}",
-                YValue = x.ConsumptionPrice
+                YValue = Math.Round(x.ConsumptionPrice, 3)
             }));
             DayAheadEnergyPrices.Series4.AddRange(entries.Select(x => new ChartDataEntry<string, decimal?>
             {
