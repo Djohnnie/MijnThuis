@@ -176,15 +176,15 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             await _flagRepository.SetManualHomeBatteryChargeFlag(false, 0, DateTime.MinValue);
         }
 
-        //if (manualChargingFlag.ShouldCharge)
-        //{
-        //    chargingPower = manualChargingFlag.ChargeWattage;
-        //    shouldStartCharging = true;
-        //}
-        //else
-        //{
-        //    shouldStopCharging = true;
-        //}
+        if (manualChargingFlag.ShouldCharge)
+        {
+            chargingPower = manualChargingFlag.ChargeWattage;
+            shouldStartCharging = true;
+        }
+        else
+        {
+            shouldStopCharging = true;
+        }
 
         var currentDayAheadEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(DateTime.Now);
         var chargingTimeRemaining = currentDayAheadEnergyPrice.To - DateTime.Now;
@@ -209,7 +209,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
                 shouldStopCharging = true;
             }
         }
-        else if (isCharging)
+        else if (isCharging && !manualChargingFlag.ShouldCharge)
         {
             shouldStopCharging = true;
         }
