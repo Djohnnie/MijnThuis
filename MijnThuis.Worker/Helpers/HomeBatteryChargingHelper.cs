@@ -181,10 +181,6 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             chargingPower = manualChargingFlag.ChargeWattage;
             shouldStartCharging = true;
         }
-        else if (isCharging)
-        {
-            shouldStopCharging = true;
-        }
 
         var currentDayAheadEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(DateTime.Now);
         var chargingTimeRemaining = currentDayAheadEnergyPrice.To - DateTime.Now;
