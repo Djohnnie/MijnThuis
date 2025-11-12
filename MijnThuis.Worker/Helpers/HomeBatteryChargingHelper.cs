@@ -181,7 +181,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             chargingPower = manualChargingFlag.ChargeWattage;
             shouldStartCharging = true;
         }
-        else
+        else if (isCharging)
         {
             shouldStopCharging = true;
         }
