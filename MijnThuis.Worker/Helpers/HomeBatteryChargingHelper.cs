@@ -171,20 +171,20 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var modbusOverview = await _modbusService.GetBulkOverview();
         var isCharging = modbusOverview.StorageControlMode == StorageControlMode.RemoteControl;
 
-        if (manualChargingFlag.ShouldCharge && manualChargingFlag.ChargeUntil > DateTime.Now)
+        if (manualChargingFlag.ShouldCharge && manualChargingFlag.ChargeUntil < DateTime.Now)
         {
             await _flagRepository.SetManualHomeBatteryChargeFlag(false, 0, DateTime.MinValue);
         }
 
-        //if (manualChargingFlag.ShouldCharge)
-        //{
-        //    chargingPower = manualChargingFlag.ChargeWattage;
-        //    shouldStartCharging = true;
-        //}
-        //else
-        //{
-        //    shouldStopCharging = true;
-        //}
+        if (manualChargingFlag.ShouldCharge)
+        {
+            chargingPower = manualChargingFlag.ChargeWattage;
+            shouldStartCharging = true;
+        }
+        else
+        {
+            shouldStopCharging = true;
+        }
 
         var currentDayAheadEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(DateTime.Now);
         var chargingTimeRemaining = currentDayAheadEnergyPrice.To - DateTime.Now;
@@ -209,7 +209,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
                 shouldStopCharging = true;
             }
         }
-        else if (isCharging)
+        else if (isCharging && !manualChargingFlag.ShouldCharge)
         {
             shouldStopCharging = true;
         }
