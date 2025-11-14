@@ -3,7 +3,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MijnThuis.Contracts.Power;
 using MijnThuis.DataAccess;
-using MijnThuis.DataAccess.Entities;
 using MijnThuis.DataAccess.Repositories;
 using MijnThuis.Integrations.Power;
 using MijnThuis.Integrations.Solar;
@@ -35,6 +34,7 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
     public async Task<GetPowerOverviewResponse> Handle(GetPowerOverviewQuery request, CancellationToken cancellationToken)
     {
         var today = DateTime.Today;
+        var tomorrow = today.AddDays(1);
         var powerResult = await _powerService.GetOverview();
         var consumptionResult = await _modbusService.GetOverview();
         var energyToday = await _dbContext.EnergyHistory
@@ -42,29 +42,33 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
             .Select(x => new
             {
                 ImportToday = x.TotalImportDelta,
-                ExportToday = x.TotalExportDelta
-            }).ToListAsync();
-        var energyCostToday = await _dbContext.EnergyHistory
-            .Where(x => x.Date.Date == today)
-            .Select(x => new
-            {
+                ExportToday = x.TotalExportDelta,
                 ImportCost = x.CalculatedImportCost,
-                ExportCost = x.CalculatedExportCost
+                ExportCost = x.CalculatedExportCost,
+                TotalCost = x.CalculatedTotalCost,
+                TotalVariableCost = x.CalculatedImportCost + x.CalculatedVariableCost
             }).ToListAsync();
         var energyThisMonth = await _dbContext.EnergyHistory
-            .Where(x => x.Date.Date >= new DateTime(today.Year, today.Month, 1) && x.Date.Date <= today)
+            .Where(x => x.Date.Date >= new DateTime(today.Year, today.Month, 1) && x.Date.Date <= tomorrow)
             .Select(x => new
             {
                 ImportToday = x.TotalImportDelta,
-                ExportToday = x.TotalExportDelta
+                ExportToday = x.TotalExportDelta,
+                ImportCost = x.CalculatedImportCost,
+                ExportCost = x.CalculatedExportCost,
+                TotalCost = x.CalculatedTotalCost,
+                TotalVariableCost = x.CalculatedImportCost + x.CalculatedVariableCost
             }).ToListAsync();
-
-        var energyCostThisMonth = await _dbContext.EnergyHistory
-            .Where(x => x.Date.Date >= new DateTime(today.Year, today.Month, 1) && x.Date.Date <= today)
+        var energyThisYear = await _dbContext.EnergyHistory
+            .Where(x => x.Date.Date >= new DateTime(today.Year, 1, 1) && x.Date.Date <= tomorrow)
             .Select(x => new
             {
+                ImportToday = x.TotalImportDelta,
+                ExportToday = x.TotalExportDelta,
                 ImportCost = x.CalculatedImportCost,
-                ExportCost = x.CalculatedExportCost
+                ExportCost = x.CalculatedExportCost,
+                TotalCost = x.CalculatedTotalCost,
+                TotalVariableCost = x.CalculatedImportCost + x.CalculatedVariableCost
             }).ToListAsync();
         var negativePriceRange = await _energyPricesRepository.GetNegativeInjectionPriceRange();
         var energyPricing = await _energyPricesRepository.GetEnergyPriceForTimestamp(DateTime.Now);
@@ -81,39 +85,12 @@ public class GetPowerOverviewQueryHandler : IRequestHandler<GetPowerOverviewQuer
         result.CurrentConsumptionPrice = energyPricing.ConsumptionCentsPerKWh;
         result.CurrentConsumptionPrice = Math.Round(energyPricing.ConsumptionCentsPerKWh * 1.06M, 3) + electricityFlag.GreenEnergyContribution + electricityFlag.UsageTariff + electricityFlag.SpecialExciseTax + electricityFlag.EnergyContribution;
         result.CurrentInjectionPrice = energyPricing.InjectionCentsPerKWh;
-        result.CostToday = await CalculateCost(electricityFlag, result.ImportToday, result.ExportToday, energyCostToday.Sum(x => x.ImportCost) + energyCostToday.Sum(x => x.ExportCost), daily: true);
-        result.CostThisMonth = await CalculateCost(electricityFlag, result.ImportThisMonth, result.ExportThisMonth, energyCostThisMonth.Sum(x => x.ImportCost) + energyCostThisMonth.Sum(x => x.ExportCost), daily: false);
+        result.CostToday = energyToday.Sum(x => x.TotalCost);
+        result.CostThisMonth = energyThisMonth.Sum(x => x.TotalCost);
+        result.AverageCostPerKwhToday = energyToday.Sum(x => x.TotalVariableCost) / energyToday.Sum(x => x.ImportToday) * 100M;
+        result.AverageCostPerKwhThisMonth = energyThisMonth.Sum(x => x.TotalVariableCost) / energyThisMonth.Sum(x => x.ImportToday) * 100M;
+        result.AverageCostPerKwhThisYear = energyThisYear.Sum(x => x.TotalVariableCost) / energyThisYear.Sum(x => x.ImportToday) * 100M;
 
         return result;
-    }
-
-    private async Task<decimal> CalculateCost(ElectricityTariffDetailsFlag electricityFlag, decimal importToday, decimal exportToday, decimal energyCost, bool daily)
-    {
-        // Skip the first entry in each month because it still has data from the previous month
-        var to = DateTime.Today;
-        var from = to.AddMonths(-6);
-        from = new DateTime(from.Year, from.Month, 1);
-        var entries = await _dbContext.EnergyHistory
-            .Where(x => x.Date.Date >= from && x.Date.Date <= to)
-            .GroupBy(x => new { x.Date.Year, x.Date.Month })
-            .Select(x => new MonthlyPowerPeak
-            {
-                Date = new DateTime(x.Key.Year, x.Key.Month, 1),
-                PowerPeak = x.Skip(1).Select(y => y.MonthlyPowerPeak).Max(),
-            })
-            .ToListAsync();
-
-        var averagePowerPeak = entries.Any() ? entries.Average(x => Math.Max(x.PowerPeak, 2.5M)) : 2.5M;
-
-        var capacityCost =
-              importToday * electricityFlag.GreenEnergyContribution / 100M // Bijdrage groene stroom: 1.554 c€/kWh
-            + electricityFlag.FixedCharge / (daily ? 365M : 12M) // Vaste vergoeding: 42.4 €/jaar
-            + electricityFlag.CapacityTariff * averagePowerPeak / (daily ? 365M : 12M) // Capaciteitstarief: 53.2565412 €/KW/jaar (min 2.5 kW)
-            + importToday * electricityFlag.UsageTariff / 100M // Afnametarief:  5.99007 c€/kWh
-            + electricityFlag.DataAdministration / (daily ? 365M : 12M) // Tarief databeheer: 18.56 €/jaar
-            + importToday * electricityFlag.SpecialExciseTax / 100M // Bijzondere accijns: 5.03288 c€/kWh
-            + importToday * electricityFlag.EnergyContribution / 100M; // Energiebijdrage: 0.20417 c€/kWh
-
-        return energyCost + capacityCost;
     }
 }

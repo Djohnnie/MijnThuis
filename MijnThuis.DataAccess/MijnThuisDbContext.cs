@@ -108,12 +108,12 @@ public class MijnThuisDbContext : DbContext
             entityBuilder.Property(x => x.TotalGasKwh).HasPrecision(9, 3);
             entityBuilder.Property(x => x.TotalGasKwhDelta).HasPrecision(9, 3);
             entityBuilder.Property(x => x.MonthlyPowerPeak).HasPrecision(9, 3);
-            entityBuilder.Property(x => x.CalculatedImportCost).HasPrecision(9, 3);
-            entityBuilder.Property(x => x.CalculatedExportCost).HasPrecision(9, 3);
-            entityBuilder.Property(x => x.CalculatedVariableCost).HasPrecision(9, 3);
-            entityBuilder.Property(x => x.CalculatedFixedCost).HasPrecision(9, 3);
-            entityBuilder.Property(x => x.CalculatedCapacityCost).HasPrecision(9, 3);
-            entityBuilder.Property(x => x.CalculatedTotalCost).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.CalculatedImportCost).HasPrecision(9, 5);
+            entityBuilder.Property(x => x.CalculatedExportCost).HasPrecision(9, 5);
+            entityBuilder.Property(x => x.CalculatedVariableCost).HasPrecision(9, 5);
+            entityBuilder.Property(x => x.CalculatedFixedCost).HasPrecision(9, 5);
+            entityBuilder.Property(x => x.CalculatedCapacityCost).HasPrecision(9, 5);
+            entityBuilder.Property(x => x.CalculatedTotalCost).HasPrecision(9, 5);
         });
 
         modelBuilder.Entity<CarChargingEnergyHistoryEntry>(entityBuilder =>

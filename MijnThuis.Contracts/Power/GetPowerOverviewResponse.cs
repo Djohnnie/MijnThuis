@@ -15,4 +15,7 @@ public record GetPowerOverviewResponse
     public string CurrentPricePeriod { get; set; }
     public decimal CurrentConsumptionPrice { get; set; }
     public decimal CurrentInjectionPrice { get; set; }
+    public decimal AverageCostPerKwhToday { get; set; }
+    public decimal AverageCostPerKwhThisMonth { get; set; }
+    public decimal AverageCostPerKwhThisYear { get; set; }
 }
