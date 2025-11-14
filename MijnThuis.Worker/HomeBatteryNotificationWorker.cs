@@ -23,16 +23,16 @@ internal class HomeBatteryNotificationWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var mailgunBaseAddress = _configuration.GetValue<string>("MAILGUN_BASE_ADDRESS");
-        var mailgunDomain = _configuration.GetValue<string>("MAILGUN_DOMAIN");
-        var mailgunApiKey = _configuration.GetValue<string>("MAILGUN_APIKEY");
-        var mailgunSender = _configuration.GetValue<string>("MAILGUN_SENDER");
-        var mailgunReceivers = _configuration.GetValue<string>("MAILGUN_RECEIVERS");
+        var emailDetails = new EmailDetails
+        {
+            BaseAddress = _configuration.GetValue<string>("MAILGUN_BASE_ADDRESS"),
+            Domain = _configuration.GetValue<string>("MAILGUN_DOMAIN"),
+            ApiKey = _configuration.GetValue<string>("MAILGUN_APIKEY"),
+            Sender = _configuration.GetValue<string>("MAILGUN_SENDER"),
+            Receivers = _configuration.GetValue<string>("MAILGUN_RECEIVERS"),
+        };
 
-        DateOnly? notifiedFullBatteryToday = null;
-        DateOnly? notifiedHalfBatteryToday = null;
-        DateOnly? notifiedLowBatteryToday = null;
-        DateOnly? notifiedEmptyBatteryToday = null;
+        var previousBatteryLevel = -1M;
 
         // While the service is not requested to stop...
         while (!stoppingToken.IsCancellationRequested)
@@ -42,66 +42,47 @@ internal class HomeBatteryNotificationWorker : BackgroundService
                 // Use a timestamp to calculate the duration of the whole process.
                 var startTimer = Stopwatch.GetTimestamp();
 
-                if (notifiedFullBatteryToday.HasValue && notifiedFullBatteryToday.Value != DateOnly.FromDateTime(DateTime.Today))
-                {
-                    notifiedFullBatteryToday = null;
-                }
-
-                if (notifiedHalfBatteryToday.HasValue && notifiedHalfBatteryToday.Value != DateOnly.FromDateTime(DateTime.Today))
-                {
-                    notifiedHalfBatteryToday = null;
-                }
-
-                if (notifiedLowBatteryToday.HasValue && notifiedLowBatteryToday.Value != DateOnly.FromDateTime(DateTime.Today))
-                {
-                    notifiedLowBatteryToday = null;
-                }
-
-                if (notifiedEmptyBatteryToday.HasValue && notifiedEmptyBatteryToday.Value != DateOnly.FromDateTime(DateTime.Today))
-                {
-                    notifiedEmptyBatteryToday = null;
-                }
-
                 // Initialize dependencies and variables.
                 using var serviceScope = _serviceProvider.CreateScope();
                 var modbusService = serviceScope.ServiceProvider.GetService<IModbusService>();
 
-                // Get information about solar energy.
+                // Get information about solar energy and battery level
                 var solarOverview = await modbusService.GetOverview();
+                var currentBatteryLevel = solarOverview.BatteryLevel;
 
-                if (solarOverview.BatteryLevel == 100 && notifiedFullBatteryToday == null)
+                if (currentBatteryLevel == 100 && previousBatteryLevel < 100)
                 {
-                    notifiedFullBatteryToday = DateOnly.FromDateTime(DateTime.Today);
-                    await SendEmail("De thuisbatterij is volledig opgeladen (100%)!",
-                        mailgunBaseAddress, mailgunDomain, mailgunSender, mailgunReceivers, mailgunApiKey);
+                    await SendEmail("De thuisbatterij is volledig opgeladen (100%)!", emailDetails);
                 }
 
-                if (solarOverview.BatteryLevel <= 50 && notifiedHalfBatteryToday == null)
+                if (currentBatteryLevel >= 49 && currentBatteryLevel <= 50 && previousBatteryLevel > 50)
                 {
-                    notifiedHalfBatteryToday = DateOnly.FromDateTime(DateTime.Today);
-                    await SendEmail("De thuisbatterij is nog half vol (50%)!",
-                        mailgunBaseAddress, mailgunDomain, mailgunSender, mailgunReceivers, mailgunApiKey);
+                    await SendEmail("De thuisbatterij is nog half vol (50%)!", emailDetails);
                 }
 
-                if (solarOverview.BatteryLevel < 20 && notifiedLowBatteryToday == null)
+                if (currentBatteryLevel >= 19 && currentBatteryLevel <= 20 && previousBatteryLevel > 20)
                 {
-                    notifiedLowBatteryToday = DateOnly.FromDateTime(DateTime.Today);
-                    await SendEmail("De thuisbatterij is bijna leeg (< 20%)!",
-                        mailgunBaseAddress, mailgunDomain, mailgunSender, mailgunReceivers, mailgunApiKey);
+                    await SendEmail("De thuisbatterij is bijna leeg (< 20%)!", emailDetails);
                 }
 
-                if (solarOverview.BatteryLevel == 0 && notifiedEmptyBatteryToday == null)
+                if (currentBatteryLevel >= 4 && currentBatteryLevel <= 5 && previousBatteryLevel > 5)
                 {
-                    notifiedEmptyBatteryToday = DateOnly.FromDateTime(DateTime.Today);
-                    await SendEmail("De thuisbatterij is helemaal leeg (0%)!",
-                        mailgunBaseAddress, mailgunDomain, mailgunSender, mailgunReceivers, mailgunApiKey);
+                    await SendEmail("De thuisbatterij is bijna helemaal leeg (< 5%)!", emailDetails);
                 }
+
+                if (currentBatteryLevel == 0 && previousBatteryLevel > 0)
+                {
+                    await SendEmail("De thuisbatterij is helemaal leeg (0%)!", emailDetails);
+                }
+
+                // Remember the battery level for the next iteration.
+                previousBatteryLevel = currentBatteryLevel;
 
                 // Calculate the duration for this whole process.
                 var stopTimer = Stopwatch.GetTimestamp();
 
-                // Wait for a maximum of 5 minutes before the next iteration.
-                var duration = TimeSpan.FromMinutes(5) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
+                // Wait for a maximum of 1 minute before the next iteration.
+                var duration = TimeSpan.FromMinutes(1) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
 
                 if (duration > TimeSpan.Zero)
                 {
@@ -118,22 +99,32 @@ internal class HomeBatteryNotificationWorker : BackgroundService
         }
     }
 
-    private async Task SendEmail(string message, string baseAddress, string domain, string sender, string receivers, string apiKey)
+    private async Task SendEmail(string message, EmailDetails details)
     {
         var subject = "MijnThuis - Thuisbatterij notificatie";
 
         var client = new HttpClient();
-        client.BaseAddress = new Uri(baseAddress);
-        var auth = Convert.ToBase64String(Encoding.UTF8.GetBytes($"api:{apiKey}"));
+        client.BaseAddress = new Uri(details.BaseAddress);
+        var auth = Convert.ToBase64String(Encoding.UTF8.GetBytes($"api:{details.ApiKey}"));
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", auth);
         var content = new MultipartFormDataContent
         {
-            { new StringContent(sender), "from" },
-            { new StringContent(receivers), "to" },
+            { new StringContent(details.Sender), "from" },
+            { new StringContent(details.Receivers), "to" },
             { new StringContent(subject), "subject" },
             { new StringContent(message), "text" },
         };
 
-        await client.PostAsync($"/v3/{domain}/messages", content);
+        await client.PostAsync($"/v3/{details.Domain}/messages", content);
+    }
+
+    private class EmailDetails
+    {
+        public string Message { get; set; }
+        public string BaseAddress { get; set; }
+        public string Domain { get; set; }
+        public string Sender { get; set; }
+        public string Receivers { get; set; }
+        public string ApiKey { get; set; }
     }
 }

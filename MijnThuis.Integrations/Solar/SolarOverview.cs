@@ -6,5 +6,5 @@ public class SolarOverview
     public decimal CurrentBatteryPower { get; set; }
     public decimal CurrentGridPower { get; set; }
     public decimal CurrentConsumptionPower { get; set; }
-    public int BatteryLevel { get; set; }
+    public decimal BatteryLevel { get; set; }
 }

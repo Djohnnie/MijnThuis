@@ -120,8 +120,8 @@ public record ModbusDataSet
     public decimal CurrentBatteryPower { get; init; }
     public decimal CurrentGridPower { get; init; }
     public decimal CurrentConsumptionPower { get; init; }
-    public int BatteryLevel { get; init; }
-    public int BatteryHealth { get; init; }
+    public decimal BatteryLevel { get; init; }
+    public decimal BatteryHealth { get; init; }
     public int BatteryMaxEnergy { get; init; }
     public StorageControlMode StorageControlMode { get; init; }
     public RemoteControlMode RemoteControlMode { get; init; }
