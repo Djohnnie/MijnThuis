@@ -55,17 +55,17 @@ internal class HomeBatteryNotificationWorker : BackgroundService
                     await SendEmail("De thuisbatterij is volledig opgeladen (100%)!", emailDetails);
                 }
 
-                if (currentBatteryLevel >= 49 && currentBatteryLevel <= 50 && previousBatteryLevel > 50)
+                if (currentBatteryLevel <= 50 && previousBatteryLevel > 50)
                 {
                     await SendEmail("De thuisbatterij is nog half vol (50%)!", emailDetails);
                 }
 
-                if (currentBatteryLevel >= 19 && currentBatteryLevel <= 20 && previousBatteryLevel > 20)
+                if (currentBatteryLevel <= 20 && previousBatteryLevel > 20)
                 {
                     await SendEmail("De thuisbatterij is bijna leeg (< 20%)!", emailDetails);
                 }
 
-                if (currentBatteryLevel >= 4 && currentBatteryLevel <= 5 && previousBatteryLevel > 5)
+                if (currentBatteryLevel <= 5 && previousBatteryLevel > 5)
                 {
                     await SendEmail("De thuisbatterij is bijna helemaal leeg (< 5%)!", emailDetails);
                 }
@@ -73,6 +73,11 @@ internal class HomeBatteryNotificationWorker : BackgroundService
                 if (currentBatteryLevel == 0 && previousBatteryLevel > 0)
                 {
                     await SendEmail("De thuisbatterij is helemaal leeg (0%)!", emailDetails);
+                }
+
+                if (currentBatteryLevel >= 90 && previousBatteryLevel < 90)
+                {
+                    await SendEmail("De thuisbatterij is bijna volledig opgeladen (> 90%)!", emailDetails);
                 }
 
                 // Remember the battery level for the next iteration.
