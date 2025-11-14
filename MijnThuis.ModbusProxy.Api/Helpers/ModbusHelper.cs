@@ -108,8 +108,8 @@ public class ModbusHelper : IModbusHelper
                         CurrentBatteryPower = currentBatteryPower,
                         CurrentGridPower = currentGridPower,
                         CurrentSolarPower = Math.Max(0, currentSolarPower),
-                        BatteryLevel = Convert.ToInt32(soe.Value),
-                        BatteryHealth = Convert.ToInt32(soh.Value),
+                        BatteryLevel = (decimal)soe.Value,
+                        BatteryHealth = (decimal)soh.Value,
                         BatteryMaxEnergy = Convert.ToInt32(max.Value),
                         StorageControlMode = (StorageControlMode)storageControlMode.Value,
                         RemoteControlMode = (RemoteControlMode)remoteControlMode.Value,
@@ -170,7 +170,7 @@ public class ModbusHelper : IModbusHelper
                         CurrentBatteryPower = currentBatteryPower,
                         CurrentGridPower = currentGridPower,
                         CurrentSolarPower = Math.Max(0, currentSolarPower),
-                        BatteryLevel = Convert.ToInt32(soe.Value)
+                        BatteryLevel = (decimal)soe.Value
                     };
 
                 }, maxRetries: 3, delayMilliseconds: 500);
@@ -208,8 +208,8 @@ public class ModbusHelper : IModbusHelper
 
                     return new ModbusDataSet
                     {
-                        BatteryLevel = Convert.ToInt32(soe.Value),
-                        BatteryHealth = Convert.ToInt32(soh.Value),
+                        BatteryLevel = (decimal)soe.Value,
+                        BatteryHealth = (decimal)soh.Value,
                         BatteryMaxEnergy = Convert.ToInt32(max.Value)
                     };
 
