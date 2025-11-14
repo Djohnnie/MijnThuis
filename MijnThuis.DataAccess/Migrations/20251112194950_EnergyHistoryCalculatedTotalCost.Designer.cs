@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MijnThuis.DataAccess;
 
@@ -11,9 +12,11 @@ using MijnThuis.DataAccess;
 namespace MijnThuis.DataAccess.Migrations
 {
     [DbContext(typeof(MijnThuisDbContext))]
-    partial class MijnThuisDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251112194950_EnergyHistoryCalculatedTotalCost")]
+    partial class EnergyHistoryCalculatedTotalCost
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -402,15 +405,7 @@ namespace MijnThuis.DataAccess.Migrations
                     b.Property<byte>("ActiveTarrif")
                         .HasColumnType("tinyint");
 
-                    b.Property<decimal>("CalculatedCapacityCost")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
-
                     b.Property<decimal>("CalculatedExportCost")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
-
-                    b.Property<decimal>("CalculatedFixedCost")
                         .HasPrecision(9, 3)
                         .HasColumnType("decimal(9,3)");
 
@@ -419,10 +414,6 @@ namespace MijnThuis.DataAccess.Migrations
                         .HasColumnType("decimal(9,3)");
 
                     b.Property<decimal>("CalculatedTotalCost")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("decimal(9,3)");
-
-                    b.Property<decimal>("CalculatedVariableCost")
                         .HasPrecision(9, 3)
                         .HasColumnType("decimal(9,3)");
 

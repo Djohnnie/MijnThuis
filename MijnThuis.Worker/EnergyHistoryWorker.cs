@@ -1,8 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using MijnThuis.Contracts.Power;
 using MijnThuis.DataAccess;
 using MijnThuis.DataAccess.Entities;
+using MijnThuis.DataAccess.Repositories;
 using MijnThuis.Integrations.Power;
+using System;
 using System.Diagnostics;
+using EnergyHistoryEntry = MijnThuis.DataAccess.Entities.EnergyHistoryEntry;
 
 namespace MijnThuis.Worker;
 
@@ -38,6 +43,7 @@ public class EnergyHistoryWorker : BackgroundService
                 using var serviceScope = _serviceProvider.CreateScope();
                 var powerService = serviceScope.ServiceProvider.GetService<IPowerService>();
                 using var dbContext = serviceScope.ServiceProvider.GetService<MijnThuisDbContext>();
+                var flagRepository = serviceScope.ServiceProvider.GetRequiredService<IFlagRepository>();
 
                 var previousEntry = await dbContext.EnergyHistory.OrderByDescending(x => x.Date).FirstOrDefaultAsync();
 
@@ -52,6 +58,17 @@ public class EnergyHistoryWorker : BackgroundService
                     var costEntry = await dbContext.DayAheadEnergyPrices
                         .Where(x => x.From == date.AddMinutes(-15))
                         .FirstOrDefaultAsync();
+
+                    var monthlyPowerPeaks = await dbContext.EnergyHistory.GroupBy(x => new { x.Date.Year, x.Date.Month })
+                        .Select(x => new
+                        {
+                            x.Key.Year,
+                            x.Key.Month,
+                            Date = new DateTime(x.Key.Year, x.Key.Month, 1),
+                            PowerPeak = Math.Max(2.5M, x.Skip(1).Select(y => y.MonthlyPowerPeak).Max())
+                        }).OrderBy(x => x.Year).ThenBy(x => x.Month).ToListAsync();
+
+                    var electricityTariff = await flagRepository.GetElectricityTariffDetailsFlag();
 
                     var energyHistoryEntry = new EnergyHistoryEntry
                     {
@@ -78,10 +95,20 @@ public class EnergyHistoryWorker : BackgroundService
                         MonthlyPowerPeak = powerOverview.PowerPeak / 1000M
                     };
 
+                    var variableCost = energyHistoryEntry.TotalImportDelta * (electricityTariff.GreenEnergyContribution + electricityTariff.UsageTariff + electricityTariff.SpecialExciseTax + electricityTariff.EnergyContribution) / 100M;
+                    var fixedCost = (electricityTariff.FixedCharge + electricityTariff.DataAdministration) / (365M * 24M * 4M);
+                    var averageMonthlyPowerPeak = monthlyPowerPeaks
+                        .Where(x => x.Date >= energyHistoryEntry.Date.AddMonths(-12) && x.Date <= energyHistoryEntry.Date.Date)
+                        .Average(x => x.PowerPeak);
+                    var capacityCost = electricityTariff.CapacityTariff * averageMonthlyPowerPeak / (365M * 24M * 4M);
+
                     // Calculate the costs based on the 'Day Ahead' energy prices, including VAT in the import cost and recalculated to EUR and not cents.
                     energyHistoryEntry.CalculatedImportCost = energyHistoryEntry.TotalImportDelta * (costEntry != null ? costEntry.ConsumptionCentsPerKWh : 0M) * 1.06M / 100M;
                     energyHistoryEntry.CalculatedExportCost = energyHistoryEntry.TotalExportDelta * -(costEntry != null ? costEntry.InjectionCentsPerKWh : 0M) / 100M;
-
+                    energyHistoryEntry.CalculatedVariableCost = variableCost;
+                    energyHistoryEntry.CalculatedFixedCost = fixedCost;
+                    energyHistoryEntry.CalculatedCapacityCost = capacityCost;
+                    energyHistoryEntry.CalculatedTotalCost = energyHistoryEntry.CalculatedExportCost + energyHistoryEntry.CalculatedImportCost + fixedCost + variableCost + capacityCost;
                     dbContext.EnergyHistory.Add(energyHistoryEntry);
 
                     await dbContext.SaveChangesAsync();

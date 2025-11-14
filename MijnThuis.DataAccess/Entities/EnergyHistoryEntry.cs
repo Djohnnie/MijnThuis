@@ -26,4 +26,8 @@ public class EnergyHistoryEntry
     public decimal MonthlyPowerPeak { get; set; }
     public decimal CalculatedImportCost { get; set; }
     public decimal CalculatedExportCost { get; set; }
+    public decimal CalculatedVariableCost { get; set; }
+    public decimal CalculatedFixedCost { get; set; }
+    public decimal CalculatedCapacityCost { get; set; }
+    public decimal CalculatedTotalCost { get; set; }
 }

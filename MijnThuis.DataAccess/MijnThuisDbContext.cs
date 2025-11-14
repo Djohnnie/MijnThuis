@@ -110,6 +110,10 @@ public class MijnThuisDbContext : DbContext
             entityBuilder.Property(x => x.MonthlyPowerPeak).HasPrecision(9, 3);
             entityBuilder.Property(x => x.CalculatedImportCost).HasPrecision(9, 3);
             entityBuilder.Property(x => x.CalculatedExportCost).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.CalculatedVariableCost).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.CalculatedFixedCost).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.CalculatedCapacityCost).HasPrecision(9, 3);
+            entityBuilder.Property(x => x.CalculatedTotalCost).HasPrecision(9, 3);
         });
 
         modelBuilder.Entity<CarChargingEnergyHistoryEntry>(entityBuilder =>
