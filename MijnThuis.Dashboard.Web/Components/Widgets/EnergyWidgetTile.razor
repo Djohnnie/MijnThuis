@@ -58,6 +58,14 @@
                                         YValue="e => e.YValue"
                                         SeriesType="ApexCharts.SeriesType.Bar"
                                         ShowDataLabels />
+
+            <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal>"
+                                        Items="@Consumption.Series4"
+                                        Name="@Consumption.Series4Description"
+                                        XValue="e => e.XValue"
+                                        YValue="e => e.YValue"
+                                        SeriesType="ApexCharts.SeriesType.Bar"
+                                        ShowDataLabels />
         </ApexCharts.ApexChart>
     </MudStack>
 </div>

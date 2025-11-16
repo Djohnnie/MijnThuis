@@ -9,5 +9,6 @@ public class GetSolarProductionAndConsumptionTodayResponse
     public decimal Consumption { get; set; }
     public decimal ConsumptionFromSolar { get; set; }
     public decimal ConsumptionFromBattery { get; set; }
+    public decimal ConsumptionFromGridToBattery { get; set; }
     public decimal ConsumptionFromGrid { get; set; }
 }

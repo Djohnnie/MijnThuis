@@ -19,7 +19,7 @@ public partial class EnergyWidgetTile
     private ApexChartOptions<ChartDataEntry<string, decimal>> _consumptionOptions { get; set; } = new();
 
     private ChartData3<string, decimal> Production { get; set; } = new();
-    private ChartData3<string, decimal> Consumption { get; set; } = new();
+    private ChartData4<string, decimal> Consumption { get; set; } = new();
 
     public EnergyWidgetTile()
     {
@@ -81,7 +81,7 @@ public partial class EnergyWidgetTile
 
         _consumptionOptions.Chart = new Chart
         {
-            Height = "100px",
+            Height = "124px",
             Stacked = true,
             StackType = StackType.Percent100,
             Toolbar = new Toolbar
@@ -106,11 +106,11 @@ public partial class EnergyWidgetTile
             Mode = Mode.Dark,
             Palette = PaletteType.Palette1
         };
-        _consumptionOptions.Colors = new List<string> { "#B0D8FD", "#93B6FB", "#FBB550" };
+        _consumptionOptions.Colors = new List<string> { "#B0D8FD", "#93B6FB", "#FBB550", "#F84B81" };
         _consumptionOptions.Fill = new Fill
         {
-            Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid },
-            Opacity = new Opacity(1, 1, 1)
+            Type = new List<FillType> { FillType.Solid, FillType.Solid, FillType.Solid, FillType.Solid },
+            Opacity = new Opacity(1, 1, 1, 1)
         };
         _consumptionOptions.Title = new Title
         {
@@ -139,9 +139,10 @@ public partial class EnergyWidgetTile
         Production.Series2Description = "Naar batterij";
         Production.Series3Description = "Naar net";
         Consumption.Description = "Consumptie";
-        Consumption.Series1Description = "Vanuit PV";
-        Consumption.Series2Description = "Vanuit batterij";
-        Consumption.Series3Description = "Van net";
+        Consumption.Series1Description = "Van PV";
+        Consumption.Series2Description = "Van batterij";
+        Consumption.Series3Description = "Naar batterij";
+        Consumption.Series4Description = "Van net";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -212,11 +213,13 @@ public partial class EnergyWidgetTile
             Consumption.Clear();
             Consumption.Series1.AddRange(new ChartDataEntry<string, decimal> { XValue = "", YValue = Math.Round(response.ConsumptionFromSolar, 2) });
             Consumption.Series2.AddRange(new ChartDataEntry<string, decimal> { XValue = "", YValue = Math.Round(response.ConsumptionFromBattery, 2) });
-            Consumption.Series3.AddRange(new ChartDataEntry<string, decimal> { XValue = "", YValue = Math.Round(response.ConsumptionFromGrid, 2) });
+            Consumption.Series3.AddRange(new ChartDataEntry<string, decimal> { XValue = "", YValue = Math.Round(response.ConsumptionFromGridToBattery, 2) });
+            Consumption.Series4.AddRange(new ChartDataEntry<string, decimal> { XValue = "", YValue = Math.Round(response.ConsumptionFromGrid, 2) });
             Consumption.Description = $"Consumptie ({Math.Round(response.Consumption, 2):F2} kWh)";
-            Consumption.Series1Description = $"Vanuit PV ({Math.Round(response.ConsumptionFromSolar, 2):F2} kWh)";
-            Consumption.Series2Description = $"Vanuit batterij ({Math.Round(response.ConsumptionFromBattery, 2):F2} kWh)";
-            Consumption.Series3Description = $"Van net ({Math.Round(response.ConsumptionFromGrid, 2):F2} kWh)";
+            Consumption.Series1Description = $"Van PV ({Math.Round(response.ConsumptionFromSolar, 2):F2} kWh)";
+            Consumption.Series2Description = $"Van batterij ({Math.Round(response.ConsumptionFromBattery, 2):F2} kWh)";
+            Consumption.Series3Description = $"Naar batterij ({Math.Round(response.ConsumptionFromGridToBattery, 2):F2} kWh)";
+            Consumption.Series4Description = $"Van net ({Math.Round(response.ConsumptionFromGrid, 2):F2} kWh)";
 
             await InvokeAsync(StateHasChanged);
             await Task.Delay(100);

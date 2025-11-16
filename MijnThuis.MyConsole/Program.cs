@@ -31,46 +31,50 @@ var flagRepository = serviceProvider.GetRequiredService<IFlagRepository>();
 var electricityTariff = await flagRepository.GetElectricityTariffDetailsFlag();
 
 var dbContext = serviceProvider.GetRequiredService<MijnThuisDbContext>();
-var historicEnergyEntries = await dbContext.EnergyHistory.OrderBy(x => x.Date).ToListAsync();
-var costEntries = await dbContext.DayAheadEnergyPrices.ToListAsync();
-var monthlyPowerPeaks = await dbContext.EnergyHistory.GroupBy(x => new { x.Date.Year, x.Date.Month })
-    .Select(x => new
-    {
-        x.Key.Year,
-        x.Key.Month,
-        Date = new DateTime(x.Key.Year, x.Key.Month, 1),
-        PowerPeak = Math.Max(2.5M, x.Skip(1).Select(y => y.MonthlyPowerPeak).Max())
-    }).OrderBy(x => x.Year).ThenBy(x => x.Month).ToListAsync();
-
-var index = 0;
-foreach (var entry in historicEnergyEntries)
+foreach (var entry in await dbContext.SolarEnergyHistory.ToListAsync())
 {
-    var previousEntry = index > 0 ? historicEnergyEntries[index - 1] : null;
-    var timeDifference = previousEntry is not null ? entry.Date - previousEntry.Date : TimeSpan.FromMinutes(60);
-
-    var costEntry = costEntries
-        .Where(x => x.From == entry.Date.Add(-timeDifference))
-        .FirstOrDefault();
-
-    var variableCost = entry.TotalImportDelta * (electricityTariff.GreenEnergyContribution + electricityTariff.UsageTariff + electricityTariff.SpecialExciseTax + electricityTariff.EnergyContribution) / 100M;
-    var fixedCost = (electricityTariff.FixedCharge + electricityTariff.DataAdministration) / (365M * 24M * 60M / (decimal)timeDifference.TotalMinutes);
-    var averageMonthlyPowerPeak = monthlyPowerPeaks
-        .Where(x => x.Date >= entry.Date.AddMonths(-12) && x.Date <= entry.Date.Date)
-        .Average(x => x.PowerPeak);
-    var capacityCost = electricityTariff.CapacityTariff * averageMonthlyPowerPeak / (365M * 24M * 60M / (decimal)timeDifference.TotalMinutes);
-
-    if (costEntry is not null && entry.TotalImportDelta < 1000M)
-    {
-        entry.CalculatedImportCost = entry.TotalImportDelta * costEntry.ConsumptionCentsPerKWh * 1.06M / 100M;
-        entry.CalculatedExportCost = entry.TotalExportDelta * -costEntry.InjectionCentsPerKWh / 100M;
-        entry.CalculatedVariableCost = variableCost;
-        entry.CalculatedFixedCost = fixedCost;
-        entry.CalculatedCapacityCost = capacityCost;
-        entry.CalculatedTotalCost = entry.CalculatedExportCost + entry.CalculatedImportCost + fixedCost + variableCost + capacityCost;
-    }
-
-    index++;
+    entry.ImportToBattery = entry.Import - entry.ConsumptionFromGrid;
 }
+//var historicEnergyEntries = await dbContext.EnergyHistory.OrderBy(x => x.Date).ToListAsync();
+//var costEntries = await dbContext.DayAheadEnergyPrices.ToListAsync();
+//var monthlyPowerPeaks = await dbContext.EnergyHistory.GroupBy(x => new { x.Date.Year, x.Date.Month })
+//    .Select(x => new
+//    {
+//        x.Key.Year,
+//        x.Key.Month,
+//        Date = new DateTime(x.Key.Year, x.Key.Month, 1),
+//        PowerPeak = Math.Max(2.5M, x.Skip(1).Select(y => y.MonthlyPowerPeak).Max())
+//    }).OrderBy(x => x.Year).ThenBy(x => x.Month).ToListAsync();
+
+//var index = 0;
+//foreach (var entry in historicEnergyEntries)
+//{
+//    var previousEntry = index > 0 ? historicEnergyEntries[index - 1] : null;
+//    var timeDifference = previousEntry is not null ? entry.Date - previousEntry.Date : TimeSpan.FromMinutes(60);
+
+//    var costEntry = costEntries
+//        .Where(x => x.From == entry.Date.Add(-timeDifference))
+//        .FirstOrDefault();
+
+//    var variableCost = entry.TotalImportDelta * (electricityTariff.GreenEnergyContribution + electricityTariff.UsageTariff + electricityTariff.SpecialExciseTax + electricityTariff.EnergyContribution) / 100M;
+//    var fixedCost = (electricityTariff.FixedCharge + electricityTariff.DataAdministration) / (365M * 24M * 60M / (decimal)timeDifference.TotalMinutes);
+//    var averageMonthlyPowerPeak = monthlyPowerPeaks
+//        .Where(x => x.Date >= entry.Date.AddMonths(-12) && x.Date <= entry.Date.Date)
+//        .Average(x => x.PowerPeak);
+//    var capacityCost = electricityTariff.CapacityTariff * averageMonthlyPowerPeak / (365M * 24M * 60M / (decimal)timeDifference.TotalMinutes);
+
+//    if (costEntry is not null && entry.TotalImportDelta < 1000M)
+//    {
+//        entry.CalculatedImportCost = entry.TotalImportDelta * costEntry.ConsumptionCentsPerKWh * 1.06M / 100M;
+//        entry.CalculatedExportCost = entry.TotalExportDelta * -costEntry.InjectionCentsPerKWh / 100M;
+//        entry.CalculatedVariableCost = variableCost;
+//        entry.CalculatedFixedCost = fixedCost;
+//        entry.CalculatedCapacityCost = capacityCost;
+//        entry.CalculatedTotalCost = entry.CalculatedExportCost + entry.CalculatedImportCost + fixedCost + variableCost + capacityCost;
+//    }
+
+//    index++;
+//}
 
 await dbContext.SaveChangesAsync();
 
