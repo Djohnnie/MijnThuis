@@ -185,6 +185,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var currentDayAheadEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(DateTime.Now);
         var chargingTimeRemaining = currentDayAheadEnergyPrice.To - DateTime.Now;
         var shouldCharge = currentDayAheadEnergyPrice.ShouldCharge;
+        chargingPower = chargingPower += (int)modbusOverview.CurrentSolarPower - (int)modbusOverview.CurrentConsumptionPower;
 
         if (shouldCharge)
         {
