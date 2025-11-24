@@ -86,7 +86,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
                 energyToBattery = (int)Math.Round(gridChargingPower / 4M) - consumption + forecastedSolarEnergy;
             }
 
-            cumulativeBatteryLevel -= energyToBattery / maximumBatteryEnergy * 100M;
+            cumulativeBatteryLevel += energyToBattery / maximumBatteryEnergy * 100M;
             cumulativeBatteryLevel = Math.Clamp(cumulativeBatteryLevel, 0, 100);
 
             await _energyForecastsRepository.SaveEnergyForecast(new EnergyForecastEntry
