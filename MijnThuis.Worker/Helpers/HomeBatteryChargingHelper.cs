@@ -64,7 +64,6 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         // Estimate when battery will be empty based on historic consumption.
         var averageEnergyConsumption = await _solarPowerHistoryRepository.GetAverageEnergyConsumption(DateTime.Today);
         ReorderAverageEnergyConsumtion(averageEnergyConsumption, now);
-        var cumulativeConsumption = 0;
         var cumulativeBatteryLevel = currentBatteryLevel;
         var estimatedEmptyBatteryTime = DateTime.MinValue;
         var currentDateTime = DateTime.Today;
@@ -77,59 +76,27 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 
             var forecastedSolarEnergy = FindForecastedSolarEnergy(solarForecast, currentDateTime);
 
-            // Calculate average consumption from grid.
-            var consumption = averageEnergyConsumption[i].Consumption - forecastedSolarEnergy;
+            var consumption = averageEnergyConsumption[i].Consumption;
+            var energyToBattery = forecastedSolarEnergy - consumption;
 
             // If manually charging is enabled
             var cheapestEnergyPriceEntry = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(currentDateTime);
             if (cheapestEnergyPriceEntry is not null && cheapestEnergyPriceEntry.ShouldCharge)
             {
-                var energyFromGridToBattery = (int)Math.Round(gridChargingPower / 4M) - consumption; // 15 minutes of charging at grid power
-                if (forecastedSolarEnergy < energyFromGridToBattery)
-                {
-                    forecastedSolarEnergy = energyFromGridToBattery;
-                }
+                energyToBattery = (int)Math.Round(gridChargingPower / 4M) - consumption + forecastedSolarEnergy;
             }
 
-            cumulativeConsumption += consumption;
-            cumulativeBatteryLevel -= consumption / maximumBatteryEnergy * 100M;
+            cumulativeBatteryLevel -= energyToBattery / maximumBatteryEnergy * 100M;
             cumulativeBatteryLevel = Math.Clamp(cumulativeBatteryLevel, 0, 100);
 
             await _energyForecastsRepository.SaveEnergyForecast(new EnergyForecastEntry
             {
                 Date = currentDateTime,
-                EnergyConsumptionInWattHours = averageEnergyConsumption[i].Consumption,
+                EnergyConsumptionInWattHours = consumption,
                 SolarEnergyInWattHours = forecastedSolarEnergy,
                 EstimatedBatteryLevel = (int)Math.Round(cumulativeBatteryLevel)
             });
-
-            //if (cumulativeConsumption >= remainingBatteryEnergy)
-            //{
-            //    estimatedEmptyBatteryTime = currentDateTime;
-            //    break;
-            //}
         }
-
-        //// Start scheduling the next day from 6 PM today.
-        //var dayToSchedule = DateTime.Now.Hour < 18 ? DateTime.Today : DateTime.Today.AddDays(1);
-        //var calculatedSolarForecastOnDayToSchedule = solarForecast.WattHourPeriods
-        //    .Where(x => x.Timestamp.Date == dayToSchedule)
-        //    .Sum(x => x.WattHours);
-        //var cheapestPricesToday = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForDate(dayToSchedule, cancellationToken);
-        //var averageDailyEnergy = await _solarPowerHistoryRepository.GetAverageDailyConsumption(dayToSchedule.AddDays(-7), dayToSchedule, cancellationToken);
-        //var batteryEnergyToCharge = 97 * (90 - batteryLevel.Level);
-        //var totalEnergyNeeded = (int)averageDailyEnergy + (int)batteryEnergyToCharge - calculatedSolarForecastOnDayToSchedule;
-
-        //var numberOf15MinuteBlocksNeeded = (int)(totalEnergyNeeded / (gridChargingPower / 4M));
-        //var numberOf15MinuteBlocksMarked = 0;
-        //for (var i = 0; i < cheapestPricesToday.Count; i++)
-        //{
-        //    if (cheapestPricesToday[i].From > DateTime.Now)
-        //    {
-        //        await _dayAheadEnergyPricesRepository.SetCheapestEnergyPriceShouldCharge(cheapestPricesToday[i].Id, numberOf15MinuteBlocksMarked < numberOf15MinuteBlocksNeeded);
-        //        numberOf15MinuteBlocksMarked++;
-        //    }
-        //}
     }
 
     private int FindForecastedSolarEnergy(ForecastOverview solarForecast, DateTime dateTime)

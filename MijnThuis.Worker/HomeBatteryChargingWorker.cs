@@ -37,7 +37,7 @@ public class HomeBatteryChargingWorker : BackgroundService
 
                 await helper.CheckForBatteryCharging(stoppingToken);
 
-                // Only prepare the cheapest periods and update the charging schedule every 15 iterations.
+                // Only prepare the cheapest periods and update the charging schedule every 5 iterations.
                 if (iterations % 5 == 0)
                 {
                     await helper.PrepareCheapestPeriods(stoppingToken);
