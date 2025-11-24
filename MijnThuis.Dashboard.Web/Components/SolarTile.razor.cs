@@ -152,7 +152,7 @@ public partial class SolarTile
 
         if (result == _pin)
         {
-            await Mediator.Send(new ChargeBatteryCommand { Duration = TimeSpan.FromHours(hours), Power = 1500 });
+            await Mediator.Send(new ChargeBatteryCommand { Duration = TimeSpan.FromHours(hours), Power = 2000 });
 
             await RefreshData();
         }

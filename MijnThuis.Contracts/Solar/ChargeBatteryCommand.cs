@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using MijnThuis.Contracts.Power;
 
 namespace MijnThuis.Contracts.Solar;
 

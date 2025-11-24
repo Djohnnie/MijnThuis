@@ -1,4 +1,5 @@
-﻿using MijnThuis.DataAccess.Entities;
+﻿using Microsoft.Extensions.Caching.Memory;
+using MijnThuis.DataAccess.Entities;
 using MijnThuis.DataAccess.Repositories;
 using MijnThuis.Integrations.Forecast;
 using MijnThuis.Integrations.Solar;
@@ -17,6 +18,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
     private readonly IForecastService _forecastService;
     private readonly IModbusService _modbusService;
     private readonly IConfiguration _configuration;
+    private readonly IMemoryCache _memoryCache;
     private readonly IDayAheadEnergyPricesRepository _dayAheadEnergyPricesRepository;
     private readonly ISolarPowerHistoryRepository _solarPowerHistoryRepository;
     private readonly IEnergyForecastsRepository _energyForecastsRepository;
@@ -27,6 +29,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         IForecastService forecastService,
         IModbusService modbusService,
         IConfiguration configuration,
+        IMemoryCache memoryCache,
         IDayAheadEnergyPricesRepository dayAheadEnergyPricesRepository,
         ISolarPowerHistoryRepository solarPowerHistoryRepository,
         IEnergyForecastsRepository energyForecastsRepository,
@@ -36,6 +39,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         _forecastService = forecastService;
         _modbusService = modbusService;
         _configuration = configuration;
+        _memoryCache = memoryCache;
         _dayAheadEnergyPricesRepository = dayAheadEnergyPricesRepository;
         _solarPowerHistoryRepository = solarPowerHistoryRepository;
         _energyForecastsRepository = energyForecastsRepository;
@@ -73,18 +77,20 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 
             var forecastedSolarEnergy = FindForecastedSolarEnergy(solarForecast, currentDateTime);
 
+            // Calculate average consumption from grid.
+            var consumption = averageEnergyConsumption[i].Consumption - forecastedSolarEnergy;
+
             // If manually charging is enabled
             var cheapestEnergyPriceEntry = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(currentDateTime);
             if (cheapestEnergyPriceEntry is not null && cheapestEnergyPriceEntry.ShouldCharge)
             {
-                var energyFromGrid = (int)Math.Round(gridChargingPower / 4M); // 15 minutes of charging at grid power
-                if (forecastedSolarEnergy < energyFromGrid)
+                var energyFromGridToBattery = (int)Math.Round(gridChargingPower / 4M) - consumption; // 15 minutes of charging at grid power
+                if (forecastedSolarEnergy < energyFromGridToBattery)
                 {
-                    forecastedSolarEnergy = energyFromGrid;
+                    forecastedSolarEnergy = energyFromGridToBattery;
                 }
             }
 
-            var consumption = averageEnergyConsumption[i].Consumption - forecastedSolarEnergy;
             cumulativeConsumption += consumption;
             cumulativeBatteryLevel -= consumption / maximumBatteryEnergy * 100M;
             cumulativeBatteryLevel = Math.Clamp(cumulativeBatteryLevel, 0, 100);
@@ -275,6 +281,12 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 
     private async Task<ForecastOverview> GetSolarForecast()
     {
+        var forecastCacheKey = "Cached-SolarForecastOverview";
+        if (_memoryCache.TryGetValue(forecastCacheKey, out ForecastOverview cachedForecast))
+        {
+            return cachedForecast;
+        }
+
         const decimal LATITUDE = 51.06M;
         const decimal LONGITUDE = 4.36M;
         const byte DAMPING = 1;
@@ -285,7 +297,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var no3 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 39M, -137M, 1.2M, DAMPING);
         var zo4 = await _forecastService.GetSolarForecastEstimate(LATITUDE, LONGITUDE, 10M, -47M, 1.6M, DAMPING);
 
-        return new ForecastOverview
+        var result = new ForecastOverview
         {
             EstimatedWattHoursToday = zw6.EstimatedWattHoursToday + no3.EstimatedWattHoursToday + zo4.EstimatedWattHoursToday,
             EstimatedWattHoursTomorrow = zw6.EstimatedWattHoursTomorrow + no3.EstimatedWattHoursTomorrow + zo4.EstimatedWattHoursTomorrow,
@@ -293,6 +305,9 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             Sunset = zw6.Sunset,
             WattHourPeriods = BuildPeriods(zw6.WattHourPeriods, no3.WattHourPeriods, zo4.WattHourPeriods)
         };
+
+        _memoryCache.Set(forecastCacheKey, result, TimeSpan.FromMinutes(30));
+        return result;
     }
 
     private List<WattHourPeriod> BuildPeriods(List<WattHourPeriod> wattHourPeriods1, List<WattHourPeriod> wattHourPeriods2, List<WattHourPeriod> wattHourPeriods3)
