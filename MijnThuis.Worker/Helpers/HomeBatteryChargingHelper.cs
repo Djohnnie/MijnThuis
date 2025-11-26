@@ -67,6 +67,8 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var cumulativeBatteryLevel = currentBatteryLevel;
         var estimatedEmptyBatteryTime = DateTime.MinValue;
         var currentDateTime = DateTime.Today;
+        var lowestBatteryLevel = (BatteryLevel: (int)Math.Round(cumulativeBatteryLevel), Timestamp: DateTime.MaxValue);
+        var highestBatteryLevel = (BatteryLevel: (int)Math.Round(cumulativeBatteryLevel), Timestamp: DateTime.MaxValue);
         for (int i = 0; i < averageEnergyConsumption.Count; i++)
         {
             var timeOfDay = averageEnergyConsumption[i].TimeOfDay;
@@ -89,13 +91,42 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             cumulativeBatteryLevel += energyToBattery / maximumBatteryEnergy * 100M;
             cumulativeBatteryLevel = Math.Clamp(cumulativeBatteryLevel, 0, 100);
 
+            var estimatedBatteryLevel = (int)Math.Round(cumulativeBatteryLevel);
+            if (estimatedBatteryLevel < lowestBatteryLevel.BatteryLevel)
+            {
+                lowestBatteryLevel = (estimatedBatteryLevel, currentDateTime);
+            }
+
+            if (estimatedBatteryLevel > highestBatteryLevel.BatteryLevel)
+            {
+                highestBatteryLevel = (estimatedBatteryLevel, currentDateTime);
+            }
+
             await _energyForecastsRepository.SaveEnergyForecast(new EnergyForecastEntry
             {
                 Date = currentDateTime,
                 EnergyConsumptionInWattHours = consumption,
                 SolarEnergyInWattHours = forecastedSolarEnergy,
-                EstimatedBatteryLevel = (int)Math.Round(cumulativeBatteryLevel)
+                EstimatedBatteryLevel = estimatedBatteryLevel
             });
+        }
+
+        if (lowestBatteryLevel.BatteryLevel < 10)
+        {
+            var cheapestEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceUpToTimestamp(lowestBatteryLevel.Timestamp);
+            if (cheapestEnergyPrice != null)
+            {
+                await _dayAheadEnergyPricesRepository.SetCheapestEnergyPriceShouldCharge(cheapestEnergyPrice.Id, true);
+            }
+        }
+
+        if (highestBatteryLevel.BatteryLevel > 90)
+        {
+            var mostExpensiveEnergyPrice = await _dayAheadEnergyPricesRepository.GetMostExpensiveEnergyPriceUpToTimestamp(highestBatteryLevel.Timestamp);
+            if (mostExpensiveEnergyPrice != null)
+            {
+                await _dayAheadEnergyPricesRepository.SetCheapestEnergyPriceShouldCharge(mostExpensiveEnergyPrice.Id, false);
+            }
         }
     }
 

@@ -7,6 +7,8 @@ public interface IDayAheadEnergyPricesRepository
 {
     Task<DayAheadEnergyPricesEntry> GetEnergyPriceForTimestamp(DateTime timestamp);
     Task<DayAheadCheapestEnergyPricesEntry> GetCheapestEnergyPriceForTimestamp(DateTime timestamp);
+    Task<DayAheadCheapestEnergyPricesEntry?> GetCheapestEnergyPriceUpToTimestamp(DateTime timestamp);
+    Task<DayAheadCheapestEnergyPricesEntry?> GetMostExpensiveEnergyPriceUpToTimestamp(DateTime timestamp);
     Task<List<DayAheadEnergyPricesEntry>> GetEnergyPriceForDate(DateTime date, CancellationToken cancellationToken);
     Task<List<DayAheadCheapestEnergyPricesEntry>> GetCheapestEnergyPriceForDate(DateTime date, CancellationToken cancellationToken);
     Task<EnergyPriceRange> GetNegativeInjectionPriceRange();
@@ -40,6 +42,24 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
             .OrderBy(x => x.Order)
             .Where(x => x.From <= timestamp && x.To >= timestamp)
             .FirstOrDefaultAsync() ?? new DayAheadCheapestEnergyPricesEntry();
+    }
+
+    public async Task<DayAheadCheapestEnergyPricesEntry?> GetCheapestEnergyPriceUpToTimestamp(DateTime timestamp)
+    {
+        return await _dbContext.DayAheadCheapestEnergyPrices
+            .OrderBy(x => x.Order)
+            .Where(x => x.From <= timestamp && x.To >= DateTime.Now)
+            .Where(x => !x.ShouldCharge)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<DayAheadCheapestEnergyPricesEntry?> GetMostExpensiveEnergyPriceUpToTimestamp(DateTime timestamp)
+    {
+        return await _dbContext.DayAheadCheapestEnergyPrices
+            .OrderByDescending(x => x.Order)
+            .Where(x => x.From <= timestamp && x.To >= DateTime.Now)
+            .Where(x => x.ShouldCharge)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<List<DayAheadEnergyPricesEntry>> GetEnergyPriceForDate(DateTime date, CancellationToken cancellationToken)

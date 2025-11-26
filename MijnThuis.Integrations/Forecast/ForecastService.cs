@@ -29,7 +29,7 @@ public class ForecastService : BaseForecastService, IForecastService
             return await GetCachedValue($"SOLAR_FORECAST_ESTIMATE[{latitude}|{longitude}|{declination}|{azimuth}|{power}|{damping}]", async () =>
             {
                 using var client = InitializeHttpClient();
-
+                client.Timeout = TimeSpan.FromSeconds(5);
                 var response = await client.GetFromJsonAsync<GetForecastEstimateResponse>($"{_apiKey}/estimate/{latitude}/{longitude}/{declination}/{azimuth}/{power}?damping={damping}");
                 var wattHoursPeriodTimes = response.Result.WattHoursPeriod.Keys.Select(x => DateTime.ParseExact(x, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)).Where(x => x.Day == DateTime.Today.Day);
 
