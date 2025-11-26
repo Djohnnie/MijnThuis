@@ -47,8 +47,8 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
     public async Task<DayAheadCheapestEnergyPricesEntry?> GetCheapestEnergyPriceUpToTimestamp(DateTime timestamp)
     {
         return await _dbContext.DayAheadCheapestEnergyPrices
-            .OrderBy(x => x.Order)
-            .Where(x => x.From <= timestamp && x.To >= DateTime.Now)
+            .OrderBy(x => x.EuroPerMWh)
+            .Where(x => x.From >= DateTime.Now && x.From <= timestamp)
             .Where(x => !x.ShouldCharge)
             .FirstOrDefaultAsync();
     }
@@ -56,8 +56,8 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
     public async Task<DayAheadCheapestEnergyPricesEntry?> GetMostExpensiveEnergyPriceUpToTimestamp(DateTime timestamp)
     {
         return await _dbContext.DayAheadCheapestEnergyPrices
-            .OrderByDescending(x => x.Order)
-            .Where(x => x.From <= timestamp && x.To >= DateTime.Now)
+            .OrderByDescending(x => x.EuroPerMWh)
+            .Where(x => x.From >= DateTime.Now && x.From <= timestamp)
             .Where(x => x.ShouldCharge)
             .FirstOrDefaultAsync();
     }
