@@ -92,12 +92,12 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             cumulativeBatteryLevel = Math.Clamp(cumulativeBatteryLevel, 0, 100);
 
             var estimatedBatteryLevel = (int)Math.Round(cumulativeBatteryLevel);
-            if (estimatedBatteryLevel < lowestBatteryLevel.BatteryLevel)
+            if (estimatedBatteryLevel < lowestBatteryLevel.BatteryLevel && cheapestEnergyPriceEntry.EuroPerMWh.HasValue)
             {
                 lowestBatteryLevel = (estimatedBatteryLevel, currentDateTime);
             }
 
-            if (estimatedBatteryLevel > highestBatteryLevel.BatteryLevel)
+            if (estimatedBatteryLevel > highestBatteryLevel.BatteryLevel && cheapestEnergyPriceEntry.EuroPerMWh.HasValue)
             {
                 highestBatteryLevel = (estimatedBatteryLevel, currentDateTime);
             }

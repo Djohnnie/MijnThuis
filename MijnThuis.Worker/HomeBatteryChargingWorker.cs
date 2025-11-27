@@ -35,7 +35,6 @@ public class HomeBatteryChargingWorker : BackgroundService
                 var helper = serviceScope.ServiceProvider.GetRequiredService<IHomeBatteryChargingHelper>();
 
                 await helper.CheckForBatteryCharging(stoppingToken);
-
                 await helper.PrepareCheapestPeriods(stoppingToken);
                 await helper.UpdateChargingSchedule(stoppingToken);
             }
@@ -55,8 +54,6 @@ public class HomeBatteryChargingWorker : BackgroundService
             {
                 await Task.Delay(duration, stoppingToken);
             }
-
-            iterations++;
         }
     }
 }
