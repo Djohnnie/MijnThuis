@@ -65,7 +65,7 @@ public class EnergyHistoryWorker : BackgroundService
                             x.Key.Year,
                             x.Key.Month,
                             Date = new DateTime(x.Key.Year, x.Key.Month, 1),
-                            PowerPeak = Math.Max(2.5M, x.Skip(1).Select(y => y.MonthlyPowerPeak).Max())
+                            PowerPeak = Math.Max(2.5M, x.Skip(1).Select(y => y.MonthlyPowerPeak).OrderDescending().SingleOrDefault())
                         }).OrderBy(x => x.Year).ThenBy(x => x.Month).ToListAsync();
 
                     var electricityTariff = await flagRepository.GetElectricityTariffDetailsFlag();
