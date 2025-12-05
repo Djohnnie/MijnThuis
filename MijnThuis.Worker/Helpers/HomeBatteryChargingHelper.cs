@@ -111,7 +111,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             });
         }
 
-        if (lowestBatteryLevel.BatteryLevel < 10)
+        if (lowestBatteryLevel.BatteryLevel <= 5)
         {
             var cheapestEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceUpToTimestamp(lowestBatteryLevel.Timestamp);
             if (cheapestEnergyPrice != null)
@@ -120,7 +120,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             }
         }
 
-        if (highestBatteryLevel.BatteryLevel > 90)
+        if (highestBatteryLevel.BatteryLevel >= 95)
         {
             var mostExpensiveEnergyPrice = await _dayAheadEnergyPricesRepository.GetMostExpensiveEnergyPriceUpToTimestamp(highestBatteryLevel.Timestamp);
             if (mostExpensiveEnergyPrice != null)
@@ -195,7 +195,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         {
             // If the current battery level is below 90% and there is no
             // high consumption right now, start charging from grid.
-            if (modbusOverview.BatteryLevel < 90 && modbusOverview.CurrentConsumptionPower < 1000)
+            if (modbusOverview.BatteryLevel <= 95 && modbusOverview.CurrentConsumptionPower < 1000)
             {
                 shouldStartCharging = true;
             }
