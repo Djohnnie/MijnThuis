@@ -32,12 +32,10 @@ internal class SolarPowerHistoryRepository : ISolarPowerHistoryRepository
 
     public async Task<List<ConsumptionPerFifteenMinutes>> GetAverageEnergyConsumption(DateTime date, CancellationToken cancellationToken = default)
     {
-        var startYear = 2024;
-        var month = date.Month;
+        var aMonthAgo = date.AddMonths(-1);
 
         var energyConsumptionPerFifteenMinutes = await _dbContext.SolarEnergyHistory
-            .Where(x => x.Date.Year >= startYear)
-            .Where(x => x.Date.Month == month)
+            .Where(x => x.Date >= aMonthAgo)
             .GroupBy(x => x.Date.TimeOfDay)
             .OrderBy(x => x.Key)
             .Select(x => new ConsumptionPerFifteenMinutes
