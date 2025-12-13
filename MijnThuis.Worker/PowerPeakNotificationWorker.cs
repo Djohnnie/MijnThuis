@@ -53,11 +53,14 @@ internal class PowerPeakNotificationWorker : BackgroundService
                 {
                     consecutiveHighUsageCount++;
 
-                    if (consecutiveHighUsageCount >= 3 && (DateTime.Now - lastNotificationTime).TotalMinutes > 5)
+                    if (consecutiveHighUsageCount >= 3)
                     {
                         // Disable battery charging if it is active.
                         await modbusService.StopChargingBattery();
+                    }
 
+                    if (consecutiveHighUsageCount >= 3 && (DateTime.Now - lastNotificationTime).TotalMinutes > 5)
+                    {
                         consecutiveHighUsageCount = 0;
                         lastNotificationTime = DateTime.Now;
 

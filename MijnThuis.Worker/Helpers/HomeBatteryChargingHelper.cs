@@ -68,7 +68,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var estimatedEmptyBatteryTime = DateTime.MinValue;
         var currentDateTime = DateTime.Today;
         var lowestBatteryLevel = (BatteryLevel: (int)Math.Round(cumulativeBatteryLevel), Timestamp: DateTime.MaxValue);
-        var highestBatteryLevel = (BatteryLevel: (int)Math.Round(cumulativeBatteryLevel), Timestamp: DateTime.MaxValue);
+        var highestBatteryLevel = (BatteryLevel: (int)Math.Round(cumulativeBatteryLevel), Timestamp: DateTime.MinValue);
         for (int i = 0; i < averageEnergyConsumption.Count; i++)
         {
             var timeOfDay = averageEnergyConsumption[i].TimeOfDay;
