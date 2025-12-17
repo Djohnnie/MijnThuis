@@ -39,6 +39,7 @@ public class SmartLockService : BaseService, ISmartLockService
     public async Task<List<SmartLockLog>> GetActivityLog()
     {
         using var client = await InitializeHttpClient();
+        var test = await client.GetStringAsync($"smartlock/{_smartLockId}/log");
         var result = await client.GetFromJsonAsync<List<SmartLockLogResponse>>($"smartlock/{_smartLockId}/log?limit=10");
 
         return result.Select(x => new SmartLockLog

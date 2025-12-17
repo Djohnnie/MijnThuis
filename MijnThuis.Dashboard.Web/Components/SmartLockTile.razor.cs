@@ -62,7 +62,9 @@ public partial class SmartLockTile
             State = response.State;
             DoorState = response.DoorState;
             BatteryCharge = response.BatteryCharge;
-            History = $"{(response.ActivityLog.FirstOrDefault()?.Action ?? "No activity")} ({response.ActivityLog.FirstOrDefault()?.Timestamp:dd/MM/yyyy HH:mm})";
+            var historicEntry = response.ActivityLog.FirstOrDefault()?.Action;
+            var historicEntryTimestamp = $"{response.ActivityLog.FirstOrDefault()?.Timestamp:dd/MM/yyyy HH:mm}";
+            History = $"{historicEntry ?? "Geen activiteit"}{(string.IsNullOrEmpty(historicEntryTimestamp) ? "" : $" ({historicEntryTimestamp})")}";
             IsReady = true;
 
             await InvokeAsync(StateHasChanged);
