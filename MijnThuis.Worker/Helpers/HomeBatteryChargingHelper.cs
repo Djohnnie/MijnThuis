@@ -125,7 +125,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             var mostExpensiveEnergyPrice = await _dayAheadEnergyPricesRepository.GetMostExpensiveEnergyPriceUpToTimestamp(highestBatteryLevel.Timestamp);
             if (mostExpensiveEnergyPrice != null)
             {
-                //await _dayAheadEnergyPricesRepository.SetCheapestEnergyPriceShouldCharge(mostExpensiveEnergyPrice.Id, false);
+                await _dayAheadEnergyPricesRepository.SetCheapestEnergyPriceShouldCharge(mostExpensiveEnergyPrice.Id, false);
             }
         }
     }
