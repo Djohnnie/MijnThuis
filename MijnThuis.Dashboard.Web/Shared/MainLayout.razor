@@ -23,7 +23,6 @@
 		}
 		<MudText Typo="Typo.h5" Class="ml-3">Mijn Thuis</MudText>
 		<MudSpacer />
-		<MudIconButton @onclick="SpeechToText" Color="Color.Inherit" Icon="@Icons.Material.Filled.Mic" />
 		<MudIconButton @onclick="ToggleDarkMode" Color="Color.Inherit" Icon="@modeIcon" />
 	</MudAppBar>
 	<MudMainContent>
@@ -35,8 +34,6 @@
 
 @code
 {
-	[Inject] private SpeechToTextNotificationService _sttService { get; set; }
-
 	[CascadingParameter]
 	public NotifyingDarkMode DarkMode { get; set; }
 
@@ -80,11 +77,6 @@
 	void ToggleDarkMode()
 	{
 		DarkMode.ToggleDarkMode();
-	}
-
-	void SpeechToText()
-	{
-		_sttService.NotifyEventClick(this);
 	}
 
 	async Task NavigateBack()
