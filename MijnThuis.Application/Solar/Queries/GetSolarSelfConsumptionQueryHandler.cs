@@ -51,13 +51,13 @@ internal class GetSolarSelfConsumptionQueryHandler : IRequestHandler<GetSolarSel
         var solarEnergyHistoryThisMonth = solarEnergyHistoryByDate.Where(x => x.Date.Month == thisMonth.Month && x.Date.Year == thisMonth.Year);
         var solarEnergyHistoryThisYear = solarEnergyHistoryByDate.Where(x => x.Date.Year == thisMonth.Year);
 
-        var selfConsumptionToday = solarEnergyHistoryToday != null ? solarEnergyHistoryToday.Production == 0 ? 0M : (solarEnergyHistoryToday.Production - solarEnergyHistoryToday.Export) / solarEnergyHistoryToday.Production * 100M : 0M;
-        var selfConsumptionThisMonth = solarEnergyHistoryThisMonth.Any() ? (solarEnergyHistoryThisMonth.Sum(x => x.Production) - solarEnergyHistoryThisMonth.Sum(x => x.Export)) / solarEnergyHistoryThisMonth.Sum(x => x.Production) * 100M : 0M;
-        var selfConsumptionThisYear = solarEnergyHistoryThisYear.Any() ? (solarEnergyHistoryThisYear.Sum(x => x.Production) - solarEnergyHistoryThisYear.Sum(x => x.Export)) / solarEnergyHistoryThisYear.Sum(x => x.Production) * 100M : 0M;
+        var selfConsumptionToday = solarEnergyHistoryToday != null ? solarEnergyHistoryToday.Production == 0M ? 0M : (solarEnergyHistoryToday.Production - solarEnergyHistoryToday.Export) / solarEnergyHistoryToday.Production * 100M : 0M;
+        var selfConsumptionThisMonth = solarEnergyHistoryThisMonth.Any() ? solarEnergyHistoryThisMonth.Sum(x => x.Production) == 0M ? 0M : (solarEnergyHistoryThisMonth.Sum(x => x.Production) - solarEnergyHistoryThisMonth.Sum(x => x.Export)) / solarEnergyHistoryThisMonth.Sum(x => x.Production) * 100M : 0M;
+        var selfConsumptionThisYear = solarEnergyHistoryThisYear.Any() ? solarEnergyHistoryThisYear.Sum(x => x.Production) == 0M ? 0M : (solarEnergyHistoryThisYear.Sum(x => x.Production) - solarEnergyHistoryThisYear.Sum(x => x.Export)) / solarEnergyHistoryThisYear.Sum(x => x.Production) * 100M : 0M;
 
-        var selfSufficiencyToday = solarEnergyHistoryToday != null ? solarEnergyHistoryToday.Consumption == 0 ? 0M : (solarEnergyHistoryToday.Consumption - solarEnergyHistoryToday.Import) / solarEnergyHistoryToday.Consumption * 100M : 0M;
-        var selfSufficiencyThisMonth = solarEnergyHistoryThisMonth.Any() ? (solarEnergyHistoryThisMonth.Sum(x => x.Consumption) - solarEnergyHistoryThisMonth.Sum(x => x.Import)) / solarEnergyHistoryThisMonth.Sum(x => x.Consumption) * 100M : 0M;
-        var selfSufficiencyThisYear = solarEnergyHistoryThisYear.Any() ? (solarEnergyHistoryThisYear.Sum(x => x.Consumption) - solarEnergyHistoryThisYear.Sum(x => x.Import)) / solarEnergyHistoryThisYear.Sum(x => x.Consumption) * 100M : 0M;
+        var selfSufficiencyToday = solarEnergyHistoryToday != null ? solarEnergyHistoryToday.Consumption == 0M ? 0M : (solarEnergyHistoryToday.Consumption - solarEnergyHistoryToday.Import) / solarEnergyHistoryToday.Consumption * 100M : 0M;
+        var selfSufficiencyThisMonth = solarEnergyHistoryThisMonth.Any() ? solarEnergyHistoryThisMonth.Sum(x => x.Consumption) == 0M ? 0M : (solarEnergyHistoryThisMonth.Sum(x => x.Consumption) - solarEnergyHistoryThisMonth.Sum(x => x.Import)) / solarEnergyHistoryThisMonth.Sum(x => x.Consumption) * 100M : 0M;
+        var selfSufficiencyThisYear = solarEnergyHistoryThisYear.Any() ? solarEnergyHistoryThisYear.Sum(x => x.Consumption) == 0M ? 0M : (solarEnergyHistoryThisYear.Sum(x => x.Consumption) - solarEnergyHistoryThisYear.Sum(x => x.Import)) / solarEnergyHistoryThisYear.Sum(x => x.Consumption) * 100M : 0M;
 
         var entries = new List<SolarSelfConsumptionEntry>();
 
