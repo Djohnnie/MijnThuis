@@ -31,6 +31,8 @@ internal class PowerPeakNotificationWorker : BackgroundService
         var mailgunReceivers = _configuration.GetValue<string>("MAILGUN_RECEIVERS");
 
         var lastNotificationTime = DateTime.MinValue;
+        var minimumConsecutiveHighUsage = 3;
+        var maximumConsecutiveHighUsage = 6;
         var consecutiveHighUsageCount = 0;
 
         // While the service is not requested to stop...
@@ -53,13 +55,13 @@ internal class PowerPeakNotificationWorker : BackgroundService
                 {
                     consecutiveHighUsageCount++;
 
-                    if (consecutiveHighUsageCount >= 3)
+                    if (consecutiveHighUsageCount >= minimumConsecutiveHighUsage)
                     {
                         // Disable battery charging if it is active.
                         await modbusService.StopChargingBattery();
                     }
 
-                    if (consecutiveHighUsageCount >= 3 && (DateTime.Now - lastNotificationTime).TotalMinutes > 5)
+                    if (consecutiveHighUsageCount >= maximumConsecutiveHighUsage && (DateTime.Now - lastNotificationTime).TotalMinutes > 15)
                     {
                         consecutiveHighUsageCount = 0;
                         lastNotificationTime = DateTime.Now;
