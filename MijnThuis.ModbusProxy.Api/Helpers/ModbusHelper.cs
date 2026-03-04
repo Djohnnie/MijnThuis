@@ -118,7 +118,7 @@ public class ModbusHelper : IModbusHelper
                         RemoteControlChargeLimit = Convert.ToDecimal(remoteControlChargeLimit.Value),
                         ExportControlMode = (ExportControlMode)exportControlMode.Value,
                         HasExportLimitation = exportControlMode.Value > 0,
-                        ExportPowerLimitation = Convert.ToDecimal(exportLimitation.Value),
+                        ExportPowerLimitation = exportControlMode.Value > 0 ? Convert.ToDecimal(exportLimitation.Value) : 0M,
                     };
 
                 }, maxRetries: 3, delayMilliseconds: 500);
