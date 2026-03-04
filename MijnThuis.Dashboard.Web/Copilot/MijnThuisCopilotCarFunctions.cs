@@ -57,6 +57,14 @@ public class MijnThuisCopilotCarFunctions
         return response.RemainingRange;
     }
 
+    [Description("Gets the temperature inside the car in degrees Celcius.")]
+    public static async Task<int> GetTemperatureInsideCar(IServiceProvider serviceProvider)
+    {
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var response = await mediator.Send(new GetCarOverviewQuery());
+        return response.TemperatureInside;
+    }
+
     [Description("Gets the remaining car battery percentage.")]
     public static async Task<int> GetCarBattery(IServiceProvider serviceProvider)
     {
