@@ -17,7 +17,7 @@ public class MijnThuisCarTools
     }
 
     [McpServerTool(Name = $"mijnthuis_car_{nameof(GetCarInformation)}", ReadOnly = true)]
-    [Description("Gets information about my electric car like location, battery level and health, charging statistics, temperature and charging possibilities.")]
+    [Description("Gets information about my electric car like location, battery level and health, charging statistics, climate temperature inside the car and charging possibilities.")]
     [return: Description("Information, formatted in JSON containing the car location, battery level and health, charging statistics, temperature and charging possibilities.")]
     public async Task<string> GetCarInformation()
     {

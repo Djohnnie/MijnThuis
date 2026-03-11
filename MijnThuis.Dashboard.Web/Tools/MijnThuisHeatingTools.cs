@@ -17,7 +17,7 @@ public class MijnThuisHeatingTools
     }
 
     [McpServerTool(Name = $"mijnthuis_heating_{nameof(GetHeatingInformation)}", ReadOnly = true)]
-    [Description("Gets information about my heating at home like mode, living room temperature, outdoor temperature, current and next scheduled set point, scheduled time for next set point and gas usage today and this month.")]
+    [Description("Gets information about my heating at home like mode, living room temperature, outdoor/outside temperature, current and next scheduled set point, scheduled time for next set point and gas usage today and this month.")]
     [return: Description("Information, formatted in JSON containing the current mode, living room temperature, outdoor temperature, current and next scheduled set point, scheduled time for next set point and gas usage today and this month.")]
     public async Task<string> GetHeatingInformation()
     {
