@@ -45,7 +45,7 @@ public class ChargerService : BaseChargerService, IChargerService
             return new ChargerOverview
             {
                 ChargerId = chargerId,
-                Description = "Unknown",
+                Description = "Something went wrong :(",
                 NumberOfChargers = 0,
                 NumberOfChargersAvailable = 0
             };
