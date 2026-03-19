@@ -12,7 +12,7 @@
 <MudPopoverProvider />
 
 <MudLayout>
-	<MudAppBar Elevation="0">
+	<MudAppBar Elevation="0" Class="modern-appbar">
 		@if (IsHomePage)
 		{
 			<MudIcon Icon="@Icons.Material.Filled.Home" Color="Color.Inherit" />
@@ -21,7 +21,7 @@
 		{
 			<MudIconButton Class="mx-n3" Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" OnClick="NavigateBack" />
 		}
-		<MudText Typo="Typo.h5" Class="ml-3">Mijn Thuis</MudText>
+		<MudText Typo="Typo.h6" Class="ml-3 appbar-title">Mijn Thuis</MudText>
 		<MudSpacer />
 		<MudIconButton @onclick="ToggleDarkMode" Color="Color.Inherit" Icon="@modeIcon" />
 	</MudAppBar>

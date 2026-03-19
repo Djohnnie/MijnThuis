@@ -1,126 +1,133 @@
-﻿@using MediatR;
+@using MediatR;
 @implements IDisposable
 @inject IMediator Mediator;
 @inject ILogger<HeatingTile> Logger;
 
-<MudCard Outlined>
-    <MudCardHeader>
-        <CardHeaderAvatar>
-            <MudAvatar Color="Color.Primary">
-                <MudIcon Icon="@Icons.Material.Filled.AcUnit" Title="Favorite" />
-            </MudAvatar>
-        </CardHeaderAvatar>
-        <CardHeaderContent>
-            <MudText Typo="Typo.body1">Verwarming</MudText>
-            <MudText Typo="Typo.body2">De huidige temperaturen</MudText>
-        </CardHeaderContent>
-        <CardHeaderActions>
-            <MudTooltip Text="Meer details" Arrow="true" Placement="Placement.Left">
-                <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Color="Color.Default" OnClick="MoreCommand" />
-            </MudTooltip>
-        </CardHeaderActions>
-    </MudCardHeader>
-    <MudCardContent>
-        <MudGrid>
+<MudCard Elevation="3" Class="modern-tile">
+    <div class="tile-header tile-header-heating">
+        <MudIcon Icon="@Icons.Material.Filled.AcUnit" />
+        <div class="flex-grow-1">
+            <MudText Typo="Typo.subtitle1" Class="tile-header-title">Verwarming</MudText>
+            <MudText Typo="Typo.caption" Class="tile-header-subtitle">De huidige temperaturen</MudText>
+        </div>
+        <MudTooltip Text="Meer details" Arrow="true" Placement="Placement.Left">
+            <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" Class="tile-header-action" OnClick="MoreCommand" />
+        </MudTooltip>
+    </div>
+    <MudCardContent Class="pt-2 pb-1">
+        <MudGrid Spacing="1">
             <MudItem xs="6">
-                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
-                    @if (IsReady)
-                    {
+                @if (IsReady)
+                {
+                    <div class="data-cell">
                         <MudTooltip Text="Huidige temperatuur" Arrow="true" Placement="Placement.Right">
                             <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="@(RoomTemperature < Setpoint ? Color.Secondary : Color.Tertiary)" />
                         </MudTooltip>
                         <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", RoomTemperature) °C (@String.Format("{0:F0}", Setpoint) °C)</MudText>
-                    }
-                    else
-                    {
-                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                    }
-                </MudPaper>
+                    </div>
+                }
+                else
+                {
+                    <div class="data-cell-skeleton">
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="28px" Width="28px" />
+                        <MudSkeleton Animation="Animation.Wave" Width="70%" />
+                    </div>
+                }
             </MudItem>
             <MudItem xs="6">
-                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
-                    @if (IsReady)
-                    {
+                @if (IsReady)
+                {
+                    <div class="data-cell">
                         <MudTooltip Text="Buitentemperatuur" Arrow="true" Placement="Placement.Left">
                             <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
                         <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", OutdoorTemperature) °C</MudText>
-                    }
-                    else
-                    {
-                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                    }
-                </MudPaper>
+                    </div>
+                }
+                else
+                {
+                    <div class="data-cell-skeleton">
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="28px" Width="28px" />
+                        <MudSkeleton Animation="Animation.Wave" Width="70%" />
+                    </div>
+                }
             </MudItem>
             <MudItem xs="6">
-                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
-                    @if (IsReady)
-                    {
+                @if (IsReady)
+                {
+                    <div class="data-cell">
                         <MudTooltip Text="Status" Arrow="true" Placement="Placement.Right">
                             <MudIcon Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Medium" Color="@(Status == "Verwarmen" ? Color.Secondary : Color.Primary)" />
                         </MudTooltip>
                         <MudText Typo="Typo.subtitle1">@Status</MudText>
-                    }
-                    else
-                    {
-                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                    }
-                </MudPaper>
+                    </div>
+                }
+                else
+                {
+                    <div class="data-cell-skeleton">
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="28px" Width="28px" />
+                        <MudSkeleton Animation="Animation.Wave" Width="70%" />
+                    </div>
+                }
             </MudItem>
             <MudItem xs="6">
-                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
-                    @if (IsReady)
-                    {
+                @if (IsReady)
+                {
+                    <div class="data-cell">
                         <MudTooltip Text="Planning" Arrow="true" Placement="Placement.Left">
                             <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
                         <MudText Typo="Typo.subtitle1">@NextSetpoint °C (@NextSwitchTime)</MudText>
-                    }
-                    else
-                    {
-                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                    }
-                </MudPaper>
+                    </div>
+                }
+                else
+                {
+                    <div class="data-cell-skeleton">
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="28px" Width="28px" />
+                        <MudSkeleton Animation="Animation.Wave" Width="70%" />
+                    </div>
+                }
             </MudItem>
             <MudItem xs="6">
-                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
-                    @if (IsReady)
-                    {
+                @if (IsReady)
+                {
+                    <div class="data-cell">
                         <MudTooltip Text="Gasverbruik vandaag" Arrow="true" Placement="Placement.Right">
                             <MudIcon Icon="@Icons.Material.Filled.Today" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
                         <MudText Typo="Typo.subtitle1">@GasUsageToday</MudText>
-                    }
-                    else
-                    {
-                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                    }
-                </MudPaper>
+                    </div>
+                }
+                else
+                {
+                    <div class="data-cell-skeleton">
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="28px" Width="28px" />
+                        <MudSkeleton Animation="Animation.Wave" Width="70%" />
+                    </div>
+                }
             </MudItem>
             <MudItem xs="6">
-                <MudPaper Class="d-flex ma-n2 gap-1" Elevation="0">
-                    @if (IsReady)
-                    {
+                @if (IsReady)
+                {
+                    <div class="data-cell">
                         <MudTooltip Text="Gasverbruik deze maand" Arrow="true" Placement="Placement.Left">
                             <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
                         <MudText Typo="Typo.subtitle1">@GasUsageThisMonth</MudText>
-                    }
-                    else
-                    {
-                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="30px" Width="30px" Class="ml-2 mb-2" />
-                        <MudSkeleton Animation="Animation.Wave" Width="60%" />
-                    }
-                </MudPaper>
+                    </div>
+                }
+                else
+                {
+                    <div class="data-cell-skeleton">
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="28px" Width="28px" />
+                        <MudSkeleton Animation="Animation.Wave" Width="70%" />
+                    </div>
+                }
             </MudItem>
         </MudGrid>
     </MudCardContent>
-    <MudCardActions>
+    <MudDivider Class="mx-3" />
+    <MudCardActions Class="tile-actions">
         @if (ScheduledHeatingPending)
         {
             <MudIconButton Size="Size.Large" Disabled="true">
