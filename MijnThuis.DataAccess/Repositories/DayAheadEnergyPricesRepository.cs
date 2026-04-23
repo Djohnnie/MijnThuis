@@ -17,6 +17,7 @@ public interface IDayAheadEnergyPricesRepository
     Task AddCheapestEnergyPrice(DayAheadCheapestEnergyPricesEntry cheapestEnergyPrice);
     Task<bool> AnyCheapestEnergyPricesOnDate(DateTime date, CancellationToken cancellationToken);
     Task SetEnergyPriceShouldCharge(Guid id, bool shouldCharge);
+    Task ClearShouldChargeFlags(DateTime from);
 }
 
 public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
@@ -163,6 +164,13 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
     {
         await _dbContext.DayAheadCheapestEnergyPrices.Where(x => x.Id == id)
             .ExecuteUpdateAsync(x => x.SetProperty(p => p.ShouldCharge, shouldCharge));
+    }
+
+    public async Task ClearShouldChargeFlags(DateTime from)
+    {
+        await _dbContext.DayAheadCheapestEnergyPrices
+            .Where(x => x.From >= from && x.ShouldCharge)
+            .ExecuteUpdateAsync(x => x.SetProperty(p => p.ShouldCharge, false));
     }
 }
 

@@ -119,6 +119,10 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
                 await _dayAheadEnergyPricesRepository.SetEnergyPriceShouldCharge(cheapestEnergyPrice.Id, true);
             }
         }
+        else
+        {
+            await _dayAheadEnergyPricesRepository.ClearShouldChargeFlags(DateTime.Now);
+        }
 
         if (highestBatteryLevel.BatteryLevel >= 99)
         {
@@ -168,6 +172,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
     public async Task CheckForBatteryCharging(CancellationToken cancellationToken)
     {
         var chargingPower = _configuration.GetValue<int>("GRID_CHARGING_POWER");
+        var configuredGridChargingPower = chargingPower;
         var shouldStartCharging = false;
         var shouldStopCharging = false;
 
@@ -189,7 +194,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var currentDayAheadEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(DateTime.Now);
         var chargingTimeRemaining = currentDayAheadEnergyPrice.To - DateTime.Now;
         var shouldCharge = currentDayAheadEnergyPrice.ShouldCharge;
-        chargingPower = chargingPower += (int)modbusOverview.CurrentSolarPower - (int)modbusOverview.CurrentConsumptionPower;
+        chargingPower += (int)modbusOverview.CurrentSolarPower - (int)modbusOverview.CurrentConsumptionPower;
 
         if (shouldCharge)
         {
@@ -204,8 +209,8 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
                 shouldStopCharging = true;
             }
 
-            // If the current solar power is higher than the grid charging power, stop charging from grid.
-            if (modbusOverview.CurrentSolarPower > chargingPower)
+            // If the current solar power is higher than the configured grid charging power, stop charging from grid.
+            if (modbusOverview.CurrentSolarPower > configuredGridChargingPower)
             {
                 shouldStopCharging = true;
             }
