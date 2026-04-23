@@ -8,13 +8,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="5.3.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
 		<PackageReference Include="SendGrid" Version="9.29.3" />
+		<PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.7" />
 	</ItemGroup>
 
 	<ItemGroup>

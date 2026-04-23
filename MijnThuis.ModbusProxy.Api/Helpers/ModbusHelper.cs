@@ -58,7 +58,7 @@ public class ModbusHelper : IModbusHelper
             var port = _configuration.GetValue<int>("MODBUS_PORT");
 
             _modbusClient = new ModbusClient(address, port);
-            await _modbusClient.Connect();
+            await _modbusClient.ConnectAsync();
         }
     }
 
@@ -76,23 +76,23 @@ public class ModbusHelper : IModbusHelper
 
                     await Connect();
 
-                    var acPower = await _modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power);
-                    var acPowerSF = await _modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power_SF);
-                    var dcPower = await _modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_DC_Power);
-                    var dcPowerSF = await _modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_DC_Power_SF);
-                    var gridPower = await _modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power);
-                    var gridPowerSF = await _modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power_SF);
-                    var batteryPower = await _modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_Instantaneous_Power);
-                    var soe = await _modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Energy);
-                    var soh = await _modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Health);
-                    var max = await _modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_Max_Energy);
-                    var storageControlMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Control_Mode);
-                    var remoteControlMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
-                    var remoteControlDefaultMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Storage_Charge_Discharge_Default_Mode);
-                    var remoteControlCommandTimeout = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.Remote_Control_Command_Timeout);
-                    var remoteControlChargeLimit = await _modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Remote_Control_Charge_Limit);
-                    var exportControlMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.ExportControlMode);
-                    var exportLimitation = await _modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.ExportControlSiteLimit);
+                    var acPower = await _modbusClient.ReadHoldingRegistersAsync<Int16>(SunspecConsts.I_AC_Power);
+                    var acPowerSF = await _modbusClient.ReadHoldingRegistersAsync<Int16>(SunspecConsts.I_AC_Power_SF);
+                    var dcPower = await _modbusClient.ReadHoldingRegistersAsync<Int16>(SunspecConsts.I_DC_Power);
+                    var dcPowerSF = await _modbusClient.ReadHoldingRegistersAsync<Int16>(SunspecConsts.I_DC_Power_SF);
+                    var gridPower = await _modbusClient.ReadHoldingRegistersAsync<Int16>(SunspecConsts.M1_AC_Power);
+                    var gridPowerSF = await _modbusClient.ReadHoldingRegistersAsync<Int16>(SunspecConsts.M1_AC_Power_SF);
+                    var batteryPower = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.Battery_1_Instantaneous_Power);
+                    var soe = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.Battery_1_State_of_Energy);
+                    var soh = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.Battery_1_State_of_Health);
+                    var max = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.Battery_1_Max_Energy);
+                    var storageControlMode = await _modbusClient.ReadHoldingRegistersAsync<UInt16>(SunspecConsts.Storage_Control_Mode);
+                    var remoteControlMode = await _modbusClient.ReadHoldingRegistersAsync<UInt16>(SunspecConsts.Remote_Control_Command_Mode);
+                    var remoteControlDefaultMode = await _modbusClient.ReadHoldingRegistersAsync<UInt16>(SunspecConsts.Storage_Charge_Discharge_Default_Mode);
+                    var remoteControlCommandTimeout = await _modbusClient.ReadHoldingRegistersAsync<UInt16>(SunspecConsts.Remote_Control_Command_Timeout);
+                    var remoteControlChargeLimit = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.Remote_Control_Charge_Limit);
+                    var exportControlMode = await _modbusClient.ReadHoldingRegistersAsync<UInt16>(SunspecConsts.ExportControlMode);
+                    var exportLimitation = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.ExportControlSiteLimit);
 
                     var currentBatteryPower = Convert.ToDecimal(batteryPower.Value);
                     var currentSolarPower = Convert.ToDecimal(dcPower.Value * Math.Pow(10, dcPowerSF.Value)) + currentBatteryPower;
@@ -147,14 +147,14 @@ public class ModbusHelper : IModbusHelper
 
                     await Connect();
 
-                    var acPower = await _modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power);
-                    var acPowerSF = await _modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_AC_Power_SF);
-                    var dcPower = await _modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_DC_Power);
-                    var dcPowerSF = await _modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.I_DC_Power_SF);
-                    var gridPower = await _modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power);
-                    var gridPowerSF = await _modbusClient.ReadHoldingRegisters<Int16>(SunspecConsts.M1_AC_Power_SF);
-                    var batteryPower = await _modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_Instantaneous_Power);
-                    var soe = await _modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Energy);
+                    var acPower = await _modbusClient.ReadHoldingRegistersAsync<Int16>(SunspecConsts.I_AC_Power);
+                    var acPowerSF = await _modbusClient.ReadHoldingRegistersAsync<Int16>(SunspecConsts.I_AC_Power_SF);
+                    var dcPower = await _modbusClient.ReadHoldingRegistersAsync<Int16>(SunspecConsts.I_DC_Power);
+                    var dcPowerSF = await _modbusClient.ReadHoldingRegistersAsync<Int16>(SunspecConsts.I_DC_Power_SF);
+                    var gridPower = await _modbusClient.ReadHoldingRegistersAsync<Int16>(SunspecConsts.M1_AC_Power);
+                    var gridPowerSF = await _modbusClient.ReadHoldingRegistersAsync<Int16>(SunspecConsts.M1_AC_Power_SF);
+                    var batteryPower = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.Battery_1_Instantaneous_Power);
+                    var soe = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.Battery_1_State_of_Energy);
 
                     var currentBatteryPower = Convert.ToDecimal(batteryPower.Value);
                     var currentSolarPower = Convert.ToDecimal(dcPower.Value * Math.Pow(10, dcPowerSF.Value)) + currentBatteryPower;
@@ -199,9 +199,9 @@ public class ModbusHelper : IModbusHelper
 
                     await Connect();
 
-                    var soe = await _modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Energy);
-                    var soh = await _modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_State_of_Health);
-                    var max = await _modbusClient.ReadHoldingRegisters<Float32>(SunspecConsts.Battery_1_Max_Energy);
+                    var soe = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.Battery_1_State_of_Energy);
+                    var soh = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.Battery_1_State_of_Health);
+                    var max = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.Battery_1_Max_Energy);
 
                     var stopTimeStamp = Stopwatch.GetTimestamp();
                     _logger.LogInformation("Modbus battery level data retrieved in {ElapsedTime}ms", (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
@@ -235,11 +235,11 @@ public class ModbusHelper : IModbusHelper
             {
                 await Connect();
 
-                await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)StorageControlMode.RemoteControl);
-                await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Timeout, (uint)duration.TotalSeconds);
-                await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Mode, (ushort)RemoteControlMode.ChargeFromPVPlusACAccordingToTheMaxBatteryPower);
+                await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.Storage_Control_Mode, (ushort)StorageControlMode.RemoteControl);
+                await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.Remote_Control_Command_Timeout, (uint)duration.TotalSeconds);
+                await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.Remote_Control_Command_Mode, (ushort)RemoteControlMode.ChargeFromPVPlusACAccordingToTheMaxBatteryPower);
                 //await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Charge_Discharge_Default_Mode, (ushort)RemoteControlMode.MaximizeSelfConsumption);
-                await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Charge_Limit, (float)power);
+                await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.Remote_Control_Charge_Limit, (float)power);
             });
         }
         finally
@@ -261,11 +261,11 @@ public class ModbusHelper : IModbusHelper
             {
                 await Connect();
 
-                await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Control_Mode, (ushort)StorageControlMode.MaximizeSelfConsumption);
-                await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Timeout, (uint)0);
-                await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Command_Mode, (ushort)RemoteControlMode.MaximizeSelfConsumption);
+                await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.Storage_Control_Mode, (ushort)StorageControlMode.MaximizeSelfConsumption);
+                await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.Remote_Control_Command_Timeout, (uint)0);
+                await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.Remote_Control_Command_Mode, (ushort)RemoteControlMode.MaximizeSelfConsumption);
                 //await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Charge_Discharge_Default_Mode, (ushort)RemoteControlMode.MaximizeSelfConsumption);
-                await _modbusClient.WriteSingleRegister(SunspecConsts.Remote_Control_Charge_Limit, (float)5000);
+                await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.Remote_Control_Charge_Limit, (float)5000);
             });
         }
         finally
@@ -289,7 +289,7 @@ public class ModbusHelper : IModbusHelper
 
                 await Connect();
 
-                var exportControlMode = await _modbusClient.ReadHoldingRegisters<UInt16>(SunspecConsts.ExportControlMode);
+                var exportControlMode = await _modbusClient.ReadHoldingRegistersAsync<UInt16>(SunspecConsts.ExportControlMode);
 
                 var stopTimeStamp = Stopwatch.GetTimestamp();
 
@@ -319,8 +319,8 @@ public class ModbusHelper : IModbusHelper
 
                 await Connect();
 
-                await _modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)ExportControlMode.DirectExportLimitation);
-                await _modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, powerLimit);
+                await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.ExportControlMode, (ushort)ExportControlMode.DirectExportLimitation);
+                await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.ExportControlSiteLimit, powerLimit);
 
                 var stopTimeStamp = Stopwatch.GetTimestamp();
 
@@ -348,8 +348,8 @@ public class ModbusHelper : IModbusHelper
 
                 await Connect();
 
-                await _modbusClient.WriteSingleRegister(SunspecConsts.ExportControlMode, (ushort)ExportControlMode.Disabled);
-                await _modbusClient.WriteSingleRegister(SunspecConsts.ExportControlSiteLimit, 0f);
+                await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.ExportControlMode, (ushort)ExportControlMode.Disabled);
+                await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.ExportControlSiteLimit, 0f);
 
                 var stopTimeStamp = Stopwatch.GetTimestamp();
 
