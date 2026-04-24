@@ -424,14 +424,10 @@ public class ModbusHelper : IModbusHelper
 
     private async Task<T> GetCachedValue<T>(string key, Func<Task<T>> valueFactory, int absoluteExpirationInSeconds)
     {
-        if (_memoryCache.TryGetValue(key, out T value))
+        return await _memoryCache.GetOrCreateAsync(key, async entry =>
         {
-            return value;
-        }
-
-        value = await valueFactory();
-        _memoryCache.Set(key, value, TimeSpan.FromSeconds(absoluteExpirationInSeconds));
-
-        return value;
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(absoluteExpirationInSeconds);
+            return await valueFactory();
+        });
     }
 }
