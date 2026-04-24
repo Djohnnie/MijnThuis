@@ -94,13 +94,15 @@ public class ModbusHelper : IModbusHelper
                     var exportControlMode = await _modbusClient.ReadHoldingRegistersAsync<UInt16>(SunspecConsts.ExportControlMode);
                     var exportLimitation = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.ExportControlSiteLimit);
 
-                    var currentBatteryPower = Convert.ToDecimal(batteryPower.Value);
-                    var currentSolarPower = Convert.ToDecimal(dcPower.Value * Math.Pow(10, dcPowerSF.Value)) + currentBatteryPower;
-                    var currentGridPower = Convert.ToDecimal(gridPower.Value * Math.Pow(10, gridPowerSF.Value));
-                    var currentConsumptionPower = Convert.ToDecimal(acPower.Value * Math.Pow(10, acPowerSF.Value)) - currentGridPower;
+                    var currentBatteryPower = Convert.ToDecimal(batteryPower?.Value ?? 0f);
+                    var currentSolarPower = Convert.ToDecimal((dcPower?.Value ?? 0) * Math.Pow(10, dcPowerSF?.Value ?? 0)) + currentBatteryPower;
+                    var currentGridPower = Convert.ToDecimal((gridPower?.Value ?? 0) * Math.Pow(10, gridPowerSF?.Value ?? 0));
+                    var currentConsumptionPower = Convert.ToDecimal((acPower?.Value ?? 0) * Math.Pow(10, acPowerSF?.Value ?? 0)) - currentGridPower;
 
                     var stopTimeStamp = Stopwatch.GetTimestamp();
                     _logger.LogInformation("Modbus bulk data retrieved in {ElapsedTime}ms", (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
+
+                    var exportControlModeValue = exportControlMode?.Value ?? 0;
 
                     return new ModbusDataSet
                     {
@@ -108,17 +110,17 @@ public class ModbusHelper : IModbusHelper
                         CurrentBatteryPower = currentBatteryPower,
                         CurrentGridPower = currentGridPower,
                         CurrentSolarPower = Math.Max(0, currentSolarPower),
-                        BatteryLevel = (decimal)soe.Value,
-                        BatteryHealth = (decimal)soh.Value,
-                        BatteryMaxEnergy = Convert.ToInt32(max.Value),
-                        StorageControlMode = (StorageControlMode)storageControlMode.Value,
-                        RemoteControlMode = (RemoteControlMode)remoteControlMode.Value,
-                        RemoteControlDefaultMode = (RemoteControlMode)remoteControlDefaultMode.Value,
-                        RemoteControlCommandTimeout = remoteControlCommandTimeout.Value,
-                        RemoteControlChargeLimit = Convert.ToDecimal(remoteControlChargeLimit.Value),
-                        ExportControlMode = (ExportControlMode)exportControlMode.Value,
-                        HasExportLimitation = exportControlMode.Value > 0,
-                        ExportPowerLimitation = exportControlMode.Value > 0 ? Convert.ToDecimal(exportLimitation.Value) : 0M,
+                        BatteryLevel = (decimal)(soe?.Value ?? 0f),
+                        BatteryHealth = (decimal)(soh?.Value ?? 0f),
+                        BatteryMaxEnergy = Convert.ToInt32(max?.Value ?? 0f),
+                        StorageControlMode = (StorageControlMode)(storageControlMode?.Value ?? 0),
+                        RemoteControlMode = (RemoteControlMode)(remoteControlMode?.Value ?? 0),
+                        RemoteControlDefaultMode = (RemoteControlMode)(remoteControlDefaultMode?.Value ?? 0),
+                        RemoteControlCommandTimeout = remoteControlCommandTimeout?.Value ?? 0,
+                        RemoteControlChargeLimit = Convert.ToDecimal(remoteControlChargeLimit?.Value ?? 0f),
+                        ExportControlMode = (ExportControlMode)exportControlModeValue,
+                        HasExportLimitation = exportControlModeValue > 0,
+                        ExportPowerLimitation = exportControlModeValue > 0 ? Convert.ToDecimal(exportLimitation?.Value ?? 0f) : 0M,
                     };
 
                 }, maxRetries: 3, delayMilliseconds: 500);
@@ -156,10 +158,10 @@ public class ModbusHelper : IModbusHelper
                     var batteryPower = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.Battery_1_Instantaneous_Power);
                     var soe = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.Battery_1_State_of_Energy);
 
-                    var currentBatteryPower = Convert.ToDecimal(batteryPower.Value);
-                    var currentSolarPower = Convert.ToDecimal(dcPower.Value * Math.Pow(10, dcPowerSF.Value)) + currentBatteryPower;
-                    var currentGridPower = Convert.ToDecimal(gridPower.Value * Math.Pow(10, gridPowerSF.Value));
-                    var currentConsumptionPower = Convert.ToDecimal(acPower.Value * Math.Pow(10, acPowerSF.Value)) - currentGridPower;
+                    var currentBatteryPower = Convert.ToDecimal(batteryPower?.Value ?? 0f);
+                    var currentSolarPower = Convert.ToDecimal((dcPower?.Value ?? 0) * Math.Pow(10, dcPowerSF?.Value ?? 0)) + currentBatteryPower;
+                    var currentGridPower = Convert.ToDecimal((gridPower?.Value ?? 0) * Math.Pow(10, gridPowerSF?.Value ?? 0));
+                    var currentConsumptionPower = Convert.ToDecimal((acPower?.Value ?? 0) * Math.Pow(10, acPowerSF?.Value ?? 0)) - currentGridPower;
 
                     var stopTimeStamp = Stopwatch.GetTimestamp();
                     _logger.LogInformation("Modbus overview data retrieved in {ElapsedTime}ms", (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
@@ -170,7 +172,7 @@ public class ModbusHelper : IModbusHelper
                         CurrentBatteryPower = currentBatteryPower,
                         CurrentGridPower = currentGridPower,
                         CurrentSolarPower = Math.Max(0, currentSolarPower),
-                        BatteryLevel = (decimal)soe.Value
+                        BatteryLevel = (decimal)(soe?.Value ?? 0f)
                     };
 
                 }, maxRetries: 3, delayMilliseconds: 500);
@@ -208,9 +210,9 @@ public class ModbusHelper : IModbusHelper
 
                     return new ModbusDataSet
                     {
-                        BatteryLevel = (decimal)soe.Value,
-                        BatteryHealth = (decimal)soh.Value,
-                        BatteryMaxEnergy = Convert.ToInt32(max.Value)
+                        BatteryLevel = (decimal)(soe?.Value ?? 0f),
+                        BatteryHealth = (decimal)(soh?.Value ?? 0f),
+                        BatteryMaxEnergy = Convert.ToInt32(max?.Value ?? 0f)
                     };
 
                 }, maxRetries: 3, delayMilliseconds: 500);
@@ -295,7 +297,7 @@ public class ModbusHelper : IModbusHelper
 
                 _logger.LogInformation("Modbus export limitation retrieved in {ElapsedTime}ms", (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
 
-                return exportControlMode.Value == 1;
+                return exportControlMode?.Value == 1;
             });
         }
         finally
