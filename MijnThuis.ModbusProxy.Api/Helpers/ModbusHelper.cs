@@ -38,7 +38,7 @@ public class ModbusHelper : IModbusHelper
 
     private ModbusClient _modbusClient;
 
-    private bool IsConnected => _modbusClient == null ? false : _modbusClient.IsConnected;
+    private bool IsConnected => _modbusClient?.IsConnected ?? false;
 
     public ModbusHelper(
         IConfiguration configuration,
