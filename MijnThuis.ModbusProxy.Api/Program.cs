@@ -48,6 +48,12 @@ app.MapGet("/battery", async (IModbusHelper modbusHelper) =>
 
 app.MapPost("/battery/startCharging", async (IModbusHelper modbusHelper, [FromQuery] int durationInMinutes, [FromQuery] int power) =>
 {
+    if (durationInMinutes is <= 0 or > 480)
+        return Results.BadRequest("durationInMinutes must be between 1 and 480.");
+
+    if (power is <= 0 or > 5000)
+        return Results.BadRequest("power must be between 1 and 5000 W.");
+
     await modbusHelper.StartChargingBattery(TimeSpan.FromMinutes(durationInMinutes), power);
     return Results.Ok();
 });
@@ -66,6 +72,9 @@ app.MapGet("/hasExportLimitation", async (IModbusHelper modbusHelper) =>
 
 app.MapPost("/setExportLimitation", async (IModbusHelper modbusHelper, [FromQuery] float powerLimit) =>
 {
+    if (powerLimit is < 0 or > 10000)
+        return Results.BadRequest("powerLimit must be between 0 and 10000 W.");
+
     await modbusHelper.SetExportLimitation(powerLimit);
     return Results.Ok();
 });
