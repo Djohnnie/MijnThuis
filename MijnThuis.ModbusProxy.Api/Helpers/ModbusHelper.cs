@@ -136,9 +136,6 @@ public class ModbusHelper : IModbusHelper
     {
         return await GetCachedValue("MODBUS_OVERVIEW", async () =>
         {
-            var address = _configuration.GetValue<string>("MODBUS_ADDRESS");
-            var port = _configuration.GetValue<int>("MODBUS_PORT");
-
             try
             {
                 await _semaphoreSlim.WaitAsync();
@@ -188,9 +185,6 @@ public class ModbusHelper : IModbusHelper
     {
         return await GetCachedValue("MODBUS_BATTERY_LEVEL", async () =>
         {
-            var address = _configuration.GetValue<string>("MODBUS_ADDRESS");
-            var port = _configuration.GetValue<int>("MODBUS_PORT");
-
             try
             {
                 await _semaphoreSlim.WaitAsync();
@@ -226,9 +220,6 @@ public class ModbusHelper : IModbusHelper
 
     public async Task StartChargingBattery(TimeSpan duration, int power)
     {
-        var address = _configuration.GetValue<string>("MODBUS_ADDRESS");
-        var port = _configuration.GetValue<int>("MODBUS_PORT");
-
         try
         {
             await _semaphoreSlim.WaitAsync();
@@ -252,9 +243,6 @@ public class ModbusHelper : IModbusHelper
 
     public async Task StopChargingBattery()
     {
-        var address = _configuration.GetValue<string>("MODBUS_ADDRESS");
-        var port = _configuration.GetValue<int>("MODBUS_PORT");
-
         try
         {
             await _semaphoreSlim.WaitAsync();
@@ -278,9 +266,6 @@ public class ModbusHelper : IModbusHelper
 
     public async Task<bool> HasExportLimitation()
     {
-        var address = _configuration.GetValue<string>("MODBUS_ADDRESS");
-        var port = _configuration.GetValue<int>("MODBUS_PORT");
-
         try
         {
             await _semaphoreSlim.WaitAsync();
@@ -308,9 +293,6 @@ public class ModbusHelper : IModbusHelper
 
     public async Task SetExportLimitation(float powerLimit)
     {
-        var address = _configuration.GetValue<string>("MODBUS_ADDRESS");
-        var port = _configuration.GetValue<int>("MODBUS_PORT");
-
         try
         {
             await _semaphoreSlim.WaitAsync();
@@ -337,9 +319,6 @@ public class ModbusHelper : IModbusHelper
 
     public async Task ResetExportLimitation()
     {
-        var address = _configuration.GetValue<string>("MODBUS_ADDRESS");
-        var port = _configuration.GetValue<int>("MODBUS_PORT");
-
         try
         {
             await _semaphoreSlim.WaitAsync();
@@ -366,10 +345,9 @@ public class ModbusHelper : IModbusHelper
 
     private async Task<TResult> RetryOnFailure<TResult>(Func<Task<TResult>> action, int maxRetries = 5, int delayMilliseconds = 500, [CallerMemberName] string caller = "")
     {
-        var error = false;
         var retries = 0;
 
-        do
+        while (true)
         {
             try
             {
@@ -377,7 +355,6 @@ public class ModbusHelper : IModbusHelper
             }
             catch (Exception ex)
             {
-                error = true;
                 retries++;
                 _logger.LogError(ex, "MODBUS FAILURE @ {Caller}: {Message}", caller, ex.Message);
 
@@ -388,25 +365,22 @@ public class ModbusHelper : IModbusHelper
 
                 await Task.Delay(Random.Shared.Next(200, delayMilliseconds));
             }
-        } while (error);
-
-        return default;
+        }
     }
 
     private async Task RetryOnFailure(Func<Task> action, int maxRetries = 3, int delayMilliseconds = 500, [CallerMemberName] string caller = "")
     {
-        var error = false;
         var retries = 0;
 
-        do
+        while (true)
         {
             try
             {
                 await action();
+                return;
             }
             catch (Exception ex)
             {
-                error = true;
                 retries++;
                 _logger.LogError(ex, "MODBUS FAILURE @ {Caller}: {Message}", caller, ex.Message);
 
@@ -417,7 +391,7 @@ public class ModbusHelper : IModbusHelper
 
                 await Task.Delay(Random.Shared.Next(200, delayMilliseconds));
             }
-        } while (error && retries <= maxRetries);
+        }
     }
 
     private async Task<T> GetCachedValue<T>(string key, Func<Task<T>> valueFactory, int absoluteExpirationInSeconds)
