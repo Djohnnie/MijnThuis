@@ -25,16 +25,25 @@ public interface IModbusService
 internal class ModbusService : BaseService, IModbusService
 {
     private readonly string _modbusProxyBaseAddress;
+    private readonly string _clientSecret;
 
     public ModbusService(IConfiguration configuration) : base(configuration)
     {
         _modbusProxyBaseAddress = configuration.GetValue<string>("MODBUS_PROXY_BASE_ADDRESS");
+        _clientSecret = configuration.GetValue<string>("MODBUS_PROXY_CLIENT_SECRET") ?? string.Empty;
+    }
+
+    private HttpClient CreateHttpClient()
+    {
+        var client = new HttpClient();
+        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
+        client.DefaultRequestHeaders.Add("X-Client-Secret", _clientSecret);
+        return client;
     }
 
     public async Task<ModbusDataSet> GetBulkOverview()
     {
-        var client = new HttpClient();
-        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
+        var client = CreateHttpClient();
 
         var data = await client.GetFromJsonAsync<ModbusDataSet>("bulk");
 
@@ -43,8 +52,7 @@ internal class ModbusService : BaseService, IModbusService
 
     public async Task<SolarOverview> GetOverview()
     {
-        var client = new HttpClient();
-        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
+        var client = CreateHttpClient();
 
         var data = await client.GetFromJsonAsync<ModbusDataSet>("overview");
 
@@ -60,8 +68,7 @@ internal class ModbusService : BaseService, IModbusService
 
     public async Task<BatteryLevel> GetBatteryLevel()
     {
-        var client = new HttpClient();
-        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
+        var client = CreateHttpClient();
 
         var data = await client.GetFromJsonAsync<ModbusDataSet>("battery");
 
@@ -75,40 +82,35 @@ internal class ModbusService : BaseService, IModbusService
 
     public async Task StartChargingBattery(TimeSpan duration, int power)
     {
-        var client = new HttpClient();
-        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
+        var client = CreateHttpClient();
 
         await client.PostAsync($"battery/startCharging?durationInMinutes={(int)duration.TotalMinutes}&power={power}", null);
     }
 
     public async Task StopChargingBattery()
     {
-        var client = new HttpClient();
-        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
+        var client = CreateHttpClient();
 
         await client.PostAsync($"battery/stopCharging", null);
     }
 
     public async Task<bool> HasExportLimitation()
     {
-        var client = new HttpClient();
-        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
+        var client = CreateHttpClient();
 
         return await client.GetFromJsonAsync<bool>("hasExportLimitation");
     }
 
     public async Task SetExportLimitation(float powerLimit)
     {
-        var client = new HttpClient();
-        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
+        var client = CreateHttpClient();
 
         await client.PostAsync($"setExportLimitation?powerLimit={powerLimit}", null);
     }
 
     public async Task ResetExportLimitation()
     {
-        var client = new HttpClient();
-        client.BaseAddress = new Uri(_modbusProxyBaseAddress);
+        var client = CreateHttpClient();
 
         await client.PostAsync($"resetExportLimitation", null);
     }

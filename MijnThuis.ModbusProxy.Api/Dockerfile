@@ -16,6 +16,7 @@ ENV LANGUAGE en_US.UTF-8
 ENV TZ=Europe/Brussels
 ENV MODBUS_ADDRESS=
 ENV MODBUS_PORT=
+ENV CLIENT_SECRET=
 
 # Start the app
 ENTRYPOINT ["dotnet", "MijnThuis.ModbusProxy.Api.dll"]

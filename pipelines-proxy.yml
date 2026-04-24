@@ -30,7 +30,7 @@ steps:
   inputs:
     command: 'restore'
     projects: | 
-      **/MijnThuis.Dashboard.Web.csproj
+      **/MijnThuis.ModbusProxy.Api.csproj
 
 - task: DotNetCoreCLI@2
   displayName: Build Solution

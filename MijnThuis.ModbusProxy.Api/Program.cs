@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MijnThuis.ModbusProxy.Api.Helpers;
+using MijnThuis.ModbusProxy.Api.Middleware;
 using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +26,7 @@ builder.Services.AddMemoryCache();
 var app = builder.Build();
 
 app.UseHttpsRedirection();
+app.UseMiddleware<ClientSecretMiddleware>();
 
 app.MapGet("/bulk", async (IModbusHelper modbusHelper) =>
 {
