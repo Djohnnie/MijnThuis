@@ -379,8 +379,7 @@ public class ModbusHelper : IModbusHelper
             {
                 error = true;
                 retries++;
-                _logger.LogError($"MODBUS FAILURE @ {caller}: {ex.Message}");
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "MODBUS FAILURE @ {Caller}: {Message}", caller, ex.Message);
 
                 if (retries >= maxRetries)
                 {
@@ -409,8 +408,7 @@ public class ModbusHelper : IModbusHelper
             {
                 error = true;
                 retries++;
-                _logger.LogError($"MODBUS FAILURE @ {caller}: {ex.Message}");
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "MODBUS FAILURE @ {Caller}: {Message}", caller, ex.Message);
 
                 if (retries >= maxRetries)
                 {
