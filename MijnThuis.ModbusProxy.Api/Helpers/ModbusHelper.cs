@@ -356,6 +356,7 @@ public class ModbusHelper : IModbusHelper
             catch (Exception ex)
             {
                 retries++;
+                _modbusClient = null;
                 _logger.LogError(ex, "MODBUS FAILURE @ {Caller}: {Message}", caller, ex.Message);
 
                 if (retries >= maxRetries)
@@ -382,6 +383,7 @@ public class ModbusHelper : IModbusHelper
             catch (Exception ex)
             {
                 retries++;
+                _modbusClient = null;
                 _logger.LogError(ex, "MODBUS FAILURE @ {Caller}: {Message}", caller, ex.Message);
 
                 if (retries >= maxRetries)
