@@ -47,65 +47,61 @@ internal class DayAheadEnergyPricesWorker : BackgroundService
                 var injectionTariffScript = CSharpScript.Create<decimal>(injectionTariffExpressionFlag.Expression, globalsType: typeof(PriceGlobals));
 
                 var tomorrow = DateTime.Today.AddDays(1);
+
+                // Always delete and re-fetch tomorrow's prices so corrected data from the API is picked up every hour.
+                await energyPricesRepository.DeleteEnergyPricesForDate(tomorrow);
+
                 var previousEntry = await energyPricesRepository.GetLatestEnergyPrices();
 
-                if (previousEntry.Count > 0 && previousEntry.Last().From.Date == DateTime.Today.AddDays(+1))
+                if (previousEntry.Count > 0)
                 {
-                    _logger.LogInformation("'Day Ahead' energy prices are up to date.");
+                    startHistoryFrom = previousEntry.Last().From.Date.AddDays(1);
                 }
-                else
+
+                _logger.LogInformation($"Fetching 'Day Ahead' energy prices from {startHistoryFrom} until {tomorrow}.");
+
+                var dateToProcess = startHistoryFrom;
+
+                while (dateToProcess <= tomorrow)
                 {
+                    _logger.LogInformation($"Processing 'Day Ahead' energy prices for {dateToProcess}...");
 
-                    if (previousEntry.Count > 0)
+                    try
                     {
-                        startHistoryFrom = previousEntry.Last().From.Date.AddDays(1);
-                    }
+                        var energyPrices = await energyPricesService.GetEnergyPricesForDate(dateToProcess);
 
-                    _logger.LogInformation($"'Day Ahead' energy prices are up to date. should update from {startHistoryFrom} until {tomorrow}.");
-
-                    var dateToProcess = startHistoryFrom;
-
-                    while (dateToProcess <= tomorrow)
-                    {
-                        _logger.LogInformation($"Processing 'Day Ahead' energy prices for {dateToProcess}...");
-
-                        try
+                        foreach (var price in energyPrices.Prices)
                         {
-                            var energyPrices = await energyPricesService.GetEnergyPricesForDate(dateToProcess);
+                            var minutesPerPeriod = dateToProcess >= new DateTime(2025, 10, 1) ? 15 : 60;
 
-                            foreach (var price in energyPrices.Prices)
+                            await energyPricesRepository.AddEnergyPrice(new DayAheadEnergyPricesEntry
                             {
-                                var minutesPerPeriod = dateToProcess >= new DateTime(2025, 10, 1) ? 15 : 60;
-
-                                await energyPricesRepository.AddEnergyPrice(new DayAheadEnergyPricesEntry
-                                {
-                                    Id = Guid.NewGuid(),
-                                    From = price.TimeStamp,
-                                    To = price.TimeStamp.AddMinutes(minutesPerPeriod).AddSeconds(-1),
-                                    EuroPerMWh = price.Price,
-                                    ConsumptionTariffFormulaExpression = dateToProcess < new DateTime(2025, 5, 1) ? "" : consumptionTariffExpressionFlag.Expression,
-                                    ConsumptionCentsPerKWh = dateToProcess < new DateTime(2025, 5, 1) ? price.Price / 10M : await RunExpression(consumptionTariffScript, price.Price / 10M),
-                                    InjectionTariffFormulaExpression = dateToProcess < new DateTime(2025, 5, 1) ? "" : injectionTariffExpressionFlag.Expression,
-                                    InjectionCentsPerKWh = dateToProcess < new DateTime(2025, 5, 1) ? price.Price / 10M : await RunExpression(injectionTariffScript, price.Price / 10M)
-                                });
-                            }
+                                Id = Guid.NewGuid(),
+                                From = price.TimeStamp,
+                                To = price.TimeStamp.AddMinutes(minutesPerPeriod).AddSeconds(-1),
+                                EuroPerMWh = price.Price,
+                                ConsumptionTariffFormulaExpression = dateToProcess < new DateTime(2025, 5, 1) ? "" : consumptionTariffExpressionFlag.Expression,
+                                ConsumptionCentsPerKWh = dateToProcess < new DateTime(2025, 5, 1) ? price.Price / 10M : await RunExpression(consumptionTariffScript, price.Price / 10M),
+                                InjectionTariffFormulaExpression = dateToProcess < new DateTime(2025, 5, 1) ? "" : injectionTariffExpressionFlag.Expression,
+                                InjectionCentsPerKWh = dateToProcess < new DateTime(2025, 5, 1) ? price.Price / 10M : await RunExpression(injectionTariffScript, price.Price / 10M)
+                            });
                         }
-                        catch (Exception ex)
+                    }
+                    catch (Exception ex)
+                    {
+                        if (dateToProcess == tomorrow)
                         {
-                            if (dateToProcess == tomorrow)
-                            {
-                                _logger.LogInformation($"No data found yet for 'Day Ahead' energy prices tomorrow {dateToProcess}");
-                            }
-                            else
-                            {
-                                _logger.LogError(ex, $"Error fetching 'Day Ahead' energy prices for {dateToProcess}: {ex.Message}");
-                            }
-
-                            break;
+                            _logger.LogInformation($"No data found yet for 'Day Ahead' energy prices tomorrow {dateToProcess}");
+                        }
+                        else
+                        {
+                            _logger.LogError(ex, $"Error fetching 'Day Ahead' energy prices for {dateToProcess}: {ex.Message}");
                         }
 
-                        dateToProcess = dateToProcess.AddDays(1);
+                        break;
                     }
+
+                    dateToProcess = dateToProcess.AddDays(1);
                 }
             }
             catch (Exception ex)

@@ -13,6 +13,7 @@ public interface IDayAheadEnergyPricesRepository
     Task<List<DayAheadCheapestEnergyPricesEntry>> GetCheapestEnergyPriceForDate(DateTime date, CancellationToken cancellationToken);
     Task<EnergyPriceRange> GetNegativeInjectionPriceRange();
     Task<List<DayAheadEnergyPricesEntry>> GetLatestEnergyPrices();
+    Task DeleteEnergyPricesForDate(DateTime date);
     Task AddEnergyPrice(DayAheadEnergyPricesEntry energyPrice);
     Task AddCheapestEnergyPrice(DayAheadCheapestEnergyPricesEntry cheapestEnergyPrice);
     Task<bool> AnyCheapestEnergyPricesOnDate(DateTime date, CancellationToken cancellationToken);
@@ -140,6 +141,13 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
             .ToListAsync();
 
         return latestPrices;
+    }
+
+    public async Task DeleteEnergyPricesForDate(DateTime date)
+    {
+        await _dbContext.DayAheadEnergyPrices
+            .Where(x => x.From.Date == date.Date)
+            .ExecuteDeleteAsync();
     }
 
     public async Task AddEnergyPrice(DayAheadEnergyPricesEntry energyPrice)
