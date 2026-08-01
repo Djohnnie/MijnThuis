@@ -1,5 +1,6 @@
 ﻿using Duende.IdentityModel;
 using Microsoft.Extensions.Configuration;
+using System.Buffers.Text;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -156,7 +157,7 @@ public class BaseService
         var codeVerifier = CryptoRandom.CreateUniqueId(64);
         var sha256 = SHA256.Create();
         var challengeBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
-        var codeChallenge = Base64Url.Encode(challengeBytes);
+        var codeChallenge = Base64Url.EncodeToString(challengeBytes);
 
         var scope = UrlEncoder.Default.Encode(_authScope);
         var redirect = UrlEncoder.Default.Encode(_authRedirect);

@@ -3,8 +3,10 @@ using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using MijnThuis.Application.DependencyInjection;
 using OpenAI;
+using OpenAI.Chat;
 using System.ClientModel;
 using System.Text;
+using AIChatMessage = Microsoft.Extensions.AI.ChatMessage;
 
 namespace MijnThuis.Dashboard.Web.Copilot;
 
@@ -30,9 +32,9 @@ public class CopilotHelper : ICopilotHelper
 
         var agent = InitializeAgent("MijnThuis", "MijnThuis Agent", instructionBuilder.ToString());
 
-        var agentThread = agent.GetNewThread();
+        var agentSession = await agent.CreateSessionAsync();
 
-        var response = await agent.RunAsync(new ChatMessage(ChatRole.User, prompt), agentThread);
+        var response = await agent.RunAsync(new AIChatMessage(ChatRole.User, prompt), agentSession);
 
         return response.ToString();
     }
@@ -58,7 +60,7 @@ public class CopilotHelper : ICopilotHelper
 
         var client = new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
         var chatClient = client.GetChatClient(deploymentName);
-        var agentClient = chatClient.CreateAIAgent(
+        var agentClient = chatClient.AsAIAgent(
             name: name, description: description, instructions: instructions, tools: tools, services: serviceCollection.BuildServiceProvider());
         return agentClient;
     }
