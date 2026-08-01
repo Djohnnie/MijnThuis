@@ -1,0 +1,564 @@
+@using MediatR
+@using MijnThuis.Dashboard.Web.Components.Dialogs
+@implements IDisposable
+@inject IMediator Mediator
+@inject ILogger<Home> Logger
+
+@page "/home"
+
+<PageTitle>Mijn Thuis</PageTitle>
+
+<!-- Live Energy Hero Panel -->
+<div class="home-hero mb-4">
+    @if (PowerReady || SolarReady)
+    {
+        <div class="d-flex flex-wrap justify-center gap-3">
+            <div class="hero-stat">
+                <MudIcon Icon="@Icons.Material.Filled.WbSunny" Style="color: #ffd200; font-size: 1.5rem;" />
+                <span class="hero-stat-value" style="color: @(CurrentSolarPower > 0 ? "#ffd200" : "rgba(255,255,255,0.45)")">@($"{CurrentSolarPower:F2}") kW</span>
+                <span class="hero-stat-label">Zon</span>
+            </div>
+            <div class="hero-stat">
+                <MudIcon Icon="@BatterySolarBar" Style="@BatterySolarIconStyle" />
+                <span class="hero-stat-value" style="color: @(BatteryLevel > 30 ? "#4caf50" : "#ff9800")">@BatteryLevel%</span>
+                <span class="hero-stat-label" style="color: @(CurrentBatteryPower >= 0 ? "rgba(76,175,80,0.9)" : "rgba(255,152,0,0.9)")">
+                    @(CurrentBatteryPower >= 0 ? "▲" : "▼") @($"{Math.Abs(CurrentBatteryPower):F2}") kW
+                </span>
+            </div>
+            <div class="hero-stat">
+                <MudIcon Icon="@Icons.Material.Filled.ElectricMeter" Style="@GridPowerIconStyle" />
+                <span class="hero-stat-value" style="color: @(CurrentGridPower > 0 ? "#f44336" : "#4caf50")">@($"{Math.Abs(CurrentGridPower):F2}") kW</span>
+                <span class="hero-stat-label">@(CurrentGridPower > 0 ? "Van net" : "Naar net")</span>
+            </div>
+            <div class="hero-stat">
+                <MudIcon Icon="@Icons.Material.Filled.Home" Style="color: #90caf9; font-size: 1.5rem;" />
+                <span class="hero-stat-value" style="color: #90caf9">@($"{CurrentPower:F2}") kW</span>
+                <span class="hero-stat-label">Verbruik</span>
+            </div>
+            @if (PowerPeak > 0)
+            {
+                <div class="hero-stat">
+                    <MudIcon Icon="@Icons.Material.Filled.BarChart" Style="@PowerPeakIconStyle" />
+                    <span class="hero-stat-value" style="color: @(PowerPeak >= 2.5M ? "#f44336" : "#90caf9")">@($"{PowerPeak:F2}") kW</span>
+                    <span class="hero-stat-label">Piek</span>
+                </div>
+            }
+        </div>
+        <div class="hero-subbar">
+            <span class="hero-sub-item">
+                <MudIcon Icon="@Icons.Material.Filled.Today" Style="font-size: 1rem;" />
+                Import: <b>&nbsp;@($"{ImportToday:F1}") kWh</b>&nbsp;/&nbsp;Export: <b>@($"{ExportToday:F1}") kWh</b>
+            </span>
+            <span class="hero-sub-item">
+                <MudIcon Icon="@Icons.Material.Filled.EuroSymbol" Style="font-size: 1rem;" />
+                Vandaag: <b>&nbsp;€@($"{CostToday:F2}")</b>&nbsp;·&nbsp;Prijs: <b>@Math.Round(CurrentConsumptionPrice, 2)¢ @CurrentPricePeriod</b>
+            </span>
+            <span class="hero-sub-item">
+                <MudIcon Icon="@Icons.Material.Filled.SolarPower" Style="font-size: 1rem;" />
+                Opbrengst: <b>&nbsp;@($"{LastDayEnergy:F1}") kWh</b>&nbsp;·&nbsp;Voorspelling: <b>@($"{SolarForecastToday:F1}") kWh</b>
+            </span>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-wrap justify-center gap-3">
+            @for (int i = 0; i < 5; i++)
+            {
+                <div class="hero-stat">
+                    <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="36px" Width="36px" Style="background: rgba(255,255,255,0.1)" />
+                    <MudSkeleton Animation="Animation.Wave" Width="80px" Height="28px" Style="background: rgba(255,255,255,0.1); margin-top: 4px;" />
+                    <MudSkeleton Animation="Animation.Wave" Width="50px" Height="12px" Style="background: rgba(255,255,255,0.07); margin-top: 2px;" />
+                </div>
+            }
+        </div>
+        <div class="hero-subbar">
+            <MudSkeleton Animation="Animation.Wave" Width="300px" Height="16px" Style="background: rgba(255,255,255,0.08)" />
+        </div>
+    }
+</div>
+
+<!-- Main Content Grid -->
+<MudGrid Spacing="3">
+
+    <!-- Car Section -->
+    <MudItem xs="12" sm="6" lg="4">
+        <MudPaper Elevation="3" Class="home-section">
+            <div class="home-section-header" style="background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%); color: white;">
+                <MudIcon Icon="@Icons.Material.Filled.ElectricCar" />
+                <MudText Typo="Typo.subtitle1" Style="font-weight: 600; color: white;">Auto</MudText>
+                <div style="flex: 1;" />
+                @if (CarReady)
+                {
+                    <span class="status-badge @(IsCarLocked ? "status-badge-danger" : "status-badge-active")" style="font-size: 0.72rem;">
+                        <MudIcon Icon="@(IsCarLocked ? Icons.Material.Filled.Lock : Icons.Material.Filled.LockOpen)" Style="font-size: 0.9rem;" />
+                        @(IsCarLocked ? "Op slot" : "Open")
+                    </span>
+                }
+            </div>
+            <div class="home-section-body">
+                @if (CarReady)
+                {
+                    <div class="d-flex align-center gap-2 mb-3">
+                        <MudIcon Icon="@CarBatteryBar" Style="@CarBatteryIconStyle" />
+                        <div style="flex: 1;">
+                            <div class="d-flex justify-space-between mb-1">
+                                <MudText Typo="Typo.body2" Style="font-weight: 600;">@CarBatteryLevel% (@CarBatteryHealth%)</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@CarRemainingRange km</MudText>
+                            </div>
+                            <MudProgressLinear Value="@((double)CarBatteryLevel)" Color="@(CarBatteryLevel < 20 ? Color.Error : CarBatteryLevel < 50 ? Color.Warning : Color.Success)" Class="battery-progress" />
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-3 mb-2">
+                        <span class="hero-sub-item" style="color: inherit;">
+                            <MudIcon Icon="@Icons.Material.Filled.Thermostat" Style="font-size: 1rem;" Color="Color.Primary" />
+                            Binnen:&nbsp;<b>@CarTempInside °C</b>
+                        </span>
+                        <span class="hero-sub-item" style="color: inherit;">
+                            <MudIcon Icon="@Icons.Material.Filled.Air" Style="font-size: 1rem;" Color="Color.Secondary" />
+                            Buiten:&nbsp;<b>@CarTempOutside °C</b>
+                        </span>
+                    </div>
+                    @if (IsCarCharging)
+                    {
+                        <div class="mb-2">
+                            <span class="status-badge status-badge-active">
+                                <MudIcon Icon="@Icons.Material.Filled.BatteryChargingFull" Style="font-size: 0.9rem;" />
+                                Opladen · @CarChargingCurrent
+                            </span>
+                        </div>
+                    }
+                    <div class="d-flex flex-wrap gap-2">
+                        @if (!string.IsNullOrEmpty(CarCharger1))
+                        {
+                            <span class="status-badge @(CarCharger1Available ? "status-badge-active" : "status-badge-inactive")">
+                                <MudIcon Icon="@Icons.Material.Filled.EvStation" Style="font-size: 0.9rem;" />
+                                @CarCharger1
+                            </span>
+                        }
+                        @if (!string.IsNullOrEmpty(CarCharger2))
+                        {
+                            <span class="status-badge @(CarCharger2Available ? "status-badge-active" : "status-badge-inactive")">
+                                <MudIcon Icon="@Icons.Material.Filled.EvStation" Style="font-size: 0.9rem;" />
+                                @CarCharger2
+                            </span>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <MudSkeleton Animation="Animation.Wave" Height="20px" Class="mb-2" />
+                    <MudSkeleton Animation="Animation.Wave" Height="14px" Width="60%" Class="mb-2" />
+                    <MudSkeleton Animation="Animation.Wave" Height="14px" Width="80%" />
+                }
+            </div>
+            <MudDivider />
+            <div class="home-section-actions">
+                @if (CarReady)
+                {
+                    @if (IsCarLocked)
+                    {
+                        @if (CarUnlockPending)
+                        {
+                            <MudButton Disabled="true" Variant="Variant.Filled" Class="home-action-btn" Color="Color.Default" Size="Size.Small">
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                            </MudButton>
+                        }
+                        else
+                        {
+                            <MudButton StartIcon="@Icons.Material.Filled.LockOpen" Variant="Variant.Filled" Class="home-action-btn" Color="Color.Warning" Size="Size.Small" OnClick="UnlockCarAction">Openen</MudButton>
+                        }
+                    }
+                    else
+                    {
+                        @if (CarLockPending)
+                        {
+                            <MudButton Disabled="true" Variant="Variant.Filled" Class="home-action-btn" Color="Color.Default" Size="Size.Small">
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                            </MudButton>
+                        }
+                        else
+                        {
+                            <MudButton StartIcon="@Icons.Material.Filled.Lock" Variant="Variant.Outlined" Class="home-action-btn" Color="Color.Default" Size="Size.Small" OnClick="LockCarAction">Sluiten</MudButton>
+                        }
+                    }
+                    <MudButton StartIcon="@Icons.Material.Filled.HeatPump" Variant="Variant.Outlined" Class="home-action-btn" Size="Size.Small" OnClick="PreheatCarAction">Voorverwarmen</MudButton>
+                    @if (IsCarChargingManuallyAt8)
+                    {
+                        <MudButton StartIcon="@Icons.Material.Filled.PowerOff" Variant="Variant.Filled" Class="home-action-btn" Color="Color.Error" Size="Size.Small" OnClick="StopCarChargingAction">Stop 8A</MudButton>
+                    }
+                    else
+                    {
+                        <MudButton StartIcon="@Icons.Material.Filled.Power" Variant="Variant.Outlined" Class="home-action-btn" Size="Size.Small" OnClick="StartCarChargingAt8Action">8A</MudButton>
+                    }
+                    @if (IsCarChargingManuallyAt16)
+                    {
+                        <MudButton StartIcon="@Icons.Material.Filled.PowerOff" Variant="Variant.Filled" Class="home-action-btn" Color="Color.Error" Size="Size.Small" OnClick="StopCarChargingAction">Stop 16A</MudButton>
+                    }
+                    else
+                    {
+                        <MudButton StartIcon="@Icons.Material.Filled.Power" Variant="Variant.Outlined" Class="home-action-btn" Size="Size.Small" OnClick="StartCarChargingAt16Action">16A</MudButton>
+                    }
+                    <MudButton Variant="Variant.Text" Class="home-action-btn" Size="Size.Small" OnClick="CarFartAction">💨</MudButton>
+                }
+            </div>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Heating Section -->
+    <MudItem xs="12" sm="6" lg="4">
+        <MudPaper Elevation="3" Class="home-section">
+            <div class="home-section-header" style="background: linear-gradient(135deg, #ff512f 0%, #f09819 100%); color: white;">
+                <MudIcon Icon="@Icons.Material.Filled.Thermostat" />
+                <MudText Typo="Typo.subtitle1" Style="font-weight: 600; color: white;">Verwarming</MudText>
+                <div style="flex: 1;" />
+                @if (HeatingReady)
+                {
+                    <span class="status-badge @(HeatingStatus == "Verwarmen" ? "status-badge-warning" : "status-badge-inactive")" style="font-size: 0.72rem;">
+                        <MudIcon Icon="@Icons.Material.Filled.Whatshot" Style="font-size: 0.9rem;" />
+                        @HeatingStatus
+                    </span>
+                }
+            </div>
+            <div class="home-section-body">
+                @if (HeatingReady)
+                {
+                    <div class="d-flex align-end gap-3 mb-3">
+                        <MudText Class="temp-hero" Style="@RoomTempStyle">
+                            @($"{RoomTemperature:F1}")°
+                        </MudText>
+                        <div class="pb-1">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Instelling</MudText>
+                            <MudText Typo="Typo.subtitle1" Style="font-weight: 600;">@($"{HeatingSetpoint:F0}")°C</MudText>
+                        </div>
+                        <div class="pb-1 ml-auto">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Buiten</MudText>
+                            <MudText Typo="Typo.subtitle1" Style="font-weight: 600;">@($"{OutdoorTemperature:F1}")°C</MudText>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-4 mb-2">
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Gas vandaag</MudText>
+                            <MudText Typo="Typo.body2" Style="font-weight: 600;">@GasUsageToday</MudText>
+                        </div>
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Gas deze maand</MudText>
+                            <MudText Typo="Typo.body2" Style="font-weight: 600;">@GasUsageThisMonth</MudText>
+                        </div>
+                    </div>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Volgende: @HeatingNextSetpoint°C om @HeatingNextSwitchTime</MudText>
+                }
+                else
+                {
+                    <MudSkeleton Animation="Animation.Wave" Height="56px" Class="mb-2" />
+                    <MudSkeleton Animation="Animation.Wave" Height="14px" Width="70%" />
+                }
+            </div>
+            <MudDivider />
+            <div class="home-section-actions">
+                @if (HeatingReady)
+                {
+                    @if (ScheduledHeatingPending)
+                    {
+                        <MudButton Disabled="true" Variant="Variant.Filled" Class="home-action-btn" Size="Size.Small"><MudProgressCircular Size="Size.Small" Indeterminate="true" /></MudButton>
+                    }
+                    else
+                    {
+                        <MudButton StartIcon="@Icons.Material.Filled.Schedule" Variant="@(HeatingStatus == "Schema" ? Variant.Filled : Variant.Outlined)" Class="home-action-btn" Color="@(HeatingStatus == "Schema" ? Color.Tertiary : Color.Default)" Size="Size.Small" OnClick="SetScheduledHeatingAction">Schema</MudButton>
+                    }
+                    @if (TemporaryOverrideHeatingPending)
+                    {
+                        <MudButton Disabled="true" Variant="Variant.Filled" Class="home-action-btn" Size="Size.Small"><MudProgressCircular Size="Size.Small" Indeterminate="true" /></MudButton>
+                    }
+                    else
+                    {
+                        <MudButton StartIcon="@Icons.Material.Filled.Timer" Variant="@(HeatingStatus == "Tijdelijke overname" ? Variant.Filled : Variant.Outlined)" Class="home-action-btn" Color="@(HeatingStatus == "Tijdelijke overname" ? Color.Tertiary : Color.Default)" Size="Size.Small" OnClick="SetTemporaryOverrideHeatingAction">Tijdelijk 23°C</MudButton>
+                    }
+                    @if (Manual23HeatingPending)
+                    {
+                        <MudButton Disabled="true" Variant="Variant.Filled" Class="home-action-btn" Size="Size.Small"><MudProgressCircular Size="Size.Small" Indeterminate="true" /></MudButton>
+                    }
+                    else
+                    {
+                        <MudButton StartIcon="@Icons.Material.Filled.BlurOn" Variant="@(HeatingStatus == "Handmatig" && HeatingSetpoint == 23M ? Variant.Filled : Variant.Outlined)" Class="home-action-btn" Color="@(HeatingStatus == "Handmatig" && HeatingSetpoint == 23M ? Color.Tertiary : Color.Default)" Size="Size.Small" OnClick="SetManual23HeatingAction">23°C</MudButton>
+                    }
+                    @if (Manual16HeatingPending)
+                    {
+                        <MudButton Disabled="true" Variant="Variant.Filled" Class="home-action-btn" Size="Size.Small"><MudProgressCircular Size="Size.Small" Indeterminate="true" /></MudButton>
+                    }
+                    else
+                    {
+                        <MudButton StartIcon="@Icons.Material.Filled.BlurOff" Variant="@(HeatingStatus == "Handmatig" && HeatingSetpoint == 16M ? Variant.Filled : Variant.Outlined)" Class="home-action-btn" Color="@(HeatingStatus == "Handmatig" && HeatingSetpoint == 16M ? Color.Tertiary : Color.Default)" Size="Size.Small" OnClick="SetManual16HeatingAction">16°C</MudButton>
+                    }
+                    @if (AntiFrostHeatingPending)
+                    {
+                        <MudButton Disabled="true" Variant="Variant.Filled" Class="home-action-btn" Size="Size.Small"><MudProgressCircular Size="Size.Small" Indeterminate="true" /></MudButton>
+                    }
+                    else
+                    {
+                        <MudButton StartIcon="@Icons.Material.Filled.PowerSettingsNew" Variant="@(HeatingStatus == "Uit/Vorstbeveiliging" ? Variant.Filled : Variant.Outlined)" Class="home-action-btn" Color="@(HeatingStatus == "Uit/Vorstbeveiliging" ? Color.Error : Color.Default)" Size="Size.Small" OnClick="SetAntiFrostHeatingAction">Uit</MudButton>
+                    }
+                }
+            </div>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Home Section: Smart Lock + Sauna + Switches -->
+    <MudItem xs="12" sm="12" lg="4">
+        <MudPaper Elevation="3" Class="home-section">
+            <div class="home-section-header" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: #1a1a1a;">
+                <MudIcon Icon="@Icons.Material.Filled.Home" />
+                <MudText Typo="Typo.subtitle1" Style="font-weight: 600; color: #1a1a1a;">Thuis</MudText>
+                <div style="flex: 1;" />
+                @if (LockReady)
+                {
+                    <span class="status-badge @(LockState == "Op slot" ? "status-badge-danger" : "status-badge-active")" style="font-size: 0.72rem;">
+                        <MudIcon Icon="@(LockState == "Op slot" ? Icons.Material.Filled.Lock : Icons.Material.Filled.LockOpen)" Style="font-size: 0.9rem;" />
+                        Deur @LockState.ToLower()
+                    </span>
+                }
+            </div>
+            <div class="home-section-body">
+                <MudGrid Spacing="2">
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.overline" Color="Color.Secondary">Voordeur</MudText>
+                        @if (LockReady)
+                        {
+                            <div class="d-flex align-center gap-2 mb-1">
+                                <MudIcon Icon="@Icons.Material.Filled.SensorDoor" Color="@(LockDoorState == "Deur is gesloten" ? Color.Default : Color.Warning)" />
+                                <MudText Typo="Typo.body2">@LockDoorState</MudText>
+                            </div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@LockHistory</MudText>
+                        }
+                        else
+                        {
+                            <MudSkeleton Animation="Animation.Wave" Height="20px" />
+                        }
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudText Typo="Typo.overline" Color="Color.Secondary">Sauna</MudText>
+                        @if (SaunaReady)
+                        {
+                            <div class="d-flex align-center gap-2 mb-1">
+                                <span class="status-badge @(SaunaState == "Uit" ? "status-badge-inactive" : "status-badge-danger")">
+                                    <MudIcon Icon="@Icons.Material.Filled.Gradient" Style="font-size: 0.9rem;" />
+                                    @SaunaState
+                                </span>
+                                @if (SaunaState != "Uit")
+                                {
+                                    <MudText Typo="Typo.body2" Style="font-weight: 600;">@SaunaInsideTemp°C · @($"{SaunaPower:F1}") kW</MudText>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <MudSkeleton Animation="Animation.Wave" Height="20px" />
+                        }
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.overline" Color="Color.Secondary">Schakelaars</MudText>
+                        <div class="switch-row">
+                            @if (SwitchesReady)
+                            {
+                                <span class="status-badge @(IsTvOn ? "status-badge-active" : "status-badge-inactive")" @onclick="ToggleTvAction">
+                                    <MudIcon Icon="@Icons.Material.Filled.Tv" Style="font-size: 0.9rem;" />
+                                    TV
+                                </span>
+                                <span class="status-badge @(IsBureauOn ? "status-badge-active" : "status-badge-inactive")" @onclick="ToggleBureauAction">
+                                    <MudIcon Icon="@Icons.Material.Filled.Desk" Style="font-size: 0.9rem;" />
+                                    Bureau
+                                </span>
+                                <span class="status-badge @(IsVijverOn ? "status-badge-active" : "status-badge-inactive")" @onclick="ToggleVijverAction">
+                                    <MudIcon Icon="@Icons.Material.Filled.Water" Style="font-size: 0.9rem;" />
+                                    Vijver
+                                </span>
+                                <span class="status-badge @(IsTheFrameOn ? "status-badge-active" : "status-badge-inactive")" @onclick="ToggleTheFrameAction">
+                                    <MudIcon Icon="@Icons.Material.Filled.PhotoCameraBack" Style="font-size: 0.9rem;" />
+                                    Fotokader
+                                </span>
+                            }
+                            else
+                            {
+                                @for (int i = 0; i < 4; i++)
+                                {
+                                    <MudSkeleton Animation="Animation.Wave" Height="28px" Width="78px" Style="border-radius: 20px;" />
+                                }
+                            }
+                        </div>
+                    </MudItem>
+                </MudGrid>
+            </div>
+            <MudDivider />
+            <div class="home-section-actions">
+                @if (LockReady)
+                {
+                    @if (LockUnlockPending)
+                    {
+                        <MudButton Disabled="true" Variant="Variant.Filled" Class="home-action-btn" Size="Size.Small"><MudProgressCircular Size="Size.Small" Indeterminate="true" /></MudButton>
+                    }
+                    else
+                    {
+                        <MudButton StartIcon="@Icons.Material.Filled.LockOpen" Variant="Variant.Outlined" Class="home-action-btn" Size="Size.Small" OnClick="UnlockDoorAction">Deur openen</MudButton>
+                    }
+                }
+                @if (SaunaReady)
+                {
+                    @if (StartSaunaPending)
+                    {
+                        <MudButton Disabled="true" Variant="Variant.Filled" Class="home-action-btn" Size="Size.Small"><MudProgressCircular Size="Size.Small" Indeterminate="true" /></MudButton>
+                    }
+                    else
+                    {
+                        <MudButton StartIcon="@Icons.Material.Filled.Gradient" Variant="@(SaunaState == "Sauna" ? Variant.Filled : Variant.Outlined)" Class="home-action-btn" Color="@(SaunaState == "Sauna" ? Color.Error : Color.Default)" Size="Size.Small" OnClick="StartSaunaAction">Sauna</MudButton>
+                    }
+                    @if (StartInfraredPending)
+                    {
+                        <MudButton Disabled="true" Variant="Variant.Filled" Class="home-action-btn" Size="Size.Small"><MudProgressCircular Size="Size.Small" Indeterminate="true" /></MudButton>
+                    }
+                    else
+                    {
+                        <MudButton StartIcon="@Icons.Material.Filled.Waves" Variant="@(SaunaState == "Infrarood" ? Variant.Filled : Variant.Outlined)" Class="home-action-btn" Color="@(SaunaState == "Infrarood" ? Color.Error : Color.Default)" Size="Size.Small" OnClick="StartInfraredAction">Infrarood</MudButton>
+                    }
+                    @if (SaunaState != "Uit")
+                    {
+                        @if (StopSaunaPending)
+                        {
+                            <MudButton Disabled="true" Variant="Variant.Filled" Class="home-action-btn" Size="Size.Small"><MudProgressCircular Size="Size.Small" Indeterminate="true" /></MudButton>
+                        }
+                        else
+                        {
+                            <MudButton StartIcon="@Icons.Material.Filled.PowerSettingsNew" Variant="Variant.Filled" Class="home-action-btn" Color="Color.Error" Size="Size.Small" OnClick="StopSaunaAction">Stoppen</MudButton>
+                        }
+                    }
+                }
+                @if (PowerReady)
+                {
+                    <MudButton StartIcon="@Icons.Material.Filled.Computer" Variant="Variant.Text" Class="home-action-btn" Size="Size.Small" OnClick="WakeOnLanAction">PC wakker</MudButton>
+                }
+            </div>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Solar & Battery Section -->
+    <MudItem xs="12" sm="6">
+        <MudPaper Elevation="3" Class="home-section">
+            <div class="home-section-header" style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%); color: #222;">
+                <MudIcon Icon="@Icons.Material.Filled.WbSunny" />
+                <MudText Typo="Typo.subtitle1" Style="font-weight: 600; color: #222;">Zonnepanelen &amp; Batterij</MudText>
+                <div style="flex: 1;" />
+                @if (SolarReady)
+                {
+                    <span class="status-badge" style="background: rgba(0,0,0,0.1); color: #333; border-color: rgba(0,0,0,0.18); font-size: 0.72rem;">
+                        Morgen: @($"{SolarForecastTomorrow:F1}") kWh
+                    </span>
+                }
+            </div>
+            <div class="home-section-body">
+                @if (SolarReady)
+                {
+                    <div class="d-flex align-center gap-2 mb-3">
+                        <MudIcon Icon="@BatterySolarBar" Style="@BatterySolarLargeIconStyle" />
+                        <div style="flex: 1;">
+                            <div class="d-flex justify-space-between mb-1">
+                                <MudText Typo="Typo.body2" Style="font-weight: 600;">Batterij @BatteryLevel% (@BatteryHealth%)</MudText>
+                                <MudText Typo="Typo.body2" Color="@(CurrentBatteryPower >= 0 ? Color.Success : Color.Warning)">
+                                    @(CurrentBatteryPower >= 0 ? "▲" : "▼") @($"{Math.Abs(CurrentBatteryPower):F2}") kW
+                                </MudText>
+                            </div>
+                            <MudProgressLinear Value="@((double)BatteryLevel)" Color="@(BatteryLevel < 20 ? Color.Error : BatteryLevel < 40 ? Color.Warning : Color.Success)" Class="battery-progress" />
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-4">
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Vandaag</MudText>
+                            <MudText Typo="Typo.body1" Style="font-weight: 600;">@($"{LastDayEnergy:F1}") kWh</MudText>
+                        </div>
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Deze maand</MudText>
+                            <MudText Typo="Typo.body1" Style="font-weight: 600;">@($"{LastMonthEnergy:F1}") kWh</MudText>
+                        </div>
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Voorspelling vandaag</MudText>
+                            <MudText Typo="Typo.body1" Style="font-weight: 600;">@($"{SolarForecastToday:F1}") kWh</MudText>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <MudSkeleton Animation="Animation.Wave" Height="20px" Class="mb-2" />
+                    <MudSkeleton Animation="Animation.Wave" Height="20px" Width="70%" />
+                }
+            </div>
+            <MudDivider />
+            <div class="home-section-actions">
+                <MudButton StartIcon="@Icons.Material.Filled.Battery1Bar" Variant="Variant.Outlined" Class="home-action-btn" Size="Size.Small" Disabled="@(!SolarReady)" OnClick="ChargeBatteryFor1HourAction">1u laden</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Battery2Bar" Variant="Variant.Outlined" Class="home-action-btn" Size="Size.Small" Disabled="@(!SolarReady)" OnClick="ChargeBatteryFor2HoursAction">2u laden</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Battery3Bar" Variant="Variant.Outlined" Class="home-action-btn" Size="Size.Small" Disabled="@(!SolarReady)" OnClick="ChargeBatteryFor3HoursAction">3u laden</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Battery4Bar" Variant="Variant.Outlined" Class="home-action-btn" Size="Size.Small" Disabled="@(!SolarReady)" OnClick="ChargeBatteryFor4HoursAction">4u laden</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.BatteryAlert" Variant="Variant.Outlined" Class="home-action-btn" Color="Color.Warning" Size="Size.Small" Disabled="@(!SolarReady)" OnClick="StopBatteryChargingAction">Stop laden</MudButton>
+            </div>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Energy Stats Section -->
+    <MudItem xs="12" sm="6">
+        <MudPaper Elevation="3" Class="home-section">
+            <div class="home-section-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <MudIcon Icon="@Icons.Material.Filled.ElectricalServices" />
+                <MudText Typo="Typo.subtitle1" Style="font-weight: 600; color: white;">Energiebeheer</MudText>
+            </div>
+            <div class="home-section-body">
+                @if (PowerReady)
+                {
+                    <div class="d-flex flex-wrap gap-4 mb-3">
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Import vandaag</MudText>
+                            <MudText Typo="Typo.body1" Style="font-weight: 600;">@($"{ImportToday:F1}") kWh</MudText>
+                        </div>
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Export vandaag</MudText>
+                            <MudText Typo="Typo.body1" Style="font-weight: 600;">@($"{ExportToday:F1}") kWh</MudText>
+                        </div>
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Kost vandaag</MudText>
+                            <MudText Typo="Typo.body1" Style="font-weight: 600;">€@($"{CostToday:F2}")</MudText>
+                        </div>
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Kost deze maand</MudText>
+                            <MudText Typo="Typo.body1" Style="font-weight: 600;">€@($"{CostThisMonth:F2}")</MudText>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-4">
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Zelf-consumptie</MudText>
+                            <MudText Typo="Typo.body2" Style="font-weight: 600;">@SelfConsumption</MudText>
+                        </div>
+                        <div>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Zelf-sufficiëntie</MudText>
+                            <MudText Typo="Typo.body2" Style="font-weight: 600;">@SelfSufficiency</MudText>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <MudSkeleton Animation="Animation.Wave" Height="20px" Class="mb-2" />
+                    <MudSkeleton Animation="Animation.Wave" Height="20px" Width="70%" />
+                }
+            </div>
+            <MudDivider />
+            <div class="home-section-actions">
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="align-self-center">Tarieven:</MudText>
+                @if (PowerReady)
+                {
+                    <span class="status-badge @(CurrentConsumptionPrice < 0 ? "status-badge-active" : CurrentConsumptionPrice > 15 ? "status-badge-danger" : "status-badge-warning")">
+                        ↓ @Math.Round(CurrentConsumptionPrice, 2)¢
+                    </span>
+                    <span class="status-badge @(CurrentInjectionPrice > 0 ? "status-badge-active" : "status-badge-inactive")">
+                        ↑ @Math.Round(CurrentInjectionPrice, 2)¢
+                    </span>
+                    <span class="status-badge status-badge-inactive">@CurrentPricePeriod</span>
+                }
+            </div>
+        </MudPaper>
+    </MudItem>
+
+</MudGrid>

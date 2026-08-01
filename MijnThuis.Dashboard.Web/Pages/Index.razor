@@ -80,6 +80,19 @@
     @if (ExtraPageArguments.IsTesla)
     {
         <MudItem xs="12">
+            <AirconditioningTile />
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="12" sm="6" md="6" lg="4" xl="3">
+            <AirconditioningTile />
+        </MudItem>
+    }
+
+    @if (ExtraPageArguments.IsTesla)
+    {
+        <MudItem xs="12">
             <SaunaTile />
         </MudItem>
     }

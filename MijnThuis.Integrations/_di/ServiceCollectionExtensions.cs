@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using MijnThuis.Integrations.Airconditioning;
 using MijnThuis.Integrations.Car;
 using MijnThuis.Integrations.Forecast;
 using MijnThuis.Integrations.Heating;
@@ -29,6 +30,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<ISmartLockService, SmartLockService>();
         services.AddTransient<IEnergyPricesService, EnergyPricesService>();
         services.AddTransient<ISamsungService, SamsungService>();
+        services.AddTransient<IAirconditioningService, AirconditioningService>();
 
         return services;
     }

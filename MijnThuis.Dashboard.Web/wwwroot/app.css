@@ -104,6 +104,10 @@
     background: linear-gradient(135deg, #ff512f 0%, #f09819 100%);
 }
 
+.tile-header-airconditioning {
+    background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+}
+
 .tile-header-sauna {
     background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
 }

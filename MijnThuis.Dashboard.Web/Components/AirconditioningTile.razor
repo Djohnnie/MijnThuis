@@ -1,0 +1,176 @@
+@using MediatR;
+@implements IDisposable
+@inject IMediator Mediator;
+@inject ILogger<AirconditioningTile> Logger;
+
+<MudCard Elevation="3" Class="modern-tile">
+    <div class="tile-header tile-header-airconditioning">
+        <MudIcon Icon="@Icons.Material.Filled.Hvac" />
+        <div class="flex-grow-1">
+            <MudText Typo="Typo.subtitle1" Class="tile-header-title">Airco</MudText>
+            <MudText Typo="Typo.caption" Class="tile-header-subtitle">De huidige status van de airco</MudText>
+        </div>
+    </div>
+    <MudCardContent Class="pt-2 pb-1">
+        <MudGrid Spacing="1">
+            <MudItem xs="6">
+                @if (IsReady)
+                {
+                    <div class="data-cell">
+                        <MudTooltip Text="Kamertemperatuur" Arrow="true" Placement="Placement.Right">
+                            <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Medium" Color="Color.Primary" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F1}", RoomTemperature) °C</MudText>
+                    </div>
+                }
+                else
+                {
+                    <div class="data-cell-skeleton">
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="28px" Width="28px" />
+                        <MudSkeleton Animation="Animation.Wave" Width="70%" />
+                    </div>
+                }
+            </MudItem>
+            <MudItem xs="6">
+                @if (IsReady)
+                {
+                    <div class="data-cell">
+                        <MudTooltip Text="Doeltemperatuur" Arrow="true" Placement="Placement.Left">
+                            <MudIcon Icon="@Icons.Material.Filled.DeviceThermostat" Size="Size.Medium" Color="Color.Primary" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@String.Format("{0:F0}", TargetTemperature) °C</MudText>
+                    </div>
+                }
+                else
+                {
+                    <div class="data-cell-skeleton">
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="28px" Width="28px" />
+                        <MudSkeleton Animation="Animation.Wave" Width="70%" />
+                    </div>
+                }
+            </MudItem>
+            <MudItem xs="6">
+                @if (IsReady)
+                {
+                    <div class="data-cell">
+                        <MudTooltip Text="Modus" Arrow="true" Placement="Placement.Right">
+                            <MudIcon Icon="@Icons.Material.Filled.Mode" Size="Size.Medium" Color="@(IsOn ? Color.Secondary : Color.Default)" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@Mode</MudText>
+                    </div>
+                }
+                else
+                {
+                    <div class="data-cell-skeleton">
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="28px" Width="28px" />
+                        <MudSkeleton Animation="Animation.Wave" Width="70%" />
+                    </div>
+                }
+            </MudItem>
+            <MudItem xs="6">
+                @if (IsReady)
+                {
+                    <div class="data-cell">
+                        <MudTooltip Text="Ventilatorsnelheid" Arrow="true" Placement="Placement.Left">
+                            <MudIcon Icon="@Icons.Material.Filled.Speed" Size="Size.Medium" Color="Color.Primary" />
+                        </MudTooltip>
+                        <MudText Typo="Typo.subtitle1">@FanSpeed</MudText>
+                    </div>
+                }
+                else
+                {
+                    <div class="data-cell-skeleton">
+                        <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Wave" Height="28px" Width="28px" />
+                        <MudSkeleton Animation="Animation.Wave" Width="70%" />
+                    </div>
+                }
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+    <MudDivider Class="mx-3" />
+    <MudCardActions Class="tile-actions">
+        @if (TogglePowerPending)
+        {
+            <MudIconButton Size="Size.Large" Disabled="true">
+                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+            </MudIconButton>
+        }
+        else
+        {
+            <MudTooltip Text="@(IsOn ? "Uitzetten" : "Aanzetten")" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.PowerSettingsNew" Size="Size.Large" Color="@(IsOn ? Color.Secondary : Color.Default)"
+                               OnClick="TogglePowerCommand" />
+            </MudTooltip>
+        }
+
+        @if (SetTargetTemperature16Pending)
+        {
+            <MudIconButton Size="Size.Large" Disabled="true">
+                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+            </MudIconButton>
+        }
+        else
+        {
+            <MudTooltip Text="Doeltemperatuur op 16 °C zetten" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.AcUnit" Size="Size.Large" Color="@(TargetTemperature == 16M ? Color.Tertiary : Color.Default)"
+                               OnClick="SetTargetTemperature16Command" />
+            </MudTooltip>
+        }
+
+        @if (SetTargetTemperature22Pending)
+        {
+            <MudIconButton Size="Size.Large" Disabled="true">
+                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+            </MudIconButton>
+        }
+        else
+        {
+            <MudTooltip Text="Doeltemperatuur op 22 °C zetten" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.ThermostatAuto" Size="Size.Large" Color="@(TargetTemperature == 22M ? Color.Tertiary : Color.Default)"
+                               OnClick="SetTargetTemperature22Command" />
+            </MudTooltip>
+        }
+
+        @if (SetTargetTemperature25Pending)
+        {
+            <MudIconButton Size="Size.Large" Disabled="true">
+                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+            </MudIconButton>
+        }
+        else
+        {
+            <MudTooltip Text="Doeltemperatuur op 25 °C zetten" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.Whatshot" Size="Size.Large" Color="@(TargetTemperature == 25M ? Color.Tertiary : Color.Default)"
+                               OnClick="SetTargetTemperature25Command" />
+            </MudTooltip>
+        }
+
+        @if (DecreaseTargetTemperaturePending)
+        {
+            <MudIconButton Size="Size.Large" Disabled="true">
+                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+            </MudIconButton>
+        }
+        else
+        {
+            <MudTooltip Text="Doeltemperatuur verlagen" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.Remove" Size="Size.Large" Color="Color.Default"
+                               OnClick="DecreaseTargetTemperatureCommand" />
+            </MudTooltip>
+        }
+
+        @if (IncreaseTargetTemperaturePending)
+        {
+            <MudIconButton Size="Size.Large" Disabled="true">
+                <MudProgressCircular Color="Color.Default" Size="Size.Small" Indeterminate="true" />
+            </MudIconButton>
+        }
+        else
+        {
+            <MudTooltip Text="Doeltemperatuur verhogen" Arrow="true" Placement="Placement.Bottom">
+                <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Large" Color="Color.Default"
+                               OnClick="IncreaseTargetTemperatureCommand" />
+            </MudTooltip>
+        }
+    </MudCardActions>
+</MudCard>
