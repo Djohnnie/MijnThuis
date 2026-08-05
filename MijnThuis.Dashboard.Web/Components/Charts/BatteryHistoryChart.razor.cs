@@ -17,7 +17,7 @@ public partial class BatteryHistoryChart
     private ApexChartOptions<ChartDataEntry<string, int?>> _options { get; set; } = new();
 
     private ChartData1<string, int?> BatteryLevel { get; set; } = new();
-    private DateTime _selectedDate = DateTime.Today;
+    private DateTime _selectedFrom = DateTime.Now.AddHours(-24);
 
     public BatteryHistoryChart()
     {
@@ -56,8 +56,7 @@ public partial class BatteryHistoryChart
         };
         _options.Xaxis = new XAxis
         {
-            Type = XAxisType.Category,
-            OverwriteCategories = Enumerable.Range(0, 24 * 4).Select(x => new DateTime().AddMinutes(15 * x).Minute == 0 && new DateTime().AddMinutes(15 * x).Hour % 2 == 0 ? $"{new DateTime().AddMinutes(15 * x):HH:mm}" : "").ToList(),
+            Type = XAxisType.Category
         };
         _options.Yaxis = new List<YAxis>
         {
@@ -144,9 +143,11 @@ public partial class BatteryHistoryChart
             using var scope = ServiceProvider.CreateScope();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
+            _selectedFrom = DateTime.Now.AddHours(-24);
             var response = await mediator.Send(new GetBatteryLevelHistoryQuery
             {
-                Date = _selectedDate
+                From = _selectedFrom,
+                To = DateTime.Now
             });
 
             var entries = response.Entries.OrderBy(x => x.Date);
@@ -166,30 +167,6 @@ public partial class BatteryHistoryChart
         {
             Logger.LogError(ex, "Failed to refresh graph data");
         }
-    }
-
-    private async Task NavigateBeforeLargeCommand()
-    {
-        _selectedDate = _selectedDate.AddMonths(-1);
-        await RefreshData();
-    }
-
-    private async Task NavigateBeforeCommand()
-    {
-        _selectedDate = _selectedDate.AddDays(-1);
-        await RefreshData();
-    }
-
-    private async Task NavigateNextCommand()
-    {
-        _selectedDate = _selectedDate.AddDays(1);
-        await RefreshData();
-    }
-
-    private async Task NavigateNextLargeCommand()
-    {
-        _selectedDate = _selectedDate.AddMonths(1);
-        await RefreshData();
     }
 
     public void Dispose()

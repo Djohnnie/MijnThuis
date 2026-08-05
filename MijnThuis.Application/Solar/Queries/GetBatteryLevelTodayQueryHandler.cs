@@ -16,10 +16,11 @@ public class GetBatteryLevelTodayQueryHandler : IRequestHandler<GetBatteryLevelT
 
     public async Task<GetBatteryLevelTodayResponse> Handle(GetBatteryLevelTodayQuery request, CancellationToken cancellationToken)
     {
-        var today = DateTime.Today;
+        var to = DateTime.Now;
+        var from = to.AddHours(-24);
 
         var entries = await _dbContext.BatteryEnergyHistory
-            .Where(x => x.Date.Date == today)
+            .Where(x => x.Date >= from && x.Date <= to)
             .OrderBy(x => x.Date)
             .ToListAsync();
 
@@ -28,9 +29,10 @@ public class GetBatteryLevelTodayQueryHandler : IRequestHandler<GetBatteryLevelT
             Entries = new List<BatteryLevelEntry>()
         };
 
-        for (int i = 0; i < 24 * 4; i++)
+        var totalSlots = (int)Math.Ceiling((to - from).TotalMinutes / 15d);
+        for (int i = 0; i <= totalSlots; i++)
         {
-            var timeStamp = today.AddMinutes(15 * i);
+            var timeStamp = from.AddMinutes(15 * i);
 
             var entry = entries.Where(x => x.Date.AddMinutes(-15) < timeStamp && x.Date.AddMinutes(15) > timeStamp);
 
@@ -48,8 +50,6 @@ public class GetBatteryLevelTodayQueryHandler : IRequestHandler<GetBatteryLevelT
                 result.Entries.Add(new BatteryLevelEntry { Date = timeStamp, LevelOfCharge = null, StateOfHealth = null });
             }
         }
-
-        result.Entries.Add(new BatteryLevelEntry { Date = today.AddDays(1), LevelOfCharge = null, StateOfHealth = null });
 
         return result;
     }

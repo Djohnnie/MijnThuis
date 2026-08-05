@@ -13,10 +13,10 @@ public partial class BatteryWidgetTile
     public NotifyingDarkMode DarkMode { get; set; }
 
     private readonly PeriodicTimer _periodicTimer = new(TimeSpan.FromMinutes(15));
-    private ApexChart<ChartDataEntry<string, decimal?>> _apexChart = null!;
-    private ApexChartOptions<ChartDataEntry<string, decimal?>> _options { get; set; } = new();
+    private ApexChart<ChartDataEntry<DateTime, decimal?>> _apexChart = null!;
+    private ApexChartOptions<ChartDataEntry<DateTime, decimal?>> _options { get; set; } = new();
 
-    private ChartData2<string, decimal?> BatteryLevel { get; set; } = new();
+    private ChartData2<DateTime, decimal?> BatteryLevel { get; set; } = new();
 
     public BatteryWidgetTile()
     {
@@ -32,12 +32,12 @@ public partial class BatteryWidgetTile
             },
             Background = "#32333C",
         };
-        _options.Responsive = new List<Responsive<ChartDataEntry<string, decimal?>>>
+        _options.Responsive = new List<Responsive<ChartDataEntry<DateTime, decimal?>>>
         {
-            new Responsive<ChartDataEntry<string, decimal?>>
+            new Responsive<ChartDataEntry<DateTime, decimal?>>
             {
                 Breakpoint = 700,
-                Options = new ApexChartOptions<ChartDataEntry<string, decimal?>>
+                Options = new ApexChartOptions<ChartDataEntry<DateTime, decimal?>>
                 {
                     Legend = new Legend
                     {
@@ -55,11 +55,27 @@ public partial class BatteryWidgetTile
         };
         _options.Xaxis = new XAxis
         {
-            Type = XAxisType.Category,
-            OverwriteCategories = Enumerable.Range(0, 24 * 4 + 1).Select(x => new DateTime().AddMinutes(15 * x).Minute == 0 && new DateTime().AddMinutes(15 * x).Hour % 2 == 0 ? $"{new DateTime().AddMinutes(15 * x):HH:mm}" : "").ToList(),
+            Type = XAxisType.Datetime,
+            Labels = new XAxisLabels
+            {
+                Show = false
+            },
+            AxisBorder = new AxisBorder
+            {
+                Show = false
+            },
             AxisTicks = new AxisTicks
             {
                 Show = false
+            }
+        };
+        _options.Tooltip = new Tooltip
+        {
+            Shared = true,
+            Intersect = false,
+            X = new TooltipX
+            {
+                Format = "dd MMM yyyy HH:mm"
             }
         };
         _options.Yaxis = new List<YAxis>
@@ -92,8 +108,8 @@ public partial class BatteryWidgetTile
         };
 
         BatteryLevel.Description = "Thuisbatterij";
-        BatteryLevel.Series1Description = "Laadtoestand vandaag";
-        BatteryLevel.Series2Description = "Berekende gezondheid vandaag";
+        BatteryLevel.Series1Description = "Laadtoestand laatste 24u";
+        BatteryLevel.Series2Description = "Berekende gezondheid laatste 24u";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -152,21 +168,20 @@ public partial class BatteryWidgetTile
             var response = await mediator.Send(new GetBatteryLevelTodayQuery());
 
             BatteryLevel.Clear();
-            BatteryLevel.Series1.AddRange(response.Entries.Select(x => new ChartDataEntry<string, decimal?>
+            BatteryLevel.Series1.AddRange(response.Entries.Select(x => new ChartDataEntry<DateTime, decimal?>
             {
-                XValue = $"{x.Date:HH:mm}",
+                XValue = x.Date,
                 YValue = x.LevelOfCharge
             }));
-            BatteryLevel.Series2.AddRange(response.Entries.Select(x => new ChartDataEntry<string, decimal?>
+            BatteryLevel.Series2.AddRange(response.Entries.Select(x => new ChartDataEntry<DateTime, decimal?>
             {
-                XValue = $"{x.Date:HH:mm}",
+                XValue = x.Date,
                 YValue = x.StateOfHealth.HasValue ? Math.Min(x.StateOfHealth.Value, 100) : null
             }));
 
             await InvokeAsync(StateHasChanged);
             await Task.Delay(100);
             await _apexChart.UpdateSeriesAsync(true);
-            await _apexChart.UpdateOptionsAsync(true, true, false);
         }
         catch (Exception ex)
         {

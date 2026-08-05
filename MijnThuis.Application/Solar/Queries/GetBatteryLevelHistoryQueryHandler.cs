@@ -7,7 +7,8 @@ namespace MijnThuis.Application.Solar.Queries;
 
 public class GetBatteryLevelHistoryQuery : IRequest<GetBatteryLevelHistoryResponse>
 {
-    public DateTime Date { get; set; }
+    public DateTime From { get; set; }
+    public DateTime To { get; set; }
 }
 
 public class GetBatteryLevelHistoryResponse
@@ -27,7 +28,7 @@ public class GetBatteryLevelHistoryQueryHandler : IRequestHandler<GetBatteryLeve
     public async Task<GetBatteryLevelHistoryResponse> Handle(GetBatteryLevelHistoryQuery request, CancellationToken cancellationToken)
     {
         var entries = await _dbContext.BatteryEnergyHistory
-            .Where(x => x.Date.Date == request.Date.Date)
+            .Where(x => x.Date >= request.From && x.Date <= request.To)
             .OrderBy(x => x.Date)
             .ToListAsync();
 
@@ -36,9 +37,10 @@ public class GetBatteryLevelHistoryQueryHandler : IRequestHandler<GetBatteryLeve
             Entries = new List<BatteryLevelEntry>()
         };
 
-        for (int i = 0; i < 24 * 4; i++)
+        var totalSlots = (int)Math.Ceiling((request.To - request.From).TotalMinutes / 15d);
+        for (int i = 0; i <= totalSlots; i++)
         {
-            var timeStamp = request.Date.Date.AddMinutes(15 * i);
+            var timeStamp = request.From.AddMinutes(15 * i);
 
             var entry = entries.Where(x => x.Date.AddMinutes(-15) < timeStamp && x.Date.AddMinutes(15) > timeStamp);
 
@@ -55,9 +57,6 @@ public class GetBatteryLevelHistoryQueryHandler : IRequestHandler<GetBatteryLeve
                 result.Entries.Add(new BatteryLevelEntry { Date = timeStamp, LevelOfCharge = null });
             }
         }
-
-        //result.Entries.Add(new BatteryLevelEntry { Date = request.Date.Date.AddDays(1), LevelOfCharge = null });
-
         return result;
     }
 }

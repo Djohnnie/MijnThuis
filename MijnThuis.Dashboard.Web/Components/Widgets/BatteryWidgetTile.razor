@@ -5,16 +5,16 @@
 @inject ILogger<BatteryWidgetTile> Logger;
 
 <div>
-    <ApexCharts.ApexChart TItem="ChartDataEntry<string, decimal?>" Options="_options" @ref="_apexChart">
+    <ApexCharts.ApexChart TItem="ChartDataEntry<DateTime, decimal?>" Options="_options" @ref="_apexChart">
 
-        <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal?>"
+        <ApexCharts.ApexPointSeries TItem="ChartDataEntry<DateTime, decimal?>"
                                     Items="@BatteryLevel.Series1"
                                     Name="@BatteryLevel.Series1Description"
                                     XValue="@(e => e.XValue)"
                                     YValue="@(e => e.YValue)"
                                     SeriesType="ApexCharts.SeriesType.Line" />
 
-        <ApexCharts.ApexPointSeries TItem="ChartDataEntry<string, decimal?>"
+        <ApexCharts.ApexPointSeries TItem="ChartDataEntry<DateTime, decimal?>"
                                     Items="@BatteryLevel.Series2"
                                     Name="@BatteryLevel.Series2Description"
                                     XValue="@(e => e.XValue)"
