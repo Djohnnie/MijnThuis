@@ -7,11 +7,20 @@ namespace MijnThuis.Worker;
 internal class InjectionWithCostWorker : BackgroundService
 {
     private readonly IServiceScopeFactory _serviceProvider;
-    private readonly ILogger<SolarHistoryWorker> _logger;
+    private readonly ILogger<InjectionWithCostWorker> _logger;
+    private readonly TimeSpan _minimumSwitchInterval = TimeSpan.FromMinutes(10);
+
+    private const decimal BatteryNotChargingThresholdWatts = 100M;
+    private const decimal BatteryChargingThresholdWatts = 250M;
+    private const int RequiredConsecutiveDecisions = 2;
+
+    private DateTimeOffset _lastSwitchAt = DateTimeOffset.MinValue;
+    private int _limitDecisionCount;
+    private int _resetDecisionCount;
 
     public InjectionWithCostWorker(
         IServiceScopeFactory serviceProvider,
-        ILogger<SolarHistoryWorker> logger)
+        ILogger<InjectionWithCostWorker> logger)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
@@ -34,15 +43,55 @@ internal class InjectionWithCostWorker : BackgroundService
                 var solarOverview = await modbusService.GetOverview();
                 var hasExportLimitation = await modbusService.HasExportLimitation();
 
-                if (energyPrice.InjectionCentsPerKWh < 0 && solarOverview.CurrentBatteryPower <= 0 && !hasExportLimitation)
+                var shouldLimitExport =
+                    energyPrice.InjectionCentsPerKWh < 0 &&
+                    solarOverview.CurrentBatteryPower <= BatteryNotChargingThresholdWatts;
+                var shouldResetExportLimit =
+                    energyPrice.InjectionCentsPerKWh >= 0 ||
+                    solarOverview.CurrentBatteryPower > BatteryChargingThresholdWatts;
+
+                if (!hasExportLimitation && shouldLimitExport)
                 {
-                    _logger.LogInformation($"Stop exporting energy: Injection price is negative and battery is not charging: {energyPrice.InjectionCentsPerKWh}");
-                    await modbusService.SetExportLimitation(0);
+                    _limitDecisionCount++;
+                    _resetDecisionCount = 0;
+
+                    var canSwitch = DateTimeOffset.Now - _lastSwitchAt >= _minimumSwitchInterval;
+
+                    if (_limitDecisionCount >= RequiredConsecutiveDecisions && canSwitch)
+                    {
+                        _logger.LogInformation(
+                            "Stop exporting energy: Injection price is negative and battery is not charging enough. Price={InjectionPrice}, BatteryPower={BatteryPower}",
+                            energyPrice.InjectionCentsPerKWh,
+                            solarOverview.CurrentBatteryPower);
+
+                        await modbusService.SetExportLimitation(0);
+                        _lastSwitchAt = DateTimeOffset.Now;
+                        _limitDecisionCount = 0;
+                    }
                 }
-                else if ((energyPrice.InjectionCentsPerKWh >= 0 || solarOverview.CurrentBatteryPower > 0) && hasExportLimitation)
+                else if (hasExportLimitation && shouldResetExportLimit)
                 {
-                    _logger.LogInformation($"Start exporting energy: Injection price is positive or battery is charging: {energyPrice.InjectionCentsPerKWh}");
-                    await modbusService.ResetExportLimitation();
+                    _resetDecisionCount++;
+                    _limitDecisionCount = 0;
+
+                    var canSwitch = DateTimeOffset.Now - _lastSwitchAt >= _minimumSwitchInterval;
+
+                    if (_resetDecisionCount >= RequiredConsecutiveDecisions && canSwitch)
+                    {
+                        _logger.LogInformation(
+                            "Start exporting energy: Injection price is positive or battery is charging. Price={InjectionPrice}, BatteryPower={BatteryPower}",
+                            energyPrice.InjectionCentsPerKWh,
+                            solarOverview.CurrentBatteryPower);
+
+                        await modbusService.ResetExportLimitation();
+                        _lastSwitchAt = DateTimeOffset.Now;
+                        _resetDecisionCount = 0;
+                    }
+                }
+                else
+                {
+                    _limitDecisionCount = 0;
+                    _resetDecisionCount = 0;
                 }
             }
             catch (Exception ex)
