@@ -4,6 +4,7 @@ using Djohnnie.SolarEdge.ModBus.TCP.Types;
 using Microsoft.Extensions.Caching.Memory;
 using MijnThuis.ModbusProxy.Api.Models;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using Int16 = Djohnnie.SolarEdge.ModBus.TCP.Types.Int16;
 using UInt16 = Djohnnie.SolarEdge.ModBus.TCP.Types.UInt16;
@@ -100,7 +101,7 @@ public class ModbusHelper : IModbusHelper
                     var currentConsumptionPower = Convert.ToDecimal((acPower?.Value ?? 0) * Math.Pow(10, acPowerSF?.Value ?? 0)) - currentGridPower;
 
                     var stopTimeStamp = Stopwatch.GetTimestamp();
-                    _logger.LogInformation("Modbus bulk data retrieved in {ElapsedTime}ms", (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
+                    _logger.LogInformation("[{Timestamp}] Modbus bulk data retrieved in {ElapsedTime}ms", TimestampNow, (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
 
                     var exportControlModeValue = exportControlMode?.Value ?? 0;
 
@@ -161,7 +162,7 @@ public class ModbusHelper : IModbusHelper
                     var currentConsumptionPower = Convert.ToDecimal((acPower?.Value ?? 0) * Math.Pow(10, acPowerSF?.Value ?? 0)) - currentGridPower;
 
                     var stopTimeStamp = Stopwatch.GetTimestamp();
-                    _logger.LogInformation("Modbus overview data retrieved in {ElapsedTime}ms", (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
+                    _logger.LogInformation("[{Timestamp}] Modbus overview data retrieved in {ElapsedTime}ms", TimestampNow, (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
 
                     return new ModbusDataSet
                     {
@@ -200,7 +201,7 @@ public class ModbusHelper : IModbusHelper
                     var max = await _modbusClient.ReadHoldingRegistersAsync<Float32>(SunspecConsts.Battery_1_Max_Energy);
 
                     var stopTimeStamp = Stopwatch.GetTimestamp();
-                    _logger.LogInformation("Modbus battery level data retrieved in {ElapsedTime}ms", (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
+                    _logger.LogInformation("[{Timestamp}] Modbus battery level data retrieved in {ElapsedTime}ms", TimestampNow, (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
 
                     return new ModbusDataSet
                     {
@@ -222,6 +223,7 @@ public class ModbusHelper : IModbusHelper
     {
         try
         {
+            var startTimeStamp = Stopwatch.GetTimestamp();
             await _semaphoreSlim.WaitAsync();
 
             await RetryOnFailure(async () =>
@@ -233,6 +235,9 @@ public class ModbusHelper : IModbusHelper
                 await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.Remote_Control_Command_Mode, (ushort)RemoteControlMode.ChargeFromPVPlusACAccordingToTheMaxBatteryPower);
                 //await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Charge_Discharge_Default_Mode, (ushort)RemoteControlMode.MaximizeSelfConsumption);
                 await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.Remote_Control_Charge_Limit, (float)power);
+
+                var stopTimeStamp = Stopwatch.GetTimestamp();
+                _logger.LogInformation("[{Timestamp}] Modbus start charging battery completed in {ElapsedTime}ms", TimestampNow, (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
             });
         }
         finally
@@ -245,6 +250,7 @@ public class ModbusHelper : IModbusHelper
     {
         try
         {
+            var startTimeStamp = Stopwatch.GetTimestamp();
             await _semaphoreSlim.WaitAsync();
 
             await RetryOnFailure(async () =>
@@ -256,6 +262,9 @@ public class ModbusHelper : IModbusHelper
                 await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.Remote_Control_Command_Mode, (ushort)RemoteControlMode.MaximizeSelfConsumption);
                 //await _modbusClient.WriteSingleRegister(SunspecConsts.Storage_Charge_Discharge_Default_Mode, (ushort)RemoteControlMode.MaximizeSelfConsumption);
                 await _modbusClient.WriteSingleRegisterAsync(SunspecConsts.Remote_Control_Charge_Limit, (float)5000);
+
+                var stopTimeStamp = Stopwatch.GetTimestamp();
+                _logger.LogInformation("[{Timestamp}] Modbus stop charging battery completed in {ElapsedTime}ms", TimestampNow, (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
             });
         }
         finally
@@ -280,7 +289,7 @@ public class ModbusHelper : IModbusHelper
 
                 var stopTimeStamp = Stopwatch.GetTimestamp();
 
-                _logger.LogInformation("Modbus export limitation retrieved in {ElapsedTime}ms", (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
+                _logger.LogInformation("[{Timestamp}] Modbus export limitation retrieved in {ElapsedTime}ms", TimestampNow, (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
 
                 return exportControlMode?.Value == 1;
             });
@@ -308,7 +317,7 @@ public class ModbusHelper : IModbusHelper
 
                 var stopTimeStamp = Stopwatch.GetTimestamp();
 
-                _logger.LogInformation("Modbus export limitation set in {ElapsedTime}ms", (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
+                _logger.LogInformation("[{Timestamp}] Modbus export limitation set in {ElapsedTime}ms", TimestampNow, (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
             });
         }
         finally
@@ -334,7 +343,7 @@ public class ModbusHelper : IModbusHelper
 
                 var stopTimeStamp = Stopwatch.GetTimestamp();
 
-                _logger.LogInformation("Modbus export limitation reset in {ElapsedTime}ms", (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
+                _logger.LogInformation("[{Timestamp}] Modbus export limitation reset in {ElapsedTime}ms", TimestampNow, (stopTimeStamp - startTimeStamp) / (Stopwatch.Frequency / 1000));
             });
         }
         finally
@@ -405,3 +414,4 @@ public class ModbusHelper : IModbusHelper
         });
     }
 }
+    private static string TimestampNow => DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);

@@ -53,7 +53,7 @@ internal class InjectionWithCostWorker : BackgroundService
 
             var stopTimer = Stopwatch.GetTimestamp();
 
-            var duration = TimeSpan.FromMinutes(1) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
+            var duration = TimeSpan.FromMinutes(2) - TimeSpan.FromSeconds((stopTimer - startTimer) / (double)Stopwatch.Frequency);
 
             if (duration > TimeSpan.Zero)
             {
