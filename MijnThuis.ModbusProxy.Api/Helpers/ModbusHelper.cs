@@ -413,5 +413,6 @@ public class ModbusHelper : IModbusHelper
             return await valueFactory();
         });
     }
-}
+
     private static string TimestampNow => DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
+}
