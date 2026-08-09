@@ -7,4 +7,5 @@ public class SolarOverview
     public decimal CurrentGridPower { get; set; }
     public decimal CurrentConsumptionPower { get; set; }
     public decimal BatteryLevel { get; set; }
+    public bool HasExportLimitation { get; set; }
 }

@@ -27,6 +27,7 @@ public class GetMinimalSolarOverviewQueryHandler : IRequestHandler<GetMinimalSol
         result.BatteryLevel = (int)Math.Round(batteryResult.Level);
         result.BatteryHealth = (int)Math.Round(batteryResult.Health);
         result.BatteryMaxEnergy = (int)Math.Round(batteryResult.MaxEnergy);
+        result.HasExportLimitation = solarResult.HasExportLimitation;
 
         return result;
     }

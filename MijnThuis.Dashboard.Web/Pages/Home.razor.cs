@@ -45,6 +45,7 @@ public partial class Home : IDisposable
     public decimal CurrentSolarPower { get; set; }
     public decimal CurrentBatteryPower { get; set; }
     public decimal CurrentGridPower { get; set; }
+    public bool HasGridExportLimitation { get; set; }
     public string BatterySolarBar { get; set; } = Icons.Material.Filled.Battery0Bar;
     public int BatteryLevel { get; set; }
     public int BatteryHealth { get; set; }
@@ -192,6 +193,7 @@ public partial class Home : IDisposable
             CurrentSolarPower = response.CurrentSolarPower;
             CurrentBatteryPower = response.CurrentBatteryPower;
             CurrentGridPower = response.CurrentGridPower;
+            HasGridExportLimitation = response.HasExportLimitation;
             LastDayEnergy = response.LastDayEnergy;
             LastMonthEnergy = response.LastMonthEnergy;
             BatteryLevel = response.BatteryLevel;

@@ -13,4 +13,5 @@ public record GetSolarOverviewResponse
     public int BatteryLevel { get; set; }
     public int BatteryHealth { get; set; }
     public int BatteryMaxEnergy { get; set; }
+    public bool HasExportLimitation { get; set; }
 }

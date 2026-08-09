@@ -13,6 +13,7 @@ public partial class SolarWidgetTile
     public decimal CurrentSolarPower { get; set; }
     public decimal CurrentBatteryPower { get; set; }
     public decimal CurrentGridPower { get; set; }
+    public bool HasGridExportLimitation { get; set; }
     public decimal CurrentHomePower { get; set; }
     public bool IsCarCharging { get; set; }
     public int CurrentCarBattery { get; set; }
@@ -51,6 +52,7 @@ public partial class SolarWidgetTile
             CurrentSolarPower = solarResponse.CurrentSolarPower;
             CurrentBatteryPower = solarResponse.CurrentBatteryPower;
             CurrentGridPower = solarResponse.CurrentGridPower;
+            HasGridExportLimitation = solarResponse.HasExportLimitation;
             IsCarCharging = carResponse.IsChargingAtHome;
             CurrentCarBattery = carResponse.BatteryLevel;
             CurrentCarAmps = carResponse.ChargingAmps;

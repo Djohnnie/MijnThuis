@@ -57,7 +57,13 @@
         <div class="d-flex justify-center ml-3">
             <div class="align-self-center">
                 <MudIcon Class="svg-center" Icon="@Icons.Material.Filled.ElectricMeter" Size="Size.Large" Title="Elektriciteitsnet" />
-                <MudChip T="string" Color="@(Math.Round(CurrentGridPower, 2) == 0M ? Color.Default : Math.Round(CurrentGridPower, 2) < 0M ? Color.Success : Color.Secondary)" Variant="Variant.Text">@Math.Abs(CurrentGridPower).ToString("F2") kW</MudChip>
+                <MudStack Class="my-0 align-center">
+                    <MudChip T="string" Color="@(Math.Round(CurrentGridPower, 2) == 0M ? Color.Default : Math.Round(CurrentGridPower, 2) < 0M ? Color.Success : Color.Secondary)" Variant="Variant.Text">@Math.Abs(CurrentGridPower).ToString("F2") kW</MudChip>
+                    @if (HasGridExportLimitation)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Speed" Size="Size.Small" Style="opacity: 0.55;" Title="Exportbeperking actief" />
+                    }
+                </MudStack>
             </div>
         </div>
     </MudGrid>

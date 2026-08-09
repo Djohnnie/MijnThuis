@@ -28,6 +28,12 @@
             <div class="hero-stat">
                 <MudIcon Icon="@Icons.Material.Filled.ElectricMeter" Style="@GridPowerIconStyle" />
                 <span class="hero-stat-value" style="color: @(CurrentGridPower > 0 ? "#f44336" : "#4caf50")">@($"{Math.Abs(CurrentGridPower):F2}") kW</span>
+                @if (HasGridExportLimitation)
+                {
+                    <span style="display: inline-flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.55); margin-top: 2px;">
+                        <MudIcon Icon="@Icons.Material.Filled.Speed" Style="font-size: 0.85rem;" />
+                    </span>
+                }
                 <span class="hero-stat-label">@(CurrentGridPower > 0 ? "Van net" : "Naar net")</span>
             </div>
             <div class="hero-stat">

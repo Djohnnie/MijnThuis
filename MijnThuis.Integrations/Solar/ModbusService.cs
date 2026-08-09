@@ -63,6 +63,7 @@ internal class ModbusService : BaseService, IModbusService
             CurrentGridPower = data.CurrentGridPower,
             CurrentSolarPower = data.CurrentSolarPower,
             BatteryLevel = data.BatteryLevel,
+            HasExportLimitation = data.HasExportLimitation,
         };
     }
 
