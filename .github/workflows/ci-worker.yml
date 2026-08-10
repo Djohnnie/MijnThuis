@@ -1,0 +1,54 @@
+name: CI - Worker
+
+on:
+  push:
+    paths:
+      - 'MijnThuis.Worker/**'
+      - 'MijnThuis.Integrations/**'
+      - 'MijnThuis.Application/**'
+      - 'MijnThuis.Contracts/**'
+      - 'MijnThuis.DataAccess/**'
+      - 'MijnThuis.Tests/**'
+      - '.github/workflows/ci-worker.yml'
+  pull_request:
+    paths:
+      - 'MijnThuis.Worker/**'
+      - 'MijnThuis.Integrations/**'
+      - 'MijnThuis.Application/**'
+      - 'MijnThuis.Contracts/**'
+      - 'MijnThuis.DataAccess/**'
+      - 'MijnThuis.Tests/**'
+      - '.github/workflows/ci-worker.yml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
+
+      - name: Restore NuGet packages
+        run: dotnet restore MijnThuis.Worker/MijnThuis.Worker.csproj
+
+      - name: Build
+        run: dotnet build MijnThuis.Worker/MijnThuis.Worker.csproj --configuration Release --no-restore
+
+      - name: Restore test packages
+        run: dotnet restore MijnThuis.Tests/MijnThuis.Tests.csproj
+
+      - name: Run tests
+        run: dotnet test MijnThuis.Tests/MijnThuis.Tests.csproj --configuration Release --no-restore --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-worker
+          path: '**/test-results.trx'

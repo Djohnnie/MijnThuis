@@ -1,0 +1,54 @@
+name: CI - Web
+
+on:
+  push:
+    paths:
+      - 'MijnThuis.Dashboard.Web/**'
+      - 'MijnThuis.Integrations/**'
+      - 'MijnThuis.Application/**'
+      - 'MijnThuis.Contracts/**'
+      - 'MijnThuis.DataAccess/**'
+      - 'MijnThuis.Tests/**'
+      - '.github/workflows/ci-web.yml'
+  pull_request:
+    paths:
+      - 'MijnThuis.Dashboard.Web/**'
+      - 'MijnThuis.Integrations/**'
+      - 'MijnThuis.Application/**'
+      - 'MijnThuis.Contracts/**'
+      - 'MijnThuis.DataAccess/**'
+      - 'MijnThuis.Tests/**'
+      - '.github/workflows/ci-web.yml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
+
+      - name: Restore NuGet packages
+        run: dotnet restore MijnThuis.Dashboard.Web/MijnThuis.Dashboard.Web.csproj
+
+      - name: Build
+        run: dotnet build MijnThuis.Dashboard.Web/MijnThuis.Dashboard.Web.csproj --configuration Release --no-restore
+
+      - name: Restore test packages
+        run: dotnet restore MijnThuis.Tests/MijnThuis.Tests.csproj
+
+      - name: Run tests
+        run: dotnet test MijnThuis.Tests/MijnThuis.Tests.csproj --configuration Release --no-restore --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-web
+          path: '**/test-results.trx'

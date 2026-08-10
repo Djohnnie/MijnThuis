@@ -1,0 +1,46 @@
+name: CI - Proxy
+
+on:
+  push:
+    paths:
+      - 'MijnThuis.ModbusProxy.Api/**'
+      - 'MijnThuis.Tests/**'
+      - '.github/workflows/ci-proxy.yml'
+  pull_request:
+    paths:
+      - 'MijnThuis.ModbusProxy.Api/**'
+      - 'MijnThuis.Tests/**'
+      - '.github/workflows/ci-proxy.yml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
+
+      - name: Restore NuGet packages
+        run: dotnet restore MijnThuis.ModbusProxy.Api/MijnThuis.ModbusProxy.Api.csproj
+
+      - name: Build
+        run: dotnet build MijnThuis.ModbusProxy.Api/MijnThuis.ModbusProxy.Api.csproj --configuration Release --no-restore
+
+      - name: Restore test packages
+        run: dotnet restore MijnThuis.Tests/MijnThuis.Tests.csproj
+
+      - name: Run tests
+        run: dotnet test MijnThuis.Tests/MijnThuis.Tests.csproj --configuration Release --no-restore --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-proxy
+          path: '**/test-results.trx'

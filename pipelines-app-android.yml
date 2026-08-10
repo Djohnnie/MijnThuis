@@ -1,11 +1,4 @@
-trigger:
-  branches:
-    include:
-    - master
-  paths:
-    include:
-    - MijnThuis.Dashboard.App/*
-    - pipelines-app-android.yml
+trigger: none
 
 pool:
   vmImage: 'windows-2022'

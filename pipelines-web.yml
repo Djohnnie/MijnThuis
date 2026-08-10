@@ -1,14 +1,4 @@
-trigger:
-  branches:
-    include:
-    - master
-  paths:
-    include:
-    - MijnThuis.Dashboard.Web/*
-    - MijnThuis.Integrations/*
-    - MijnThuis.Application/*
-    - MijnThuis.Contracts/*
-    - pipeline-web.yml
+trigger: none
 
 pool:
   vmImage: 'ubuntu-latest'

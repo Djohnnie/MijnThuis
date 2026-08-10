@@ -1,12 +1,4 @@
-trigger:
-  branches:
-    include:
-    - master
-  paths:
-    include:
-    - MijnThuis.Worker/*
-    - MijnThuis.Integrations/*
-    - pipeline-worker.yml
+trigger: none
 
 pool:
   vmImage: 'ubuntu-latest'
