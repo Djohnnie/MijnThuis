@@ -297,7 +297,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
  await testRunner.AndAsync("The home battery is charged to 96%", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 39
- await testRunner.AndAsync("the current solar power is 2.3W", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+ await testRunner.AndAsync("the manual car charge is set to 10A", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 40
  await testRunner.WhenAsync("The worker runs a check", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
@@ -315,7 +315,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
  await testRunner.AndAsync("The car should be ready to charge", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
 #line 45
- await testRunner.AndAsync("The car should have started charging at 10A", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+ await testRunner.AndAsync("The car should be manually charging at 10A", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

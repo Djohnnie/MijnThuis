@@ -1,4 +1,5 @@
 ﻿using FakeItEasy;
+using MijnThuis.DataAccess.Entities;
 using MijnThuis.DataAccess.Repositories;
 using MijnThuis.Integrations.Car;
 using MijnThuis.Integrations.Solar;
@@ -18,7 +19,8 @@ public class CarChargingWorkerStepDefinitions
 
     private CarChargingHelperState? _state;
     private CarOverview? _carOverview;
-    private SolarOverview? _solarOverview;
+    private BatteryLevel? _batteryLevel;
+    private ManualCarChargeFlag? _manualCarChargeFlag;
 
     [BeforeScenario]
     public void BeforeScenario()
@@ -31,11 +33,13 @@ public class CarChargingWorkerStepDefinitions
         _sot = new CarChargingHelper(_flagRepository, _carChargingEnergyHistoryRepository, _carService, _modbusService);
 
         _state = new CarChargingHelperState();
-        _carOverview = new CarOverview();
-        _solarOverview = new SolarOverview();
+        _carOverview = new CarOverview { ChargeLimit = 100 };
+        _batteryLevel = new BatteryLevel();
+        _manualCarChargeFlag = ManualCarChargeFlag.Default;
 
         A.CallTo(() => _carService!.GetOverview()).Returns(_carOverview);
-        A.CallTo(() => _modbusService!.GetOverview()).Returns(_solarOverview);
+        A.CallTo(() => _modbusService!.GetBatteryLevel()).Returns(_batteryLevel);
+        A.CallTo(() => _flagRepository!.GetManualCarChargeFlag()).ReturnsLazily(() => _manualCarChargeFlag!);
     }
 
     [Given("The car charge port is not open")]
@@ -66,13 +70,13 @@ public class CarChargingWorkerStepDefinitions
     [Given("The home battery is charged to {int}%")]
     public void GivenTheHomeBatteryIsChargedTo(int percentage)
     {
-        _solarOverview!.BatteryLevel = percentage;
+        _batteryLevel!.Level = percentage;
     }
 
-    [Given("the current solar power is {decimal}W")]
-    public void GivenTheCurrentSolarPowerIs(decimal solarPower)
+    [Given("the manual car charge is set to {int}A")]
+    public void GivenTheManualCarChargeIsSetTo(int amps)
     {
-        _solarOverview!.CurrentSolarPower = solarPower;
+        _manualCarChargeFlag = new ManualCarChargeFlag { ShouldCharge = true, ChargeAmps = amps };
     }
 
 
@@ -97,7 +101,7 @@ public class CarChargingWorkerStepDefinitions
     [Then("The worker should have checked the home battery")]
     public void ThenTheWorkerShouldHaveCheckedTheHomeBattery()
     {
-        A.CallTo(() => _modbusService!.GetOverview()).MustHaveHappenedOnceExactly();
+        A.CallTo(() => _modbusService!.GetBatteryLevel()).MustHaveHappenedOnceExactly();
     }
 
 
@@ -147,6 +151,15 @@ public class CarChargingWorkerStepDefinitions
         _state.ShouldNotBeNull();
         _state.Result.ShouldNotBeNull();
         _state.Result.Type.ShouldBe(CarChargingHelperResultType.ChargingStarted);
+    }
+
+    [Then("The car should be manually charging at {int}A")]
+    public void ThenTheCarShouldBeManuallyChargingAt(int amps)
+    {
+        _state.ShouldNotBeNull();
+        _state.Result.ShouldNotBeNull();
+        _state.Result.Type.ShouldBe(CarChargingHelperResultType.ChargingManually);
+        _state.Result.ChargingAmps.ShouldBe(amps);
     }
 
     [Then("The car should have started charging at {int}A")]
