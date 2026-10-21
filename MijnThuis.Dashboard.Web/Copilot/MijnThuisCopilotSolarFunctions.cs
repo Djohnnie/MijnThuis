@@ -23,16 +23,16 @@ public class MijnThuisCopilotSolarFunctions
         ];
     }
 
-    [Description("Gets the solar energy generated today in kWh.")]
-    public static async Task<decimal> GetSolarEnergyToday(IServiceProvider serviceProvider)
+    [Description("Gets the solar energy generated today in kWh, or null when unavailable.")]
+    public static async Task<decimal?> GetSolarEnergyToday(IServiceProvider serviceProvider)
     {
         var mediator = serviceProvider.GetRequiredService<IMediator>();
         var response = await mediator.Send(new GetSolarOverviewQuery());
         return response.LastDayEnergy;
     }
 
-    [Description("Gets the solar energy generated this month in kWh.")]
-    public static async Task<decimal> GetSolarEnergyThisMonth(IServiceProvider serviceProvider)
+    [Description("Gets the solar energy generated this month in kWh, or null when unavailable.")]
+    public static async Task<decimal?> GetSolarEnergyThisMonth(IServiceProvider serviceProvider)
     {
         var mediator = serviceProvider.GetRequiredService<IMediator>();
         var response = await mediator.Send(new GetSolarOverviewQuery());

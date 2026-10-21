@@ -61,7 +61,7 @@
             </span>
             <span class="hero-sub-item">
                 <MudIcon Icon="@Icons.Material.Filled.SolarPower" Style="font-size: 1rem;" />
-                Opbrengst: <b>&nbsp;@($"{LastDayEnergy:F1}") kWh</b>&nbsp;·&nbsp;Voorspelling: <b>@($"{SolarForecastToday:F1}") kWh</b>
+                Opbrengst: <b>&nbsp;@(LastDayEnergy.HasValue ? $"{LastDayEnergy:F1} kWh" : "Niet beschikbaar")</b>&nbsp;·&nbsp;Voorspelling: <b>@($"{SolarForecastToday:F1}") kWh</b>
             </span>
         </div>
     }
@@ -476,11 +476,11 @@
                     <div class="d-flex flex-wrap gap-4">
                         <div>
                             <MudText Typo="Typo.caption" Color="Color.Secondary">Vandaag</MudText>
-                            <MudText Typo="Typo.body1" Style="font-weight: 600;">@($"{LastDayEnergy:F1}") kWh</MudText>
+                            <MudText Typo="Typo.body1" Style="font-weight: 600;">@(LastDayEnergy.HasValue ? $"{LastDayEnergy:F1} kWh" : "Niet beschikbaar")</MudText>
                         </div>
                         <div>
                             <MudText Typo="Typo.caption" Color="Color.Secondary">Deze maand</MudText>
-                            <MudText Typo="Typo.body1" Style="font-weight: 600;">@($"{LastMonthEnergy:F1}") kWh</MudText>
+                            <MudText Typo="Typo.body1" Style="font-weight: 600;">@(LastMonthEnergy.HasValue ? $"{LastMonthEnergy:F1} kWh" : "Niet beschikbaar")</MudText>
                         </div>
                         <div>
                             <MudText Typo="Typo.caption" Color="Color.Secondary">Voorspelling vandaag</MudText>

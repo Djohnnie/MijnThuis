@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using MijnThuis.Contracts.Solar;
 using MijnThuis.Integrations.Forecast;
 using MijnThuis.Integrations.Solar;
@@ -12,17 +13,20 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
     private readonly IForecastService _forecastService;
     private readonly IModbusService _modbusService;
     private readonly IMemoryCache _memoryCache;
+    private readonly ILogger<GetSolarOverviewQueryHandler> _logger;
 
     public GetSolarOverviewQueryHandler(
         ISolarService solarService,
         IForecastService forecastService,
         IModbusService modbusService,
-        IMemoryCache memoryCache)
+        IMemoryCache memoryCache,
+        ILogger<GetSolarOverviewQueryHandler> logger)
     {
         _solarService = solarService;
         _forecastService = forecastService;
         _modbusService = modbusService;
         _memoryCache = memoryCache;
+        _logger = logger;
     }
 
     public async Task<GetSolarOverviewResponse> Handle(GetSolarOverviewQuery request, CancellationToken cancellationToken)
@@ -47,8 +51,8 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
         result.BatteryHealth = (int)Math.Round(batteryResult.Health);
         result.BatteryMaxEnergy = (int)Math.Round(batteryResult.MaxEnergy);
         result.HasExportLimitation = solarResult.HasExportLimitation;
-        result.LastDayEnergy = energyResult.LastDayEnergy / 1000M;
-        result.LastMonthEnergy = energyResult.LastMonthEnergy / 1000M;
+        result.LastDayEnergy = energyResult?.LastDayEnergy / 1000M;
+        result.LastMonthEnergy = energyResult?.LastMonthEnergy / 1000M;
         result.SolarForecastToday = (zw6.EstimatedWattHoursToday + no3.EstimatedWattHoursToday + zo4.EstimatedWattHoursToday) / 1000M;
         result.SolarForecastTomorrow = (zw6.EstimatedWattHoursTomorrow + no3.EstimatedWattHoursTomorrow + zo4.EstimatedWattHoursTomorrow) / 1000M;
 
@@ -65,9 +69,20 @@ public class GetSolarOverviewQueryHandler : IRequestHandler<GetSolarOverviewQuer
         return _modbusService.GetBatteryLevel();
     }
 
-    private Task<EnergyProduced> GetEnergy()
+    private Task<EnergyProduced?> GetEnergy()
     {
-        return GetCachedValue("SOLAR_ENERGY", _solarService.GetEnergy, 15);
+        return GetCachedValue<EnergyProduced?>("SOLAR_ENERGY", async () =>
+        {
+            try
+            {
+                return await _solarService.GetEnergy();
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogWarning(ex, "SolarEdge energy totals are unavailable; continuing with live solar data and forecasts");
+                return null;
+            }
+        }, 15);
     }
 
     private Task<ForecastOverview> GetForecast(decimal latitude, decimal longitude, decimal declination, decimal azimuth, decimal power, byte damping)

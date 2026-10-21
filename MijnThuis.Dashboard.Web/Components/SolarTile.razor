@@ -95,7 +95,14 @@
                         <MudTooltip Text="Opbrengst vandaag" Arrow="true" Placement="Placement.Right">
                             <MudIcon Icon="@Icons.Material.Filled.SolarPower" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
-                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="LastDayEnergyCommand">@String.Format("{0:F1}", LastDayEnergy) kWh</MudLink>
+                        @if (LastDayEnergy.HasValue)
+                        {
+                            <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="LastDayEnergyCommand">@String.Format("{0:F1}", LastDayEnergy) kWh</MudLink>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.subtitle1">Niet beschikbaar</MudText>
+                        }
                     </div>
                 }
                 else
@@ -113,7 +120,14 @@
                         <MudTooltip Text="Opbrengst deze maand" Arrow="true" Placement="Placement.Left">
                             <MudIcon Icon="@Icons.Material.Filled.SolarPower" Size="Size.Medium" Color="Color.Primary" />
                         </MudTooltip>
-                        <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="LastMonthEnergyCommand">@String.Format("{0:F1}", LastMonthEnergy) kWh</MudLink>
+                        @if (LastMonthEnergy.HasValue)
+                        {
+                            <MudLink Typo="Typo.subtitle1" Color="Color.Default" OnClick="LastMonthEnergyCommand">@String.Format("{0:F1}", LastMonthEnergy) kWh</MudLink>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.subtitle1">Niet beschikbaar</MudText>
+                        }
                     </div>
                 }
                 else

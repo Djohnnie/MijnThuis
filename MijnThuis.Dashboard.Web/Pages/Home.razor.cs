@@ -49,8 +49,8 @@ public partial class Home : IDisposable
     public string BatterySolarBar { get; set; } = Icons.Material.Filled.Battery0Bar;
     public int BatteryLevel { get; set; }
     public int BatteryHealth { get; set; }
-    public decimal LastDayEnergy { get; set; }
-    public decimal LastMonthEnergy { get; set; }
+    public decimal? LastDayEnergy { get; set; }
+    public decimal? LastMonthEnergy { get; set; }
     public decimal SolarForecastToday { get; set; }
     public decimal SolarForecastTomorrow { get; set; }
 
