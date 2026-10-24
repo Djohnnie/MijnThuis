@@ -59,11 +59,21 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
         var factor = date >= new DateTime(2025, 10, 1) ? 4 : 1;
 
         var period = result.TimeSeries.First().Periods.First();
+        var periodsInDay = GetPeriodsInDay(date, factor);
+
+        return new EnergyPricesForDate
+        {
+            Date = date,
+            Prices = MapEnergyPrices(date, period, factor, periodsInDay)
+        };
+    }
+
+    internal static List<EnergyPrice> MapEnergyPrices(DateTime date, Period period, int factor, int periodsInDay)
+    {
         period.Points.ForEach(x => x.Position = period.Resolution == "PT15M" && factor == 1 ? (x.Position - 1) / 4 : x.Position - 1);
 
         var sortedPoints = period.Points.OrderBy(x => x.Position).ToList();
 
-        var periodsInDay = GetPeriodsInDay(date, factor);
         if (sortedPoints.Count != periodsInDay)
         {
             if (sortedPoints.Count < periodsInDay)
@@ -107,7 +117,7 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
 
             if (periodsInDay == 23 * factor)
             {
-                periodOffset = periodInDay < 2 ? periodInDay : periodInDay + 1;
+                periodOffset = periodInDay < 2 * factor ? periodInDay : periodInDay + factor;
             }
             else if (periodsInDay == 24 * factor)
             {
@@ -115,7 +125,7 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
             }
             else if (periodsInDay == 25 * factor)
             {
-                periodOffset = periodInDay < 3 ? periodInDay : periodInDay - 1;
+                periodOffset = periodInDay < 3 * factor ? periodInDay : periodInDay - factor;
             }
             else
             {
@@ -129,11 +139,11 @@ public class EnergyPricesService : EnergyPricesBaseService, IEnergyPricesService
             });
         }
 
-        return new EnergyPricesForDate
-        {
-            Date = date,
-            Prices = energyPrices
-        };
+        return energyPrices
+            .GroupBy(price => price.TimeStamp)
+            .Select(group => group.Last())
+            .OrderBy(price => price.TimeStamp)
+            .ToList();
     }
 
     private int GetPeriodsInDay(DateTime date, int factor)

@@ -146,7 +146,7 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
     public async Task DeleteEnergyPricesForDate(DateTime date)
     {
         await _dbContext.DayAheadEnergyPrices
-            .Where(x => x.From.Date == date.Date)
+            .Where(x => x.From.Date >= date.Date)
             .ExecuteDeleteAsync();
     }
 
