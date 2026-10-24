@@ -538,6 +538,8 @@ public partial class Home : IDisposable
     public async Task ChargeBatteryFor2HoursAction() => await ChargeBattery(2);
     public async Task ChargeBatteryFor3HoursAction() => await ChargeBattery(3);
     public async Task ChargeBatteryFor4HoursAction() => await ChargeBattery(4);
+    public async Task ChargeBatteryFor6HoursAction() => await ChargeBattery(6);
+    public async Task ChargeBatteryFor8HoursAction() => await ChargeBattery(8);
 
     private async Task ChargeBattery(int hours)
     {

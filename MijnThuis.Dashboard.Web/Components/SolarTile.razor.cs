@@ -144,6 +144,16 @@ public partial class SolarTile
         await ChargeBattery(4);
     }
 
+    public async Task ChargeBatteryForSixHoursCommand()
+    {
+        await ChargeBattery(6);
+    }
+
+    public async Task ChargeBatteryForEightHoursCommand()
+    {
+        await ChargeBattery(8);
+    }
+
     private async Task ChargeBattery(int hours)
     {
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };

@@ -180,9 +180,11 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var modbusOverview = await _modbusService.GetBulkOverview();
         var isCharging = modbusOverview.StorageControlMode == StorageControlMode.RemoteControl;
 
-        if (manualChargingFlag.ShouldCharge && manualChargingFlag.ChargeUntil < DateTime.Now)
+        if (manualChargingFlag.ShouldCharge &&
+            (manualChargingFlag.ChargeUntil < DateTime.Now || modbusOverview.BatteryLevel >= 100))
         {
             await _flagRepository.SetManualHomeBatteryChargeFlag(false, 0, DateTime.MinValue);
+            manualChargingFlag.ShouldCharge = false;
         }
 
         if (manualChargingFlag.ShouldCharge)
