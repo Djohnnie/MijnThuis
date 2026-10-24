@@ -30,17 +30,9 @@ internal class SolarHistoryWorker : BackgroundService
         {
             var startTimer = Stopwatch.GetTimestamp();
 
-            try
-            {
-                await FetchSolarPowerHistory(stoppingToken);
-                await FetchSolarEnergyHistory(stoppingToken);
-                await FetchBatteryEnergyHistory(stoppingToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogInformation($"Something went wrong: {ex.Message}");
-                _logger.LogError(ex, ex.Message);
-            }
+            await FetchHistory(FetchSolarPowerHistory, "solar power", stoppingToken);
+            await FetchHistory(FetchSolarEnergyHistory, "solar energy", stoppingToken);
+            await FetchHistory(FetchBatteryEnergyHistory, "battery energy", stoppingToken);
 
             var stopTimer = Stopwatch.GetTimestamp();
 
@@ -50,6 +42,27 @@ internal class SolarHistoryWorker : BackgroundService
             {
                 await Task.Delay(duration, stoppingToken);
             }
+        }
+    }
+
+    private async Task FetchHistory(
+        Func<CancellationToken, Task> fetchHistory,
+        string historyType,
+        CancellationToken stoppingToken)
+    {
+        stoppingToken.ThrowIfCancellationRequested();
+
+        try
+        {
+            await fetchHistory(stoppingToken);
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to collect {HistoryType} history", historyType);
         }
     }
 
