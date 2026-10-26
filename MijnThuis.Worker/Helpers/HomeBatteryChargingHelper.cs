@@ -15,6 +15,10 @@ public interface IHomeBatteryChargingHelper
 
 public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 {
+    private const string StalledChargingCountCacheKey = "ManualHomeBatteryChargeStalledCount";
+    private const int StalledBatteryPowerThreshold = 100;
+    private const int StalledIterationsBeforeStop = 3;
+
     private readonly IForecastService _forecastService;
     private readonly IModbusService _modbusService;
     private readonly IConfiguration _configuration;
@@ -179,12 +183,20 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var manualChargingFlag = await _flagRepository.GetManualHomeBatteryChargeFlag();
         var modbusOverview = await _modbusService.GetBulkOverview();
         var isCharging = modbusOverview.StorageControlMode == StorageControlMode.RemoteControl;
+        var powerBalance = (int)modbusOverview.CurrentSolarPower - (int)modbusOverview.CurrentConsumptionPower;
 
         if (manualChargingFlag.ShouldCharge &&
-            (manualChargingFlag.ChargeUntil < DateTime.Now || modbusOverview.BatteryLevel >= 100))
+            (manualChargingFlag.ChargeUntil < DateTime.Now ||
+             modbusOverview.BatteryLevel >= 100 ||
+             HasManualChargingStalled(isCharging, manualChargingFlag.ChargeWattage + powerBalance, modbusOverview.CurrentBatteryPower)))
         {
             await _flagRepository.SetManualHomeBatteryChargeFlag(false, 0, DateTime.MinValue);
             manualChargingFlag.ShouldCharge = false;
+        }
+
+        if (!manualChargingFlag.ShouldCharge)
+        {
+            _memoryCache.Remove(StalledChargingCountCacheKey);
         }
 
         if (manualChargingFlag.ShouldCharge)
@@ -196,7 +208,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         var currentDayAheadEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(DateTime.Now);
         var chargingTimeRemaining = currentDayAheadEnergyPrice.To - DateTime.Now;
         var shouldCharge = currentDayAheadEnergyPrice.ShouldCharge;
-        chargingPower += (int)modbusOverview.CurrentSolarPower - (int)modbusOverview.CurrentConsumptionPower;
+        chargingPower += powerBalance;
 
         if (shouldCharge)
         {
@@ -233,6 +245,22 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             _logger.LogInformation("Stopping home battery charging");
             await _modbusService.StopChargingBattery();
         }
+    }
+
+    // The battery may stop accepting charge well below 100% (BMS limits), so detect a stalled charge
+    // by checking that the battery power stays near zero for several consecutive iterations.
+    private bool HasManualChargingStalled(bool isCharging, int requestedChargingPower, decimal currentBatteryPower)
+    {
+        if (!isCharging || requestedChargingPower <= StalledBatteryPowerThreshold || currentBatteryPower >= StalledBatteryPowerThreshold)
+        {
+            _memoryCache.Remove(StalledChargingCountCacheKey);
+            return false;
+        }
+
+        var stalledCount = _memoryCache.Get<int>(StalledChargingCountCacheKey) + 1;
+        _memoryCache.Set(StalledChargingCountCacheKey, stalledCount);
+
+        return stalledCount >= StalledIterationsBeforeStop;
     }
 
     public async Task PrepareCheapestPeriods(CancellationToken cancellationToken)

@@ -107,12 +107,93 @@ public class HomeBatteryChargingHelperTests
         A.CallTo(() => _modbusService.StartChargingBattery(A<TimeSpan>._, A<int>._)).MustNotHaveHappened();
     }
 
-    private void SetOverview(int batteryLevel, StorageControlMode mode = StorageControlMode.RemoteControl)
+    [Fact]
+    public async Task StalledManualChargingStopsAfterConsecutiveIterationsBelowFull()
+    {
+        var savedFlag = new ManualHomeBatteryChargeFlag
+        {
+            ShouldCharge = true,
+            ChargeWattage = 2000,
+            ChargeUntil = DateTime.Now.AddHours(8)
+        };
+        A.CallTo(() => _flagRepository.GetManualHomeBatteryChargeFlag())
+            .ReturnsLazily(() => ManualHomeBatteryChargeFlag.Deserialize(savedFlag.Serialize()));
+        A.CallTo(() => _flagRepository.SetManualHomeBatteryChargeFlag(false, 0, DateTime.MinValue))
+            .Invokes(() => savedFlag = ManualHomeBatteryChargeFlag.Default);
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var helper = CreateHelper(cache);
+
+        SetOverview(89, batteryPower: 0);
+        await helper.CheckForBatteryCharging(CancellationToken.None);
+        await helper.CheckForBatteryCharging(CancellationToken.None);
+
+        A.CallTo(() => _modbusService.StopChargingBattery()).MustNotHaveHappened();
+
+        await helper.CheckForBatteryCharging(CancellationToken.None);
+
+        A.CallTo(() => _flagRepository.SetManualHomeBatteryChargeFlag(false, 0, DateTime.MinValue))
+            .MustHaveHappenedOnceExactly();
+        A.CallTo(() => _modbusService.StopChargingBattery()).MustHaveHappenedOnceExactly();
+    }
+
+    [Fact]
+    public async Task ActiveBatteryChargingResetsStalledCount()
+    {
+        A.CallTo(() => _flagRepository.GetManualHomeBatteryChargeFlag())
+            .Returns(new ManualHomeBatteryChargeFlag
+            {
+                ShouldCharge = true,
+                ChargeWattage = 2000,
+                ChargeUntil = DateTime.Now.AddHours(8)
+            });
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var helper = CreateHelper(cache);
+
+        SetOverview(80, batteryPower: 0);
+        await helper.CheckForBatteryCharging(CancellationToken.None);
+        await helper.CheckForBatteryCharging(CancellationToken.None);
+        SetOverview(80, batteryPower: 1500);
+        await helper.CheckForBatteryCharging(CancellationToken.None);
+        SetOverview(80, batteryPower: 0);
+        await helper.CheckForBatteryCharging(CancellationToken.None);
+        await helper.CheckForBatteryCharging(CancellationToken.None);
+
+        A.CallTo(() => _flagRepository.SetManualHomeBatteryChargeFlag(false, 0, DateTime.MinValue))
+            .MustNotHaveHappened();
+        A.CallTo(() => _modbusService.StopChargingBattery()).MustNotHaveHappened();
+    }
+
+    [Fact]
+    public async Task HighConsumptionDoesNotCountAsStalledCharging()
+    {
+        A.CallTo(() => _flagRepository.GetManualHomeBatteryChargeFlag())
+            .Returns(new ManualHomeBatteryChargeFlag
+            {
+                ShouldCharge = true,
+                ChargeWattage = 2000,
+                ChargeUntil = DateTime.Now.AddHours(8)
+            });
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var helper = CreateHelper(cache);
+
+        SetOverview(80, batteryPower: 0, consumptionPower: 2500);
+        for (var i = 0; i < 5; i++)
+        {
+            await helper.CheckForBatteryCharging(CancellationToken.None);
+        }
+
+        A.CallTo(() => _flagRepository.SetManualHomeBatteryChargeFlag(false, 0, DateTime.MinValue))
+            .MustNotHaveHappened();
+    }
+
+    private void SetOverview(int batteryLevel, StorageControlMode mode = StorageControlMode.RemoteControl, decimal batteryPower = 0, decimal consumptionPower = 0)
     {
         A.CallTo(() => _modbusService.GetBulkOverview()).Returns(new ModbusDataSet
         {
             BatteryLevel = batteryLevel,
-            StorageControlMode = mode
+            StorageControlMode = mode,
+            CurrentBatteryPower = batteryPower,
+            CurrentConsumptionPower = consumptionPower
         });
     }
 
