@@ -1,0 +1,26 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/1. Application/">
+    <Project Path="MijnThuis.Application/MijnThuis.Application.csproj" />
+  </Folder>
+  <Folder Name="/2. Domain/">
+    <Project Path="MijnThuis.Contracts/MijnThuis.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/3. Infrastructure/">
+    <Project Path="MijnThuis.Dashboard.App/MijnThuis.Dashboard.App.csproj">
+      <Deploy />
+    </Project>
+    <Project Path="MijnThuis.Dashboard.Web/MijnThuis.Dashboard.Web.csproj" />
+    <Project Path="MijnThuis.DataAccess/MijnThuis.DataAccess.csproj" />
+    <Project Path="MijnThuis.Integrations/MijnThuis.Integrations.csproj" />
+    <Project Path="MijnThuis.ModbusProxy.Api/MijnThuis.ModbusProxy.Api.csproj" />
+    <Project Path="MijnThuis.Worker/MijnThuis.Worker.csproj" />
+  </Folder>
+  <Folder Name="/9. Tests/">
+    <Project Path="MijnThuis.MyConsole/MijnThuis.MyConsole.csproj" />
+    <Project Path="MijnThuis.Tests/MijnThuis.Tests.csproj" />
+  </Folder>
+</Solution>
