@@ -186,6 +186,81 @@ public class HomeBatteryChargingHelperTests
             .MustNotHaveHappened();
     }
 
+    [Fact]
+    public async Task ManualChargingWithoutPricePeriodUsesChargeUntilAsDuration()
+    {
+        A.CallTo(() => _flagRepository.GetManualHomeBatteryChargeFlag())
+            .Returns(new ManualHomeBatteryChargeFlag
+            {
+                ShouldCharge = true,
+                ChargeWattage = 2000,
+                ChargeUntil = DateTime.Now.AddHours(2)
+            });
+        A.CallTo(() => _pricesRepository.GetCheapestEnergyPriceForTimestamp(A<DateTime>._))
+            .Returns(new DayAheadCheapestEnergyPricesEntry());
+        SetOverview(80);
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var helper = CreateHelper(cache);
+
+        await helper.CheckForBatteryCharging(CancellationToken.None);
+
+        A.CallTo(() => _modbusService.StartChargingBattery(
+                A<TimeSpan>.That.Matches(d => d > TimeSpan.FromMinutes(115) && d <= TimeSpan.FromHours(2)), 2000))
+            .MustHaveHappenedOnceExactly();
+        A.CallTo(() => _modbusService.StopChargingBattery()).MustNotHaveHappened();
+    }
+
+    [Fact]
+    public async Task ManualChargingDurationIsCappedAtEightHours()
+    {
+        A.CallTo(() => _flagRepository.GetManualHomeBatteryChargeFlag())
+            .Returns(new ManualHomeBatteryChargeFlag
+            {
+                ShouldCharge = true,
+                ChargeWattage = 2000,
+                ChargeUntil = DateTime.Now.AddHours(20)
+            });
+        SetOverview(80);
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var helper = CreateHelper(cache);
+
+        await helper.CheckForBatteryCharging(CancellationToken.None);
+
+        A.CallTo(() => _modbusService.StartChargingBattery(TimeSpan.FromHours(8), 2000)).MustHaveHappenedOnceExactly();
+    }
+
+    [Fact]
+    public async Task ScheduledChargingWithoutPricePeriodDoesNotStart()
+    {
+        A.CallTo(() => _flagRepository.GetManualHomeBatteryChargeFlag())
+            .Returns(ManualHomeBatteryChargeFlag.Default);
+        A.CallTo(() => _pricesRepository.GetCheapestEnergyPriceForTimestamp(A<DateTime>._))
+            .Returns(new DayAheadCheapestEnergyPricesEntry { ShouldCharge = true });
+        SetOverview(80, StorageControlMode.MaximizeSelfConsumption);
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var helper = CreateHelper(cache);
+
+        await helper.CheckForBatteryCharging(CancellationToken.None);
+
+        A.CallTo(() => _modbusService.StartChargingBattery(A<TimeSpan>._, A<int>._)).MustNotHaveHappened();
+    }
+
+    [Fact]
+    public async Task ScheduledChargingWithPricePeriodAlmostOverDoesNotStart()
+    {
+        A.CallTo(() => _flagRepository.GetManualHomeBatteryChargeFlag())
+            .Returns(ManualHomeBatteryChargeFlag.Default);
+        A.CallTo(() => _pricesRepository.GetCheapestEnergyPriceForTimestamp(A<DateTime>._))
+            .Returns(new DayAheadCheapestEnergyPricesEntry { ShouldCharge = true, To = DateTime.Now.AddSeconds(20) });
+        SetOverview(80, StorageControlMode.MaximizeSelfConsumption);
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var helper = CreateHelper(cache);
+
+        await helper.CheckForBatteryCharging(CancellationToken.None);
+
+        A.CallTo(() => _modbusService.StartChargingBattery(A<TimeSpan>._, A<int>._)).MustNotHaveHappened();
+    }
+
     private void SetOverview(int batteryLevel, StorageControlMode mode = StorageControlMode.RemoteControl, decimal batteryPower = 0, decimal consumptionPower = 0)
     {
         A.CallTo(() => _modbusService.GetBulkOverview()).Returns(new ModbusDataSet

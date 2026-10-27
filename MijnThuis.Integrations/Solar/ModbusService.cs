@@ -83,16 +83,29 @@ internal class ModbusService : BaseService, IModbusService
 
     public async Task StartChargingBattery(TimeSpan duration, int power)
     {
-        var client = CreateHttpClient();
+        using var client = CreateHttpClient();
 
-        await client.PostAsync($"battery/startCharging?durationInMinutes={(int)duration.TotalMinutes}&power={power}", null);
+        var response = await client.PostAsync($"battery/startCharging?durationInMinutes={(int)duration.TotalMinutes}&power={power}", null);
+        await EnsureSuccess(response);
     }
 
     public async Task StopChargingBattery()
     {
-        var client = CreateHttpClient();
+        using var client = CreateHttpClient();
 
-        await client.PostAsync($"battery/stopCharging", null);
+        var response = await client.PostAsync($"battery/stopCharging", null);
+        await EnsureSuccess(response);
+    }
+
+    private static async Task EnsureSuccess(HttpResponseMessage response)
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        var body = await response.Content.ReadAsStringAsync();
+        throw new HttpRequestException($"Modbus proxy returned {(int)response.StatusCode} ({response.StatusCode}): {body}");
     }
 
     public async Task<bool> HasExportLimitation()

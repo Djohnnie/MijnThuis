@@ -18,6 +18,8 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
     private const string StalledChargingCountCacheKey = "ManualHomeBatteryChargeStalledCount";
     private const int StalledBatteryPowerThreshold = 100;
     private const int StalledIterationsBeforeStop = 3;
+    private static readonly TimeSpan MinimumChargingDuration = TimeSpan.FromMinutes(1);
+    private static readonly TimeSpan MaximumChargingDuration = TimeSpan.FromHours(8);
 
     private readonly IForecastService _forecastService;
     private readonly IModbusService _modbusService;
@@ -206,9 +208,17 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
         }
 
         var currentDayAheadEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForTimestamp(DateTime.Now);
-        var chargingTimeRemaining = currentDayAheadEnergyPrice.To - DateTime.Now;
-        var shouldCharge = currentDayAheadEnergyPrice.ShouldCharge;
+        var hasCurrentPricePeriod = currentDayAheadEnergyPrice.To > DateTime.Now;
+        var shouldCharge = hasCurrentPricePeriod && currentDayAheadEnergyPrice.ShouldCharge;
+        var chargingTimeRemaining = manualChargingFlag.ShouldCharge
+            ? manualChargingFlag.ChargeUntil - DateTime.Now
+            : currentDayAheadEnergyPrice.To - DateTime.Now;
         chargingPower += powerBalance;
+
+        if (!hasCurrentPricePeriod && !manualChargingFlag.ShouldCharge)
+        {
+            _logger.LogWarning("No day-ahead cheapest energy price period found for {Timestamp}", DateTime.Now);
+        }
 
         if (shouldCharge)
         {
@@ -236,6 +246,17 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 
         if (shouldStartCharging && !shouldStopCharging)
         {
+            if (chargingTimeRemaining < MinimumChargingDuration)
+            {
+                _logger.LogWarning("Skipping home battery charging: remaining charging time {ChargingTimeRemaining} is too short", chargingTimeRemaining);
+                return;
+            }
+
+            if (chargingTimeRemaining > MaximumChargingDuration)
+            {
+                chargingTimeRemaining = MaximumChargingDuration;
+            }
+
             _logger.LogInformation("Starting home battery charging for {ChargingTimeRemaining} at {GridChargingPower}W", chargingTimeRemaining, chargingPower);
             await _modbusService.StartChargingBattery(chargingTimeRemaining, chargingPower);
         }
