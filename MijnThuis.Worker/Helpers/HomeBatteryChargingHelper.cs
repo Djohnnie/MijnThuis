@@ -18,6 +18,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
     private const string StalledChargingCountCacheKey = "ManualHomeBatteryChargeStalledCount";
     private const int StalledBatteryPowerThreshold = 100;
     private const int StalledIterationsBeforeStop = 3;
+    private const int DefaultMinimumBatteryLevel = 10;
     private static readonly TimeSpan MinimumChargingDuration = TimeSpan.FromMinutes(1);
     private static readonly TimeSpan MaximumChargingDuration = TimeSpan.FromHours(8);
 
@@ -56,6 +57,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
     public async Task UpdateChargingSchedule(CancellationToken cancellationToken)
     {
         var gridChargingPower = _configuration.GetValue<int>("GRID_CHARGING_POWER");
+        var minimumBatteryLevel = _configuration.GetValue("MINIMUM_BATTERY_LEVEL", DefaultMinimumBatteryLevel);
 
         // Gets the solar forecast.
         var solarForecast = await GetSolarForecast();
@@ -123,17 +125,33 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             });
         }
 
-        if (lowestBatteryLevel.BatteryLevel <= 1)
+        // One grid-charging period (15 minutes) adds this many percent to the battery.
+        var chargingPeriodPercentage = maximumBatteryEnergy > 0 ? gridChargingPower / 4M / maximumBatteryEnergy * 100M : 0M;
+
+        if (lowestBatteryLevel.BatteryLevel < minimumBatteryLevel)
         {
+            // Battery would drop below the minimum: schedule the cheapest unscheduled period before that moment.
             var cheapestEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceUpToTimestamp(lowestBatteryLevel.Timestamp);
             if (cheapestEnergyPrice != null)
             {
+                _logger.LogInformation("Estimated battery level drops to {Level}% at {Timestamp}; scheduling grid charging between {From} and {To}", lowestBatteryLevel.BatteryLevel, lowestBatteryLevel.Timestamp, cheapestEnergyPrice.From, cheapestEnergyPrice.To);
                 await _dayAheadEnergyPricesRepository.SetEnergyPriceShouldCharge(cheapestEnergyPrice.Id, true);
             }
+            else
+            {
+                _logger.LogWarning("Estimated battery level drops to {Level}% at {Timestamp}, but no cheapest energy price period is available to schedule", lowestBatteryLevel.BatteryLevel, lowestBatteryLevel.Timestamp);
+            }
         }
-        else
+        else if (lowestBatteryLevel.BatteryLevel >= minimumBatteryLevel + chargingPeriodPercentage)
         {
-            await _dayAheadEnergyPricesRepository.ClearShouldChargeFlags(DateTime.Now);
+            // There is more than one charging period of headroom above the minimum: drop the most expensive
+            // scheduled period. Removing one at a time (instead of clearing everything) keeps the schedule stable.
+            var mostExpensiveEnergyPrice = await _dayAheadEnergyPricesRepository.GetMostExpensiveEnergyPriceUpToTimestamp(lowestBatteryLevel.Timestamp);
+            if (mostExpensiveEnergyPrice != null)
+            {
+                _logger.LogInformation("Estimated battery level stays above {Level}%; unscheduling grid charging between {From} and {To}", lowestBatteryLevel.BatteryLevel, mostExpensiveEnergyPrice.From, mostExpensiveEnergyPrice.To);
+                await _dayAheadEnergyPricesRepository.SetEnergyPriceShouldCharge(mostExpensiveEnergyPrice.Id, false);
+            }
         }
 
         if (highestBatteryLevel.BatteryLevel >= 99)
@@ -293,50 +311,45 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
     public async Task PrepareCheapestPeriods(CancellationToken cancellationToken)
     {
         var today = DateTime.Today;
-        var tomorrow = today.AddDays(1);
 
-        var pricesToday = await _dayAheadEnergyPricesRepository.GetEnergyPriceForDate(today, cancellationToken);
-        var pricesTomorrow = await _dayAheadEnergyPricesRepository.GetEnergyPriceForDate(tomorrow, cancellationToken);
-        var anyCheapestPricesToday = await _dayAheadEnergyPricesRepository.AnyCheapestEnergyPricesOnDate(today, cancellationToken);
-        var anyCheapestPricesTomorrow = await _dayAheadEnergyPricesRepository.AnyCheapestEnergyPricesOnDate(tomorrow, cancellationToken);
+        await PrepareCheapestPeriodsForDate(today, cancellationToken);
+        await PrepareCheapestPeriodsForDate(today.AddDays(1), cancellationToken);
+    }
 
-        if (pricesToday.Any() && !anyCheapestPricesToday)
+    // Adds any price periods that are not yet present in the cheapest-periods table. A previous run may
+    // have been interrupted halfway, so only checking whether any entry exists would leave gaps forever.
+    private async Task PrepareCheapestPeriodsForDate(DateTime date, CancellationToken cancellationToken)
+    {
+        var prices = await _dayAheadEnergyPricesRepository.GetEnergyPriceForDate(date, cancellationToken);
+        if (prices.Count == 0)
         {
-            var orderedPrices = pricesToday.OrderBy(x => x.EuroPerMWh).ThenBy(x => x.From);
-
-            var results = new List<DayAheadCheapestEnergyPricesEntry>();
-            var order = 0;
-            foreach (var price in orderedPrices)
-            {
-                await _dayAheadEnergyPricesRepository.AddCheapestEnergyPrice(
-                    new DayAheadCheapestEnergyPricesEntry
-                    {
-                        From = price.From,
-                        To = price.To,
-                        Order = ++order,
-                        EuroPerMWh = price.EuroPerMWh
-                    });
-            }
+            return;
         }
 
-        if (pricesTomorrow.Any() && !anyCheapestPricesTomorrow)
-        {
-            var orderedPrices = pricesTomorrow.OrderBy(x => x.EuroPerMWh).ThenBy(x => x.From);
+        var existingPeriods = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceForDate(date, cancellationToken);
+        var existingFrom = existingPeriods.Select(x => x.From).ToHashSet();
 
-            var results = new List<DayAheadCheapestEnergyPricesEntry>();
-            var order = 0;
-            foreach (var price in orderedPrices)
+        var order = 0;
+        var missingPeriods = prices
+            .OrderBy(x => x.EuroPerMWh)
+            .ThenBy(x => x.From)
+            .Select(price => new DayAheadCheapestEnergyPricesEntry
             {
-                await _dayAheadEnergyPricesRepository.AddCheapestEnergyPrice(
-                    new DayAheadCheapestEnergyPricesEntry
-                    {
-                        From = price.From,
-                        To = price.To,
-                        Order = ++order,
-                        EuroPerMWh = price.EuroPerMWh
-                    });
-            }
+                From = price.From,
+                To = price.To,
+                Order = ++order,
+                EuroPerMWh = price.EuroPerMWh
+            })
+            .Where(x => !existingFrom.Contains(x.From))
+            .ToList();
+
+        if (missingPeriods.Count == 0)
+        {
+            return;
         }
+
+        _logger.LogInformation("Adding {Count} missing cheapest energy price periods for {Date}", missingPeriods.Count, date);
+        await _dayAheadEnergyPricesRepository.AddCheapestEnergyPrices(missingPeriods, cancellationToken);
     }
 
     private async Task<ForecastOverview> GetSolarForecast()

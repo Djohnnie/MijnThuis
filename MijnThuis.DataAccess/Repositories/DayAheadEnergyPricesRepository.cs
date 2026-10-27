@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MijnThuis.DataAccess.Entities;
 
 namespace MijnThuis.DataAccess.Repositories;
@@ -16,6 +16,7 @@ public interface IDayAheadEnergyPricesRepository
     Task DeleteEnergyPricesForDate(DateTime date);
     Task AddEnergyPrice(DayAheadEnergyPricesEntry energyPrice);
     Task AddCheapestEnergyPrice(DayAheadCheapestEnergyPricesEntry cheapestEnergyPrice);
+    Task AddCheapestEnergyPrices(IEnumerable<DayAheadCheapestEnergyPricesEntry> cheapestEnergyPrices, CancellationToken cancellationToken);
     Task<bool> AnyCheapestEnergyPricesOnDate(DateTime date, CancellationToken cancellationToken);
     Task SetEnergyPriceShouldCharge(Guid id, bool shouldCharge);
     Task ClearShouldChargeFlags(DateTime from);
@@ -50,7 +51,7 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
     {
         return await _dbContext.DayAheadCheapestEnergyPrices
             .OrderBy(x => x.EuroPerMWh)
-            .Where(x => x.From >= DateTime.Now && x.From <= timestamp)
+            .Where(x => x.To >= DateTime.Now && x.From <= timestamp)
             .Where(x => !x.ShouldCharge)
             .FirstOrDefaultAsync();
     }
@@ -59,7 +60,7 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
     {
         return await _dbContext.DayAheadCheapestEnergyPrices
             .OrderByDescending(x => x.EuroPerMWh)
-            .Where(x => x.From >= DateTime.Now && x.From <= timestamp)
+            .Where(x => x.To >= DateTime.Now && x.From <= timestamp)
             .Where(x => x.ShouldCharge)
             .FirstOrDefaultAsync();
     }
@@ -160,6 +161,12 @@ public class DayAheadEnergyPricesRepository : IDayAheadEnergyPricesRepository
     {
         _dbContext.Add(cheapestEnergyPrice);
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task AddCheapestEnergyPrices(IEnumerable<DayAheadCheapestEnergyPricesEntry> cheapestEnergyPrices, CancellationToken cancellationToken)
+    {
+        _dbContext.AddRange(cheapestEnergyPrices);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<bool> AnyCheapestEnergyPricesOnDate(DateTime date, CancellationToken cancellationToken)
