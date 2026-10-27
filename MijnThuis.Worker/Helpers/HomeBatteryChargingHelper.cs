@@ -120,7 +120,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             var cheapestEnergyPrice = await _dayAheadEnergyPricesRepository.GetCheapestEnergyPriceUpToTimestamp(lowestBatteryLevel.Timestamp);
             if (cheapestEnergyPrice != null)
             {
-                //await _dayAheadEnergyPricesRepository.SetEnergyPriceShouldCharge(cheapestEnergyPrice.Id, true);
+                await _dayAheadEnergyPricesRepository.SetEnergyPriceShouldCharge(cheapestEnergyPrice.Id, true);
             }
         }
         else
@@ -133,7 +133,7 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
             var mostExpensiveEnergyPrice = await _dayAheadEnergyPricesRepository.GetMostExpensiveEnergyPriceUpToTimestamp(highestBatteryLevel.Timestamp);
             if (mostExpensiveEnergyPrice != null)
             {
-                //await _dayAheadEnergyPricesRepository.SetEnergyPriceShouldCharge(mostExpensiveEnergyPrice.Id, false);
+                await _dayAheadEnergyPricesRepository.SetEnergyPriceShouldCharge(mostExpensiveEnergyPrice.Id, false);
             }
         }
     }
