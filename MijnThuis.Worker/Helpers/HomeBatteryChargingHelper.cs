@@ -69,6 +69,12 @@ public class HomeBatteryChargingHelper : IHomeBatteryChargingHelper
 
         // Estimate when battery will be empty based on historic consumption.
         var averageEnergyConsumption = await _solarPowerHistoryRepository.GetAverageEnergyConsumption(DateTime.Today);
+        if (averageEnergyConsumption.Count == 0)
+        {
+            _logger.LogWarning("No energy consumption history available; keeping the current charging schedule");
+            return;
+        }
+
         ReorderAverageEnergyConsumtion(averageEnergyConsumption, now);
         var cumulativeBatteryLevel = currentBatteryLevel;
         var estimatedEmptyBatteryTime = DateTime.MinValue;

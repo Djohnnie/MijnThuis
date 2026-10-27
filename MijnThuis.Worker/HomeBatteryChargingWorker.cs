@@ -29,20 +29,12 @@ public class HomeBatteryChargingWorker : BackgroundService
             // Use a timestamp to calculate the duration of the whole process.
             var startTimer = Stopwatch.GetTimestamp();
 
-            try
-            {
-                using var serviceScope = _serviceProvider.CreateScope();
-                var helper = serviceScope.ServiceProvider.GetRequiredService<IHomeBatteryChargingHelper>();
+            using var serviceScope = _serviceProvider.CreateScope();
+            var helper = serviceScope.ServiceProvider.GetRequiredService<IHomeBatteryChargingHelper>();
 
-                await helper.CheckForBatteryCharging(stoppingToken);
-                await helper.PrepareCheapestPeriods(stoppingToken);
-                await helper.UpdateChargingSchedule(stoppingToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogInformation($"Something went wrong: {ex.Message}");
-                _logger.LogError(ex, ex.Message);
-            }
+            await RunStep(() => helper.CheckForBatteryCharging(stoppingToken), "battery charging check", stoppingToken);
+            await RunStep(() => helper.PrepareCheapestPeriods(stoppingToken), "cheapest periods preparation", stoppingToken);
+            await RunStep(() => helper.UpdateChargingSchedule(stoppingToken), "charging schedule update", stoppingToken);
 
             // Calculate the duration for this whole process.
             var stopTimer = Stopwatch.GetTimestamp();
@@ -54,6 +46,22 @@ public class HomeBatteryChargingWorker : BackgroundService
             {
                 await Task.Delay(duration, stoppingToken);
             }
+        }
+    }
+
+    private async Task RunStep(Func<Task> step, string stepName, CancellationToken stoppingToken)
+    {
+        try
+        {
+            await step();
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Home battery {StepName} failed: {Message}", stepName, ex.Message);
         }
     }
 }

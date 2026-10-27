@@ -32,7 +32,18 @@ internal class SolarPowerHistoryRepository : ISolarPowerHistoryRepository
 
     public async Task<List<ConsumptionPerFifteenMinutes>> GetAverageEnergyConsumption(DateTime date, CancellationToken cancellationToken = default)
     {
-        var aMonthAgo = date.AddMonths(-1);
+        // Anchor the window on the most recent available data so an outage of the
+        // history source does not leave the consumption profile empty.
+        var latestDate = await _dbContext.SolarEnergyHistory
+            .Where(x => x.Date <= date.AddDays(1))
+            .MaxAsync(x => (DateTime?)x.Date, cancellationToken);
+
+        if (latestDate is null)
+        {
+            return new List<ConsumptionPerFifteenMinutes>();
+        }
+
+        var aMonthAgo = (latestDate.Value < date ? latestDate.Value : date).AddMonths(-1);
 
         var energyConsumptionPerFifteenMinutes = await _dbContext.SolarEnergyHistory
             .Where(x => x.Date >= aMonthAgo)
@@ -42,7 +53,7 @@ internal class SolarPowerHistoryRepository : ISolarPowerHistoryRepository
             {
                 TimeOfDay = x.Key,
                 Consumption = (int)Math.Round(x.Average(p => p.Consumption))
-            }).ToListAsync();
+            }).ToListAsync(cancellationToken);
 
         return energyConsumptionPerFifteenMinutes;
     }
