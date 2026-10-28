@@ -67,15 +67,16 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             })
             .ToListAsync();
 
-        var batteryEntries = await _dbContext.SolarPowerHistory
-            .Where(x => x.Date >= from && x.Date <= to)
-            .OrderBy(x => x.Date)
+        var batteryEntries = await _dbContext.BatteryEnergyHistory
+            .AsNoTracking()
+            .Where(x => x.Date >= from && x.Date < from.AddDays(1))
+            .OrderByDescending(x => x.Date)
             .Select(x => new
             {
                 From = x.Date,
-                BatteryLevel = x.StorageLevel * 100
+                BatteryLevel = x.StateOfCharge
             })
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         var energyForecasts = await _dbContext.EnergyForecasts
             .Where(x => x.Date >= from && x.Date <= to)
@@ -109,7 +110,7 @@ internal class GetDayAheadEnergyCostQueryHandler : IRequestHandler<GetDayAheadEn
             var date = from.AddMinutes(i * 15);
             var priceEntry = priceEntries.FirstOrDefault(x => x.From == date);
             var consumptionEntry = consumptionEntries.FirstOrDefault(x => x.From == date);
-            var batteryEntry = batteryEntries.FirstOrDefault(x => x.From == date);
+            var batteryEntry = batteryEntries.FirstOrDefault(x => x.From >= date && x.From < date.AddMinutes(15));
             var energyForecastEntry = energyForecasts.FirstOrDefault(x => x.Date == date);
             var solarForecastEntry = solarForecasts.FirstOrDefault(x => x.Timestamp == date);
             var dayAheadCheapestEntry = dayAheadCheapestEntries.FirstOrDefault(x => x.From == date);
